@@ -10,7 +10,7 @@ import { Construct } from 'constructs';
 import { getConfig } from '../config.js';
 
 const CodePath = '../lambda-analytics/dist';
-const CodePathV2 = '../lambda-analytics-cloudfront/dist';
+const CodePathV2 = '../lambda-analytic-cloudfront/dist';
 
 export interface EdgeAnalyticsProps extends StackProps {
   distributionId: string;
