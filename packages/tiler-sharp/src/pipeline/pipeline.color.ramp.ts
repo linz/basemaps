@@ -45,7 +45,7 @@ export class ColorRamp {
 export const Ramps: Record<DecompressedInterleaved['depth'], ColorRamp> = {
   float32: new ColorRamp(DefaultColorRamp),
   uint8: new ColorRamp(`0 0 0 0 255\n255 255 255 255 255`),
-  uint32: new ColorRamp(`0 0 0 0 255\n${2 ** 32} 255 255 255 255`),
+  uint32: new ColorRamp(`0 0 0 0 255\n${2 ** 32 - 1} 255 255 255 255`),
 };
 
 export const PipelineColorRamp: Pipeline = {

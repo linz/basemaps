@@ -109,7 +109,7 @@ function resizeNearest(
   return ret;
 }
 
-function getOutputBuffer(source: DecompressedInterleaved, target: Size & { scale: number }): DecompressedInterleaved {
+function getOutputBuffer(source: DecompressedInterleaved, target: Size): DecompressedInterleaved {
   switch (source.depth) {
     case 'uint8':
       return {
