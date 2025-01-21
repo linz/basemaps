@@ -9,8 +9,8 @@ import { extname } from 'path';
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
 // Render configuration
-const source = fsa.toUrl(`/home/blacha/data/elevation/christchurch_2020-2021/`);
-const tile = fromPath('/14/7898/8615.webp');
+const source = fsa.toUrl(`/home/blacha/data/nz-elevation/hillshade`);
+const tile = fromPath('/9/250/256.png');
 const pipeline: string | null = 'color-ramp';
 let tileMatrix: TileMatrixSet | null = null;
 

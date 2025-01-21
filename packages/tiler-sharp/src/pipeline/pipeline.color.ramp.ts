@@ -42,7 +42,11 @@ export class ColorRamp {
   }
 }
 
-export const ramp = new ColorRamp(DefaultColorRamp);
+export const Ramps: Record<DecompressedInterleaved['depth'], ColorRamp> = {
+  float32: new ColorRamp(DefaultColorRamp),
+  uint8: new ColorRamp(`0 0 0 0 255\n255 255 255 255 255`),
+  uint32: new ColorRamp(`0 0 0 0 255\n${2 ** 32} 255 255 255 255`),
+};
 
 export const PipelineColorRamp: Pipeline = {
   type: 'color-ramp',
@@ -55,6 +59,8 @@ export const PipelineColorRamp: Pipeline = {
       width: data.width,
       height: data.height,
     };
+
+    const ramp = Ramps[data.depth];
 
     const size = data.width * data.height;
     const noData = comp.asset.images[0].noData;

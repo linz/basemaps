@@ -24,7 +24,6 @@ export function cropResize(
 
   // Currently very limited supported input parameters
   if (data.channels !== 1) throw new Error('Unable to crop-resize more than one channel got:' + data.channels);
-  if (data.depth !== 'float32') throw new Error('Unable to crop-resize other than float32 got:' + data.depth);
 
   // Area of the source data that needs to be resampled
   const source = { x: 0, y: 0, width: data.width, height: data.height };
@@ -93,7 +92,8 @@ function resizeNearest(
   const invScale = 1 / target.scale;
 
   // Resample the input tile into the output tile using a nearest neighbor approach
-  const outputBuffer = new Float32Array(target.width * target.height);
+  const ret = getOutputBuffer(data, target);
+  const outputBuffer = ret.pixels;
   for (let y = 0; y < target.height; y++) {
     let sourceY = Math.round((y + 0.5) * invScale + source.y);
     if (sourceY > maxHeight) sourceY = maxHeight;
@@ -106,7 +106,36 @@ function resizeNearest(
     }
   }
 
-  return { pixels: outputBuffer, width: target.width, height: target.height, depth: 'float32', channels: 1 };
+  return ret;
+}
+
+function getOutputBuffer(source: DecompressedInterleaved, target: Size & { scale: number }): DecompressedInterleaved {
+  switch (source.depth) {
+    case 'uint8':
+      return {
+        pixels: new Uint8Array(target.width * target.height),
+        width: target.width,
+        height: target.height,
+        depth: source.depth,
+        channels: 1,
+      };
+    case 'float32':
+      return {
+        pixels: new Float32Array(target.width * target.height),
+        width: target.width,
+        height: target.height,
+        depth: source.depth,
+        channels: 1,
+      };
+    case 'uint32':
+      return {
+        pixels: new Uint32Array(target.width * target.height),
+        width: target.width,
+        height: target.height,
+        depth: source.depth,
+        channels: 1,
+      };
+  }
 }
 
 function resizeBilinear(
@@ -120,7 +149,8 @@ function resizeBilinear(
 
   const maxWidth = Math.min(comp.source.width, data.width) - 2;
   const maxHeight = Math.min(comp.source.height, data.height) - 2;
-  const outputBuffer = new Float32Array(target.width * target.height);
+  const ret = getOutputBuffer(data, target);
+  const outputBuffer = ret.pixels;
   for (let y = 0; y < target.height; y++) {
     const sourceY = Math.min((y + 0.5) * invScale + source.y, maxHeight);
     const minY = Math.floor(sourceY);
@@ -167,5 +197,5 @@ function resizeBilinear(
     }
   }
 
-  return { pixels: outputBuffer, width: target.width, height: target.height, depth: 'float32', channels: 1 };
+  return ret;
 }

@@ -9,9 +9,6 @@ export const LercDecompressor: Decompressor = {
     await Lerc.load();
     const bytes = Lerc.decode(tile);
 
-    if (bytes.pixelType !== 'F32') {
-      throw new Error(`Lerc: Invalid output pixelType:${bytes.pixelType} from:${source.source.url.href}`);
-    }
     if (bytes.depthCount !== 1) {
       throw new Error(`Lerc: Invalid output depthCount:${bytes.depthCount} from:${source.source.url.href}`);
     }
@@ -19,13 +16,34 @@ export const LercDecompressor: Decompressor = {
       throw new Error(`Lerc: Invalid output bandCount:${bytes.pixels.length} from:${source.source.url.href}`);
     }
 
-    return {
-      pixels: bytes.pixels[0] as Float32Array,
-      width: bytes.width,
-      height: bytes.height,
-      channels: 1,
-      depth: 'float32',
-    };
+    switch (bytes.pixelType) {
+      case 'F32':
+        return {
+          pixels: bytes.pixels[0] as Float32Array,
+          width: bytes.width,
+          height: bytes.height,
+          channels: 1,
+          depth: 'float32',
+        };
+      case 'U32':
+        return {
+          pixels: bytes.pixels[0] as Uint32Array,
+          width: bytes.width,
+          height: bytes.height,
+          channels: 1,
+          depth: 'uint32',
+        };
+      case 'U8':
+        return {
+          pixels: bytes.pixels[0] as Uint8Array,
+          width: bytes.width,
+          height: bytes.height,
+          channels: 1,
+          depth: 'uint8',
+        };
+    }
+
+    throw new Error(`Lerc: Invalid output pixelType:${bytes.pixelType} from:${source.source.url.href}`);
   },
 };
 
