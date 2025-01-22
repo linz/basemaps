@@ -138,7 +138,7 @@ function getOutputBuffer(source: DecompressedInterleaved, target: Size): Decompr
   }
 }
 
-function resizeBilinear(
+export function resizeBilinear(
   data: DecompressedInterleaved,
   comp: CompositionTiff,
   source: BoundingBox,
@@ -151,6 +151,14 @@ function resizeBilinear(
   const maxHeight = Math.min(comp.source.height, data.height) - 2;
   const ret = getOutputBuffer(data, target);
   const outputBuffer = ret.pixels;
+
+  // should numbers be rounded when resampling, with some numbers like uint8 or uint32 numbers
+  // will be truncated when being set in their typed buffers,
+  //
+  // for example: `0.9999` will end up as `0` in a Uint8Array
+  // Only floats should be left as floating numbers
+  const needsRounding = !data.depth.startsWith('float');
+
   for (let y = 0; y < target.height; y++) {
     const sourceY = Math.min((y + 0.5) * invScale + source.y, maxHeight);
     const minY = Math.floor(sourceY);
@@ -193,7 +201,7 @@ function resizeBilinear(
 
       const pixel = minXMinY * weightA + maxXMinY * weightB + minXMaxY * weightC + maxXMaxY * weightD;
 
-      outputBuffer[outPx] = pixel;
+      outputBuffer[outPx] = needsRounding ? Math.round(pixel) : pixel;
     }
   }
 
