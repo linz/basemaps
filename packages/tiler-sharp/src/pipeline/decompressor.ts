@@ -1,6 +1,14 @@
 import { CompositionTiff } from '@basemaps/tiler';
 import { Tiff } from '@cogeotiff/core';
 
+export interface DecompressedInterleavedUint32 {
+  pixels: Uint32Array;
+  depth: 'uint32';
+  channels: number;
+  width: number;
+  height: number;
+}
+
 export interface DecompressedInterleavedFloat {
   pixels: Float32Array;
   depth: 'float32';
@@ -18,7 +26,10 @@ export interface DecompressedInterleavedUint8 {
 }
 
 // One buffer containing all bands
-export type DecompressedInterleaved = DecompressedInterleavedFloat | DecompressedInterleavedUint8;
+export type DecompressedInterleaved =
+  | DecompressedInterleavedFloat
+  | DecompressedInterleavedUint8
+  | DecompressedInterleavedUint32;
 
 export interface Decompressor {
   type: 'image/webp' | 'application/lerc';
