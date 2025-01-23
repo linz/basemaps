@@ -1,13 +1,12 @@
 import { TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
-import { CliId, CliInfo } from '@basemaps/shared/src/cli/info.js';
+import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
 import { MapSheetStacItem } from '../types/map-sheet-stac-item.js';
 import { TiffItem } from '../types/tiff-item.js';
 
 const CLI_DATE = new Date().toISOString();
-const DEFAULT_TRIM_PIXEL_RIGHT = 1.7;
 
 /**
  * This function creates a base StacItem object based on the provided parameters.
@@ -53,20 +52,20 @@ export function createBaseStacItem(
       'source.width': tiffItem.size.width,
       'source.height': tiffItem.size.height,
       'linz_basemaps:options': {
-        tileId: fileName,
+        //   tileId: fileName,
         tileMatrix: tileMatrix.identifier,
-        preset: 'webp',
-        blockSize: 512,
-        bigTIFF: 'no',
-        compression: 'webp',
-        quality: 100,
-        overviewCompress: 'webp',
-        overviewQuality: 90,
-        overviewResampling: 'lanczos',
+        //   preset: 'webp',
+        //   blockSize: 512,
+        //   bigTIFF: 'no',
+        //   compression: 'webp',
+        //   quality: 100,
+        //   overviewCompress: 'webp',
+        //   overviewQuality: 90,
+        //   overviewResampling: 'lanczos',
         sourceEpsg: tiffItem.epsg.code,
-        addalpha: true,
-        noReprojecting: true,
-        srcwin: [0, 0, tiffItem.size.width - DEFAULT_TRIM_PIXEL_RIGHT, tiffItem.size.height],
+        //   addalpha: true,
+        //   noReprojecting: true,
+        //   srcwin: [0, 0, tiffItem.size.width - DEFAULT_TRIM_PIXEL_RIGHT, tiffItem.size.height],
       },
       'linz_basemaps:generated': {
         package: CliInfo.package,

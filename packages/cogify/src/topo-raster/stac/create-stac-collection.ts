@@ -1,6 +1,6 @@
 import { Bounds } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
-import { CliId } from '@basemaps/shared/src/cli/info.js';
+import { CliId } from '@basemaps/shared/build/cli/info.js';
 import { StacCollection } from 'stac-ts';
 
 import { MapSheetStacItem } from '../types/map-sheet-stac-item.js';

@@ -1,7 +1,7 @@
 import { LogType } from '@basemaps/shared';
 import { Tiff } from '@cogeotiff/core';
 
-import { brokenTiffs } from '../cli.js';
+import { brokenTiffs } from '../cli/cli.stac.js';
 import { extractBoundsFromTiff as extractBoundsFromTiff } from '../extractors/extract-bounds-from-tiff.js';
 import { extractEpsgFromTiff } from '../extractors/extract-epsg-from-tiff.js';
 import { extractMapCodeAndVersion } from '../extractors/extract-map-code-and-version.js';
@@ -19,7 +19,7 @@ import { TiffItem } from '../types/tiff-item.js';
  * @param tiffs: the list of Tiff objects to group by epsg, and map code, and version
  * @returns a `ByDirectory<TiffItem>` promise
  */
-export async function groupTiffsByDirectory(tiffs: Tiff[], logger?: LogType): Promise<ByDirectory<TiffItem>> {
+export function groupTiffsByDirectory(tiffs: Tiff[], logger?: LogType): ByDirectory<TiffItem> {
   // group the tiffs by directory, epsg, and map code
   const byDirectory = new ByDirectory<TiffItem>();
 
@@ -28,7 +28,7 @@ export async function groupTiffsByDirectory(tiffs: Tiff[], logger?: LogType): Pr
     const source = tiff.source.url;
     const { mapCode, version } = extractMapCodeAndVersion(source.href);
 
-    const bounds = await extractBoundsFromTiff(tiff);
+    const bounds = extractBoundsFromTiff(tiff);
     const epsg = extractEpsgFromTiff(tiff);
     const size = extractSizeFromTiff(tiff);
 

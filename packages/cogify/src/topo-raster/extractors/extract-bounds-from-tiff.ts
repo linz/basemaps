@@ -1,8 +1,5 @@
 import { Bounds } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
-import { Tiff } from '@cogeotiff/core';
-
-import { findBoundingBox } from '../../../utils/geotiff.js';
+import { RasterTypeKey, Tiff, TiffTagGeo } from '@cogeotiff/core';
 
 /**
  * Attempts to extract a bounds set from the given Tiff object.
@@ -11,14 +8,15 @@ import { findBoundingBox } from '../../../utils/geotiff.js';
  *
  * @returns a Bounds object, on success. Otherwise, null.
  */
-export async function extractBoundsFromTiff(tiff: Tiff, logger?: LogType): Promise<Bounds | null> {
-  try {
-    const bounds = Bounds.fromBbox(await findBoundingBox(tiff));
-
-    logger?.info({ found: true }, 'extractBoundsFromTiff()');
-    return bounds;
-  } catch (e) {
-    logger?.info({ found: false }, 'extractBoundsFromTiff()');
-    return null;
+export function extractBoundsFromTiff(tiff: Tiff): Bounds | null {
+  const img = tiff.images[0];
+  if (img == null) {
+    throw new Error(`No images found in Tiff file: ${tiff.source.url.href}`);
   }
+
+  if (img.valueGeo(TiffTagGeo.GTRasterTypeGeoKey) === RasterTypeKey.PixelIsPoint) {
+    throw new Error("'Pixel is Point' raster grid spacing is not supported");
+  }
+
+  return Bounds.fromBbox(img.bbox);
 }
