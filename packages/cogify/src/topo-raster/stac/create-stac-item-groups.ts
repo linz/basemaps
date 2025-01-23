@@ -1,4 +1,5 @@
 import { TileMatrixSet } from '@basemaps/geo';
+import { LogType } from '@basemaps/shared';
 
 import { MapSheetStacItem } from '../types/map-sheet-stac-item.js';
 import { TiffItem } from '../types/tiff-item.js';
@@ -17,8 +18,11 @@ export function createStacItems(
   tileMatrix: TileMatrixSet,
   all: TiffItem[],
   latest: TiffItem,
+  logger?: LogType,
 ): { all: MapSheetStacItem[]; latest: MapSheetStacItem } {
-  const allStacItems = all.map((item) => createBaseStacItem(`${item.mapCode}_${item.version}`, item, tileMatrix));
+  const allStacItems = all.map((item) =>
+    createBaseStacItem(`${item.mapCode}_${item.version}`, item, tileMatrix, logger),
+  );
 
   const latestURL = new URL(`${latest.mapCode}_${latest.version}.json`, allTargetURL);
 

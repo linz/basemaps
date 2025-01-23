@@ -26,11 +26,11 @@ export function groupTiffsByDirectory(tiffs: Tiff[], logger?: LogType): ByDirect
   // create items for each tiff and store them into 'all' by {epsg} and {map code}
   for (const tiff of tiffs) {
     const source = tiff.source.url;
-    const { mapCode, version } = extractMapCodeAndVersion(source.href);
+    const { mapCode, version } = extractMapCodeAndVersion(source.href, logger);
 
     const bounds = extractBoundsFromTiff(tiff);
-    const epsg = extractEpsgFromTiff(tiff);
-    const size = extractSizeFromTiff(tiff);
+    const epsg = extractEpsgFromTiff(tiff, logger);
+    const size = extractSizeFromTiff(tiff, logger);
 
     if (bounds == null || epsg == null || size == null) {
       if (bounds == null) {
