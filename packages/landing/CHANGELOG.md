@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+
+### Bug Fixes
+
+* revert "build: maplibre v5.0.0 ([#3387](https://github.com/linz/basemaps/issues/3387))" ([#3394](https://github.com/linz/basemaps/issues/3394)) ([d441be2](https://github.com/linz/basemaps/commit/d441be2b75f507fab53df62422bed79af3eb0df3))
+
+
+
+
+
 # [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
 
 

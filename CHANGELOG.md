@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+
+### Bug Fixes
+
+* **infra:** correct dist path location ([#3390](https://github.com/linz/basemaps/issues/3390)) ([46f8fb8](https://github.com/linz/basemaps/commit/46f8fb8ede7163172dd9cf29ad8c779bcd327d2f))
+* revert "build: maplibre v5.0.0 ([#3387](https://github.com/linz/basemaps/issues/3387))" ([#3394](https://github.com/linz/basemaps/issues/3394)) ([d441be2](https://github.com/linz/basemaps/commit/d441be2b75f507fab53df62422bed79af3eb0df3))
+* **tiler-sharp:** when resampling uint round numbers rather than truncate ([#3392](https://github.com/linz/basemaps/issues/3392)) ([d02e56f](https://github.com/linz/basemaps/commit/d02e56febebc6c729fd3213390bdc5bbb66f419f))
+
+
+### Features
+
+* **cogify:** add background color support for overriding transparent pixels BM-1146 ([#3379](https://github.com/linz/basemaps/issues/3379)) ([b8bedc3](https://github.com/linz/basemaps/commit/b8bedc343719d445f4ca211eda03997bf51f78cb))
+* improved cloudwatch analytics rollup BM-1092 ([#3381](https://github.com/linz/basemaps/issues/3381)) ([de2f295](https://github.com/linz/basemaps/commit/de2f2958c337864115d44e320f1fd3cce17bd8d2))
+* **tiler-sharp:** support uint32 and uint8 source datasets for color-ramp ([#3391](https://github.com/linz/basemaps/issues/3391)) ([f316042](https://github.com/linz/basemaps/commit/f316042853888b8555dab3ddb1df14c32a5df0b1))
+
+
+
+
+
 # [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
 
 
