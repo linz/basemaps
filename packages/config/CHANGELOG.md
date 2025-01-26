@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+
+### Features
+
+* **cogify:** add background color support for overriding transparent pixels BM-1146 ([#3379](https://github.com/linz/basemaps/issues/3379)) ([b8bedc3](https://github.com/linz/basemaps/commit/b8bedc343719d445f4ca211eda03997bf51f78cb))
+
+
+
+
+
 # [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
 
 
