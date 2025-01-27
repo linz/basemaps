@@ -2,9 +2,9 @@ import { Rgba } from '@basemaps/config';
 import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
-import { Presets } from '../preset.js';
+import { Presets } from '../../preset.js';
+import { CogifyCreationOptions } from '../stac.js';
 import { GdalCommand } from './gdal.runner.js';
-import { CogifyCreationOptions } from './stac.js';
 
 const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
 const DEFAULT_TRIM_PIXEL_RIGHT = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery

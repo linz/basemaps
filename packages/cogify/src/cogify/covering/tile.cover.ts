@@ -7,16 +7,10 @@ import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { createCovering } from './cogify/covering.js';
-import {
-  CogifyLinkCutline,
-  CogifyLinkSource,
-  CogifyStacCollection,
-  CogifyStacItem,
-  createFileStats,
-} from './cogify/stac.js';
+import { Presets } from '../../preset.js';
+import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem, createFileStats } from '../stac.js';
+import { createCovering } from './covering.js';
 import { CutlineOptimizer } from './cutline.js';
-import { Presets } from './preset.js';
 
 export interface TileCoverContext {
   /** Unique id for the covering */

@@ -7,10 +7,10 @@ import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 
 import { isArgo } from '../../argo.js';
-import { CutlineOptimizer } from '../../cutline.js';
 import { getLogger, logArguments } from '../../log.js';
 import { Presets } from '../../preset.js';
-import { createTileCover, TileCoverContext } from '../../tile.cover.js';
+import { CutlineOptimizer } from '../covering/cutline.js';
+import { createTileCover, TileCoverContext } from '../covering/tile.cover.js';
 import { RgbaType, Url, UrlFolder } from '../parsers.js';
 import { createFileStats } from '../stac.js';
 
