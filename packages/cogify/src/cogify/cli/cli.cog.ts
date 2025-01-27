@@ -11,18 +11,18 @@ import path from 'path';
 import { StacAsset, StacCollection } from 'stac-ts';
 import { pathToFileURL } from 'url';
 
-import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
+import { CutlineOptimizer } from '../covering/cutline.js';
 import {
   gdalBuildCog,
   gdalBuildTopoRasterCommands,
   gdalBuildVrt,
   gdalBuildVrtWarp,
   gdalCreate,
-} from '../gdal.command.js';
-import { GdalRunner } from '../gdal.runner.js';
+} from '../gdal/gdal.command.js';
+import { GdalRunner } from '../gdal/gdal.runner.js';
 import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
 

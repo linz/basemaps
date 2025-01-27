@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 
 import { Rgba } from '@basemaps/config';
-import { Tile } from '@basemaps/geo';
+import { EpsgCode, Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
 export interface CogifyCreationOptions {
@@ -16,6 +16,7 @@ export interface CogifyCreationOptions {
 
   /** Projection of source imagery */
   sourceEpsg: number;
+
   /**
    * Compression to use for the cog
    *
@@ -62,34 +63,85 @@ export interface CogifyCreationOptions {
   background?: Rgba;
 }
 
+export interface GeneratedProperties {
+  /** Package name that generated the file */
+  package: string;
+
+  /** Version number that generated the file */
+  version: string;
+
+  /** Git commit hash that the file was generated with */
+  hash: string;
+
+  /** ISO date of the time this file was generated */
+  datetime: string;
+
+  /** version of GDAL used to create the COG */
+  gdal?: string;
+
+  /**
+   * is the tiff invalid
+   *
+   * If the tiff was generated but then determined to be invalid this property explains why the tiff was rejected.
+   *
+   * Reasons:
+   * - "empty" - No data was produced by GDAL when creating the tiff
+   */
+  invalid?: 'empty';
+}
+
 export type GdalResampling = 'nearest' | 'bilinear' | 'cubic' | 'cubicspline' | 'lanczos' | 'average' | 'mode';
 
 export type CogifyStacCollection = StacCollection;
+
 export type CogifyStacItem = StacItem & {
   properties: {
-    'linz_basemaps:generated': {
-      /** Package name that generated the file */
-      package: string;
-      /** Version number that generated the file */
-      version: string;
-      /** Git commit hash that the file was generated with */
-      hash: string;
-      /** ISO date of the time this file was generated */
-      datetime: string;
-      /** version of GDAL used to create the COG */
-      gdal?: string;
-
-      /**
-       * is the tiff invalid
-       *
-       * If the tiff was generated but then determined to be invalid this property explains why the tiff was rejected.
-       *
-       * Reasons:
-       * - "empty" - No data was produced by GDAL when creating the tiff
-       */
-      invalid?: 'empty';
-    };
+    'linz_basemaps:generated': GeneratedProperties;
     'linz_basemaps:options': CogifyCreationOptions;
+  };
+};
+
+export type TopoStacItem = StacItem & {
+  properties: {
+    /**
+     * A topo raster map sheet's code.
+     *
+     * @example "CJ10"
+     */
+    map_code: string;
+
+    /**
+     * A map sheet's version.
+     *
+     * @example "v1.00"
+     */
+    version: string;
+
+    /**
+     * An EpsgCode Enum representing a map sheet's projection.
+     *
+     * @example EpsgCode.Nztm2000 = 2193
+     */
+    'proj:epsg': EpsgCode;
+
+    /**
+     * The width of a map sheet in pixels.
+     */
+    'source.width': number;
+
+    /**
+     * The height of a map sheet in pixels.
+     */
+    'source.height': number;
+
+    'linz_basemaps:generated': GeneratedProperties;
+    'linz_basemaps:options': {
+      /** Tile matrix to create the tiles against */
+      tileMatrix: string;
+
+      /** Projection of source imagery */
+      sourceEpsg: number;
+    };
   };
 };
 
