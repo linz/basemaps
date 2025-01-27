@@ -3,6 +3,7 @@ import { subcommands } from 'cmd-ts';
 import { BasemapsCogifyCreateCommand } from './cli/cli.cog.js';
 import { BasemapsCogifyConfigCommand } from './cli/cli.config.js';
 import { BasemapsCogifyCoverCommand } from './cli/cli.cover.js';
+import { TopoStacCreationCommand } from './cli/cli.topo.js';
 import { BasemapsCogifyValidateCommand } from './cli/cli.validate.js';
 
 export const CogifyCli = subcommands({
@@ -12,6 +13,6 @@ export const CogifyCli = subcommands({
     create: BasemapsCogifyCreateCommand,
     config: BasemapsCogifyConfigCommand,
     validate: BasemapsCogifyValidateCommand,
-    topo: BasemapsCogifyCoverCommand,
+    topo: TopoStacCreationCommand,
   },
 });
