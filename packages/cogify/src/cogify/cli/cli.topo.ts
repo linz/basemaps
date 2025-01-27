@@ -88,7 +88,7 @@ export const TopoStacCreationCommand = command({
 
     // write stac items into an JSON array
     if (args.forceOutput || isArgo()) {
-      const targetURL = isArgo() ? new URL('/tmp/topo-stac-creation/') : args.target;
+      const targetURL = isArgo() ? fsa.toUrl('/tmp/topo-stac-creation/') : args.target;
 
       // for create-config: we need to tell create-config to create a bundled config for each epsg folder (latest only).
       // workflow: will loop 'targets.json' and create a node for each path where each node's job is to create a bundled config.
