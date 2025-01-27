@@ -12,5 +12,6 @@ export const CogifyCli = subcommands({
     create: BasemapsCogifyCreateCommand,
     config: BasemapsCogifyConfigCommand,
     validate: BasemapsCogifyValidateCommand,
+    topo: BasemapsCogifyCoverCommand,
   },
 });
