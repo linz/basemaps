@@ -1,3 +1,7 @@
+// taken from https://github.com/geotiffjs/geotiff.js/blob/master/src/compression/lzw.js
+// MIT License (MIT)
+// Copyright (c) 2015 EOX IT Services GmbH
+
 const MinBits = 9;
 const ClearCode = 256; // clear code
 const EoiCode = 257; // end of information
