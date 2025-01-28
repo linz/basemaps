@@ -45,6 +45,7 @@ export class ColorRamp {
 export const Ramps: Record<DecompressedInterleaved['depth'], ColorRamp> = {
   float32: new ColorRamp(DefaultColorRamp),
   uint8: new ColorRamp(`0 0 0 0 255\n255 255 255 255 255`),
+  uint16: new ColorRamp(`0 0 0 0 255\n${2 ** 16 - 1} 255 255 255 255`),
   uint32: new ColorRamp(`0 0 0 0 255\n${2 ** 32 - 1} 255 255 255 255`),
 };
 
@@ -53,7 +54,7 @@ export const PipelineColorRamp: Pipeline = {
   process(comp: CompositionTiff, data: DecompressedInterleaved): DecompressedInterleaved {
     const raw = new Uint8ClampedArray(data.width * data.height * 4);
     const output: DecompressedInterleaved = {
-      pixels: raw,
+      buffer: raw,
       depth: 'uint8',
       channels: 4,
       width: data.width,
@@ -68,7 +69,7 @@ export const PipelineColorRamp: Pipeline = {
     for (let i = 0; i < size; i++) {
       const source = i * data.channels;
 
-      const px = data.pixels[source];
+      const px = data.buffer[source];
 
       if (noData != null && px === noData) continue;
 

@@ -10,7 +10,7 @@ import {
 import { Metrics } from '@linzjs/metrics';
 import Sharp from 'sharp';
 
-import { Decompressors } from './pipeline/decompressor.lerc.js';
+import { Decompressors } from './pipeline/decompressors.js';
 import { cropResize } from './pipeline/pipeline.resize.js';
 import { Pipelines } from './pipeline/pipelines.js';
 
@@ -162,7 +162,13 @@ export class TileMakerSharp implements TileMaker {
     const tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
     if (tile == null) return null;
     const tiffTile = { imageId: comp.source.imageId, x: comp.source.x, y: comp.source.y };
-    const bytes = await Decompressors[tile.compression]?.bytes(comp.asset, tile.bytes);
+    const bytes = await Decompressors[tile.compression]?.decompress({
+      tiff: comp.asset,
+      x: comp.source.x,
+      y: comp.source.y,
+      imageId: comp.source.imageId,
+      bytes: tile.bytes,
+    });
     if (bytes == null) throw new Error(`Failed to decompress: ${comp.asset.source.url.href}`);
 
     let result = bytes;
@@ -202,7 +208,7 @@ export class TileMakerSharp implements TileMaker {
     if (result.depth !== 'uint8') throw new Error('Expected RGBA image output');
 
     return {
-      input: Buffer.from(result.pixels),
+      input: Buffer.from(result.buffer),
       top: comp.y,
       left: comp.x,
       raw: { width: result.width, height: result.height, channels: result.channels as 1 },

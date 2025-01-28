@@ -2,7 +2,7 @@ import { BoundingBox, Point, Size } from '@basemaps/geo';
 import { CompositionTiff, ResizeKernelType } from '@basemaps/tiler';
 import { Tiff } from '@cogeotiff/core';
 
-import { DecompressedInterleaved } from './decompressor.js';
+import { createBuffer, DecompressedInterleaved } from './decompressor.js';
 
 /**
  * Pipeline to apply the crop/resizing to datasets
@@ -75,10 +75,10 @@ export function applyCrop(_tiff: Tiff, data: DecompressedInterleaved, crop: Size
   for (let y = 0; y < crop.height; y++) {
     const source = ((y + crop.y) * data.width + crop.x) * data.channels;
     const length = crop.width * data.channels;
-    output.set(data.pixels.subarray(source, source + length), y * crop.width);
+    output.set(data.buffer.subarray(source, source + length), y * crop.width);
   }
 
-  return { pixels: output, width: crop.width, height: crop.height, channels: data.channels, depth: 'float32' };
+  return { buffer: output, width: crop.width, height: crop.height, channels: data.channels, depth: 'float32' };
 }
 
 function resizeNearest(
@@ -93,7 +93,7 @@ function resizeNearest(
 
   // Resample the input tile into the output tile using a nearest neighbor approach
   const ret = getOutputBuffer(data, target);
-  const outputBuffer = ret.pixels;
+  const outputBuffer = ret.buffer;
   for (let y = 0; y < target.height; y++) {
     let sourceY = Math.round((y + 0.5) * invScale + source.y);
     if (sourceY > maxHeight) sourceY = maxHeight;
@@ -102,7 +102,7 @@ function resizeNearest(
       let sourceX = Math.round((x + 0.5) * invScale + source.x);
       if (sourceX > maxWidth) sourceX = maxWidth;
 
-      outputBuffer[y * target.width + x] = data.pixels[sourceY * data.width + sourceX];
+      outputBuffer[y * target.width + x] = data.buffer[sourceY * data.width + sourceX];
     }
   }
 
@@ -110,32 +110,14 @@ function resizeNearest(
 }
 
 function getOutputBuffer(source: DecompressedInterleaved, target: Size): DecompressedInterleaved {
-  switch (source.depth) {
-    case 'uint8':
-      return {
-        pixels: new Uint8Array(target.width * target.height),
-        width: target.width,
-        height: target.height,
-        depth: source.depth,
-        channels: 1,
-      };
-    case 'float32':
-      return {
-        pixels: new Float32Array(target.width * target.height),
-        width: target.width,
-        height: target.height,
-        depth: source.depth,
-        channels: 1,
-      };
-    case 'uint32':
-      return {
-        pixels: new Uint32Array(target.width * target.height),
-        width: target.width,
-        height: target.height,
-        depth: source.depth,
-        channels: 1,
-      };
-  }
+  const pixels = createBuffer(source.depth, target.width, target.height, 1);
+  return {
+    buffer: pixels,
+    width: target.width,
+    height: target.height,
+    depth: source.depth,
+    channels: 1,
+  } as DecompressedInterleaved;
 }
 
 export function resizeBilinear(
@@ -150,7 +132,7 @@ export function resizeBilinear(
   const maxWidth = Math.min(comp.source.width, data.width) - 2;
   const maxHeight = Math.min(comp.source.height, data.height) - 2;
   const ret = getOutputBuffer(data, target);
-  const outputBuffer = ret.pixels;
+  const outputBuffer = ret.buffer;
 
   // should numbers be rounded when resampling, with some numbers like uint8 or uint32 numbers
   // will be truncated when being set in their typed buffers,
@@ -171,22 +153,22 @@ export function resizeBilinear(
 
       const outPx = y * target.width + x;
 
-      const minXMinY = data.pixels[minY * data.width + minX];
+      const minXMinY = data.buffer[minY * data.width + minX];
       if (minXMinY === noData) {
         outputBuffer[outPx] = noData;
         continue;
       }
-      const maxXMinY = data.pixels[minY * data.width + maxX];
+      const maxXMinY = data.buffer[minY * data.width + maxX];
       if (maxXMinY === noData) {
         outputBuffer[outPx] = noData;
         continue;
       }
-      const minXMaxY = data.pixels[maxY * data.width + minX];
+      const minXMaxY = data.buffer[maxY * data.width + minX];
       if (minXMaxY === noData) {
         outputBuffer[outPx] = noData;
         continue;
       }
-      const maxXMaxY = data.pixels[maxY * data.width + maxX];
+      const maxXMaxY = data.buffer[maxY * data.width + maxX];
       if (maxXMaxY === noData) {
         outputBuffer[outPx] = noData;
         continue;

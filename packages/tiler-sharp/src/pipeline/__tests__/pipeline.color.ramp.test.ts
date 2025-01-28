@@ -13,7 +13,7 @@ const FakeComp = { asset: FakeTiff, source: { x: 0, y: 0, imageId: 0 } } as Comp
 describe('pipeline.color-ramp', () => {
   it('should color-ramp a float32 DEM with default ramp', async () => {
     const bytes: DecompressedInterleaved = {
-      pixels: new Float32Array([-9999, 0, 100]),
+      buffer: new Float32Array([-9999, 0, 100]),
       depth: 'float32',
       channels: 1,
       width: 3,
@@ -24,13 +24,13 @@ describe('pipeline.color-ramp', () => {
 
     assert.equal(output.channels, 4);
 
-    assert.equal(String(output.pixels.slice(0, 4)), '0,0,0,0');
-    assert.equal(String(output.pixels.slice(4, 8)), '167,205,228,255');
+    assert.equal(String(output.buffer.slice(0, 4)), '0,0,0,0');
+    assert.equal(String(output.buffer.slice(4, 8)), '167,205,228,255');
   });
 
   it('should color-ramp a uint8', async () => {
     const bytes: DecompressedInterleaved = {
-      pixels: new Uint8Array([0, 128, 255]),
+      buffer: new Uint8Array([0, 128, 255]),
       depth: 'uint8',
       channels: 1,
       width: 3,
@@ -41,14 +41,14 @@ describe('pipeline.color-ramp', () => {
 
     assert.equal(output.channels, 4);
 
-    assert.equal(String(output.pixels.slice(0, 4)), '0,0,0,255');
-    assert.equal(String(output.pixels.slice(4, 8)), '128,128,128,255');
-    assert.equal(String(output.pixels.slice(8, 12)), '255,255,255,255');
+    assert.equal(String(output.buffer.slice(0, 4)), '0,0,0,255');
+    assert.equal(String(output.buffer.slice(4, 8)), '128,128,128,255');
+    assert.equal(String(output.buffer.slice(8, 12)), '255,255,255,255');
   });
 
   it('should color-ramp a uint32', async () => {
     const bytes: DecompressedInterleaved = {
-      pixels: new Uint32Array([0, 2 ** 31, 2 ** 32 - 1]),
+      buffer: new Uint32Array([0, 2 ** 31, 2 ** 32 - 1]),
       depth: 'uint32',
       channels: 1,
       width: 3,
@@ -59,8 +59,8 @@ describe('pipeline.color-ramp', () => {
 
     assert.equal(output.channels, 4);
 
-    assert.equal(String(output.pixels.slice(0, 4)), '0,0,0,255');
-    assert.equal(String(output.pixels.slice(4, 8)), '128,128,128,255');
-    assert.equal(String(output.pixels.slice(8, 12)), '255,255,255,255');
+    assert.equal(String(output.buffer.slice(0, 4)), '0,0,0,255');
+    assert.equal(String(output.buffer.slice(4, 8)), '128,128,128,255');
+    assert.equal(String(output.buffer.slice(8, 12)), '255,255,255,255');
   });
 });

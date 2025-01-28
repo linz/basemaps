@@ -9,7 +9,7 @@ describe('resize-bilinear', () => {
   it('should round numbers when working with uint arrays', () => {
     const ret = resizeBilinear(
       {
-        pixels: new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
+        buffer: new Uint8Array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]),
         depth: 'uint8',
         width: 4,
         height: 4,
@@ -21,6 +21,6 @@ describe('resize-bilinear', () => {
     );
 
     // All values should be rounded to 1 and not truncated down to 0
-    assert.ok(ret.pixels.every((f) => f === 1));
+    assert.ok(ret.buffer.every((f) => f === 1));
   });
 });

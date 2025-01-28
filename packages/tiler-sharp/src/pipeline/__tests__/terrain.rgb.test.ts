@@ -21,7 +21,7 @@ function decodeTerrainRgb(buf: ArrayLike<number>, offset = 0): number {
 describe('TerrainRgb', () => {
   it('should encode zero', async () => {
     const output = await PipelineTerrainRgb.process(FakeComp, {
-      pixels: new Float32Array([0, 1, 2, 3]),
+      buffer: new Float32Array([0, 1, 2, 3]),
       depth: 'float32',
       width: 2,
       height: 2,
@@ -34,16 +34,16 @@ describe('TerrainRgb', () => {
     assert.equal(output.depth, 'uint8');
 
     // valid value should not have alpha
-    assert.equal(output.pixels[3], 255);
-    assert.equal(decodeTerrainRgb(output.pixels, 0), 0);
-    assert.equal(decodeTerrainRgb(output.pixels, 4), 1);
-    assert.equal(decodeTerrainRgb(output.pixels, 8), 2);
-    assert.equal(decodeTerrainRgb(output.pixels, 12), 3);
+    assert.equal(output.buffer[3], 255);
+    assert.equal(decodeTerrainRgb(output.buffer, 0), 0);
+    assert.equal(decodeTerrainRgb(output.buffer, 4), 1);
+    assert.equal(decodeTerrainRgb(output.buffer, 8), 2);
+    assert.equal(decodeTerrainRgb(output.buffer, 12), 3);
   });
 
   it('should encode using the first channel', async () => {
     const output = await PipelineTerrainRgb.process(FakeComp, {
-      pixels: new Float32Array([0, 1, 2, 3, 1, 1, 2, 3, 2, 1, 2, 3, 3, 1, 2, 3]),
+      buffer: new Float32Array([0, 1, 2, 3, 1, 1, 2, 3, 2, 1, 2, 3, 3, 1, 2, 3]),
       depth: 'float32',
       width: 2,
       height: 2,
@@ -56,23 +56,23 @@ describe('TerrainRgb', () => {
     assert.equal(output.depth, 'uint8');
 
     // valid value should not have alpha
-    assert.equal(output.pixels[3], 255);
-    assert.equal(decodeTerrainRgb(output.pixels, 0), 0);
-    assert.equal(decodeTerrainRgb(output.pixels, 4), 1);
-    assert.equal(decodeTerrainRgb(output.pixels, 8), 2);
-    assert.equal(decodeTerrainRgb(output.pixels, 12), 3);
+    assert.equal(output.buffer[3], 255);
+    assert.equal(decodeTerrainRgb(output.buffer, 0), 0);
+    assert.equal(decodeTerrainRgb(output.buffer, 4), 1);
+    assert.equal(decodeTerrainRgb(output.buffer, 8), 2);
+    assert.equal(decodeTerrainRgb(output.buffer, 12), 3);
   });
 
   it('should set no data as zero', async () => {
     const output = await PipelineTerrainRgb.process(FakeComp, {
-      pixels: new Float32Array([-32627]),
+      buffer: new Float32Array([-32627]),
       depth: 'float32',
       width: 1,
       height: 1,
       channels: 1,
     });
 
-    assert.equal(output.pixels[3], 0);
+    assert.equal(output.buffer[3], 0);
   });
 
   it('should not encode values outside the range of terrainrgb', async () => {
@@ -84,32 +84,32 @@ describe('TerrainRgb', () => {
     assert.equal(maxValue, PipelineTerrainRgb.MaxValue);
 
     const output = await PipelineTerrainRgb.process(FakeComp, {
-      pixels: new Float32Array([minValue, -10_001, maxValue, maxValue + 1]),
+      buffer: new Float32Array([minValue, -10_001, maxValue, maxValue + 1]),
       depth: 'float32',
       width: 4,
       height: 1,
       channels: 1,
     });
 
-    assert.equal(decodeTerrainRgb(output.pixels, 0), minValue);
-    assert.equal(decodeTerrainRgb(output.pixels, 4), minValue);
+    assert.equal(decodeTerrainRgb(output.buffer, 0), minValue);
+    assert.equal(decodeTerrainRgb(output.buffer, 4), minValue);
 
-    assert.equal(decodeTerrainRgb(output.pixels, 8), maxValue);
-    assert.equal(decodeTerrainRgb(output.pixels, 12), maxValue);
+    assert.equal(decodeTerrainRgb(output.buffer, 8), maxValue);
+    assert.equal(decodeTerrainRgb(output.buffer, 12), maxValue);
   });
 
   it('should encode every possible value', async () => {
     const widthHeight = 4096;
-    const pixels = new Float32Array(widthHeight * widthHeight);
+    const buffer = new Float32Array(widthHeight * widthHeight);
 
     for (let i = 0; i < widthHeight * widthHeight; i++) {
       const target = -10_000 + i * 0.1;
-      pixels[i] = target;
+      buffer[i] = target;
     }
 
     console.time('encode');
     const output = await PipelineTerrainRgb.process(FakeComp, {
-      pixels,
+      buffer: buffer,
       depth: 'float32',
       width: widthHeight,
       height: widthHeight,
@@ -118,17 +118,17 @@ describe('TerrainRgb', () => {
     console.timeEnd('encode');
 
     let rgbExpected = 0;
-    for (let i = 0; i < output.pixels.length; i += 4) {
-      const rgbOutput = output.pixels[i] * 256 * 256 + output.pixels[i + 1] * 256 + output.pixels[i + 2];
+    for (let i = 0; i < output.buffer.length; i += 4) {
+      const rgbOutput = output.buffer[i] * 256 * 256 + output.buffer[i + 1] * 256 + output.buffer[i + 2];
       const diff = Math.abs(rgbOutput - rgbExpected);
 
       // allow a 1px interval shift due to floating point rounding
       if (diff !== 0 && diff !== 1) {
-        console.log(`Failed alignment at offset: ${i} value: ${decodeTerrainRgb(output.pixels, i)} diff: ${diff}`);
+        console.log(`Failed alignment at offset: ${i} value: ${decodeTerrainRgb(output.buffer, i)} diff: ${diff}`);
         assert.deepEqual(
           diff,
           0,
-          `Failed alignment at offset: ${i} value: ${decodeTerrainRgb(output.pixels, i)} diff: ${diff}`,
+          `Failed alignment at offset: ${i} value: ${decodeTerrainRgb(output.buffer, i)} diff: ${diff}`,
         );
       }
 
@@ -138,7 +138,7 @@ describe('TerrainRgb', () => {
 
   it('should reduce the precision when resolution is low', async () => {
     const input = {
-      pixels: new Float32Array([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]),
+      buffer: new Float32Array([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]),
       depth: 'float32',
       width: 11,
       height: 1,
@@ -156,8 +156,8 @@ describe('TerrainRgb', () => {
       const output = await PipelineTerrainRgb.process(tiff, input);
 
       const decoded: number[] = [];
-      for (let i = 0; i < input.pixels.length; i++) {
-        decoded.push(decodeTerrainRgb(output.pixels, i * 4));
+      for (let i = 0; i < input.buffer.length; i++) {
+        decoded.push(decodeTerrainRgb(output.buffer, i * 4));
       }
       return decoded.map((m) => Number(m.toFixed(1)));
     }

@@ -1,53 +1,43 @@
-import { Compression, Tiff } from '@cogeotiff/core';
-import Lerc from 'lerc';
+import Lerc, { LercPixelType } from 'lerc';
 
-import { DecompressedInterleaved, Decompressor } from './decompressor.js';
+import { DecompressedInterleaved, DecompressionContext, Decompressor } from './decompressor.js';
+
+function convertPixelType(s: LercPixelType): DecompressedInterleaved['depth'] {
+  switch (s) {
+    case 'F32':
+      return 'float32';
+    case 'U8':
+      return 'uint8';
+    case 'U16':
+      return 'uint16';
+    case 'U32':
+      return 'uint32';
+  }
+
+  throw new Error(`Unsupported pixel type: ${s}`);
+}
 
 export const LercDecompressor: Decompressor = {
   type: 'application/lerc',
-  async bytes(source: Tiff, tile: ArrayBuffer): Promise<DecompressedInterleaved> {
+  async decompress(ctx: DecompressionContext): Promise<DecompressedInterleaved> {
     await Lerc.load();
-    const bytes = Lerc.decode(tile);
+    const bytes = Lerc.decode(ctx.bytes);
+
+    const sourceUrl = ctx.tiff.source.url;
 
     if (bytes.depthCount !== 1) {
-      throw new Error(`Lerc: Invalid output depthCount:${bytes.depthCount} from:${source.source.url.href}`);
+      throw new Error(`Lerc: Invalid output depthCount:${bytes.depthCount} from:${sourceUrl.href}`);
     }
     if (bytes.pixels.length !== 1) {
-      throw new Error(`Lerc: Invalid output bandCount:${bytes.pixels.length} from:${source.source.url.href}`);
+      throw new Error(`Lerc: Invalid output bandCount:${bytes.pixels.length} from:${sourceUrl.href}`);
     }
 
-    switch (bytes.pixelType) {
-      case 'F32':
-        return {
-          pixels: bytes.pixels[0] as Float32Array,
-          width: bytes.width,
-          height: bytes.height,
-          channels: 1,
-          depth: 'float32',
-        };
-      case 'U32':
-        return {
-          pixels: bytes.pixels[0] as Uint32Array,
-          width: bytes.width,
-          height: bytes.height,
-          channels: 1,
-          depth: 'uint32',
-        };
-      case 'U8':
-        return {
-          pixels: bytes.pixels[0] as Uint8Array,
-          width: bytes.width,
-          height: bytes.height,
-          channels: 1,
-          depth: 'uint8',
-        };
-    }
-
-    throw new Error(`Lerc: Invalid output pixelType:${bytes.pixelType} from:${source.source.url.href}`);
+    return {
+      buffer: bytes.pixels[0],
+      width: bytes.width,
+      height: bytes.height,
+      channels: 1,
+      depth: convertPixelType(bytes.pixelType),
+    } as DecompressedInterleaved;
   },
-};
-
-export const Decompressors: Record<string, Decompressor> = {
-  [LercDecompressor.type]: LercDecompressor,
-  [Compression.Lerc]: LercDecompressor,
 };

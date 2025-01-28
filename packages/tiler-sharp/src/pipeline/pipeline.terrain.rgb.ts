@@ -67,7 +67,7 @@ export const PipelineTerrainRgb: Pipeline & TerrainRgbRange = {
   process(source: CompositionTiff, data: DecompressedInterleaved): DecompressedInterleaved {
     const raw = new Uint8ClampedArray(data.width * data.height * 4);
     const output: DecompressedInterleaved = {
-      pixels: raw,
+      buffer: raw,
       depth: 'uint8',
       channels: 4,
       width: data.width,
@@ -92,7 +92,7 @@ export const PipelineTerrainRgb: Pipeline & TerrainRgbRange = {
     for (let i = 0; i < size; i++) {
       const source = i * data.channels;
 
-      const px = data.pixels[source];
+      const px = data.buffer[source];
 
       if (noData != null && px === noData) continue;
 
