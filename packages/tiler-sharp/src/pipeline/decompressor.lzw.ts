@@ -8,6 +8,7 @@ import {
   toTypedBuffer,
 } from './decompressor.js';
 import { decompress } from './lzw/lzw.js';
+import { decodeLzwTiff } from './lzw/lzw.sharp.js';
 
 async function toDecompressedInterleaved(
   source: ArrayBuffer,
@@ -55,8 +56,35 @@ export const LzwDecompressor: Decompressor = {
   async decompress(ctx: DecompressionContext): Promise<DecompressedInterleaved> {
     // TODO: this decompressor is very slow it can take over 100ms+ to deocode a 512x512 tile
     // for comparison the lerc decompressor takes <1ms for the same amount of data.
-    const bytes = decompress(ctx.bytes);
 
+    console.time('decompress-js');
+    const bytes = decompress(ctx.bytes);
+    console.timeEnd('decompress-js');
+
+    // console.log(ctx.tiff.source.url.href);
     return toDecompressedInterleaved(bytes, ctx);
+  },
+};
+export const LzwDecompressorSharp: Decompressor = {
+  type: 'application/lzw',
+  async decompress(ctx: DecompressionContext): Promise<DecompressedInterleaved> {
+    // TODO: this decompressor is very slow it can take over 100ms+ to deocode a 512x512 tile
+    // for comparison the lerc decompressor takes <1ms for the same amount of data.
+    const image = ctx.tiff.images[ctx.imageId];
+    const [bitsPerSample, sampleFormat] = await Promise.all([
+      image.fetch(TiffTag.BitsPerSample),
+      image.fetch(TiffTag.SampleFormat),
+    ]);
+
+    if (bitsPerSample == null) throw new Error('Unable to fetch TiffTag: BitsPerSample');
+
+    const depth = tiffToDepth(bitsPerSample, sampleFormat?.[0]);
+
+    console.time('decompress-sharp');
+    const bytes = await decodeLzwTiff(image, depth, bitsPerSample.length, ctx.bytes);
+    console.timeEnd('decompress-sharp');
+
+    // console.log(ctx.tiff.source.url.href);
+    return toDecompressedInterleaved(bytes.decoded, ctx);
   },
 };
