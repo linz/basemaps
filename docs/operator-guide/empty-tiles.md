@@ -46,12 +46,13 @@ Pros:
 
 - ✔️ Supported in ArcGIS Pro and QGIS
 - ✔️ Supported by ArcGIS Online, Leaflet, and OpenLayers
+- ✔️ Supported by maplibre [since v4.0.0](https://github.com/maplibre/maplibre-gl-js/blob/main/CHANGELOG.md#-bug-fixes-29)
 - ✔️ Supported by [HTTP RFC](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok), which allows 0 byte `200 Ok` responses as long as the message framing indicates this (via `Content-length=0` response header
 - ✔️ Recommended option from OGC Tile API
 
 Cons:
 
-- ❌ Not supported by maplibre/mapbox
+- ❌ Not supported by mapbox gl
 - ❌ [HTTP RFC](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok) suggests that while valid, servers "ought to return 204 No content"
 
 ## 204 No Content
@@ -62,15 +63,13 @@ Pros:
 
 - ✔️ Supported in ArcGIS Pro and QGIS
 - ✔️ Supported by Leaflet and OpenLayers
+- ✔️ Supported by maplibre [since v4.0.0](https://github.com/maplibre/maplibre-gl-js/blob/main/CHANGELOG.md#-bug-fixes-29)
 - ✔️ Supported by [HTTP RFC](https://www.rfc-editor.org/rfc/rfc9110.html#name-200-ok): "server ought to return 204 No content"
 - ✔️ Recommended option from OGC Tile API
 
 Cons:
 
 - ❌ Not supported by ArcGIS Online
-- ❌ Not supported by maplibre
-  - https://github.com/maplibre/maplibre-gl-js/pull/2325
-  - https://github.com/maplibre/maplibre-gl-js/pull/1586
 - ❌ Not supported by mapbox gl
   - https://github.com/mapbox/mapbox-gl-js/issues/9304
 - Not always cached by browser
