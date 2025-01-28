@@ -168,7 +168,7 @@ async function loadTiffsToCreateStacs(
       const latest = itemsByDir.latest.get(epsg).get(mapCode);
 
       // create stac items
-      const stacItems = createStacItems(allTargetURL, tileMatrix, items, latest, logger);
+      const stacItems = createStacItems(scale, resolution, tileMatrix, items, latest, logger);
 
       allBounds.push(...items.map((item) => item.bounds));
       allStacItems.push(...stacItems.all);
