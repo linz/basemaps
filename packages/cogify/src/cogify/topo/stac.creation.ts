@@ -85,7 +85,8 @@ export function createBaseStacItem(
  * The latest version needs a second StacItem object that will live in the topo[50|250]_latest directory
  */
 export function createStacItems(
-  allTargetURL: URL,
+  scale: string,
+  resolution: string,
   tileMatrix: TileMatrixSet,
   all: TiffItem[],
   latest: TiffItem,
@@ -95,12 +96,10 @@ export function createStacItems(
     createBaseStacItem(`${item.mapCode}_${item.version}`, item, tileMatrix, logger),
   );
 
-  const latestURL = new URL(`${latest.mapCode}_${latest.version}.json`, allTargetURL);
-
   // add link to all items pointing to the latest version
   allStacItems.forEach((stacItem) => {
     stacItem.links.push({
-      href: latestURL.href,
+      href: `./${latest.mapCode}_${latest.version}.json`,
       rel: 'latest-version',
       type: 'application/json',
     });
@@ -110,7 +109,10 @@ export function createStacItems(
 
   // add link to the latest item referencing its copy that will live in the topo[50/250] directory
   latestStacItem.links.push({
-    href: latestURL.href,
+    // from: <target>/<scale>_latest/<resolution>/<espg>
+    //       ../../../ = <target>
+    // to:   <target>/<scale>/<resolution>/<espg>
+    href: `../../../${scale}/${resolution}/${latest.epsg.code}/${latest.mapCode}_${latest.version}.json`,
     rel: 'derived_from',
     type: 'application/json',
   });
