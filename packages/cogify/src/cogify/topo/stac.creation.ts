@@ -4,7 +4,7 @@ import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
 import { CogifyStacCollection, TopoStacItem } from '../stac.js';
-import { TiffItem } from './types.js';
+import { TiffItem } from './extract.js';
 
 const CLI_DATE = new Date().toISOString();
 
@@ -87,35 +87,40 @@ export function createStacItems(
   resolution: string,
   tileMatrix: TileMatrixSet,
   all: TiffItem[],
-  latest: TiffItem,
+  latest: Map<string, TiffItem>,
   logger?: LogType,
-): { all: TopoStacItem[]; latest: TopoStacItem } {
+): { all: TopoStacItem[]; latest: TopoStacItem[] } {
   const allStacItems = all.map((item) =>
     createBaseStacItem(`${item.mapCode}_${item.version}`, item, tileMatrix, logger),
   );
 
-  // add link to all items pointing to the latest version
+  // add link to all items pointing to the latest version and create stac for latest items
   for (const item of allStacItems) {
+    const latestTiff = latest.get(item.properties.map_code);
+    if (latestTiff == null) throw new Error(`Failed to find latest item for map code '${item.properties.map_code}'`);
     item.links.push({
-      href: `./${latest.mapCode}_${latest.version}.json`,
+      href: `./${latestTiff.mapCode}_${latestTiff.version}.json`,
       rel: 'latest-version',
       type: 'application/json',
     });
   }
 
-  const latestStacItem = createBaseStacItem(latest.mapCode, latest, tileMatrix);
-
-  // add link to the latest item referencing its copy that will live in the topo[50/250] directory
-  latestStacItem.links.push({
-    // from: <target>/<scale>_latest/<resolution>/<espg>
-    //       ../../../ = <target>
-    // to:   <target>/<scale>/<resolution>/<espg>
-    href: `../../../${scale}/${resolution}/${latest.epsg.code}/${latest.mapCode}_${latest.version}.json`,
-    rel: 'derived_from',
-    type: 'application/json',
+  const latestStacItems = Array.from(latest.values()).map((item) => {
+    const latestStacItem = createBaseStacItem(item.mapCode, item, tileMatrix, logger);
+    latestStacItem.links.push({
+      // from: <target>/<scale>_latest/<resolution>/<espg>
+      //       ../../../ = <target>
+      // to:   <target>/<scale>/<resolution>/<espg>
+      href: `../../../${scale}/${resolution}/${item.epsg.code}/${item.mapCode}_${item.version}.json`,
+      rel: 'derived-from',
+      type: 'application/json',
+    });
+    return latestStacItem;
   });
 
-  return { latest: latestStacItem, all: allStacItems };
+  // add link to the latest item referencing its copy that will live in the topo[50/250] directory
+
+  return { latest: latestStacItems, all: allStacItems };
 }
 
 export function createStacCollection(
