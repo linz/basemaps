@@ -7,7 +7,7 @@ import { CogifyCreationOptions } from '../stac.js';
 import { GdalCommand } from './gdal.runner.js';
 
 const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
-const DEFAULT_TRIM_PIXEL_RIGHT = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
+const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
 
 export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha?: boolean): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
@@ -161,7 +161,7 @@ export function gdalBuildTopoRasterCommands(
       ['-q'], // Supress non-error output
       ['-stats'], // Force stats (re)computation
       ['-of', 'COG'], // Output format
-      ['-srcwin', '0', '0', `${width - DEFAULT_TRIM_PIXEL_RIGHT}`, `${height}`],
+      ['-srcwin', '0', '0', `${width - DefaultTrimPixelRight}`, `${height}`],
       ['-a_srs', `EPSG:${opt.sourceEpsg}`],
 
       // https://gdal.org/en/latest/drivers/raster/cog.html#creation-options

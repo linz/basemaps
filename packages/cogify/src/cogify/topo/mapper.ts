@@ -10,7 +10,7 @@ import {
 } from './extract.js';
 import { brokenTiffs, ByDirectory, TiffItem } from './types.js';
 
-const slugs: { [key in EpsgCode]?: string } = {
+const slugs: Partial<Record<EpsgCode, string>> = {
   [EpsgCode.Nztm2000]: 'new-zealand-mainland',
   [EpsgCode.Citm2000]: 'chatham-islands',
 };
@@ -48,7 +48,7 @@ export function groupTiffsByDirectory(tiffs: Tiff[], logger?: LogType): ByDirect
     const source = tiff.source.url;
     const { mapCode, version } = extractMapCodeAndVersion(source.href, logger);
 
-    const bounds = extractBoundsFromTiff(tiff);
+    const bounds = extractBoundsFromTiff(tiff, logger);
     const epsg = extractEpsgFromTiff(tiff, logger);
     const size = extractSizeFromTiff(tiff, logger);
 

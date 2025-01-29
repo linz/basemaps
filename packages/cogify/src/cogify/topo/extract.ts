@@ -12,14 +12,19 @@ import path from 'path';
  *
  * @returns a Bounds object, on success. Otherwise, null.
  */
-export function extractBoundsFromTiff(tiff: Tiff): Bounds | null {
+export function extractBoundsFromTiff(tiff: Tiff, logger?: LogType): Bounds | null {
   const img = tiff.images[0];
   if (img == null) {
-    throw new Error(`No images found in Tiff file: ${tiff.source.url.href}`);
+    logger?.error({ source: tiff.source.url.href }, 'extractBoundsFromTiff(): No images found in Tiff file');
+    return null;
   }
 
   if (img.valueGeo(TiffTagGeo.GTRasterTypeGeoKey) === RasterTypeKey.PixelIsPoint) {
-    throw new Error("'Pixel is Point' raster grid spacing is not supported");
+    logger?.error(
+      { source: tiff.source.url.href },
+      'extractBoundsFromTiff(): Pixel is Point raster grid spacing is not supported',
+    );
+    return null;
   }
 
   return Bounds.fromBbox(img.bbox);
@@ -41,7 +46,8 @@ const projections: Record<string, Epsg> = {
 export function extractEpsgFromTiff(tiff: Tiff, logger?: LogType): Epsg | null {
   const img = tiff.images[0];
   if (img == null) {
-    throw new Error(`No images found in Tiff file: ${tiff.source.url.href}`);
+    logger?.error({ source: tiff.source.url.href }, 'extractEpsgFromTiff(): No images found in Tiff file');
+    return null;
   }
 
   // try to extract the epsg directly from the tiff
@@ -51,7 +57,7 @@ export function extractEpsgFromTiff(tiff: Tiff, logger?: LogType): Epsg | null {
     const code = Epsg.tryGet(epsg);
 
     if (code != null) {
-      logger?.info({ found: true, method: 'direct' }, 'extractEpsgFromTiff()');
+      logger?.info({ found: true, method: 'direct', source: tiff.source.url.href }, 'extractEpsgFromTiff()');
       return code;
     }
   }
@@ -62,7 +68,7 @@ export function extractEpsgFromTiff(tiff: Tiff, logger?: LogType): Epsg | null {
   if (typeof tag === 'string') {
     for (const [citation, epsg] of Object.entries(projections)) {
       if (tag.startsWith(citation)) {
-        logger?.info({ found: true, method: 'geotag' }, 'extractEpsgFromTiff()');
+        logger?.info({ found: true, method: 'geotag', source: tiff.source.url.href }, 'extractEpsgFromTiff()');
         return epsg;
       }
     }
@@ -112,10 +118,10 @@ export function extractSizeFromTiff(tiff: Tiff, logger?: LogType): Size | null {
   try {
     const size = tiff.images[0]?.size ?? null;
 
-    logger?.info({ found: size }, 'extractSizeFromTiff()');
+    logger?.info({ source: tiff.source.url.href, found: true, size }, 'extractSizeFromTiff()');
     return size;
   } catch (e) {
-    logger?.info({ found: false }, 'extractSizeFromTiff()');
+    logger?.error({ source: tiff.source.url.href, found: false }, 'extractSizeFromTiff()');
     return null;
   }
 }
