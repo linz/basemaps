@@ -15,6 +15,25 @@ import { brokenTiffs } from '../topo/types.js';
 
 const Q = pLimit(10);
 
+export interface TopoCreationContext {
+  /** Only create cogs for latest versions */
+  latestOnly: boolean;
+  /** Source location of topo tiffs */
+  source: URL;
+  /** Target location for the output stac files */
+  target: URL;
+  /** Imagery title */
+  title: string;
+  /** Input topo imagery scale, topo25, topo50, or topo250*/
+  scale: string;
+  /** Input topo imagery resolution, e.g. gridless_600dpi*/
+  resolution: string;
+  /** force to output if not in argo */
+  forceOutput: boolean;
+  /** Optional logger to trace covering creation */
+  logger?: LogType;
+}
+
 /**
  * List all the tiffs in a directory for topographic maps and create cogs for each.
  *
@@ -73,30 +92,31 @@ export const TopoStacCreationCommand = command({
     const startTime = performance.now();
     logger.info('ListJobs:Start');
 
-    const { epsgDirectoryPaths, stacItemPaths } = await loadTiffsToCreateStacs(
-      args.latestOnly,
-      args.source,
-      args.target,
-      args.title,
-      args.scale,
-      args.resolution,
-      args.forceOutput,
+    const ctx: TopoCreationContext = {
+      latestOnly: args.latestOnly,
+      source: args.source,
+      target: args.target,
+      title: args.title,
+      scale: args.scale,
+      resolution: args.resolution,
+      forceOutput: args.forceOutput,
       logger,
-    );
+    };
+    const { epsgDirectoryPaths, stacItemPaths } = await loadTiffsToCreateStacs(ctx);
 
     if (epsgDirectoryPaths.length === 0 || stacItemPaths.length === 0) throw new Error('No Stac items created');
 
     // write stac items into an JSON array
     if (args.forceOutput || isArgo()) {
-      const targetURL = isArgo() ? fsa.toUrl('/tmp/topo-stac-creation/') : args.target;
+      const targetUrl = isArgo() ? fsa.toUrl('/tmp/topo-stac-creation/') : args.target;
 
       // for create-config: we need to tell create-config to create a bundled config for each epsg folder (latest only).
       // workflow: will loop 'targets.json' and create a node for each path where each node's job is to create a bundled config.
-      await fsa.write(new URL('targets.json', targetURL), JSON.stringify(epsgDirectoryPaths, null, 2));
+      await fsa.write(new URL('targets.json', targetUrl), JSON.stringify(epsgDirectoryPaths, null, 2));
 
       // tiles.json makes the tiff files
-      await fsa.write(new URL('tiles.json', targetURL), JSON.stringify(stacItemPaths, null, 2));
-      await fsa.write(new URL('brokenTiffs.json', targetURL), JSON.stringify(brokenTiffs, null, 2));
+      await fsa.write(new URL('tiles.json', targetUrl), JSON.stringify(stacItemPaths, null, 2));
+      await fsa.write(new URL('broken-tiffs.json', targetUrl), JSON.stringify(brokenTiffs, null, 2));
     }
 
     logger.info({ duration: performance.now() - startTime }, 'ListJobs:Done');
@@ -105,10 +125,8 @@ export const TopoStacCreationCommand = command({
 
 /**
  * @param source: Source directory URL from which to load tiff files
- * @example TODO
  *
  * @param target: Destination directory URL into which to save the STAC collection and item JSON files
- * @example TODO
  *
  * @param title: The title of the collection
  * @example "New Zealand Topo50 Map Series (Gridless)"
@@ -116,15 +134,11 @@ export const TopoStacCreationCommand = command({
  * @returns an array of StacItem objects
  */
 async function loadTiffsToCreateStacs(
-  latestOnly: boolean,
-  source: URL,
-  target: URL,
-  title: string,
-  scale: string,
-  resolution: string,
-  forceOutput: boolean,
-  logger?: LogType,
+  ctx: TopoCreationContext,
 ): Promise<{ epsgDirectoryPaths: { epsg: string; url: URL }[]; stacItemPaths: { path: URL }[] }> {
+  const logger = ctx.logger;
+  const source = ctx.source;
+  const target = ctx.target;
   logger?.info({ source }, 'LoadTiffs:Start');
   // extract all file paths from the source directory and convert them into URL objects
   const fileURLs = await fsa.toArray(fsa.list(source));
@@ -143,6 +157,8 @@ async function loadTiffsToCreateStacs(
   const stacItemPaths = [];
 
   // create and write stac items and collections
+  const scale = ctx.scale;
+  const resolution = ctx.resolution;
   for (const [epsg, itemsByMapCode] of itemsByDir.all.entries()) {
     const allTargetURL = new URL(`${scale}/${resolution}/${epsg}/`, target);
     const latestTargetURL = new URL(`${scale}_latest/${resolution}/${epsg}/`, target);
@@ -184,16 +200,24 @@ async function loadTiffsToCreateStacs(
     const linzSlug = `${scale}-${epsgSlug}`;
 
     // create collections
-    const collection = createStacCollection(title, linzSlug, Bounds.union(allBounds), allStacItems, logger);
-    const latestCollection = createStacCollection(title, linzSlug, Bounds.union(latestBounds), latestStacItems, logger);
+    const title = ctx.title;
+    const collection = createStacCollection(title, linzSlug, epsgCode, Bounds.union(allBounds), allStacItems, logger);
+    const latestCollection = createStacCollection(
+      title,
+      linzSlug,
+      epsgCode,
+      Bounds.union(latestBounds),
+      latestStacItems,
+      logger,
+    );
     logger?.info({ epsg }, 'CreateStacItems:End');
 
-    if (forceOutput || isArgo()) {
+    if (ctx.forceOutput || isArgo()) {
       epsgDirectoryPaths.push({ epsg, url: latestTargetURL });
 
       // write stac items and collections
       logger?.info({ epsg }, 'WriteStacFiles:Start');
-      if (!latestOnly) {
+      if (!ctx.latestOnly) {
         const allPaths = await writeStacFiles(allTargetURL, allStacItems, collection, logger);
         stacItemPaths.push(...allPaths.itemPaths);
       }

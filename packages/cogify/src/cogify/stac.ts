@@ -125,14 +125,14 @@ export type TopoStacItem = StacItem & {
     'proj:epsg': EpsgCode;
 
     /**
-     * The width of a map sheet in pixels.
+     * The width and height of a map sheet in pixels.
      */
-    'source.width': number;
+    'source:width': number;
 
     /**
      * The height of a map sheet in pixels.
      */
-    'source.height': number;
+    'source:height': number;
 
     'linz_basemaps:generated': GeneratedProperties;
     'linz_basemaps:options': {

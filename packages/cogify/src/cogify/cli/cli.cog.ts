@@ -183,8 +183,8 @@ export const BasemapsCogifyCreateCommand = command({
           const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
           const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
           if (args.topo) {
-            const width = item.properties['source.width'] as number;
-            const height = item.properties['source.height'] as number;
+            const width = item.properties['source:width'] as number;
+            const height = item.properties['source:height'] as number;
             return createTopoCog({
               tileId,
               options,
