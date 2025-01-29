@@ -1,20 +1,17 @@
 import assert from 'node:assert';
 import { createHash } from 'node:crypto';
-import { writeFileSync } from 'node:fs';
 import { before, describe, it } from 'node:test';
 
 import { fsa, LogConfig } from '@basemaps/shared';
-// import { TestTiff } from '@basemaps/test';
+import { TestTiff } from '@basemaps/test';
 import { Tiff } from '@cogeotiff/core';
 
-import { LzwDecompressor, LzwDecompressorSharp } from '../decompressor.lzw.js';
+import { LzwDecompressorJs, LzwDecompressorSharp } from '../decompressor.lzw.js';
 
 describe('decompressor.lzw', () => {
   let tiff: Tiff;
   before(async () => {
-    tiff = await Tiff.create(
-      fsa.source(fsa.toUrl('file:///home/blacha/data/elevation/nz-8m-dem-2012/8m-dem-small/qd.lzw.tiff')),
-    );
+    tiff = await Tiff.create(fsa.source(TestTiff.CompressLzw));
   });
 
   it('should decode a 64x64 lzw tile', async () => {
@@ -22,6 +19,7 @@ describe('decompressor.lzw', () => {
     const hashes: Record<string, { hash: string; duration: number }> = {};
     const hashesSharp: Record<string, { hash: string; duration: number }> = {};
 
+    let tileCount = 0;
     for (const img of tiff.images) {
       const imageId = img.id;
       for (let x = 0; x < img.tileCount.x; x++) {
@@ -46,7 +44,7 @@ describe('decompressor.lzw', () => {
           };
 
           const startTimeB = performance.now();
-          const retB = await LzwDecompressor.decompress({
+          const retB = await LzwDecompressorJs.decompress({
             tiff,
             imageId,
             x,
@@ -61,11 +59,10 @@ describe('decompressor.lzw', () => {
           };
 
           assert.equal(hashLzw, hashSharp, tileId);
+          tileCount++;
         }
       }
+      assert.equal(tileCount, 1);
     }
-    // writeFileSync('./hashes.json', JSON.stringify(hashes, null, 2));
-
-    // writeFileSync('./hashesSharp.json', JSON.stringify(hashesSharp, null, 2));
   });
 });

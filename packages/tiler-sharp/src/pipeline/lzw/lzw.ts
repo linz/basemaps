@@ -111,7 +111,6 @@ export function decompress(input: ArrayBuffer): Uint8Array {
       appendReversed(result, oldVal);
       result.push(oldVal[oldVal.length - 1]);
       addToDictionary(oldCode as number, oldVal[oldVal.length - 1]);
-      // console.log(oldCode, oldVal[oldVal.length - 1]);
       oldCode = code;
     }
 
