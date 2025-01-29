@@ -9,9 +9,9 @@ import { isArgo } from '../../argo.js';
 import { UrlFolder } from '../../cogify/parsers.js';
 import { getLogger, logArguments } from '../../log.js';
 import { TopoStacItem } from '../stac.js';
-import { groupTiffsByDirectory, mapEpsgToSlug } from '../topo/mapper.js';
+import { brokenTiffs, extractAllTiffs, extractLatestItem } from '../topo/extract.js';
+import { mapEpsgToSlug } from '../topo/slug.js';
 import { createStacCollection, createStacItems, writeStacFiles } from '../topo/stac.creation.js';
-import { brokenTiffs } from '../topo/types.js';
 
 const Q = pLimit(10);
 
@@ -147,11 +147,10 @@ async function loadTiffsToCreateStacs(
   logger?.info({ numTiffs: tiffs.length }, 'LoadTiffs:End');
 
   // group all of the Tiff objects by epsg and map code
-  logger?.info('GroupTiffs:Start');
-  const itemsByDir = groupTiffsByDirectory(tiffs, logger);
-  const itemsByDirPath = new URL('itemsByDirectory.json', target);
-  await fsa.write(itemsByDirPath, JSON.stringify(itemsByDir, null, 2));
-  logger?.info('GroupTiffs:End');
+  logger?.info('ExtractTiffs:Start');
+  const allTiffs = extractAllTiffs(tiffs, logger);
+  const latestTiffs = extractLatestItem(allTiffs);
+  logger?.info('ExtractTiffs:End');
 
   const epsgDirectoryPaths: { epsg: string; url: URL }[] = [];
   const stacItemPaths = [];
@@ -159,7 +158,7 @@ async function loadTiffsToCreateStacs(
   // create and write stac items and collections
   const scale = ctx.scale;
   const resolution = ctx.resolution;
-  for (const [epsg, itemsByMapCode] of itemsByDir.all.entries()) {
+  for (const [epsg, items] of Object.entries(allTiffs)) {
     const allTargetURL = new URL(`${scale}/${resolution}/${epsg}/`, target);
     const latestTargetURL = new URL(`${scale}_latest/${resolution}/${epsg}/`, target);
 
@@ -179,19 +178,14 @@ async function loadTiffsToCreateStacs(
 
     // create stac items
     logger?.info({ epsg }, 'CreateStacItems:Start');
-    for (const [mapCode, items] of itemsByMapCode.entries()) {
-      // get latest item
-      const latest = itemsByDir.latest.get(epsg).get(mapCode);
+    // create stac items
+    const stacItems = createStacItems(scale, resolution, tileMatrix, items, latestTiffs, logger);
 
-      // create stac items
-      const stacItems = createStacItems(scale, resolution, tileMatrix, items, latest, logger);
+    allBounds.push(...items.map((item) => item.bounds));
+    allStacItems.push(...stacItems.all);
 
-      allBounds.push(...items.map((item) => item.bounds));
-      allStacItems.push(...stacItems.all);
-
-      latestBounds.push(latest.bounds);
-      latestStacItems.push(stacItems.latest);
-    }
+    latestBounds.push(...Array.from(latestTiffs.values()).map((item) => item.bounds));
+    latestStacItems.push(...stacItems.latest);
 
     // convert epsg to slug
     const epsgSlug = mapEpsgToSlug(epsgCode.code);

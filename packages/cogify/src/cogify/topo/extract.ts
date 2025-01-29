@@ -1,9 +1,9 @@
-import { Bounds } from '@basemaps/geo';
-import { Epsg } from '@basemaps/geo';
-import { Size } from '@basemaps/geo';
+import { Bounds, Epsg, Size } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { RasterTypeKey, Tiff, TiffTagGeo } from '@cogeotiff/core';
 import path from 'path';
+
+export const brokenTiffs = { noBounds: [] as string[], noEpsg: [] as string[], noSize: [] as string[] };
 
 /**
  * Attempts to extract a bounds set from the given Tiff object.
@@ -124,4 +124,96 @@ export function extractSizeFromTiff(tiff: Tiff, logger?: LogType): Size | null {
     logger?.error({ source: tiff.source.url.href, found: false }, 'extractSizeFromTiff()');
     return null;
   }
+}
+
+export interface TiffItem {
+  tiff: Tiff;
+  source: URL;
+  mapCode: string;
+  version: string;
+  bounds: Bounds;
+  epsg: Epsg;
+  size: Size;
+  latest?: string;
+}
+
+export interface TiffItems {
+  [epsg: string]: TiffItem[];
+}
+
+/**
+ * Groups a list of Tiff objects into a TiffItem
+ * based on each object's epsg, map code, and version information.
+ *
+ * This function assigns each tiff to a group based on its map code (e.g. "AT24").
+ * For each group, it then identifies the latest version and sets a copy aside. *
+ *
+ * @param tiffs: the list of Tiff objects to group by epsg, and map code, and version
+ * @returns a TiffItems
+ */
+export function extractAllTiffs(tiffs: Tiff[], logger?: LogType): TiffItems {
+  // group the tiffs by directory, epsg, and map code
+  const tiffItems: TiffItems = {};
+
+  // create items for each tiff and store them into 'all' by {epsg} and {map code}
+  for (const tiff of tiffs) {
+    const source = tiff.source.url;
+    const { mapCode, version } = extractMapCodeAndVersion(source.href, logger);
+
+    const bounds = extractBoundsFromTiff(tiff, logger);
+    const epsg = extractEpsgFromTiff(tiff, logger);
+    const size = extractSizeFromTiff(tiff, logger);
+
+    if (bounds == null || epsg == null || size == null) {
+      if (bounds == null) {
+        brokenTiffs.noBounds.push(`${mapCode}_${version}`);
+        logger?.warn({ mapCode, version }, 'Could not extract bounds from tiff');
+      }
+
+      if (epsg == null) {
+        brokenTiffs.noEpsg.push(`${mapCode}_${version}`);
+        logger?.warn({ mapCode, version }, 'Could not extract epsg from tiff');
+      }
+
+      if (size == null) {
+        brokenTiffs.noSize.push(`${mapCode}_${version}`);
+        logger?.warn({ mapCode, version }, 'Could not extract width or height from tiff');
+      }
+
+      continue;
+    }
+
+    const item: TiffItem = { tiff, source, mapCode, version, bounds, epsg, size };
+
+    // push the item into 'all'
+    const items = tiffItems[epsg.code];
+    if (items == null) {
+      tiffItems[epsg.code] = [item];
+    } else {
+      items.push(item);
+    }
+  }
+
+  return tiffItems;
+}
+
+/**
+ * Filter the latest tiffs from all tiffs based on the version
+ *
+ */
+export function extractLatestItem(tiffItems: TiffItems): Map<string, TiffItem> {
+  // Map latest from map code to version
+  const latest: Map<string, TiffItem> = new Map();
+
+  // identify the latest item by {version} and copy it to 'latest'
+  for (const items of Object.values(tiffItems)) {
+    for (const item of items) {
+      const mapCode = item.mapCode;
+      const latestItem = latest.get(mapCode);
+      if (latestItem == null || latestItem.version.localeCompare(item.version) < 0) {
+        latest.set(mapCode, item);
+      }
+    }
+  }
+  return latest;
 }
