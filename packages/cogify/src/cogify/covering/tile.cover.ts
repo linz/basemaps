@@ -7,16 +7,10 @@ import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { createCovering } from './cogify/covering.js';
-import {
-  CogifyLinkCutline,
-  CogifyLinkSource,
-  CogifyStacCollection,
-  CogifyStacItem,
-  createFileStats,
-} from './cogify/stac.js';
+import { Presets } from '../../preset.js';
+import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem, createFileStats } from '../stac.js';
+import { createCovering } from './covering.js';
 import { CutlineOptimizer } from './cutline.js';
-import { Presets } from './preset.js';
 
 export interface TileCoverContext {
   /** Unique id for the covering */
@@ -225,7 +219,9 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
       temporal: { interval: dateTime.start ? [[dateTime.start, dateTime.end]] : [[cliDate, null]] },
     },
     links: items.map((item) => {
-      const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
+      const tile = item.properties['linz_basemaps:options'].tile;
+      if (tile == null) throw new Error('Tile missing from item');
+      const tileId = TileId.fromTile(tile);
       return { href: `./${tileId}.json`, rel: 'item', type: 'application/json' };
     }),
   };

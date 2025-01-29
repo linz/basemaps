@@ -7,10 +7,10 @@ import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 
 import { isArgo } from '../../argo.js';
-import { CutlineOptimizer } from '../../cutline.js';
 import { getLogger, logArguments } from '../../log.js';
 import { Presets } from '../../preset.js';
-import { createTileCover, TileCoverContext } from '../../tile.cover.js';
+import { CutlineOptimizer } from '../covering/cutline.js';
+import { createTileCover, TileCoverContext } from '../covering/tile.cover.js';
 import { RgbaType, Url, UrlFolder } from '../parsers.js';
 import { createFileStats } from '../stac.js';
 
@@ -84,6 +84,9 @@ export const BasemapsCogifyCoverCommand = command({
       throw new Error(`No collection.json found with imagery: ${im.url.href}`);
     }
 
+    const slug = im.collection?.['linz:slug'];
+    if (slug != null) im.name = slug as string;
+
     const tms = SupportedTileMatrix.find((f) => f.identifier.toLowerCase() === args.tileMatrix.toLowerCase());
     if (tms == null) throw new Error('--tile-matrix: ' + args.tileMatrix + ' not found');
 
@@ -144,11 +147,13 @@ export const BasemapsCogifyCoverCommand = command({
     const items = [];
     const tilesByZoom: number[] = [];
     for (const item of res.items) {
-      const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
+      const tile = item.properties['linz_basemaps:options'].tile;
+      if (tile == null) throw new Error('Tile not found in item');
+      const tileId = TileId.fromTile(tile);
       const itemPath = new URL(`${tileId}.json`, targetPath);
       items.push({ path: itemPath });
       await fsa.write(itemPath, JSON.stringify(item, null, 2));
-      const z = item.properties['linz_basemaps:options'].tile.z;
+      const z = tile.z;
       tilesByZoom[z] = (tilesByZoom[z] ?? 0) + 1;
       ctx.logger?.trace({ path: itemPath }, 'Imagery:Stac:Item:Write');
     }
