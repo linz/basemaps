@@ -90,35 +90,40 @@ export function createStacItems(
   latest: Map<string, TiffItem>,
   logger?: LogType,
 ): { all: TopoStacItem[]; latest: TopoStacItem[] } {
-  const allStacItems = all.map((item) =>
-    createBaseStacItem(`${item.mapCode}_${item.version}`, item, tileMatrix, logger),
-  );
+  // create origin StacItem files
+  const allStacItems = all.map((item) => {
+    const latestTiff = latest.get(item.mapCode);
+    if (latestTiff == null) throw new Error(`Failed to find latest item for map code '${item.mapCode}'`);
 
-  // add link to all items pointing to the latest version and create stac for latest items
-  for (const item of allStacItems) {
-    const latestTiff = latest.get(item.properties.map_code);
-    if (latestTiff == null) throw new Error(`Failed to find latest item for map code '${item.properties.map_code}'`);
-    item.links.push({
+    const originStacItem = createBaseStacItem(`${item.mapCode}_${item.version}`, item, tileMatrix, logger);
+
+    // add link referencing the 'latest version' origin StacItem file that will live in the same directory
+    originStacItem.links.push({
       href: `./${latestTiff.mapCode}_${latestTiff.version}.json`,
       rel: 'latest-version',
       type: 'application/json',
     });
-  }
 
+    return originStacItem;
+  });
+
+  // create latest StacItem files
   const latestStacItems = Array.from(latest.values()).map((item) => {
     const latestStacItem = createBaseStacItem(item.mapCode, item, tileMatrix, logger);
+
+    // add link referencing this StacItem's origin file that will live in the topo[50/250] directory
     latestStacItem.links.push({
-      // from: <target>/<scale>_latest/<resolution>/<espg>
-      //       ../../../ = <target>
-      // to:   <target>/<scale>/<resolution>/<espg>
+      // directory into which we save this StacItem file: <target>/<scale>_latest/<resolution>/<espg>/[latest_stac_item]
+      // directory inside which we save this StacItem's origin file: <target>/<scale>/<resolution>/<espg>/[origin_stac_item]
+      //
+      // `../../../` takes us up to the <target> directory
       href: `../../../${scale}/${resolution}/${item.epsg.code}/${item.mapCode}_${item.version}.json`,
       rel: 'derived-from',
       type: 'application/json',
     });
+
     return latestStacItem;
   });
-
-  // add link to the latest item referencing its copy that will live in the topo[50/250] directory
 
   return { latest: latestStacItems, all: allStacItems };
 }
