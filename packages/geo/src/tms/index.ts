@@ -1,5 +1,6 @@
 import { Epsg, EpsgCode } from '../epsg.js';
 import { TileMatrixSet } from '../tile.matrix.set.js';
+import { Citm2000Tms } from './citm2000.js';
 import { GoogleTms } from './google.js';
 import { Nztm2000QuadTms, Nztm2000Tms } from './nztm2000.js';
 
@@ -7,11 +8,12 @@ export type Nullish = null | undefined;
 
 export const TileMatrixSets = {
   /** All TileMatrixSets that are currently supported */
-  All: [GoogleTms, Nztm2000Tms, Nztm2000QuadTms],
+  All: [GoogleTms, Nztm2000Tms, Nztm2000QuadTms, Citm2000Tms],
   /** Default mapping of EPSG code to Tile matrix set */
   Defaults: new Map([
     [Epsg.Google.code, GoogleTms],
     [Epsg.Nztm2000.code, Nztm2000Tms],
+    [Epsg.Citm2000.code, Citm2000Tms],
   ]),
   /**
    * Get a tile matrix set by EPSG Code

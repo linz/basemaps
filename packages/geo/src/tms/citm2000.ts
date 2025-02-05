@@ -3,7 +3,7 @@ import { TileMatrixSetType } from '@linzjs/tile-matrix-set';
 import { TileMatrixSet } from '../tile.matrix.set.js';
 
 /**
- *  **Warning** this is not a standard tile matrix it is used for debugging purposes only
+ * **Warning** this is not a standard tile matrix it is used for debugging purposes only
  *
  * Created using ./scripts/debug.tile.matrix.ts
  */
@@ -11,7 +11,7 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
   type: 'TileMatrixSetType',
   title: 'Debug tile matrix for EPSG:3793',
   abstract: '',
-  identifier: 'Debug_NZGD2000_ChathamIslandsTM2000',
+  identifier: 'CITM2000Quad',
   supportedCRS: 'https://www.opengis.net/def/crs/EPSG/0/3793',
   boundingBox: {
     type: 'BoundingBoxType',
