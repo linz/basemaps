@@ -1,4 +1,4 @@
-import { Bounds, Epsg, Nztm2000QuadTms, Projection, ProjectionLoader, getXyOrder } from '@basemaps/geo';
+import { Bounds, Epsg, GoogGoogleTms, leTms, Projection, ProjectionLoader, getXyOrder, GoogleTms } from '@basemaps/geo';
 import { CliInfo } from '@basemaps/shared/build/cli/info';
 import { writeFileSync } from 'fs';
 
@@ -37,8 +37,8 @@ interface ProjJson {
  * @returns one zoom level bigger than the minimum zoom level
  */
 function findZoomOffset(minSize: number) {
-    for (let i = 1; i < Nztm2000QuadTms.maxZoom; i++) {
-        const size = Nztm2000QuadTms.pixelScale(i) * 256
+    for (let i = 1; i < GoogleTms.maxZoom; i++) {
+        const size = GoogleTms.pixelScale(i) * 256
         const sizeDiff = minSize - size;
         if (sizeDiff > 0) return Math.max(0, i - 1);
     }
@@ -72,12 +72,12 @@ async function main() {
     console.log('Writing bounds', `${filePrefix}-bounds.geojson`)
     writeFileSync(`${filePrefix}-bounds.geojson`, JSON.stringify(feature))
 
-    const tileZeroWidth = Nztm2000QuadTms.pixelScale(zOffset) * 256
+    const tileZeroWidth = GoogleTms.pixelScale(zOffset) * 256
     const halfTileZeroWidth = tileZeroWidth / 2;
 
     const centerProjected = proj.fromWgs84([centerLon, centerLat])
 
-    const tileMatrix = structuredClone(Nztm2000QuadTms.def)
+    const tileMatrix = structuredClone(GoogleTms.def)
 
     const xyOrder = getXyOrder(TargetProjection)
 
@@ -86,6 +86,8 @@ async function main() {
     tileMatrix.title = 'Debug tile matrix for EPSG:' + TargetProjection;
     tileMatrix.boundingBox.lowerCorner = [centerProjected[xy.x] - halfTileZeroWidth, centerProjected[xy.y] - halfTileZeroWidth]
     tileMatrix.boundingBox.upperCorner = [centerProjected[xy.x] + halfTileZeroWidth, centerProjected[xy.y] + halfTileZeroWidth]
+
+    delete tileMatrix.wellKnownScaleSet;
 
     tileMatrix.tileMatrix = tileMatrix.tileMatrix.slice(zOffset).map((x, i) => {
         x.identifier = String(i);
@@ -100,7 +102,7 @@ async function main() {
 
     // Log how the tile matrix was generated
     tileMatrix['$generated'] = { ...CliInfo, createdAt: new Date().toISOString() };
-    tileMatrix['$options'] = { sourceTileMatrix: Nztm2000QuadTms.identifier, zoomOffset: zOffset }
+    tileMatrix['$options'] = { sourceTileMatrix: GoogleTms.identifier, zoomOffset: zOffset }
 
     console.log('Writing tile matrix', `${filePrefix}-tile-matrix.json`)
     writeFileSync(`${filePrefix}-tile-matrix.json`, JSON.stringify(tileMatrix, null, 2));
