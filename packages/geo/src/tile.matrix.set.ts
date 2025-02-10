@@ -2,7 +2,7 @@ import { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
 
 import { Bounds, Point } from './bounds.js';
 import { Epsg } from './epsg.js';
-import { getXyOrder, XyOrder } from './xy.order.js';
+import { getXyOrder } from './xy.order.js';
 
 export type Tile = Point & { z: number };
 
@@ -58,7 +58,7 @@ export class TileMatrixSet {
     this.projection = projection;
 
     /** Some projections @see EPSG:2193 are defined with XY Order of  */
-    if (getXyOrder(this.projection) === XyOrder.Yx) {
+    if (getXyOrder(this.projection) === 'yx') {
       this.indexX = 1;
       this.indexY = 0;
     }

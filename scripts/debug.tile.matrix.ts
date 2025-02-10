@@ -1,12 +1,12 @@
-import { Bounds, Epsg, Nztm2000QuadTms, Projection, ProjectionLoader } from '@basemaps/geo';
+import { Bounds, Epsg, Nztm2000QuadTms, Projection, ProjectionLoader, getXyOrder } from '@basemaps/geo';
 import { CliInfo } from '@basemaps/shared/build/cli/info';
 import { writeFileSync } from 'fs';
 
 /**
  * Attempt to create a debug tile matrix given a projection code.
  * 
- * General flow of the creaion
- * - Lookup the projection information from spatialreference
+ * General flow of the creation
+ * - Lookup the projection information from spatial reference
  * - Attempt to find the bounds of the projection
  * - Using the bounds attempt to find a tile matrix zoom level that would cover the entire bounds
  * - Create a basic debugging tile matrix from the information
@@ -77,14 +77,15 @@ async function main() {
 
     const centerProjected = proj.fromWgs84([centerLon, centerLat])
 
-    const tileMatrixBounds = new Bounds(centerProjected[0] - halfTileZeroWidth, centerProjected[1] - halfTileZeroWidth, tileZeroWidth, tileZeroWidth);
-    const outputBounds = proj.boundsToGeoJsonFeature(tileMatrixBounds)
-
     const tileMatrix = structuredClone(Nztm2000QuadTms.def)
 
+    const xyOrder = getXyOrder(TargetProjection)
+
+    const xy = xyOrder === 'xy' ? { x: 0, y: 1 } : { x: 1, y: 0 }
+
     tileMatrix.title = 'Debug tile matrix for EPSG:' + TargetProjection;
-    tileMatrix.boundingBox.lowerCorner = [centerProjected[0] - halfTileZeroWidth, centerProjected[1] - halfTileZeroWidth]
-    tileMatrix.boundingBox.upperCorner = [centerProjected[0] + halfTileZeroWidth, centerProjected[1] + halfTileZeroWidth]
+    tileMatrix.boundingBox.lowerCorner = [centerProjected[xy.x] - halfTileZeroWidth, centerProjected[xy.y] - halfTileZeroWidth]
+    tileMatrix.boundingBox.upperCorner = [centerProjected[xy.x] + halfTileZeroWidth, centerProjected[xy.y] + halfTileZeroWidth]
 
     tileMatrix.tileMatrix = tileMatrix.tileMatrix.slice(zOffset).map((x, i) => {
         x.identifier = String(i);
