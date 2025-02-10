@@ -43,7 +43,7 @@ jobs:
           docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
 
       - name: Save snapshots
-        uses: getsentry/action-visual-snapshot@v2
+        uses: blacha/action-visual-snapshot@v2-next
         with:
           save-only: true
           snapshot-path: .artifacts/visual-snapshots
@@ -68,7 +68,7 @@ jobs:
 
       - name: Diff snapshots
         id: visual-snapshots-diff
-        uses: blacha/action-visual-snapshot@v2
+        uses: blacha/action-visual-snapshot@v2-next
         with:
           storage-prefix: 's3://linz-basemaps-screenshot'
           storage-url: 'https://d25mfjh9syaxsr.cloudfront.net'
