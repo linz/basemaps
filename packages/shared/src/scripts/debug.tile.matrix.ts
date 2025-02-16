@@ -19,9 +19,10 @@ import { CliInfo } from '../cli/info.js';
  */
 const TargetProjection = 3793;
 
+/** Minimal typings of PROJJSON */
 interface ProjJsonAxis {
   name: string;
-  abbreviation: 'x' | 'y';
+  abbreviation: 'x' | 'y' | 'e' | 'n';
   direction: 'east' | 'north';
   unit: string;
 }
@@ -54,6 +55,26 @@ function findZoomOffset(minSize: number): number {
     if (sizeDiff > 0) return Math.max(0, i - 1);
   }
   return 0;
+}
+
+/**
+ * Normalize axis names to X or Y
+ *
+ * @param ax Axis
+ * @returns Normalized axis name
+ * @throws if axis is unknown
+ */
+function axisName(ax: ProjJsonAxis): 'x' | 'y' {
+  switch (ax.abbreviation.toLowerCase()) {
+    case 'x':
+    case 'e':
+      return 'x';
+    case 'y':
+    case 'n':
+      return 'y';
+    default:
+      throw new Error('Unknown axis abbreviation: ' + ax.abbreviation);
+  }
 }
 
 async function main(): Promise<void> {
@@ -97,9 +118,9 @@ async function main(): Promise<void> {
 
   const xy = xyOrder === 'xy' ? { x: 0, y: 1 } : { x: 1, y: 0 };
 
-  const axisOrder = projJson.coordinate_system.axis.map((m) => m.abbreviation.toLowerCase()).join();
+  const axisOrder = projJson.coordinate_system.axis.map(axisName).join('');
   if (xyOrder !== axisOrder) {
-    throw new Error(`getXyOrder: ${xyOrder} is not the same as expected ordering from proj json`);
+    throw new Error(`getXyOrder: ${axisOrder} is not the same as expected ordering from proj json`);
   }
 
   tileMatrix.title = 'Debug tile matrix for EPSG:' + TargetProjection;
