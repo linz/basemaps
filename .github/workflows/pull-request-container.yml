@@ -51,14 +51,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: '@basemaps/cli - Build and push cli PR container'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: packages/cli
           tags: 'ghcr.io/${{ github.repository }}/cli:pr-${{ github.event.number }}'
           push: true
 
       - name: '@basemaps/server - Build and push server PR container'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: packages/server
           tags: ghcr.io/${{ github.repository }}/server:pr-${{ github.event.number }}
