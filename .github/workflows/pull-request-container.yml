@@ -9,7 +9,11 @@ on:
 jobs:
   containers:
     name: Create containers
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
 
     if: |
       contains(github.event.pull_request.labels.*.name, 'container')
@@ -26,10 +30,6 @@ jobs:
         run: |
           npx lerna run bundle --stream
           npm pack --workspaces
-
-      - name: Set up Docker Qemu
-        id: qemu
-        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         id: buildx
@@ -54,7 +54,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: packages/cli
-          platforms: linux/arm64,linux/amd64
           tags: 'ghcr.io/${{ github.repository }}/cli:pr-${{ github.event.number }}'
           push: true
 
@@ -62,6 +61,5 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: packages/server
-          platforms: linux/arm64,linux/amd64
           tags: ghcr.io/${{ github.repository }}/server:pr-${{ github.event.number }}
           push: true
