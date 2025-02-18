@@ -17,6 +17,11 @@ jobs:
             arch: arm64
             platform: linux/arm64
 
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
+
     steps:
       - uses: linz/action-typescript@v3
 
