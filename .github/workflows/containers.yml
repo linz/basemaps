@@ -85,7 +85,7 @@ jobs:
 
             for (const img of images) {
               const repo = `ghcr.io/${{ github.repository }}/${img}`
-              output[img] = tags.map(t => `${img}:${t}`).join(',')
+              output[img] = tags.map(t => `${repo}:${t}`).join(',')
             }
             
             // Have any tags been created
