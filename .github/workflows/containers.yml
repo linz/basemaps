@@ -81,6 +81,8 @@ jobs:
               tags.push('${{ steps.version.outputs.version }}');
             }
 
+            const labels = '${{ toJson(github.event.pull_request.labels.*.name) }}'
+            console.log(labels);
             if ('${{ github.event.number }}') {
               tags.push('pr-${{ github.event.number }}')
             }
