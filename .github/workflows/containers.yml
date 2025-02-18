@@ -64,11 +64,11 @@ jobs:
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v5
-        with:
-          images:
-            ghcr.io/${{ github.repository }}/cli
-            ghcr.io/${{ github.repository }}/server
-
+        with: 
+          labels:
+            org.opencontainers.image.version=${{ steps.version.outputs.version }}
+          tags: |
+            type=sha
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3 # v3
@@ -83,7 +83,7 @@ jobs:
         with:
           context: packages/cli
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,push=true
+          outputs: type=image,"name=ghcr.io/${{ github.repository }}",push-by-digest=true,push=true
 
       - name: Export digest
         run: |
