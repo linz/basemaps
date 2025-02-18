@@ -13,7 +13,12 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-24.04-arm]
+        include:
+          - os: ubuntu-latest
+            platform: linux/amd64
+
+          - os: ubuntu-24.04-arm
+            platform: linux/arm64
 
     if: |
       contains(github.event.pull_request.labels.*.name, 'container')
@@ -44,7 +49,7 @@ jobs:
           cp -r packages/lambda-tiler/static/ packages/cli/
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3
+        uses: docker/login-action@3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -54,6 +59,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: packages/cli
+          platforms: ${{ matrix.platform }}
           tags: 'ghcr.io/${{ github.repository }}/cli:pr-${{ github.event.number }}'
           push: true
 
@@ -61,5 +67,6 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: packages/server
+          platforms: ${{ matrix.platform }}
           tags: ghcr.io/${{ github.repository }}/server:pr-${{ github.event.number }}
           push: true
