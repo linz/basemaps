@@ -11,7 +11,10 @@ on:
     types: [labeled, synchronize, opened]
 
 jobs:
+
   setup:
+    # Determine if any containers need to be built and what tags they will result in
+    name: Setup container tags
 
     runs-on: ubuntu-latest
 
@@ -92,12 +95,12 @@ jobs:
             const needsContainers = tags.length > 0;
             return { tags: output, needs_containers: needsContainers };
 
-      - name: Test Tags
+      - name: List tags
         run: |
-          echo '${{ toJSON(steps.tags.outputs) }}'
-          echo '${{ steps.tags.outputs.result.needs_containers }}'
-          echo '${{ steps.tags.outputs.result.tags.cli }}'
-          echo '${{ steps.tags.outputs.result.tags.server }}'
+          echo '${{ toJSON(steps.tags.outputs.result) }}'
+          echo need_containers: '${{ steps.tags.outputs.result.needs_containers }}'
+          echo cli_tags: '${{ steps.tags.outputs.result.tags.cli }}'
+          echo server_tags: '${{ steps.tags.outputs.result.tags.server }}'
 
   build-containers:
     needs: setup
@@ -135,7 +138,6 @@ jobs:
           CURRENT_VERSION=$(node -p "require('./lerna.json').version")
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
 
-      # Package all the files
       - name: Bundle & Package all files
         run: |
           npx lerna run bundle --stream
@@ -146,6 +148,7 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
+
       - name: Copy packages and files
         run: |
           # Files are packed into the base directory
@@ -154,7 +157,7 @@ jobs:
           cp -r packages/lambda-tiler/static/ packages/server/
           cp -r packages/lambda-tiler/static/ packages/cli/
 
-      - name: Docker meta
+      - name: Create docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with: 
@@ -212,17 +215,24 @@ jobs:
           retention-days: 1
 
   merge:
+    # Find all the containers built from the matrix jobs then tag and publish them 
+    name: Merge and publish containers
+
     runs-on: ubuntu-latest
     needs:
       - build-containers
     steps:
-
       - name: Download digests
         uses: actions/download-artifact@v4
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
           merge-multiple: true
+
+      - name: Show digests
+        working-directory: ${{ runner.temp }}/digests
+        run:
+          ls -R .
 
   #     - name: Login to GHCR
   #       uses: docker/login-action@v3
