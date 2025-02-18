@@ -87,8 +87,9 @@ jobs:
               tags.push('${{ steps.version.outputs.version }}');
             }
 
+            // If a pull request is labeled as "container", ensure a pull request tag is created
+            // pr-1124
             const labels = JSON.parse('${{ toJson(github.event.pull_request.labels.*.name) }}')
-            
             if (labels.includes('container')) {
               tags.push('pr-${{ github.event.number }}')
             }
@@ -100,7 +101,7 @@ jobs:
             
             // Have any tags been created
             const needsContainers = tags.length > 0;
-            return JSON.stringify({ tags: output, needsContainers });
+            return { tags: output, needsContainers };
 
       - name: Test Tags
         run: |
