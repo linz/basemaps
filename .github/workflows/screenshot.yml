@@ -1,79 +1,79 @@
-name: screenshot
+# name: screenshot
 
-on:
-  pull_request:
-  push:
-    branches:
-      - master
+# on:
+#   pull_request:
+#   push:
+#     branches:
+#       - master
 
-jobs:
-  screenshot:
-    runs-on: ubuntu-latest
+# jobs:
+#   screenshot:
+#     runs-on: ubuntu-latest
 
-    # Taking screenshots requires direct access to imagery inside of s3://linz-basemaps
-    # which no other repository should have
-    if: github.repository == 'linz/basemaps'
+#     # Taking screenshots requires direct access to imagery inside of s3://linz-basemaps
+#     # which no other repository should have
+#     if: github.repository == 'linz/basemaps'
 
-    env:
-      BASEMAPS_BUCKET: linz-basemaps
+#     env:
+#       BASEMAPS_BUCKET: linz-basemaps
 
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      - uses: linz/action-typescript@v3
+#     permissions:
+#       id-token: write
+#       contents: read
+#     steps:
+#       - uses: linz/action-typescript@v3
 
-      # Package all the files
-      - name: Bundle & Package all files
-        run: |
-          npx lerna run bundle --stream
-          npm pack --workspaces
-        env:
-          NODE_ENV: 'production'
+#       # Package all the files
+#       - name: Bundle & Package all files
+#         run: |
+#           npx lerna run bundle --stream
+#           npm pack --workspaces
+#         env:
+#           NODE_ENV: 'production'
 
-      - name: (NonProd) Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
+#       - name: (NonProd) Configure AWS Credentials
+#         uses: aws-actions/configure-aws-credentials@v4.0.2
+#         with:
+#           aws-region: ap-southeast-2
+#           mask-aws-account-id: true
+#           role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
 
-      - name: (Screenshot) Screenshot Pull Request Changes
-        run: |
-          ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
+#       - name: (Screenshot) Screenshot Pull Request Changes
+#         run: |
+#           ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
 
-          # Wait for the server to start
-          timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
+#           # Wait for the server to start
+#           timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
 
-          docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
+#           docker run --rm --network="host" -v $PWD:$PWD ghcr.io/linz/basemaps-screenshot/cli:v1 --url http://localhost:5000 --output $PWD/.artifacts/visual-snapshots
 
-      - name: Save snapshots
-        uses: blacha/action-visual-snapshot@v2-next
-        with:
-          save-only: true
-          snapshot-path: .artifacts/visual-snapshots
+#       - name: Save snapshots
+#         uses: blacha/action-visual-snapshot@v2-next
+#         with:
+#           save-only: true
+#           snapshot-path: .artifacts/visual-snapshots
 
-  visual-diff:
-    permissions:
-      id-token: write
-      contents: write
-      checks: write
-    needs: [screenshot]
-    name: validate screenshots
-    if: github.ref != 'refs/heads/master' && github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: AWS Configure
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
+#   visual-diff:
+#     permissions:
+#       id-token: write
+#       contents: write
+#       checks: write
+#     needs: [screenshot]
+#     name: validate screenshots
+#     if: github.ref != 'refs/heads/master' && github.event_name == 'pull_request'
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 20
+#     steps:
+#       - name: AWS Configure
+#         uses: aws-actions/configure-aws-credentials@v4.0.2
+#         with:
+#           aws-region: ap-southeast-2
+#           mask-aws-account-id: true
+#           role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
 
-      - name: Diff snapshots
-        id: visual-snapshots-diff
-        uses: blacha/action-visual-snapshot@v2-next
-        with:
-          storage-prefix: 's3://linz-basemaps-screenshot'
-          storage-url: 'https://d25mfjh9syaxsr.cloudfront.net'
+#       - name: Diff snapshots
+#         id: visual-snapshots-diff
+#         uses: blacha/action-visual-snapshot@v2-next
+#         with:
+#           storage-prefix: 's3://linz-basemaps-screenshot'
+#           storage-url: 'https://d25mfjh9syaxsr.cloudfront.net'
