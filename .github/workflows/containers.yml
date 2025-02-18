@@ -17,20 +17,25 @@ jobs:
 
     outputs:
       # Version information
-      # - version=v7.0.0
-      # - version_major=v7
-      # - version_major_minor=v7.1
-      versions: ${{ steps.version.outputs }}
+      # v7.0.0
+      version: ${{ steps.version.outputs.version }}
+      # v7
+      version_major: ${{ steps.version.outputs.version_major }}
+      # v7.1
+      version_major_minor: ${{ steps.version.outputs.version_major_minor }}
 
       # Tagging information
-      # { cli: "...:latest, ...:v7", server: "....:latest", "...:v7" }
-      tags: ${{ steps.tags.outputs.result.tags }}
+      # eg "ghcr.io/linz/basemaps/cli:latest, ghcr.io/linz/basemaps/cli:v7" }
+      tags_cli: ${{ steps.tags.outputs.result.tags.cli }}
+      tags_server: ${{ steps.tags.outputs.result.tags.server }}
 
       # Do containers need to be created
       needs_containers: ${{ steps.tags.outputs.result.needs_containers }}
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup tags
         id: version
@@ -154,7 +159,7 @@ jobs:
         uses: docker/metadata-action@v5
         with: 
           labels:
-            org.opencontainers.image.version=${{ needs.setup.outputs.versions.version }}
+            org.opencontainers.image.version=${{ needs.setup.outputs.version }}
           tags: |
             type=sha
 
@@ -174,7 +179,7 @@ jobs:
           outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,push=true
           build-args: |
             GIT_HASH=${{ github.sha }}
-            GIT_VERSION=${{ needs.setup.outputs.versions.version }} 
+            GIT_VERSION=${{ needs.setup.outputs.version }} 
             GITHUB_RUN_ID=${{ github.run_id}}
 
       - name: 'Build Container - @basemaps/server'
@@ -186,7 +191,7 @@ jobs:
           outputs: type=image,"name=ghcr.io/${{ github.repository }}/server",push-by-digest=true,push=true
           build-args: |
             GIT_HASH=${{ github.sha }}
-            GIT_VERSION=${{ needs.setup.outputs.versions.version }} 
+            GIT_VERSION=${{ needs.setup.outputs.version }} 
             GITHUB_RUN_ID=${{ github.run_id}}
 
       - name: Export digests
