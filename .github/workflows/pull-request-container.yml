@@ -49,7 +49,7 @@ jobs:
           cp -r packages/lambda-tiler/static/ packages/cli/
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@3
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
