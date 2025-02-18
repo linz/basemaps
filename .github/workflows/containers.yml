@@ -10,53 +10,24 @@ on:
       - master
     types: [labeled, synchronize, opened]
 
-
 jobs:
-  build-containers:
-    runs-on: ${{ matrix.os }}
+  setup:
+    runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            arch: amd64
-            platform: linux/amd64
-
-          # - os: ubuntu-24.04-arm
-          #   arch: arm64
-          #   platform: linux/arm64
-
-    permissions:
-      id-token: write
-      contents: read
-      packages: write
+    outputs:
+      # Version information
+      # - version=v7.0.0
+      # - version_major=v7
+      # - version_major_minor=v7.1
+      versions: ${{ steps.version.outputs }}
+      # Tagging information
+      # { cli: "...:latest, ...:v7", server: "....:latest", "...:v7" }
+      tags: ${{ steps.tags.outputs.result.tags }}
+      # Do containers need to be created
+      needs_containers: ${{ steps.tags.outputs.result.needs_containers }}
 
     steps:
       - uses: actions/checkout@v4
-
-      # - uses: linz/action-typescript@v3
-
-      # - name: (Prod) Ensure tag exists
-      #   if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-      #   run: |
-      #     git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
-      #     git config user.name "github-actions[bot]"
-      #     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      #     CURRENT_VERSION=$(node -p "require('./lerna.json').version")
-      #     git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
-
-      # # Package all the files
-      # - name: Bundle & Package all files
-      #   run: |
-      #     npx lerna run bundle --stream
-      #     npm pack --workspaces
-      #   env:
-      #     NODE_ENV: 'production'
-
-      # - name: Set up Docker Buildx
-      #   id: buildx
-      #   uses: docker/setup-buildx-action@v3
 
       - name: Setup tags
         id: version
@@ -68,12 +39,11 @@ jobs:
           echo "version=${GIT_VERSION}" >> $GITHUB_OUTPUT
           echo "version_major=${GIT_VERSION_MAJOR}" >> $GITHUB_OUTPUT
           echo "version_major_minor=${GIT_VERSION_MAJOR_MINOR}" >> $GITHUB_OUTPUT
-  
+
       - name: Create Image Tags
         id: tags
-        uses: actions/github-script@v7 # v6
+        uses: actions/github-script@v7 
         with:
-          # result-encoding: string
           script: |
             // Images to create tags for
             const images = ['cli', 'server'];
@@ -112,121 +82,140 @@ jobs:
             
             // Have any tags been created
             const needsContainers = tags.length > 0;
-            return { tags: output, needsContainers };
+            return { tags: output, needs_containers: needsContainers };
 
       - name: Test Tags
         run: |
           echo '${{ toJSON(steps.tags.outputs) }}'
-          echo '${{ steps.tags.outputs.needsContainers }}'
-          echo '${{ steps.tags.outputs.tags.cli }}'
-          echo '${{ steps.tags.outputs.tags.server }}'
+          echo '${{ steps.tags.outputs.result.needsContainers }}'
+          echo '${{ steps.tags.outputs.result.tags.cli }}'
+          echo '${{ steps.tags.outputs.result.tags.server }}'
 
-      # - name: Copy packages and files
-      #   run: |
-      #     # Files are packed into the base directory
-      #     cp *.tgz packages/server/
-      #     cp *.tgz packages/cli/
-      #     cp -r packages/lambda-tiler/static/ packages/server/
-      #     cp -r packages/lambda-tiler/static/ packages/cli/
+  build-containers:
+    needs: setup
+    if: |
+      ${{ needs.setup.outputs.needs_containers }}
 
-      # - name: Docker meta
-      #   id: meta
-      #   uses: docker/metadata-action@v5
-      #   with: 
-      #     labels:
-      #       org.opencontainers.image.version=${{ steps.version.outputs.version }}
-      #     tags: |
-      #       type=sha
+    runs-on: ${{ matrix.os }}
 
-      # - name: Login to GitHub Container Registry
-      #   uses: docker/login-action@v3 # v3
-      #   with:
-      #     registry: ghcr.io
-      #     username: ${{ github.repository_owner }}
-      #     password: ${{ secrets.GITHUB_TOKEN }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: amd64
+            platform: linux/amd64
 
-      # - name: 'Build Container - @basemaps/cli'
-      #   uses: docker/build-push-action@v6
-      #   id: 'build_cli'
-      #   with:
-      #     context: packages/cli
-      #     labels: ${{ steps.meta.outputs.labels }}
-      #     outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,push=true
-      #     build-args: |
-      #       GIT_HASH=${{ github.sha }}
-      #       GIT_VERSION=${{ steps.version.outputs.version }} 
-      #       GITHUB_RUN_ID=${{ github.run_id}}
+          # - os: ubuntu-24.04-arm
+          #   arch: arm64
+          #   platform: linux/arm64
 
-      # - name: 'Build Container - @basemaps/server'
-      #   uses: docker/build-push-action@v6
-      #   id: 'build_server'
-      #   with:
-      #     context: packages/server
-      #     labels: ${{ steps.meta.outputs.labels }}
-      #     outputs: type=image,"name=ghcr.io/${{ github.repository }}/server",push-by-digest=true,push=true
-      #     build-args: |
-      #       GIT_HASH=${{ github.sha }}
-      #       GIT_VERSION=${{ steps.version.outputs.version }} 
-      #       GITHUB_RUN_ID=${{ github.run_id}}
+    permissions:
+      id-token: write
+      contents: read
+      packages: write
 
-      # - name: Export digest
-      #   run: |
-      #     mkdir -p ${{ runner.temp }}/digests/cli ${{ runner.temp }}/digests/server
-      #     digest="${{ steps.build_cli.outputs.digest }}"
-      #     touch "${{ runner.temp }}/digests/cli/${digest#sha256:}"
+    steps:
 
-      #     digest="${{ steps.build_server.outputs.digest }}"
-      #     touch "${{ runner.temp }}/digests/server/${digest#sha256:}"
+      - uses: linz/action-typescript@v3
 
-      # - name: Upload digest
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: digests-${{ matrix.arch }}
-      #     path: ${{ runner.temp }}/digests/*
-      #     if-no-files-found: error
-      #     retention-days: 1
+      - name: (Prod) Ensure tag exists
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        run: |
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-  # merge:
-  #   runs-on: ubuntu-latest
-  #   needs:
-  #     - build-containers
-  #   steps:
-  #     - name: Setup tags
-  #       id: version
-  #       run: |
-  #         GIT_VERSION=$(git describe --tags --always --match 'v*')
-  #         GIT_VERSION_MAJOR=$(echo $GIT_VERSION | cut -d. -f1)
-  #         GIT_VERSION_MAJOR_MINOR=$(echo $GIT_VERSION | cut -d. -f1,2)
+          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
+          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
 
-  #         echo "version=${GIT_VERSION}" >> $GITHUB_OUTPUT
-  #         echo "version_major=${GIT_VERSION_MAJOR}" >> $GITHUB_OUTPUT
-  #         echo "version_major_minor=${GIT_VERSION_MAJOR_MINOR}" >> $GITHUB_OUTPUT
+      # Package all the files
+      - name: Bundle & Package all files
+        run: |
+          npx lerna run bundle --stream
+          npm pack --workspaces
+        env:
+          NODE_ENV: 'production'
 
-  #     - name: Create Image Tags
-  #       id: tags
-  #       uses: actions/github-script@d7906e4ad0b1822421a7e6a35d5ca353c962f410 # v6
-  #       with:
-  #         # result-encoding: string
-  #         script: |
-  #           const images = ['cli', 'server'];
-  #           const output = {};
-  #           for (const img of images) {
-  #             const repo = `ghcr.io/${{ github.repository }}/${img}`
-  #             const tags = [];
-  #             tags.push('ghcr.io/${{ github.repository }}:latest');
-  #             tags.push('ghcr.io/${{ github.repository }}:${{ steps.version.outputs.version }}');
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Copy packages and files
+        run: |
+          # Files are packed into the base directory
+          cp *.tgz packages/server/
+          cp *.tgz packages/cli/
+          cp -r packages/lambda-tiler/static/ packages/server/
+          cp -r packages/lambda-tiler/static/ packages/cli/
 
-  #             return tags.join(', ')
-  #             output[img] = tags
-  #           }
-  #           return JSON.stringify(tags);
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with: 
+          labels:
+            org.opencontainers.image.version=${{ needs.setup.outputs.versions.version }}
+          tags: |
+            type=sha
 
-  #     - name: Download digests
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         path: ${{ runner.temp }}/digests
-  #         pattern: digests-*
-  #         merge-multiple: true
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Build Container - @basemaps/cli'
+        uses: docker/build-push-action@v6
+        id: 'build_cli'
+        with:
+          context: packages/cli
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,push=true
+          build-args: |
+            GIT_HASH=${{ github.sha }}
+            GIT_VERSION=${{ needs.setup.outputs.versions.version }} 
+            GITHUB_RUN_ID=${{ github.run_id}}
+
+      - name: 'Build Container - @basemaps/server'
+        uses: docker/build-push-action@v6
+        id: 'build_server'
+        with:
+          context: packages/server
+          labels: ${{ steps.meta.outputs.labels }}
+          outputs: type=image,"name=ghcr.io/${{ github.repository }}/server",push-by-digest=true,push=true
+          build-args: |
+            GIT_HASH=${{ github.sha }}
+            GIT_VERSION=${{ needs.setup.outputs.versions.version }} 
+            GITHUB_RUN_ID=${{ github.run_id}}
+
+      - name: Export digests
+        run: |
+          mkdir -p ${{ runner.temp }}/digests/cli ${{ runner.temp }}/digests/server
+          digest="${{ steps.build_cli.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/cli/${digest#sha256:}"
+
+          digest="${{ steps.build_server.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/server/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    runs-on: ubuntu-latest
+    needs:
+      - build-containers
+    steps:
+
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
 
   #     - name: Login to GHCR
   #       uses: docker/login-action@v3
