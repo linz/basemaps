@@ -93,8 +93,15 @@ jobs:
             }
             
             // Have any tags been created
-            output.needsPush = tags.length > 0;
-            return JSON.stringify(output);
+            const needsPush = tags.length > 0;
+            return JSON.stringify({tags: output, needsPush});
+
+      - name: Test Tags
+        run: |
+          echo ${{ steps.tags.outputs }}
+          echo ${{ steps.tags.outputs.needsPush }}
+          echo ${{ steps.tags.outputs.tags.cli }}
+          echo ${{ steps.tags.outputs.tags.server }}
 
       # - name: Copy packages and files
       #   run: |
