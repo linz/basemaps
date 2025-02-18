@@ -116,10 +116,10 @@ jobs:
 
       - name: Test Tags
         run: |
-          echo '${{ steps.tags.outputs }}'
+          echo '${{ toJSON(steps.tags.outputs) }}'
           echo '${{ steps.tags.outputs.needsContainers }}'
           echo '${{ steps.tags.outputs.tags.cli }}'
-          echo ${{ steps.tags.outputs.tags.server }}
+          echo '${{ steps.tags.outputs.tags.server }}'
 
       # - name: Copy packages and files
       #   run: |
