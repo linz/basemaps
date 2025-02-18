@@ -64,8 +64,14 @@ jobs:
         with:
           # result-encoding: string
           script: |
+            // Images to create tags for
             const images = ['cli', 'server'];
+
+            // Mapping of images to their tags
+            // cli => "ghcr.io/linz/basemaps/cli:latest,ghcr.io/linz/basemaps/cli:v7"
             const output = {};
+            
+            // List of tags to apply to images, eg "v7" or "latest"
             const tags = [];
 
             // If on master ensure that the "latest" and a specific tag version is used
