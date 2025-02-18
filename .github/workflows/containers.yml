@@ -67,6 +67,8 @@ jobs:
         with:
           images:
             ghcr.io/${{ github.repository }}/cli
+            ghcr.io/${{ github.repository }}/server
+
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3 # v3
@@ -80,9 +82,8 @@ jobs:
         id: 'build_cli'
         with:
           context: packages/cli
-          load: true
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,name-canonical=true,push=true
+          outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,push=true
 
       - name: Export digest
         run: |
