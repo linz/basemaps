@@ -1,6 +1,15 @@
 name: Containers
 
-on: [push]
+# Build containers when pushed to master or if a pull request has been labeled with "container"
+on: 
+  push:
+    branches:
+     - master
+  pull_request:
+    branches:
+      - master
+    types: [labeled, synchronize, opened]
+
 
 jobs:
   build-containers:
@@ -13,9 +22,9 @@ jobs:
             arch: amd64
             platform: linux/amd64
 
-          - os: ubuntu-24.04-arm
-            arch: arm64
-            platform: linux/arm64
+          # - os: ubuntu-24.04-arm
+          #   arch: arm64
+          #   platform: linux/arm64
 
     permissions:
       id-token: write
@@ -23,29 +32,31 @@ jobs:
       packages: write
 
     steps:
-      - uses: linz/action-typescript@v3
+      - uses: actions/checkout@v4
 
-      - name: (Prod) Ensure tag exists
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: |
-          git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      # - uses: linz/action-typescript@v3
 
-          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
-          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
+      # - name: (Prod) Ensure tag exists
+      #   if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+      #   run: |
+      #     git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
+      #     git config user.name "github-actions[bot]"
+      #     git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      # Package all the files
-      - name: Bundle & Package all files
-        run: |
-          npx lerna run bundle --stream
-          npm pack --workspaces
-        env:
-          NODE_ENV: 'production'
+      #     CURRENT_VERSION=$(node -p "require('./lerna.json').version")
+      #     git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
+      # # Package all the files
+      # - name: Bundle & Package all files
+      #   run: |
+      #     npx lerna run bundle --stream
+      #     npm pack --workspaces
+      #   env:
+      #     NODE_ENV: 'production'
+
+      # - name: Set up Docker Buildx
+      #   id: buildx
+      #   uses: docker/setup-buildx-action@v3
 
       - name: Setup tags
         id: version
@@ -88,7 +99,7 @@ jobs:
             }
 
             // If a pull request is labeled as "container", ensure a pull request tag is created
-            // pr-1124
+            // "ghcr.io/linz/basemaps/cli:pr-1124"
             const labels = JSON.parse('${{ toJson(github.event.pull_request.labels.*.name) }}')
             if (labels.includes('container')) {
               tags.push('pr-${{ github.event.number }}')
@@ -105,9 +116,9 @@ jobs:
 
       - name: Test Tags
         run: |
-          echo ${{ steps.tags.outputs }}
-          echo ${{ steps.tags.outputs.needsContainers }}
-          echo ${{ steps.tags.outputs.tags.cli }}
+          echo '${{ steps.tags.outputs }}'
+          echo '${{ steps.tags.outputs.needsContainers }}'
+          echo '${{ steps.tags.outputs.tags.cli }}'
           echo ${{ steps.tags.outputs.tags.server }}
 
       # - name: Copy packages and files
