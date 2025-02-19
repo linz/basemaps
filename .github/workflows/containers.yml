@@ -101,7 +101,7 @@ jobs:
 
   build-containers:
     needs: setup
-    if: ${{ needs.setup.outputs.needs_containers == true }}
+    if: ${{ needs.setup.outputs.needs_containers == 'true' }}
 
     runs-on: ${{ matrix.os }}
 
