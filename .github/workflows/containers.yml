@@ -184,7 +184,7 @@ jobs:
           build-args: |
             GIT_HASH=${{ github.sha }}
             GIT_VERSION=${{ needs.setup.outputs.version }} 
-            GITHUB_RUN_ID=${{ github.run_id}}
+            GITHUB_RUN_ID=${{ github.run_id }}
 
       - name: 'Build Container - @basemaps/server'
         uses: docker/build-push-action@v6
@@ -196,7 +196,7 @@ jobs:
           build-args: |
             GIT_HASH=${{ github.sha }}
             GIT_VERSION=${{ needs.setup.outputs.version }} 
-            GITHUB_RUN_ID=${{ github.run_id}}
+            GITHUB_RUN_ID=${{ github.run_id }}
 
       - name: Export digests
         run: |
@@ -257,9 +257,9 @@ jobs:
         working-directory: ${{ runner.temp }}/digests
         run: |
           cd cli
-          docker buildx imagetools create $(jq -cr '. | map("-t " + .) | join(" ")' <<< "${{ fromJson(needs.setup.outputs.tags).cli}}") \
+          docker buildx imagetools create $(jq -cr '. | map("-t " + .) | join(" ")' <<< '${{ fromJson(needs.setup.outputs.tags).cli }}') \
             $(printf 'ghcr.io/${{ github.repository }}/cli@sha256:%s ' *)
 
           cd ../server/
-          docker buildx imagetools create $(jq -cr '. | map("-t " + .) | join(" ")' <<< "${{ fromJson(needs.setup.outputs.tags).server}}") \
+          docker buildx imagetools create $(jq -cr '. | map("-t " + .) | join(" ")' <<< '${{ fromJson(needs.setup.outputs.tags).server }}') \
             $(printf 'ghcr.io/${{ github.repository }}/server@sha256:%s ' *)
