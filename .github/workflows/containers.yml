@@ -189,8 +189,8 @@ jobs:
 
       - name: 'Ensure containers built'
         run: |
-          docker run ghcr.io/${{ github.repository }}/server
-          docker run ghcr.io/${{ github.repository }}/cli
+          docker run ghcr.io/${{ github.repository }}/cli@${{ steps.build_cli.outputs.digest }}
+          docker run ghcr.io/${{ github.repository }}/server@${{ steps.build_server.outputs.digest }}
 
       - name: Export digests
         run: |
