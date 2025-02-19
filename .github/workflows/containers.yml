@@ -96,7 +96,6 @@ jobs:
 
   build-containers:
     needs: setup
-    if: ${{ fromJson(needs.setup.outputs.tags).needs_containers == true }}
 
     runs-on: ${{ matrix.os }}
 
@@ -170,7 +169,7 @@ jobs:
         with:
           context: packages/cli
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,push=true
+          outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,push=${{ fromJson(needs.setup.outputs.tags).needs_containers == true }}
           build-args: |
             GIT_HASH=${{ github.sha }}
             GIT_VERSION=${{ needs.setup.outputs.version }} 
@@ -182,7 +181,7 @@ jobs:
         with:
           context: packages/server
           labels: ${{ steps.meta.outputs.labels }}
-          outputs: type=image,"name=ghcr.io/${{ github.repository }}/server",push-by-digest=true,push=true
+          outputs: type=image,"name=ghcr.io/${{ github.repository }}/server",push-by-digest=true,push=${{ fromJson(needs.setup.outputs.tags).needs_containers == true }}
           build-args: |
             GIT_HASH=${{ github.sha }}
             GIT_VERSION=${{ needs.setup.outputs.version }} 
@@ -208,6 +207,8 @@ jobs:
   merge:
     # Find all the containers built from the matrix jobs then tag and publish them
     name: Merge and publish containers
+
+    if: ${{ fromJson(needs.setup.outputs.tags).needs_containers == true }}
 
     permissions:
       id-token: write
