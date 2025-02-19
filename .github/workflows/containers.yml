@@ -97,10 +97,7 @@ jobs:
 
       - name: List tags
         run: |
-          echo '${{ toJSON(steps.tags.outputs.result) }}'
-          echo need_containers: '${{ steps.tags.outputs.result.needs_containers }}'
-          echo cli_tags: '${{ steps.tags.outputs.result.tags.cli }}'
-          echo server_tags: '${{ steps.tags.outputs.result.tags.server }}'
+          echo ${{ toJSON(steps.tags.outputs.result) }} | jq
 
   build-containers:
     needs: setup
