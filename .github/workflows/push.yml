@@ -24,6 +24,7 @@ jobs:
     permissions:
       id-token: write
       contents: write
+
     steps:
       - uses: linz/action-typescript@v3
 
@@ -50,7 +51,7 @@ jobs:
         run: node scripts/detect.unlinked.dep.mjs
 
       - name: (Prod) Create tag
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -59,13 +60,13 @@ jobs:
           git push --tags
 
       - name: (Prod) Create github release
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx conventional-github-releaser -p angular
         env:
           CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: (Prod) Publish NPM
-        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx lerna publish from-git --yes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -78,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: deploy-dev-${{ github.ref }}
     needs: [build-deploy]
-    if: github.ref == 'refs/heads/master' && github.repository == 'linz/basemaps'
+    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master'
 
     environment:
       name: nonprod
@@ -134,7 +135,7 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: deploy-prod-${{ github.ref }}
     needs: [deploy-dev]
-    if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
 
     environment:
       name: prod

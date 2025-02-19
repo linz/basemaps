@@ -27,8 +27,8 @@ jobs:
       # v7.1
       version_major_minor: ${{ steps.version.outputs.version_major_minor }}
 
-      # Tagging information as a JSON array
-      # eg ["ghcr.io/linz/basemaps/cli:latest", "ghcr.io/linz/basemaps/cli:v7"]
+      # Tagging information as a JSON object
+      # eg { cli: ["ghcr.io/linz/basemaps/cli:latest", "ghcr.io/linz/basemaps/cli:v7"], needs_containers: true }
       tags: ${{ steps.tags.outputs.result }}
 
     steps:
