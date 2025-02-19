@@ -151,7 +151,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          labels: org.opencontainers.image.version=${{ needs.setup.outputs.version }}
+          labels: |
+            org.opencontainers.image.version=${{ needs.setup.outputs.version }}
             org.opencontainers.image.licenses=MIT
           tags: |
             type=sha
@@ -169,6 +170,7 @@ jobs:
         with:
           context: packages/cli
           labels: ${{ steps.meta.outputs.labels }}
+          load: true
           outputs: type=image,"name=ghcr.io/${{ github.repository }}/cli",push-by-digest=true,push=${{ fromJson(needs.setup.outputs.tags).needs_containers == true }}
           build-args: |
             GIT_HASH=${{ github.sha }}
@@ -181,6 +183,7 @@ jobs:
         with:
           context: packages/server
           labels: ${{ steps.meta.outputs.labels }}
+          load: true
           outputs: type=image,"name=ghcr.io/${{ github.repository }}/server",push-by-digest=true,push=${{ fromJson(needs.setup.outputs.tags).needs_containers == true }}
           build-args: |
             GIT_HASH=${{ github.sha }}
