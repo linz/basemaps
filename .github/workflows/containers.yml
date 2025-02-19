@@ -100,8 +100,8 @@ jobs:
     needs: setup
     steps:
       - name: debug outputs
-        run:
-          echo ${{ toJson(needs.setup.outputs) }}
+        run: |
+          echo '${{ toJson(needs.setup.outputs) }}''
 
   build-containers:
     needs: setup
