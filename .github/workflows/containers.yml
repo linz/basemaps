@@ -27,8 +27,8 @@ jobs:
       # v7.1
       version_major_minor: ${{ steps.version.outputs.version_major_minor }}
 
-      # Tagging information
-      # eg "ghcr.io/linz/basemaps/cli:latest, ghcr.io/linz/basemaps/cli:v7" }
+      # Tagging information as a JSON array
+      # eg ["ghcr.io/linz/basemaps/cli:latest", "ghcr.io/linz/basemaps/cli:v7"]
       tags_cli: ${{ steps.tags.outputs.result.tags.cli }}
       tags_server: ${{ steps.tags.outputs.result.tags.server }}
 
@@ -88,7 +88,7 @@ jobs:
 
             for (const img of images) {
               const repo = `ghcr.io/${{ github.repository }}/${img}`
-              output[img] = tags.map(t => `${repo}:${t}`).join(',')
+              output[img] = JSON.stringify(tags.map(t => `${repo}:${t}`).join(','))
             }
             
             // Have any tags been created
@@ -244,8 +244,11 @@ jobs:
   #     - name: Set up Docker Buildx
   #       uses: docker/setup-buildx-action@v3
 
-  #     # - name: Create manifest list and push
-  #     #   working-directory: ${{ runner.temp }}/digests
-  #     #   run: |
-  #     #     docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-  #     #       $(printf 'ghcr.io/${{ github.repository }}/cli@sha256:%s ' *)
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          cd cli
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+            $(printf 'ghcr.io/${{ github.repository }}/cli@sha256:%s ' *)
+
+          cd ../server/
