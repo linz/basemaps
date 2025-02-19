@@ -67,7 +67,7 @@ jobs:
               tags.push('latest');
 
               // If on a release commit add `v7`, `v7.1` and `v7.1`
-              if ('${{ github.event.head_commit.message }}'.startsWith('release:')) {
+              if (`${{ toJson(github.event.head_commit.message) }}`.startsWith('release:')) {
                 tags.push('${{ steps.version.outputs.version_major }}');
                 tags.push('${{ steps.version.outputs.version_major_minor }}');
               }
