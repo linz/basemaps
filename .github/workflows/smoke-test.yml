@@ -6,12 +6,17 @@ on:
     branches:
       - master
 
-
 jobs:
   smoke:
     # Running smoke tets requires direct access to imagery inside of s3://linz-basemaps
     # which no other repository should have
-    if: ${{ secrets.AWS_ROLE_SCREENSHOT != '' }}
+    #
+    # As the workflow can be run from either a push or a pull request, it needs to check that
+    # 1. the push is directly to linz/basemaps
+    # 2. pull request originated from 'linz/basemaps'
+    if: |
+      (github.event_name == 'push' && github.repository == 'linz/basemaps') || 
+      (github.event.pull_request.head.repo.full_name == 'linz/basemaps')
 
     runs-on: ubuntu-latest
 

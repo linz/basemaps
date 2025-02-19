@@ -1,17 +1,16 @@
 name: Containers
 
 # Build containers when pushed to master or if a pull request has been labeled with "container"
-on: 
+on:
   push:
     branches:
-     - master
+      - master
   pull_request:
     branches:
       - master
     types: [labeled, synchronize, opened]
 
 jobs:
-
   setup:
     # Determine if any containers need to be built and what tags they will result in
     name: Setup container tags
@@ -49,7 +48,7 @@ jobs:
 
       - name: Create Image Tags
         id: tags
-        uses: actions/github-script@v7 
+        uses: actions/github-script@v7
         with:
           script: |
             // Images to create tags for
@@ -58,7 +57,7 @@ jobs:
             // Mapping of images to their tags
             // cli => "ghcr.io/linz/basemaps/cli:latest,ghcr.io/linz/basemaps/cli:v7"
             const output = {};
-            
+
             // List of tags to apply to images, eg "v7" or "latest"
             const tags = [];
 
@@ -86,7 +85,7 @@ jobs:
               const repo = `ghcr.io/${{ github.repository }}/${img}`
               output[img] = JSON.stringify(tags.map(t => `${repo}:${t}`))
             }
-            
+
             // Have any tags been created
             output.needs_containers = tags.length > 0;
             return output;
@@ -118,7 +117,6 @@ jobs:
       packages: write
 
     steps:
-
       - uses: linz/action-typescript@v3
 
       - name: (Prod) Ensure tag exists
@@ -153,9 +151,8 @@ jobs:
       - name: Create docker metadata
         id: meta
         uses: docker/metadata-action@v5
-        with: 
-          labels:
-            org.opencontainers.image.version=${{ needs.setup.outputs.version }}
+        with:
+          labels: org.opencontainers.image.version=${{ needs.setup.outputs.version }}
             org.opencontainers.image.licenses=MIT
           tags: |
             type=sha
@@ -209,9 +206,9 @@ jobs:
           retention-days: 1
 
   merge:
-    # Find all the containers built from the matrix jobs then tag and publish them 
+    # Find all the containers built from the matrix jobs then tag and publish them
     name: Merge and publish containers
-    
+
     permissions:
       id-token: write
       contents: read
@@ -233,8 +230,7 @@ jobs:
 
       - name: Show digests
         working-directory: ${{ runner.temp }}/digests
-        run:
-          ls -R .
+        run: ls -R .
 
       - name: Login to GHCR
         uses: docker/login-action@v3
