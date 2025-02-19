@@ -93,7 +93,7 @@ jobs:
 
       - name: List tags
         run: |
-          echo '${{ toJson(steps.tags.outputs.result) }}' | jq
+          echo ${{ toJson(steps.tags.outputs.result) }} | jq
 
   build-containers:
     needs: setup
