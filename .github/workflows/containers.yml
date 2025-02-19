@@ -93,15 +93,7 @@ jobs:
 
       - name: List tags
         run: |
-          echo ${{ toJSON(steps.tags.outputs.result) }} | jq
-
-  setup-debug:
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - name: debug outputs
-        run: |
-          echo '${{ toJson(needs.setup.outputs) }}''
+          echo "${{ toJson(steps.tags.outputs.result) }}" | jq
 
   build-containers:
     needs: setup
@@ -164,6 +156,7 @@ jobs:
         with: 
           labels:
             org.opencontainers.image.version=${{ needs.setup.outputs.version }}
+            org.opencontainers.image.licenses=MIT
           tags: |
             type=sha
 

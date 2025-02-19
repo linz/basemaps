@@ -1,51 +1,51 @@
-# name: smoke
+name: smoke
 
-# on:
-#   pull_request:
-#   push:
-#     branches:
-#       - master
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 
-# jobs:
-#   smoke:
-#     # Running smoke tets requires direct access to imagery inside of s3://linz-basemaps
-#     # which no other repository should have
-#     if: github.repository == 'linz/basemaps'
+jobs:
+  smoke:
+    # Running smoke tets requires direct access to imagery inside of s3://linz-basemaps
+    # which no other repository should have
+    if: github.repository == 'linz/basemaps'
 
-#     runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-#     permissions:
-#       id-token: write
-#       contents: read
+    permissions:
+      id-token: write
+      contents: read
 
-#     steps:
-#       - uses: linz/action-typescript@v3
+    steps:
+      - uses: linz/action-typescript@v3
 
-#       # Package all the files
-#       - name: Bundle & Package all files
-#         run: |
-#           npx lerna run bundle --stream
-#           npm pack --workspaces
-#         env:
-#           NODE_ENV: 'production'
+      # Package all the files
+      - name: Bundle & Package all files
+        run: |
+          npx lerna run bundle --stream
+          npm pack --workspaces
+        env:
+          NODE_ENV: 'production'
 
-#       - name: (NonProd) Configure AWS Credentials
-#         uses: aws-actions/configure-aws-credentials@v4.0.2
-#         with:
-#           aws-region: ap-southeast-2
-#           mask-aws-account-id: true
-#           role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
+      - name: (NonProd) Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_SCREENSHOT }}
 
-#       - name: (Smoke) Run Smoke Tests
-#         run: |
-#           # Copy the static files for v1/health check
-#           cp -r packages/lambda-tiler/static/ .
-#           ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
+      - name: (Smoke) Run Smoke Tests
+        run: |
+          # Copy the static files for v1/health check
+          cp -r packages/lambda-tiler/static/ .
+          ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
 
-#           # Wait for the server to start
-#           timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
+          # Wait for the server to start
+          timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
 
-#           BASEMAPS_HOST=http://localhost:5000 node --test packages/smoke/build/*.test.js
-#         env:
-#           GIT_VERSION: $(git describe --tags --always --match 'v*')
-#           GIT_HASH: $(git rev-parse HEAD)
+          BASEMAPS_HOST=http://localhost:5000 node --test packages/smoke/build/*.test.js
+        env:
+          GIT_VERSION: $(git describe --tags --always --match 'v*')
+          GIT_HASH: $(git rev-parse HEAD)
