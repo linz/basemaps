@@ -12,10 +12,7 @@ jobs:
 
     # Taking screenshots requires direct access to imagery inside of s3://linz-basemaps
     # which no other repository should have
-    if: github.repository == 'linz/basemaps'
-
-    env:
-      BASEMAPS_BUCKET: linz-basemaps
+    if: ${{ secrets.AWS_ROLE_SCREENSHOT != '' }}
 
     permissions:
       id-token: write
