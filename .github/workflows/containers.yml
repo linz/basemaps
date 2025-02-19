@@ -187,6 +187,11 @@ jobs:
             GIT_VERSION=${{ needs.setup.outputs.version }} 
             GITHUB_RUN_ID=${{ github.run_id }}
 
+      - name: 'Ensure containers built'
+        run: |
+          docker run ghcr.io/${{ github.repository }}/server
+          docker run ghcr.io/${{ github.repository }}/cli
+
       - name: Export digests
         run: |
           mkdir -p ${{ runner.temp }}/digests/cli ${{ runner.temp }}/digests/server
