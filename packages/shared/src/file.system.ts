@@ -54,8 +54,24 @@ credentials.onFileSystemFound = (acc: AwsCredentialConfig, fs?: FsAwsS3, path?: 
   fsa.register(acc.prefix, fs);
 };
 
+/**
+ * Split JSON or comma separated lists into individual components
+ *
+ * Allowing for credentials to be loaded from multiple sources eg
+ *
+ * @example comma separated list
+ * ```typescript
+ * "s3://foo/bar.json,s3://foo/baz.json"
+ * ```
+ */
+function splitConfig(x: string): string[] {
+  if (x.startsWith('[')) return JSON.parse(x) as string[];
+  return x.split(',');
+}
 const credentialPath = Env.get(Env.AwsRoleConfigPath);
-if (credentialPath) credentials.registerConfig(fsa.toUrl(credentialPath), s3Fs);
+if (credentialPath) {
+  for (const loc of splitConfig(credentialPath)) credentials.registerConfig(fsa.toUrl(loc), s3Fs);
+}
 
 s3Fs.credentials = credentials;
 
