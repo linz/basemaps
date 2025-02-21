@@ -278,6 +278,7 @@ const IgnoredTitles = new Set([
   // Projections
   '2193',
   '3857',
+  '3793',
 ]);
 
 /**
