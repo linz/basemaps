@@ -13,7 +13,7 @@ export function gdalBuildVrt(targetVrt: URL, source: URL[]): GdalCommand {
   return {
     output: targetVrt,
     command: 'gdalbuildvrt',
-    args: [urlToString(targetVrt), ...source.map(urlToString)],
+    args: [urlToString(targetVrt), '-b', '1', '-b', '2', '-b', '3', ...source.map(urlToString)],
   };
 }
 
