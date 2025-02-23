@@ -10,7 +10,7 @@ const fileExists = async (path) => !!(await fs.stat(path).catch(() => false));
 function getAllImports(path) {
   const allImports = new Set();
 
-  const data = cp.execSync(`grep -R "'@basemaps" ${path}/src || true`).toString().split('\n');
+  const data = cp.execSync(`grep -R "from '@basemaps" ${path}/src || true`).toString().split('\n');
 
   for (const line of data) {
     if (line.includes('require.resolve')) continue;
