@@ -1,4 +1,4 @@
-import { Bounds, Epsg, Projection, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Epsg, Projection } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
@@ -9,21 +9,16 @@ import { TiffItem } from './extract.js';
 const CLI_DATE = new Date().toISOString();
 
 /**
- * This function creates a base StacItem object based on the provided parameters.
+ * Creates a StacItem with additional properties specific to topo-raster maps.
  *
- * @param fileName: The map sheet's filename
+ * @param fileName: The map sheet's filename.
  * @example "CJ10" or "CJ10_v1-00"
  *
- * @param tiffItem TODO
+ * @param tiffItem The TiffItem from which to create a TopoStacItem.
  *
- * @returns a StacItem object
+ * @returns a TopoStacItem object.
  */
-export function createBaseStacItem(
-  fileName: string,
-  tiffItem: TiffItem,
-  tileMatrix: TileMatrixSet,
-  logger?: LogType,
-): TopoStacItem {
+export function createBaseStacItem(fileName: string, tiffItem: TiffItem, logger?: LogType): TopoStacItem {
   logger?.info({ fileName }, 'createBaseStacItem()');
 
   const proj = Projection.get(tiffItem.epsg.code);
@@ -56,7 +51,7 @@ export function createBaseStacItem(
       'source:width': tiffItem.size.width,
       'source:height': tiffItem.size.height,
       'linz_basemaps:options': {
-        tileMatrix: tileMatrix.identifier,
+        tileMatrix: tiffItem.tileMatrix.identifier,
         sourceEpsg: tiffItem.epsg.code,
       },
       'linz_basemaps:generated': {
@@ -75,17 +70,31 @@ export function createBaseStacItem(
 }
 
 /**
- * This function needs to create two groups:
- * - StacItem objects that will live in the "topo[50|250]" directory
- * - StacItem objects that will live in the "topo[50|250]_latest" directory
+ * Creates StacItems from a list of TiffItems and a sublist of those identified as the latest versions by map code.
  *
- * All versions need a StacItem object that will live in the topo[50/250] directory
- * The latest version needs a second StacItem object that will live in the topo[50|250]_latest directory
+ * @param scale: The scale of the imagery described by the TiffItems.
+ * @example topo250
+ *
+ * @param resolution: The resolution of the imagery described by the TiffItems.
+ * @example gridless_600dpi
+ *
+ * @param all: The list of TiffItems from which to create StacItems.
+ *
+ * @param latest: The sublist of TiffItems identifying the latest versions by map code, from which to also create StacItems.
+ *
+ * This function creates two directories:
+ * - StacItems that will live in the "topo[50|250]" directory
+ * - StacItems that will live in the "topo[50|250]_latest" directory
+ *
+ * All versions need a StacItem that will live in the topo[50/250] directory
+ * The latest versions needs a second StacItem that will live in the topo[50|250]_latest directory
+ *
+ * @returns An object containing the StacItems that will live in the topo[50/250] directory (all), and those that will live in
+ * the topo[50|250]_latest directory (latest).
  */
 export function createStacItems(
   scale: string,
   resolution: string,
-  tileMatrix: TileMatrixSet,
   all: TiffItem[],
   latest: Map<string, TiffItem>,
   logger?: LogType,
@@ -95,7 +104,7 @@ export function createStacItems(
     const latestTiff = latest.get(item.mapCode);
     if (latestTiff == null) throw new Error(`Failed to find latest item for map code '${item.mapCode}'`);
 
-    const originStacItem = createBaseStacItem(`${item.mapCode}_${item.version}`, item, tileMatrix, logger);
+    const originStacItem = createBaseStacItem(`${item.mapCode}_${item.version}`, item, logger);
 
     // add link referencing the 'latest version' origin StacItem file that will live in the same directory
     originStacItem.links.push({
@@ -109,7 +118,7 @@ export function createStacItems(
 
   // create latest StacItem files
   const latestStacItems = Array.from(latest.values()).map((item) => {
-    const latestStacItem = createBaseStacItem(item.mapCode, item, tileMatrix, logger);
+    const latestStacItem = createBaseStacItem(item.mapCode, item, logger);
 
     // add link referencing this StacItem's origin file that will live in the topo[50/250] directory
     latestStacItem.links.push({

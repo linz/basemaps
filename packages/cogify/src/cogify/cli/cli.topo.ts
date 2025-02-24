@@ -1,5 +1,5 @@
 import { loadTiffsFromPaths } from '@basemaps/config-loader/build/json/tiff.config.js';
-import { Bounds, Epsg, Nztm2000Tms, TileMatrixSets } from '@basemaps/geo';
+import { Bounds } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { boolean, command, flag, option, string } from 'cmd-ts';
@@ -8,15 +8,14 @@ import pLimit from 'p-limit';
 import { isArgo } from '../../argo.js';
 import { UrlFolder } from '../../cogify/parsers.js';
 import { getLogger, logArguments } from '../../log.js';
-import { TopoStacItem } from '../stac.js';
-import { brokenTiffs, extractAllTiffs, extractLatestItem } from '../topo/extract.js';
+import { brokenTiffs, extractLatestTiffItemsByMapCode, extractTiffItemsByEpsg } from '../topo/extract.js';
 import { mapEpsgToSlug } from '../topo/slug.js';
 import { createStacCollection, createStacItems, writeStacFiles } from '../topo/stac.creation.js';
 
 const Q = pLimit(10);
 
 export interface TopoCreationContext {
-  /** Only create cogs for latest versions */
+  /** Only create cogs for the latest topo tiffs by map code and version */
   latestOnly: boolean;
   /** Source location of topo tiffs */
   source: URL;
@@ -35,7 +34,8 @@ export interface TopoCreationContext {
 }
 
 /**
- * List all the tiffs in a directory for topographic maps and create cogs for each.
+ * Parses a source path directory topographic maps tiffs and writes out a directory structure
+ * of StacItem and StacCollection files to the target path.
  *
  * @param source: Location of the source files
  * @example s3://linz-topographic-upload/topographic/TopoReleaseArchive/NZTopo50_GeoTif_Gridless/
@@ -140,16 +140,14 @@ async function loadTiffsToCreateStacs(
   const source = ctx.source;
   const target = ctx.target;
   logger?.info({ source }, 'LoadTiffs:Start');
-  // extract all file paths from the source directory and convert them into URL objects
+  // extract all file paths from the source directory and convert them into URLs
   const fileURLs = await fsa.toArray(fsa.list(source));
-  // process all of the URL objects into Tiff objects
+  // process all of the URLs into Tiffs
   const tiffs = await loadTiffsFromPaths(fileURLs, Q);
   logger?.info({ numTiffs: tiffs.length }, 'LoadTiffs:End');
 
-  // group all of the Tiff objects by epsg and map code
   logger?.info('ExtractTiffs:Start');
-  const allTiffs = extractAllTiffs(tiffs, logger);
-  const latestTiffs = extractLatestItem(allTiffs);
+  const allTiffItems = extractTiffItemsByEpsg(tiffs, logger);
   logger?.info('ExtractTiffs:End');
 
   const epsgDirectoryPaths: { epsg: string; url: URL }[] = [];
@@ -158,64 +156,53 @@ async function loadTiffsToCreateStacs(
   // create and write stac items and collections
   const scale = ctx.scale;
   const resolution = ctx.resolution;
-  for (const [epsg, items] of Object.entries(allTiffs)) {
-    const allTargetURL = new URL(`${scale}/${resolution}/${epsg}/`, target);
-    const latestTargetURL = new URL(`${scale}_latest/${resolution}/${epsg}/`, target);
 
-    const allBounds: Bounds[] = [];
-    const allStacItems: TopoStacItem[] = [];
+  for (const [epsg, tiffItems] of allTiffItems.entries()) {
+    logger?.info({ epsg }, 'CreateStacFiles:Start');
 
-    const latestBounds: Bounds[] = [];
-    const latestStacItems: TopoStacItem[] = [];
-
-    // parse epsg
-    const epsgCode = Epsg.parse(epsg);
-    if (epsgCode == null) throw new Error(`Failed to parse epsg '${epsg}'`);
-
-    // convert epsg to tile matrix
-    const tileMatrix = TileMatrixSets.tryGet(epsgCode) ?? Nztm2000Tms; // TODO: support other tile matrices
-    if (tileMatrix == null) throw new Error(`Failed to convert epsg code '${epsgCode.code}' to a tile matrix`);
+    // identify latest tiff items
+    const latestTiffItems = extractLatestTiffItemsByMapCode(tiffItems);
 
     // create stac items
-    logger?.info({ epsg }, 'CreateStacItems:Start');
-    // create stac items
-    const stacItems = createStacItems(scale, resolution, tileMatrix, items, latestTiffs, logger);
-
-    allBounds.push(...items.map((item) => item.bounds));
-    allStacItems.push(...stacItems.all);
-
-    latestBounds.push(...Array.from(latestTiffs.values()).map((item) => item.bounds));
-    latestStacItems.push(...stacItems.latest);
+    const stacItems = createStacItems(scale, resolution, tiffItems, latestTiffItems, logger);
 
     // convert epsg to slug
-    const epsgSlug = mapEpsgToSlug(epsgCode.code);
-    if (epsgSlug == null) throw new Error(`Failed to map epsg code '${epsgCode.code}' to a slug`);
+    const epsgSlug = mapEpsgToSlug(epsg.code);
+    if (epsgSlug == null) throw new Error(`Failed to map epsg code '${epsg.code}' to a slug`);
 
     const linzSlug = `${scale}-${epsgSlug}`;
 
-    // create collections
+    // extract bounds
+    const allBounds: Bounds[] = tiffItems.map((item) => item.bounds);
+    const latestBounds: Bounds[] = Array.from(latestTiffItems.values()).map((item) => item.bounds);
+
+    // create stac collections
     const title = ctx.title;
-    const collection = createStacCollection(title, linzSlug, epsgCode, Bounds.union(allBounds), allStacItems, logger);
+    const collection = createStacCollection(title, linzSlug, epsg, Bounds.union(allBounds), stacItems.all, logger);
     const latestCollection = createStacCollection(
       title,
       linzSlug,
-      epsgCode,
+      epsg,
       Bounds.union(latestBounds),
-      latestStacItems,
+      stacItems.latest,
       logger,
     );
-    logger?.info({ epsg }, 'CreateStacItems:End');
+    logger?.info({ epsg }, 'CreateStacFiles:End');
+
+    // construct target URLs
+    const allTargetURL = new URL(`${scale}/${resolution}/${epsg.code}/`, target);
+    const latestTargetURL = new URL(`${scale}_latest/${resolution}/${epsg.code}/`, target);
 
     if (ctx.forceOutput || isArgo()) {
-      epsgDirectoryPaths.push({ epsg, url: latestTargetURL });
+      epsgDirectoryPaths.push({ epsg: epsg.code.toString(), url: latestTargetURL });
 
       // write stac items and collections
       logger?.info({ epsg }, 'WriteStacFiles:Start');
       if (!ctx.latestOnly) {
-        const allPaths = await writeStacFiles(allTargetURL, allStacItems, collection, logger);
+        const allPaths = await writeStacFiles(allTargetURL, stacItems.all, collection, logger);
         stacItemPaths.push(...allPaths.itemPaths);
       }
-      const latestPaths = await writeStacFiles(latestTargetURL, latestStacItems, latestCollection, logger);
+      const latestPaths = await writeStacFiles(latestTargetURL, stacItems.latest, latestCollection, logger);
       stacItemPaths.push(...latestPaths.itemPaths);
       logger?.info({ epsg }, 'WriteStacFiles:End');
     }
