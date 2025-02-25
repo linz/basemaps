@@ -5,7 +5,6 @@ import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import { StacCollection } from 'stac-ts';
 
-import { TopoStacItem } from '../../stac.js';
 import { TopoStacCreationCommand } from '../cli.topo.js';
 
 describe('cli.topo', () => {

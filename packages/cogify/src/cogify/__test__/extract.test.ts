@@ -1,5 +1,4 @@
 import { strictEqual, throws } from 'node:assert';
-import { basename } from 'node:path';
 import { describe, it } from 'node:test';
 
 import { extractMapCodeAndVersion } from '../topo/extract.js';
