@@ -40,8 +40,6 @@ describe('cli.topo', () => {
     const files = [...fsMemory.files.keys()];
     files.sort();
 
-    // console.log(files);
-
     assert.deepEqual(files, [
       'memory://source/CJ10_GRIDLESS_GeoTifv1-00.tif',
       'memory://source/CJ10_GRIDLESS_GeoTifv1-01.tif',
