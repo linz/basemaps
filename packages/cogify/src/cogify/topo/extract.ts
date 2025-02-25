@@ -106,11 +106,11 @@ export function extractMapCodeAndVersion(url: URL, logger?: LogType): { mapCode:
 
   // extract map code from head of the file name (e.g. CJ10)
   const mapCode = fileName.split('_')[0];
-  if (mapCode == null) throw new Error('Map sheet not found in the file name');
+  if (mapCode == null) throw new Error(`Map sheet not found in the file name: "${url.href}"`);
 
   // extract version from tail of the file name (e.g. v1-00)
   const version = fileName.match(/v(\d)-(\d\d)/)?.[0];
-  if (version == null) throw new Error('Version not found in the file name');
+  if (version == null) throw new Error(`Version not found in the file name: "${url.href}"`);
 
   logger?.info({ mapCode, version }, 'extractMapCodeAndVersion()');
   return { mapCode, version };

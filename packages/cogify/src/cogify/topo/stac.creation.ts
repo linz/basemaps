@@ -125,7 +125,7 @@ export function createStacItems(
       //
       // `../../../` takes us up to the <target> directory
       href: `../../../${scale}/${resolution}/${item.epsg.code}/${item.mapCode}_${item.version}.json`,
-      rel: 'derived-from',
+      rel: 'derived_from',
       type: 'application/json',
     });
 

@@ -1,4 +1,5 @@
 import { strictEqual, throws } from 'node:assert';
+import { basename } from 'node:path';
 import { describe, it } from 'node:test';
 
 import { extractMapCodeAndVersion } from '../topo/extract.js';
@@ -31,7 +32,7 @@ describe('extractMapCodeAndVersion', () => {
 
   it('should not able to parse a version from file', () => {
     for (const file of invalidFiles) {
-      throws(() => extractMapCodeAndVersion(new URL(file)), new Error('Version not found in the file name'));
+      throws(() => extractMapCodeAndVersion(new URL(file)), new Error(`Version not found in the file name: "${file}"`));
     }
   });
 });
