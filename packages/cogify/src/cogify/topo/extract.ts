@@ -100,8 +100,7 @@ export function extractEpsgFromTiff(tiff: Tiff, logger?: LogType): Epsg | null {
  *
  * @returns an object containing the map code and version.
  */
-export function extractMapCodeAndVersion(file: string, logger?: LogType): { mapCode: string; version: string } {
-  const url = new URL(file);
+export function extractMapCodeAndVersion(url: URL, logger?: LogType): { mapCode: string; version: string } {
   const filePath = path.parse(url.href);
   const fileName = filePath.name;
 
@@ -158,42 +157,42 @@ export interface TiffItem {
  *
  * @returns a Map of TiffItem arrays by Epsg.
  */
-export function extractTiffItemsByEpsg(tiffs: Tiff[], logger?: LogType): Map<Epsg, TiffItem[]> {
+export function extractTiffItemsByEpsg(tiffs: Tiff[], logger: LogType): Map<Epsg, TiffItem[]> {
   const tiffItemsByEpsg = new Map<Epsg, TiffItem[]>();
 
   // create TiffItem objects for each tiff and store them by epsg
   for (const tiff of tiffs) {
     const source = tiff.source.url;
-    const { mapCode, version } = extractMapCodeAndVersion(source.href, logger);
+    const { mapCode, version } = extractMapCodeAndVersion(source, logger);
 
     const bounds = extractBoundsFromTiff(tiff, logger);
     const epsg = extractEpsgFromTiff(tiff, logger);
     const size = extractSizeFromTiff(tiff, logger);
     const tileMatrix = TileMatrixSets.tryGet(epsg);
 
-    if (bounds == null || epsg == null || size == null || tileMatrix == null) {
-      if (bounds == null) {
-        brokenTiffs.noBounds.push(`${mapCode}_${version}`);
-        logger?.warn({ mapCode, version }, 'Could not extract bounds from tiff');
-      }
+    if (bounds == null) {
+      brokenTiffs.noBounds.push(`${mapCode}_${version}`);
+      logger.warn({ mapCode, version }, 'Could not extract bounds from tiff');
+      continue;
+    }
 
-      if (epsg == null) {
-        brokenTiffs.noEpsg.push(`${mapCode}_${version}`);
-        logger?.warn({ mapCode, version }, 'Could not extract epsg from tiff');
-      }
+    if (epsg == null) {
+      brokenTiffs.noEpsg.push(`${mapCode}_${version}`);
+      logger.warn({ mapCode, version }, 'Could not extract epsg from tiff');
+      continue;
+    }
 
-      if (size == null) {
-        brokenTiffs.noSize.push(`${mapCode}_${version}`);
-        logger?.warn({ mapCode, version }, 'Could not extract width or height from tiff');
-      }
+    if (size == null) {
+      brokenTiffs.noSize.push(`${mapCode}_${version}`);
+      logger.warn({ mapCode, version }, 'Could not extract width or height from tiff');
+      continue;
+    }
 
-      if (tileMatrix == null) {
-        brokenTiffs.noTileMatrix.push(`${mapCode}_${version}`);
-        if (epsg != null) {
-          logger?.warn({ mapCode, version }, `Could not convert epsg code '${epsg.code}' to a tile matrix`);
-        }
+    if (tileMatrix == null) {
+      brokenTiffs.noTileMatrix.push(`${mapCode}_${version}`);
+      if (epsg != null) {
+        logger.warn({ mapCode, version }, `Could not convert epsg code '${epsg.code}' to a tile matrix`);
       }
-
       continue;
     }
 

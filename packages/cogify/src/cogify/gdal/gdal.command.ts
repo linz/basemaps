@@ -7,6 +7,14 @@ import { CogifyCreationOptions } from '../stac.js';
 import { GdalCommand } from './gdal.runner.js';
 
 const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
+
+/**
+ * Topographic mapsheets are rendered generally at 1:600 dpi,
+ *
+ * A topo50 mapsheet 1:600dpi does not perfectly align to full pixels and approximatly 1.7 pixels
+ * of empty space is rendered at the edge of every mapsheet.
+ *
+ */
 const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
 
 export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha?: boolean): GdalCommand {
@@ -147,6 +155,11 @@ export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOpti
   };
 }
 
+/**
+ * Build a topographic mapsheet cog
+ *
+ * This is specific configuration to LINZ's topo50 and 250 mapsheets
+ */
 export function gdalBuildTopoRasterCommands(
   targetTiff: URL,
   sourceVrt: URL,

@@ -94,6 +94,13 @@ export type GdalResampling = 'nearest' | 'bilinear' | 'cubic' | 'cubicspline' | 
 
 export type CogifyStacCollection = StacCollection;
 
+/**
+ * Is the the provided stac item a topographic map sheet creation request or a generic cog creation request
+ * @returns true if a linz:map_sheet is found false otherwise.
+ */
+export function isTopoStacItem(x: CogifyStacItem | TopoStacItem): x is TopoStacItem {
+  return typeof x['properties']['linz:map_sheet'] === 'string';
+}
 export type CogifyStacItem = StacItem & {
   properties: {
     'linz_basemaps:generated': GeneratedProperties;
@@ -104,16 +111,20 @@ export type CogifyStacItem = StacItem & {
 export type TopoStacItem = StacItem & {
   properties: {
     /**
-     * A topo raster map sheet's code.
+     * A topo50 or topo250 raster map sheet's code.
      *
-     * @example "CJ10"
+     * @example
+     * - topo50: "CJ10", "BQ31"
+     * - topo250: "00", "03", "05"
      */
-    map_code: string;
+    'linz:map_sheet': string;
 
     /**
      * A map sheet's version.
      *
      * @example "v1.00"
+     *
+     * @see https://github.com/stac-extensions/version
      */
     version: string;
 
@@ -121,18 +132,10 @@ export type TopoStacItem = StacItem & {
      * An EpsgCode Enum representing a map sheet's projection.
      *
      * @example EpsgCode.Nztm2000 = 2193
+     *
+     * @see https://github.com/stac-extensions/projection
      */
     'proj:epsg': EpsgCode;
-
-    /**
-     * The width and height of a map sheet in pixels.
-     */
-    'source:width': number;
-
-    /**
-     * The height of a map sheet in pixels.
-     */
-    'source:height': number;
 
     'linz_basemaps:generated': GeneratedProperties;
     'linz_basemaps:options': {
@@ -148,7 +151,11 @@ export type TopoStacItem = StacItem & {
 /** The cutline that was used on the imagery */
 export type CogifyLinkCutline = StacLink & { rel: 'linz_basemaps:cutline'; blend: number };
 /** Link back to the source imagery that was used to create the cog */
-export type CogifyLinkSource = StacLink & { rel: 'linz_basemaps:source' };
+export type CogifyLinkSource = StacLink & {
+  rel: 'linz_basemaps:source';
+  'linz_basemaps:source_width': number;
+  'linz_basemaps:source_height': number;
+};
 
 /** Find all the linz_basemaps:source links */
 export function getSources(links: StacLink[]): CogifyLinkSource[] {

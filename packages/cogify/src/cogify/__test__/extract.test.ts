@@ -23,7 +23,7 @@ describe('extractMapCodeAndVersion', () => {
 
   it('should parse the correct MapSheet Names', () => {
     for (const file of validFiles) {
-      const output = extractMapCodeAndVersion(file.input);
+      const output = extractMapCodeAndVersion(new URL(file.input));
       strictEqual(output.mapCode, file.expected.mapCode, 'Map code does not match');
       strictEqual(output.version, file.expected.version, 'Version does not match');
     }
@@ -31,7 +31,7 @@ describe('extractMapCodeAndVersion', () => {
 
   it('should not able to parse a version from file', () => {
     for (const file of invalidFiles) {
-      throws(() => extractMapCodeAndVersion(file), new Error('Version not found in the file name'));
+      throws(() => extractMapCodeAndVersion(new URL(file)), new Error('Version not found in the file name'));
     }
   });
 });

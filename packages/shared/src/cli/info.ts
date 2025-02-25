@@ -11,5 +11,8 @@ export const CliInfo: { package: string; version: string; hash: string; buildId?
   buildId: process.env['BUILD_ID'],
 };
 
+/** ISO date of when this command was run */
+export const CliDate = new Date().toISOString();
+
 /** Unique Id for this instance of the cli being run */
 export const CliId = ulid.ulid();

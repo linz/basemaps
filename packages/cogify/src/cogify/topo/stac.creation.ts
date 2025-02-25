@@ -1,12 +1,10 @@
 import { Bounds, Epsg, Projection } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
-import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { CogifyStacCollection, TopoStacItem } from '../stac.js';
+import { CogifyLinkSource, CogifyStacCollection, TopoStacItem } from '../stac.js';
 import { TiffItem } from './extract.js';
-
-const CLI_DATE = new Date().toISOString();
 
 /**
  * Creates a StacItem with additional properties specific to topo-raster maps.
@@ -25,6 +23,14 @@ export function createBaseStacItem(fileName: string, tiffItem: TiffItem, logger?
   const feature = proj.boundsToGeoJsonFeature(tiffItem.bounds);
   const bbox = proj.boundsToWgs84BoundingBox(tiffItem.bounds);
 
+  const sourceLink: CogifyLinkSource = {
+    rel: 'linz_basemaps:source',
+    href: tiffItem.source.href,
+    type: 'image/tiff; application=geotiff',
+    'linz_basemaps:source_width': tiffItem.size.width,
+    'linz_basemaps:source_height': tiffItem.size.height,
+  };
+
   const item: TopoStacItem = {
     type: 'Feature',
     stac_version: '1.0.0',
@@ -33,23 +39,15 @@ export function createBaseStacItem(fileName: string, tiffItem: TiffItem, logger?
       { rel: 'self', href: `./${fileName}.json`, type: 'application/json' },
       { rel: 'collection', href: './collection.json', type: 'application/json' },
       { rel: 'parent', href: './collection.json', type: 'application/json' },
-      { rel: 'linz_basemaps:source', href: tiffItem.source.href, type: 'image/tiff; application=geotiff' },
+      sourceLink,
     ],
-    assets: {
-      source: {
-        href: tiffItem.source.href,
-        type: 'image/tiff; application=geotiff',
-        roles: ['data'],
-      },
-    },
+    assets: {},
     stac_extensions: ['https://stac-extensions.github.io/file/v2.0.0/schema.json'],
     properties: {
-      datetime: CLI_DATE,
-      map_code: tiffItem.mapCode,
+      datetime: CliDate,
+      'linz:map_sheet': tiffItem.mapCode,
       version: tiffItem.version.replace('-', '.'), // e.g. "v1-00" to "v1.00"
       'proj:epsg': tiffItem.epsg.code,
-      'source:width': tiffItem.size.width,
-      'source:height': tiffItem.size.height,
       'linz_basemaps:options': {
         tileMatrix: tiffItem.tileMatrix.identifier,
         sourceEpsg: tiffItem.epsg.code,
@@ -58,7 +56,7 @@ export function createBaseStacItem(fileName: string, tiffItem: TiffItem, logger?
         package: CliInfo.package,
         hash: CliInfo.hash,
         version: CliInfo.version,
-        datetime: CLI_DATE,
+        datetime: CliDate,
       },
     },
     geometry: feature.geometry as GeoJSONPolygon,
@@ -182,7 +180,7 @@ export function createStacCollection(
     extent: {
       spatial: { bbox: [bbox] },
       // Default the temporal time today if no times were found as it is required for STAC
-      temporal: { interval: [[CLI_DATE, null]] },
+      temporal: { interval: [[CliDate, null]] },
     },
     stac_extensions: ['https://stac-extensions.github.io/file/v2.0.0/schema.json'],
   };
@@ -194,23 +192,24 @@ export async function writeStacFiles(
   target: URL,
   items: TopoStacItem[],
   collection: CogifyStacCollection,
-  logger?: LogType,
-): Promise<{ itemPaths: { path: URL }[]; collectionPath: URL }> {
+  logger: LogType,
+): Promise<{ items: URL[]; collection: URL }> {
   // Create collection json for all topo50-latest items.
-  logger?.info({ target }, 'CreateStac:Output');
-  logger?.info({ items: items.length, collectionID: collection.id }, 'Stac:Output');
+  logger.info({ itemCount: items.length, collectionId: collection.id, target: target.href }, 'Stac:Output');
 
-  const itemPaths = [];
+  const itemPaths: URL[] = [];
 
   for (const item of items) {
     const itemPath = new URL(`${item.id}.json`, target);
-    itemPaths.push({ path: itemPath });
+    itemPaths.push(itemPath);
 
     await fsa.write(itemPath, JSON.stringify(item, null, 2));
   }
 
   const collectionPath = new URL('collection.json', target);
+  logger.info({ collectionId: collection.id, target: collectionPath.href }, 'Stac:Output:Collection');
+
   await fsa.write(collectionPath, JSON.stringify(collection, null, 2));
 
-  return { itemPaths, collectionPath };
+  return { items: itemPaths, collection: collectionPath };
 }

@@ -1,7 +1,7 @@
 import { EpsgCode } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 
-const slugs: Partial<Record<EpsgCode, string>> = {
+const Slugs: Partial<Record<EpsgCode, string>> = {
   [EpsgCode.Nztm2000]: 'new-zealand-mainland',
   [EpsgCode.Citm2000]: 'chatham-islands',
 };
@@ -14,7 +14,7 @@ const slugs: Partial<Record<EpsgCode, string>> = {
  * @returns if succeeded, a slug string. Otherwise, null.
  */
 export function mapEpsgToSlug(epsg: EpsgCode, logger?: LogType): string | null {
-  const slug = slugs[epsg];
+  const slug = Slugs[epsg];
 
   logger?.info({ found: slug != null }, 'mapEpsgToSlug()');
   return slug ?? null;
