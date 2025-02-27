@@ -2,21 +2,15 @@ import { Rgba } from '@basemaps/config';
 import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
-import { CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { CliDate, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { createCovering } from './cogify/covering.js';
-import {
-  CogifyLinkCutline,
-  CogifyLinkSource,
-  CogifyStacCollection,
-  CogifyStacItem,
-  createFileStats,
-} from './cogify/stac.js';
+import { Presets } from '../../preset.js';
+import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem, createFileStats } from '../stac.js';
+import { createCovering } from './covering.js';
 import { CutlineOptimizer } from './cutline.js';
-import { Presets } from './preset.js';
 
 export interface TileCoverContext {
   /** Unique id for the covering */
@@ -100,7 +94,6 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   ctx.metrics?.start('cutline:apply');
 
   const dateTime = getDateTime(ctx);
-  const cliDate = new Date().toISOString();
 
   // Convert the source imagery to a geojson
   const sourceGeoJson = ctx.imagery.files.map((file) => {
@@ -161,7 +154,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
         { href: './collection.json', rel: 'parent' },
       ],
       properties: {
-        datetime: dateTime.start ? null : cliDate,
+        datetime: dateTime.start ? null : CliDate,
         start_datetime: dateTime.start ?? undefined,
         end_datetime: dateTime.end ?? undefined,
         'proj:epsg': ctx.tileMatrix.projection.code,
@@ -177,7 +170,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
           package: CliInfo.package,
           hash: CliInfo.hash,
           version: CliInfo.version,
-          datetime: cliDate,
+          datetime: CliDate,
         },
       },
       assets: {},
@@ -192,6 +185,8 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
         href: new URL(src.name, ctx.imagery.url).href,
         rel: 'linz_basemaps:source',
         type: 'image/tiff; application=geotiff;',
+        'linz_basemaps:source_height': src.height,
+        'linz_basemaps:source_width': src.width,
       };
       item.links.push(srcLink);
     }
@@ -222,10 +217,12 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
     extent: {
       spatial: { bbox: [Projection.get(ctx.imagery.projection).boundsToWgs84BoundingBox(ctx.imagery.bounds)] },
       // Default  the temporal time today if no times were found as it is required for STAC
-      temporal: { interval: dateTime.start ? [[dateTime.start, dateTime.end]] : [[cliDate, null]] },
+      temporal: { interval: dateTime.start ? [[dateTime.start, dateTime.end]] : [[CliDate, null]] },
     },
     links: items.map((item) => {
-      const tileId = TileId.fromTile(item.properties['linz_basemaps:options'].tile);
+      const tile = item.properties['linz_basemaps:options'].tile;
+      if (tile == null) throw new Error('Tile missing from item');
+      const tileId = TileId.fromTile(tile);
       return { href: `./${tileId}.json`, rel: 'item', type: 'application/json' };
     }),
   };

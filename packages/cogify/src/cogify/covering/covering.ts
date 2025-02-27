@@ -3,7 +3,7 @@ import { LogType } from '@basemaps/shared';
 import { Area, intersection, MultiPolygon } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 
-import { CutlineOptimizer } from '../cutline.js';
+import { CutlineOptimizer } from '../covering/cutline.js';
 
 /**
  * Tile offsets for surrounding tiles

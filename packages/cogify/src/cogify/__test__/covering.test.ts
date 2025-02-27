@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { GoogleTms, QuadKey } from '@basemaps/geo';
 
 import { gsdToMeter } from '../cli/cli.cover.js';
-import { addChildren, addSurrounding } from '../covering.js';
+import { addChildren, addSurrounding } from '../covering/covering.js';
 
 describe('getChildren', () => {
   it('should get children', () => {

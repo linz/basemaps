@@ -2,18 +2,30 @@ import { Rgba } from '@basemaps/config';
 import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
-import { Presets } from '../preset.js';
+import { Presets } from '../../preset.js';
+import { CogifyCreationOptions } from '../stac.js';
 import { GdalCommand } from './gdal.runner.js';
-import { CogifyCreationOptions } from './stac.js';
 
 const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
 
-export function gdalBuildVrt(targetVrt: URL, source: URL[]): GdalCommand {
+/**
+ * Topographic mapsheets are rendered generally at 1:600 dpi,
+ *
+ * A topo50 mapsheet 1:600dpi does not perfectly align to full pixels and approximatly 1.7 pixels
+ * of empty space is rendered at the edge of every mapsheet.
+ *
+ */
+const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
+
+export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha?: boolean): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
   return {
     output: targetVrt,
     command: 'gdalbuildvrt',
-    args: [urlToString(targetVrt), ...source.map(urlToString)],
+    args: [addalpha ? ['-addalpha'] : undefined, urlToString(targetVrt), ...source.map(urlToString)]
+      .filter((f) => f != null)
+      .flat()
+      .map(String),
   };
 }
 
@@ -141,4 +153,51 @@ export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOpti
       .flat()
       .map(String),
   };
+}
+
+/**
+ * Build a topographic mapsheet cog
+ *
+ * This is specific configuration to LINZ's topo50 and 250 mapsheets
+ */
+export function gdalBuildTopoRasterCommands(
+  targetTiff: URL,
+  sourceVrt: URL,
+  opt: CogifyCreationOptions,
+  width: number,
+  height: number,
+): GdalCommand {
+  const command: GdalCommand = {
+    command: 'gdal_translate',
+    output: targetTiff,
+    args: [
+      ['-q'], // Supress non-error output
+      ['-stats'], // Force stats (re)computation
+      ['-of', 'COG'], // Output format
+      ['-srcwin', '0', '0', `${width - DefaultTrimPixelRight}`, `${height}`],
+      ['-a_srs', `EPSG:${opt.sourceEpsg}`],
+
+      // https://gdal.org/en/latest/drivers/raster/cog.html#creation-options
+      ['-co', 'BIGTIFF=NO'],
+      ['-co', 'BLOCKSIZE=512'],
+      ['-co', 'COMPRESS=WEBP'],
+      ['-co', 'NUM_THREADS=ALL_CPUS'], // Use all CPUS
+      ['-co', 'OVERVIEW_COMPRESS=WEBP'],
+      ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
+      ['-co', 'OVERVIEW_QUALITY=90'],
+      ['-co', 'OVERVIEW_RESAMPLING=LANCZOS'],
+      ['-co', 'QUALITY=100'],
+      ['-co', 'SPARSE_OK=TRUE'], // Allow for sparse writes
+
+      // https://gdal.org/en/latest/drivers/raster/cog.html#reprojection-related-creation-options
+      ['-co', 'ADD_ALPHA=YES'],
+      urlToString(sourceVrt),
+      urlToString(targetTiff),
+    ]
+      .filter((f) => f != null)
+      .flat()
+      .map(String),
+  };
+
+  return command;
 }

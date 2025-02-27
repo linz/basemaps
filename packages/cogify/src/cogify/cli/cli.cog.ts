@@ -11,18 +11,20 @@ import path from 'path';
 import { StacAsset, StacCollection } from 'stac-ts';
 import { pathToFileURL } from 'url';
 
-import { CutlineOptimizer } from '../../cutline.js';
 import { SourceDownloader } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';
 import { getLogger, logArguments } from '../../log.js';
-import { gdalBuildCog, gdalBuildVrt, gdalBuildVrtWarp, gdalCreate } from '../gdal.command.js';
-import { GdalRunner } from '../gdal.runner.js';
+import { CutlineOptimizer } from '../covering/cutline.js';
+import {
+  gdalBuildCog,
+  gdalBuildTopoRasterCommands,
+  gdalBuildVrt,
+  gdalBuildVrtWarp,
+  gdalCreate,
+} from '../gdal/gdal.command.js';
+import { GdalRunner } from '../gdal/gdal.runner.js';
 import { Url, UrlArrayJsonFile } from '../parsers.js';
-import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources } from '../stac.js';
-
-function extractSourceFiles(item: CogifyStacItem, baseUrl: URL): URL[] {
-  return item.links.filter((link) => link.rel === 'linz_basemaps:source').map((link) => new URL(link.href, baseUrl));
-}
+import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources, isTopoStacItem } from '../stac.js';
 
 const Collections = new Map<string, Promise<StacCollection>>();
 
@@ -153,16 +155,17 @@ export const BasemapsCogifyCreateCommand = command({
 
       const promises = filtered.map(async (f) => {
         const { item, url } = f;
+
         const cutlineLink = getCutline(item.links);
         const options = item.properties['linz_basemaps:options'];
-        const tileId = TileId.fromTile(options.tile);
+        const tileId = isTopoStacItem(item) ? item.id : TileId.fromTile(options.tile);
 
         // Location to where the tiff should be stored
         const tiffPath = new URL(tileId + '.tiff', url);
         const itemStacPath = new URL(tileId + '.json', url);
         const tileMatrix = TileMatrixSets.find(options.tileMatrix);
         if (tileMatrix == null) throw new Error('Failed to find tileMatrix: ' + options.tileMatrix);
-        const sourceFiles = extractSourceFiles(item, url);
+        const sourceFiles = getSources(item.links);
 
         // Skip creating the COG if the item STAC contains no source tiffs
         if (sourceFiles.length === 0) {
@@ -174,10 +177,31 @@ export const BasemapsCogifyCreateCommand = command({
         const outputTiffPath = await Q(async () => {
           metrics.start(tileId); // Only start the timer when the cog is actually being processed
 
+          // Download all tiff files needed for the processing
+          const sourceLocations = await Promise.all(
+            sourceFiles.map((link) => sources.get(new URL(link.href, url), logger)),
+          );
+
           const cutline = await CutlineOptimizer.loadFromLink(cutlineLink, tileMatrix);
-          const sourceLocations = await Promise.all(sourceFiles.map((f) => sources.get(f, logger)));
+          if (isTopoStacItem(item)) {
+            if (sourceFiles.length !== 1) {
+              throw new Error('Topo MapSheet procesing is limited to one input file, found: ' + sourceLocations.length);
+            }
+            const width = sourceFiles[0]['linz_basemaps:source_width'];
+            const height = sourceFiles[0]['linz_basemaps:source_height'];
+            return createTopoCog({
+              tileId,
+              options,
+              tempFolder: tmpFolder,
+              sourceFiles: sourceLocations,
+              cutline,
+              size: { width, height },
+              logger,
+            });
+          }
 
           return createCog({
+            tileId,
             options,
             tempFolder: tmpFolder,
             sourceFiles: sourceLocations,
@@ -190,8 +214,9 @@ export const BasemapsCogifyCreateCommand = command({
         logger.debug({ files: sourceFiles.length }, 'Cog:Cleanup');
         const deleted = await Promise.all(
           sourceFiles.map(async (f) => {
-            const asset = sources.items.get(f.href);
-            await sources.done(f, item.id, logger);
+            const sourceLocation = new URL(f.href, url);
+            const asset = sources.items.get(sourceLocation.href);
+            await sources.done(sourceLocation, item.id, logger);
             // Update the STAC Document with the checksum and file size of the files used to create this asset
             if (asset == null || asset.size == null || asset.hash == null) return;
             const link = item.links.find((link) => new URL(link.href, url).href === asset.url.href);
@@ -268,7 +293,9 @@ export const BasemapsCogifyCreateCommand = command({
       {
         count: toCreate.length,
         created: filtered.length,
-        files: filtered.map((f) => TileId.fromTile(f.item.properties['linz_basemaps:options'].tile)),
+        files: filtered.map((f) => {
+          return isTopoStacItem(f.item) ? f.item.id : TileId.fromTile(f.item.properties['linz_basemaps:options'].tile);
+        }),
       },
       'Cog:Done',
     );
@@ -276,6 +303,8 @@ export const BasemapsCogifyCreateCommand = command({
 });
 
 export interface CogCreationContext {
+  /** TileId for the file name */
+  tileId: string;
   /** COG Creation options */
   options: CogifyCreationOptions;
   /** Location to store all the temporary files */
@@ -284,15 +313,17 @@ export interface CogCreationContext {
   sourceFiles: URL[];
   /** Optional cutline to cut the imagery too */
   cutline: CutlineOptimizer;
+  /** Optional Source imagery size for topo raster trim pixel */
+  size?: { width: number; height: number };
   /** Optional logger */
   logger?: LogType;
 }
 
-/** Create a cog from the creation options */
+/** Create a generic COG from the creation options */
 async function createCog(ctx: CogCreationContext): Promise<URL> {
   const options = ctx.options;
   await ProjectionLoader.load(options.sourceEpsg);
-  const tileId = TileId.fromTile(options.tile);
+  const tileId = ctx.tileId;
 
   const logger = ctx.logger?.child({ tileId });
 
@@ -309,7 +340,7 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   logger?.debug({ tileId }, 'Cog:Create:VrtWarp');
 
   const cutlineProperties: { url: URL | null; blend: number } = { url: null, blend: ctx.cutline.blend };
-  if (ctx.cutline.path) {
+  if (ctx.cutline) {
     logger?.debug('Cog:Cutline');
     const optimizedCutline = ctx.cutline.optimize(options.tile);
     if (optimizedCutline) {
@@ -351,6 +382,32 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
 
   // Create the COG from the merged vrt with a forced background
   const cogCreateCommand = gdalBuildCog(new URL(`${tileId}.tiff`, ctx.tempFolder), vrtMergeCommand.output, options);
+  await new GdalRunner(cogCreateCommand).run(logger);
+  return cogCreateCommand.output;
+}
+
+/** Create a COG specific to LINZ's Topographic 50k and 250k map series from the creation options */
+async function createTopoCog(ctx: CogCreationContext): Promise<URL> {
+  const options = ctx.options;
+  await ProjectionLoader.load(options.sourceEpsg);
+  const tileId = ctx.tileId;
+
+  const logger = ctx.logger?.child({ tileId });
+
+  logger?.debug({ tileId }, 'TopoCog:Create:VrtSource');
+  // Create the vrt of all the source files
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, true);
+  await new GdalRunner(vrtSourceCommand).run(logger);
+
+  // Create the COG from the vrt file
+  if (ctx.size == null) throw new Error('TopoCog: Source image size is required for pixel trim');
+  const cogCreateCommand = gdalBuildTopoRasterCommands(
+    new URL(`${tileId}.tiff`, ctx.tempFolder),
+    vrtSourceCommand.output,
+    options,
+    ctx.size?.width,
+    ctx.size?.height,
+  );
   await new GdalRunner(cogCreateCommand).run(logger);
   return cogCreateCommand.output;
 }
