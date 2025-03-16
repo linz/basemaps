@@ -12,7 +12,7 @@ This page provides a step-by-step guide to several common ways LINZ Basemaps API
 
 ### How to add LINZ Imagery Basemap to ArcGIS Online
 
-1. From ArcGIS Online Map Viewer > Add layer > Browse layers > change My Contents to ArcGIS Online > search for LINZ imagery basemap
+1. From ArcGIS Online Map Viewer > Add layer > Browse layers > change My Contents to ArcGIS Online > search for 'LINZ imagery basemap'
 
 ![Search for LINZ Basemaps](../static/agol-search.png)
 
@@ -41,9 +41,7 @@ Note the imagery is hosted from LINZ Imagery Basemaps in Web Map Tile Service (W
 
 
 
-### How to add LINZ Imagery Basemaps to your AGOL basemaps
-
-- **Top tip:** Check out this great storymap from Eagle Technology on adding LINZ Basemaps layers >> https://content.eagle.co.nz/apps/aa0f60d9856e4f3a99b7a404bb38705c/explore
+### How to add an individual layer from LINZ Imagery Basemaps to ArcGIS
 
 1. Open LINZ Imagery Basemap LINZ Basemaps 
 
@@ -82,7 +80,7 @@ Note parameters and values must be lowercase
 
 - **Top tip:**  If you create your own AGOL Item for each imagery layer and then share these with your own AGOL Group, it will make it easier to reuse the imagery again.  
   
-### How to add an individual layer from LINZ Imagery Basemaps to ArcGIS
+### How to add LINZ Imagery Basemaps to your AGOL basemaps
 
 ![LINZ Basemaps in Esri's basemap chooser](../static/basemaps-in-esri-chooser.png)  
 
