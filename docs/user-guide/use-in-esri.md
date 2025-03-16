@@ -41,7 +41,7 @@ Note the imagery is hosted from LINZ Imagery Basemaps in Web Map Tile Service (W
 
 
 
-### How to add an individual layer from LINZ Imagery Basemaps to ArcGIS
+### How to add LINZ Imagery Basemaps to your AGOL basemaps
 
 - **Top tip:** Check out this great storymap from Eagle Technology on adding LINZ Basemaps layers >> https://content.eagle.co.nz/apps/aa0f60d9856e4f3a99b7a404bb38705c/explore
 
