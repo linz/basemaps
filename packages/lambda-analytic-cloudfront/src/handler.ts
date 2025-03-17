@@ -6,7 +6,7 @@ import { LambdaRequest } from '@linzjs/lambda';
 import pLimit from 'p-limit';
 import { basename } from 'path';
 
-import { byDay, getOneHourAgo, getYesterday } from './date.js';
+import { byDay, getOneHourAgo } from './date.js';
 import { Elastic } from './elastic.js';
 import { FileProcess, toFullDate } from './log.reader.js';
 import { LogStats } from './log.stats.js';

@@ -7,7 +7,7 @@ import { Client } from '@elastic/elasticsearch';
 import { LambdaRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 
-import { getOneHourAgo, getYesterday } from '../date.js';
+import { getOneHourAgo } from '../date.js';
 import { Elastic } from '../elastic.js';
 import { main } from '../handler.js';
 import { LogStats } from '../log.stats.js';
