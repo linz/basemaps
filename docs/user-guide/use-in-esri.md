@@ -95,12 +95,12 @@ Note the imagery is hosted from LINZ Imagery Basemaps in Web Map Tile Service (W
 
     Remove from the end of the url ##?api=[YourAPIKeyHere]## This should automatically recognise the layer type as WMTS (OGC)
 
-    - Add customer parameter
+    - Add custom parameter
 
       - **parameter = api**
       - **value = [YourAPIKeyHere]** eg d01gbxm6mtx9ne1c09y8e6fwd9c (replace this example with your API key)
 
-    - Add customer parameter
+    - Add custom parameter
       - **parameter = format**
       - **value = png**
 
