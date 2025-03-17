@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
 # [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
 
 
