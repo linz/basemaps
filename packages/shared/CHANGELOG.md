@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+
+### Features
+
+* CITM2000 debug tile matrix ([#3397](https://github.com/linz/basemaps/issues/3397)) ([4bb91bd](https://github.com/linz/basemaps/commit/4bb91bd8223426071047f77574453cc8a61fa150))
+* **cogify:** Update cogify to support the topo raster processes. BM-1116 ([#3388](https://github.com/linz/basemaps/issues/3388)) ([4366df6](https://github.com/linz/basemaps/commit/4366df6d2149719d7f2d4002b6c6394966be2751)), closes [/github.com/linz/basemaps/issues/3365#issuecomment-2445444420](https://github.com//github.com/linz/basemaps/issues/3365/issues/issuecomment-2445444420)
+* **shared:** support multiple credential locations ([#3407](https://github.com/linz/basemaps/issues/3407)) ([92de7c4](https://github.com/linz/basemaps/commit/92de7c4a886a7e757a441c3cee2676fcb8c33d6a)), closes [/github.com/linz/argo-tasks/blob/master/src/fs.register.ts#L132](https://github.com//github.com/linz/argo-tasks/blob/master/src/fs.register.ts/issues/L132)
+
+
+
+
+
 # [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
 
 

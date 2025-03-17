@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+
+### Features
+
+* CITM2000 debug tile matrix ([#3397](https://github.com/linz/basemaps/issues/3397)) ([4bb91bd](https://github.com/linz/basemaps/commit/4bb91bd8223426071047f77574453cc8a61fa150))
+
+
+
+
+
 # [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
 
 
