@@ -7,7 +7,7 @@ import { Client } from '@elastic/elasticsearch';
 import { LambdaRequest } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 
-import { getYesterday } from '../date.js';
+import { getOneHourAgo } from '../date.js';
 import { Elastic } from '../elastic.js';
 import { main } from '../handler.js';
 import { LogStats } from '../log.stats.js';
@@ -69,8 +69,8 @@ describe('analytic lambda', () => {
       },
     } as unknown as Client;
 
-    const YesterDay = getYesterday();
-    const shortDate = YesterDay.toISOString().slice(0, 10) + '-23';
+    const oneHourAgo = getOneHourAgo();
+    const shortDate = oneHourAgo.toISOString().slice(0, 13).replace('T', '-');
     await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(LogData));
 
     await main(new FakeLambdaRequest());
@@ -114,8 +114,8 @@ describe('analytic lambda', () => {
       },
     } as unknown as Client;
 
-    const YesterDay = getYesterday();
-    const shortDate = YesterDay.toISOString().slice(0, 10) + '-23';
+    const oneHourAgo = getOneHourAgo();
+    const shortDate = oneHourAgo.toISOString().slice(0, 13).replace('T', '-');
     await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(LogData));
 
     const ret = await main(new FakeLambdaRequest()).catch((e: Error) => e);
