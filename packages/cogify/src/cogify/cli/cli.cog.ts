@@ -340,7 +340,6 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   // 4 band RGBA output we need to ensure there is alpha and band expansion
   if (ctx.options.preset === 'webp' && ctx.options.sourceBands?.join(',') === 'uint8') {
     vrtOpts.addAlpha = true;
-    vrtOpts.expandBands = true;
   }
 
   // Create the vrt of all the source files

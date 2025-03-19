@@ -11,9 +11,6 @@ const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
 export interface VrtOptions {
   /** should the vrt be created with `-addalpha` */
   addAlpha?: boolean;
-
-  /** should the vrt be created expanding bands from 1 to 4 */
-  expandBands?: boolean;
 }
 /**
  * Topographic mapsheets are rendered generally at 1:600 dpi,
@@ -27,10 +24,12 @@ const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of 
 export function gdalBuildVrt(targetVrt: URL, source: URL[], opts?: VrtOptions): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
 
-  const args = [urlToString(targetVrt), ...source.map(urlToString)];
+  const args = [
+    '-strict', // force warnings to cause the process to fail.
+    urlToString(targetVrt),
+    ...source.map(urlToString),
+  ];
   if (opts?.addAlpha) args.unshift('-addalpha');
-  if (opts?.expandBands) args.unshift('-b', '1', '-b', '1', '-b', '1');
-
   return { output: targetVrt, command: 'gdalbuildvrt', args };
 }
 
@@ -50,8 +49,6 @@ export function gdalBuildVrtWarp(
     command: 'gdalwarp',
     args: [
       ['-of', 'vrt'], // Output as a VRT
-      // ['-co', 'compress=lzw'],
-      // ['-co', 'bigtiff=yes'],
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
@@ -83,6 +80,14 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
 
   const targetResolution = tileMatrix.pixelScale(cfg.zoomLevel);
 
+  const expandBands = [];
+  if (cfg.preset === 'webp' && cfg.sourceBands?.join(',') === 'uint8') {
+    // Band #1 is the grey sale source, expand RGB from band #1
+    expandBands.push('-b', '1', '-b', '1', '-b', '1');
+    // the VRT should also have a alpha band as band #2
+    expandBands.push('-b', '2');
+  }
+
   return {
     command: 'gdal_translate',
     output: targetTiff,
@@ -98,7 +103,6 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
        */
       ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
-      // ['-co', 'RESAMPLING=cubic'],
       ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
       ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
       ['-co', `COMPRESS=${cfg.compression}`],
@@ -109,6 +113,7 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
       ['-co', `TARGET_SRS=${tileMatrix.projection.toEpsgString()}`],
       ['-co', `EXTENT=${tileExtent.join(',')},`],
       ['-tr', targetResolution, targetResolution],
+      ...expandBands,
       urlToString(sourceVrt),
       urlToString(targetTiff),
     ]
