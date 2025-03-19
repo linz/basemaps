@@ -8,6 +8,13 @@ import { GdalCommand } from './gdal.runner.js';
 
 const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
 
+export interface VrtOptions {
+  /** should the vrt be created with `-addalpha` */
+  addAlpha?: boolean;
+
+  /** should the vrt be created expanding bands from 1 to 4 */
+  expandBands?: boolean;
+}
 /**
  * Topographic mapsheets are rendered generally at 1:600 dpi,
  *
@@ -17,16 +24,14 @@ const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
  */
 const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
 
-export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha?: boolean): GdalCommand {
+export function gdalBuildVrt(targetVrt: URL, source: URL[], opts?: VrtOptions): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
-  return {
-    output: targetVrt,
-    command: 'gdalbuildvrt',
-    args: [addalpha ? ['-addalpha'] : undefined, urlToString(targetVrt), ...source.map(urlToString)]
-      .filter((f) => f != null)
-      .flat()
-      .map(String),
-  };
+
+  const args = [urlToString(targetVrt), ...source.map(urlToString)];
+  if (opts?.addAlpha) args.unshift('-addalpha');
+  if (opts?.expandBands) args.unshift('-b', '1', '-b', '1', '-b', '1');
+
+  return { output: targetVrt, command: 'gdalbuildvrt', args };
 }
 
 export function gdalBuildVrtWarp(

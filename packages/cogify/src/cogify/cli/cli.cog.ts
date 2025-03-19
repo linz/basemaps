@@ -21,6 +21,7 @@ import {
   gdalBuildVrt,
   gdalBuildVrtWarp,
   gdalCreate,
+  VrtOptions,
 } from '../gdal/gdal.command.js';
 import { GdalRunner } from '../gdal/gdal.runner.js';
 import { Url, UrlArrayJsonFile } from '../parsers.js';
@@ -333,8 +334,17 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   if (tileMatrix == null) throw new Error('Failed to find tile matrix: ' + options.tileMatrix);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtSource');
+
+  const vrtOpts: VrtOptions = {};
+  // If there is a one band input eg a grey scale image and we are trying to get a
+  // 4 band RGBA output we need to ensure there is alpha and band expansion
+  if (ctx.options.preset === 'webp' && ctx.options.sourceBands?.join(',') === 'uint8') {
+    vrtOpts.addAlpha = true;
+    vrtOpts.expandBands = true;
+  }
+
   // Create the vrt of all the source files
-  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles);
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, vrtOpts);
   await new GdalRunner(vrtSourceCommand).run(logger);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtWarp');
@@ -396,7 +406,9 @@ async function createTopoCog(ctx: CogCreationContext): Promise<URL> {
 
   logger?.debug({ tileId }, 'TopoCog:Create:VrtSource');
   // Create the vrt of all the source files
-  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, true);
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, {
+    addAlpha: true,
+  });
   await new GdalRunner(vrtSourceCommand).run(logger);
 
   // Create the COG from the vrt file
