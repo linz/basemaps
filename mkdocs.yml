@@ -74,11 +74,6 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 
-  # Preserves the item indices for ordered list items
-  #
-  # https://python-markdown.github.io/extensions/sane_lists/
-  - sane_lists
-
   # Overrides indent required for sublist items
   #
   # https://github.com/radude/mdx_truly_sane_lists

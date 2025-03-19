@@ -4,7 +4,7 @@ This page provides a step-by-step guide to several common ways LINZ Basemaps API
 
 - [How to add LINZ Aerial Imagery Basemaps to ArcGIS Online][1]
 - [How to add imagery captured during an emergency to ArcGIS][2]
-- [How to manually add an individual imagery layer (or basemap layers) from LINZ Basemaps to ArcGIS][3]
+- [How to add an individual basemap or imagery layer from LINZ Basemaps to ArcGIS][3]
 - [How to add LINZ Imagery Basemaps to your AGOL basemaps][4]
 
 [1]: how-to-add-linz-aerial-imagery-basemaps-to-arcgis-online/README.md

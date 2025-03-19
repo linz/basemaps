@@ -1,16 +1,18 @@
-# How to manually add an individual imagery layer (or basemap layers) from LINZ Basemaps to ArcGIS
+# How to add an individual basemap or imagery layer from LINZ Basemaps to ArcGIS
 
-1. Open [LINZ Basemaps](https://basemaps.linz.govt.nz)
+1. Open [LINZ Basemaps](https://basemaps.linz.govt.nz) in a web browser.
 
-2. Click on the menu icon and select an individual layer or basemap, e.g: Port Hills False Colour 10m Satellite Imagery (18 February 2024).
+2. Click on the **`Menu`** icon to reveal the sidebar.
 
    ![Basemaps Menu Button](static/basemaps-menu-button.png)
 
-!!! tip
+3. From the **`Layers`** dropdown, select the desired layer.
 
-      Search by typing a **date** or **region** to find the layer you need.
+   ![Basemaps Layer Selector](static/layer-selector.png)
 
-      ![Basemaps Layer Selector](static/layer-selector.png)
+   You can also type into the search box to filter down the list. Searching by a **date** or **region** can make it easier to find the layer you want.
+
+   ![Basemaps Layer Search](static/layer-search.png)
 
 3. Decide which map projection to work in (NZ Transverse Mercator or Web Mercator)
 
