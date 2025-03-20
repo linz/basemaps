@@ -146,14 +146,24 @@ export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOpti
   // if the value of 'size' is not a power of 2
   if (!isPowerOfTwo(size)) throw new Error('Size did not compute to a power of 2');
 
+  const colors = [color.r ?? 0xff, color.g ?? 0xff, color.b ?? 0xff, color.alpha ?? 0xff];
+  let bandCount = opt.sourceBands?.length ?? 4;
+  const burnColor = colors.slice(0, bandCount);
+
+  if (bandCount < 4) {
+    bandCount++; //force a alpha band
+    burnColor.push(color.alpha);
+  }
+
   return {
     command: 'gdal_create',
     output: targetTiff,
     args: [
       ['-of', 'GTiff'],
       ['-outsize', size, size], // set the size to match that of the final COG
-      ['-bands', '4'],
-      ['-burn', `${color.r} ${color.g} ${color.b} ${color.alpha}`], // set all pixel values to the given color
+      ['-bands', bandCount],
+      bandCount < 4 ? ['-co', 'ALPHA=yes'] : undefined, // force a alpha band if the source image needs it
+      ['-burn', burnColor.join(' ')], // set all pixel values to the given color
       ['-a_srs', tileMatrix.projection.toEpsgString()],
       ['-a_ullr', bounds.x, bounds.bottom, bounds.right, bounds.y],
       ['-co', 'COMPRESS=LZW'],
