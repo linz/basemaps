@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 
+import { LabelsDisabledLayers } from '../components/map.label.js';
 import { Config } from '../config.js';
 import { MapConfig } from '../config.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
@@ -173,6 +174,31 @@ describe('WindowUrl', () => {
 
     mc.updateFromUrl('i=01EDA2YFXH2JN264VG1HKBT625');
     assert.equal(mc.layerId, '01EDA2YFXH2JN264VG1HKBT625');
+  });
+
+  it('should preserve the labels param', () => {
+    const url = WindowUrl.toTileUrl({
+      urlType: MapOptionType.Style,
+      tileMatrix: GoogleTms,
+      layerId: 'aerial',
+      style: 'aerial',
+      labels: true,
+    });
+    assert.equal(url.includes('labels=true'), true);
+  });
+
+  it('should discard the labels param', () => {
+    for (const style of LabelsDisabledLayers.values()) {
+      const url = WindowUrl.toTileUrl({
+        urlType: MapOptionType.Style,
+        tileMatrix: GoogleTms,
+        layerId: 'topographic',
+        style,
+        labels: true,
+      });
+
+      assert.equal(url.includes('labels=true'), false);
+    }
   });
 
   it('should enable labels by default', () => {

@@ -2,7 +2,15 @@ import { IControl } from 'maplibre-gl';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
 
-export const LabelsDisabledLayers = new Set(['topographic', 'topolite', 'topo-raster']);
+export const LabelsDisabledLayers = new Set([
+  'labels',
+  'labels-v2',
+  'topographic',
+  'topographic-v2',
+  'topolite',
+  'topolite-v2',
+  'topo-raster',
+]);
 
 export class MapLabelControl implements IControl {
   map?: maplibregl.Map;
