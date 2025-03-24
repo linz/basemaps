@@ -145,10 +145,14 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
-    if (labels == null) {
-      this.labels = layerId === 'aerial' && this.isDebug === false;
+    this.labels = false;
+
+    if (typeof labels === 'string') {
+      // enable labels for any string value other than "false"
+      if (labels !== 'false') this.labels = true;
     } else {
-      this.labels = labels !== 'false';
+      // if not in debug mode, show labels for the aerial layer by default
+      if (layerId === 'aerial' && !this.isDebug) this.labels = true;
     }
 
     if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';

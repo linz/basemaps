@@ -209,10 +209,20 @@ describe('WindowUrl', () => {
     assert.equal(mc.labels, true);
 
     // aerial layer, labels enabled & debug disabled
-    mc.updateFromUrl('?labels=true');
-    assert.equal(mc.layerId, 'aerial');
-    assert.equal(mc.isDebug, false);
-    assert.equal(mc.labels, true);
+    for (const params of ['?labels', '?labels=true']) {
+      mc.updateFromUrl(params);
+      assert.equal(mc.layerId, 'aerial');
+      assert.equal(mc.isDebug, false);
+      assert.equal(mc.labels, true);
+    }
+
+    // aerial layer, labels enabled & debug enabled
+    for (const params of ['?labels&debug', '?labels=true&debug']) {
+      mc.updateFromUrl(params);
+      assert.equal(mc.layerId, 'aerial');
+      assert.equal(mc.isDebug, true);
+      assert.equal(mc.labels, true);
+    }
   });
 
   it('should not enable labels by default', () => {
