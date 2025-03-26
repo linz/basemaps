@@ -84,15 +84,16 @@ describe('/v1/fonts', () => {
     assert.equal(res.status, 404);
   });
 
-  it('should get the correct utf8 font with default assets', async (t) => {
+  it('should get the correct utf8 font with default assets', async () => {
     config.assets = undefined;
-    await fsa.write(new URL('memory://config.json'), JSON.stringify(config.toJson()));
+    const configJson = config.toJson();
+    await fsa.write(new URL(`memory://config-${configJson.hash}.json`), JSON.stringify(configJson));
 
     config.objects.set('cb_latest', {
       id: 'cb_latest',
       name: 'latest',
-      path: 'memory://config.json',
-      hash: 'hash',
+      path: `memory://config-${configJson.hash}.json`,
+      hash: configJson.hash,
       assets: 'memory://new-location/',
     } as BaseConfig);
 
