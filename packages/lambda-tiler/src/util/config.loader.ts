@@ -18,13 +18,20 @@ const SafeProtocols = new Set([new URL('s3://foo').protocol, new URL('memory://f
 
 export class ConfigLoader {
   /** Exposed for testing */
-  static async getDefaultConfig(): Promise<BasemapsConfigProvider> {
+  static async getDefaultConfig(req?: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const config = getDefaultConfig();
-    if (config.assets == null) {
-      const cb = await config.ConfigBundle.get(config.ConfigBundle.id('latest'));
-      if (cb) config.assets = cb.assets;
-    }
-    return config;
+
+    // Look up the latest config bundle out of dynamodb, then load the config from the provided path
+    const cb = await config.ConfigBundle.get(config.ConfigBundle.id('latest'));
+    if (cb == null) throw new LambdaHttpResponse(500, 'Unable to find latest configuration');
+    req?.timer.start('config:load');
+
+    return CachedConfig.get(fsa.toUrl(cb.path)).then((cfg) => {
+      req?.timer.end('config:load');
+      if (cfg == null) throw new LambdaHttpResponse(500, 'Unable to find latest configuration');
+      if (cfg.assets == null) cfg.assets = cb.assets;
+      return cfg;
+    });
   }
 
   /** Lookup the config path from a request and return a standardized location */

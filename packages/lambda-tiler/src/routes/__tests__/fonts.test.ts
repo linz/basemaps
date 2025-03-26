@@ -8,6 +8,7 @@ import { fsa, FsMemory } from '@chunkd/fs';
 import { Api, mockRequest, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { CachedConfig } from '../../util/config.cache.js';
+import { ConfigLoader } from '../../util/config.loader.js';
 import { CoSources } from '../../util/source.cache.js';
 import { fontList } from '../fonts.js';
 
@@ -28,12 +29,15 @@ describe('/v1/fonts', () => {
     memory.files.clear();
   });
 
-  it('should return 404 if no font found', async () => {
+  it('should return 404 if no font found', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
     const res = await fontList(mockRequest('/v1/fonts.json'));
     assert.equal(res.status, 404);
   });
 
-  it('should return a list of fonts found', async () => {
+  it('should return a list of fonts found', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
+
     await fsa.write(
       new URL('memory://assets/fonts/fonts.json'),
       Buffer.from(JSON.stringify(['Roboto Black', 'Roboto Thin'])),
@@ -45,7 +49,9 @@ describe('/v1/fonts', () => {
     assert.equal(res._body?.toString(), JSON.stringify(['Roboto Black', 'Roboto Thin']));
   });
 
-  it('should get the correct font', async () => {
+  it('should get the correct font', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
+
     await fsa.write(new URL('memory://assets/fonts/Roboto Thin/0-255.pbf'), Buffer.from(''));
     const res255 = await handler.router.handle(mockRequest('/v1/fonts/Roboto Thin/0-255.pbf'));
     assert.equal(res255.status, 200);
@@ -58,7 +64,9 @@ describe('/v1/fonts', () => {
     assert.equal(res404.status, 404);
   });
 
-  it('should get the correct utf8 font', async () => {
+  it('should get the correct utf8 font', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
+
     await fsa.write(new URL('memory://assets/fonts/🦄 🌈/0-255.pbf'), Buffer.from(''));
     const res255 = await handler.router.handle(mockRequest('/v1/fonts/🦄 🌈/0-255.pbf'));
     assert.equal(res255.status, 200);
@@ -68,18 +76,22 @@ describe('/v1/fonts', () => {
     assert.equal(res255.header('cache-control'), 'public, max-age=604800, stale-while-revalidate=86400');
   });
 
-  it('should return 404 if no asset location set', async () => {
+  it('should return 404 if no asset location set', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
+
     config.assets = undefined;
     const res = await fontList(mockRequest('/v1/fonts.json'));
     assert.equal(res.status, 404);
   });
 
-  it('should get the correct utf8 font with default assets', async () => {
+  it('should get the correct utf8 font with default assets', async (t) => {
     config.assets = undefined;
+    await fsa.write(new URL('memory://config.json'), JSON.stringify(config.toJson()));
+
     config.objects.set('cb_latest', {
       id: 'cb_latest',
       name: 'latest',
-      path: 'latest',
+      path: 'memory://config.json',
       hash: 'hash',
       assets: 'memory://new-location/',
     } as BaseConfig);
@@ -93,7 +105,9 @@ describe('/v1/fonts', () => {
     assert.equal(res255.header('cache-control'), 'public, max-age=604800, stale-while-revalidate=86400');
   });
 
-  it('should get the correct utf8 font with config assets', async () => {
+  it('should get the correct utf8 font with config assets', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
+
     const cfgBundle = new ConfigProviderMemory();
     cfgBundle.assets = 'memory://config/assets/';
     await fsa.write(new URL('memory://linz-basemaps/bar.json'), JSON.stringify(cfgBundle.toJson()));
