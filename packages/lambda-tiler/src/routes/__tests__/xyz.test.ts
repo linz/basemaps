@@ -135,7 +135,10 @@ describe('/v1/tiles', () => {
 
     const elevation = FakeData.tileSetRaster('elevation');
 
-    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
+    elevation.outputs = [
+      { title: 'Terrain RGB', name: 'terrain-rgb' },
+      { title: 'Color Ramp', name: 'color-ramp' },
+    ];
     config.put(elevation);
 
     const request = mockRequest('/v1/tiles/elevation/3857/11/2022/1283.webp', 'get', Api.header);
@@ -143,6 +146,21 @@ describe('/v1/tiles', () => {
     const res = await handler.router.handle(request);
 
     assert.equal(res.status, 404, res.statusDescription);
+  });
+
+  it('should default to the pipeline if only one pipeline is defined', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+    const elevation = FakeData.tileSetRaster('elevation');
+
+    elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
+    config.put(elevation);
+
+    const request = mockRequest('/v1/tiles/elevation/3857/11/2022/1283.webp', 'get', Api.header);
+
+    const res = await handler.router.handle(request);
+
+    assert.equal(res.status, 200, res.statusDescription);
   });
 
   it('should generate a terrain-rgb 11/2022/1283 in webp', async (t) => {
