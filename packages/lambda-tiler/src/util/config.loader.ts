@@ -22,8 +22,9 @@ export class ConfigLoader {
     const config = getDefaultConfig();
 
     // Look up the latest config bundle out of dynamodb, then load the config from the provided path
-    const cb = await config.ConfigBundle.get(config.ConfigBundle.id('latest'));
-    if (cb == null) throw new LambdaHttpResponse(500, 'Unable to find latest configuration');
+    const cb = await config.ConfigBundle.get('cb_latest');
+    if (cb == null) return config;
+
     req?.timer.start('config:load');
 
     return CachedConfig.get(fsa.toUrl(cb.path)).then((cfg) => {
