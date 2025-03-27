@@ -19,7 +19,7 @@ export function cropResize(
     if (cropVal == null) return data;
 
     // since there is no resize we can just copy input buffers into output buffers
-    return applyCrop(tiff, data, cropVal);
+    return applyCrop(data, cropVal);
   }
 
   // Currently very limited supported input parameters
@@ -68,7 +68,7 @@ export function cropResize(
   }
 }
 
-export function applyCrop(_tiff: Tiff, data: DecompressedInterleaved, crop: Size & Point): DecompressedInterleaved {
+export function applyCrop(data: DecompressedInterleaved, crop: Size & Point): DecompressedInterleaved {
   // Cropping a image is just copying sub parts of a source image into a output image
   // loop line by line slicing the new image
   const output = getOutputBuffer(data, { width: crop.width, height: crop.height });
