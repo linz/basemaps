@@ -125,6 +125,9 @@ export const Validate = {
    * Defaults to standard image format output if no outputs are defined on the tileset
    */
   pipeline(tileSet: ConfigTileSetRaster, tileType: string, pipeline?: string | null): ConfigTileSetRasterOutput | null {
+    // If there is only one pipeline force the use of it
+    if (tileSet.outputs?.length === 1 && pipeline == null) pipeline = tileSet.outputs[0].name;
+
     if (pipeline != null && pipeline !== 'rgba') {
       if (tileSet.outputs == null) throw new LambdaHttpResponse(404, 'TileSet has no pipelines');
       const output = tileSet.outputs.find((f) => f.name === pipeline);
@@ -136,7 +139,8 @@ export const Validate = {
       }
       return output;
     }
-    // If the tileset has pipelines defined the user MUST specify which one
+
+    // If the tileset has multiple pipelines defined the user MUST specify which one
     if (tileSet.outputs) {
       throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name).join(', '));
     }

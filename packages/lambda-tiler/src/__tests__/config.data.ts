@@ -63,6 +63,24 @@ export const TileSetElevation: ConfigTileSetRaster = {
   ],
   outputs: [DefaultTerrainRgbOutput, DefaultColorRampOutput],
 };
+export const TileSetHillshadeElevation: ConfigTileSetRaster = {
+  id: 'ts_hillshade',
+  name: 'hillshade',
+  type: TileSetType.Raster,
+  description: 'hillshade__description',
+  title: 'hillshade Imagery',
+  category: 'hillshade',
+  layers: [
+    {
+      // TODO: create one band imagery to reference
+      2193: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
+      3857: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
+      title: 'New Zealand 8m Hillshade DEM (2012)',
+      name: 'new-zealand_hillshade_2012_dem_8m',
+    },
+  ],
+  outputs: [DefaultColorRampOutput],
+};
 
 export const Imagery2193: ConfigImagery = {
   id: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
