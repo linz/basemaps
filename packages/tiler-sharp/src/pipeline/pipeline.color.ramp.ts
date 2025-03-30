@@ -1,51 +1,15 @@
 import { DefaultColorRamp } from '@basemaps/config';
 import { CompositionTiff } from '@basemaps/tiler';
 
+import { ColorRamp } from './colorize/color.ramp.js';
+import { Colorizer } from './colorize/colorize.js';
+import { GreyScale } from './colorize/grey.scale.js';
 import { DecompressedInterleaved, Pipeline } from './decompressor.js';
 
-export class ColorRamp {
-  ramps: { v: number; color: [number, number, number, number] }[] = [];
-  constructor(ramp: string) {
-    const ramps = ramp.trim().split('\n');
-
-    for (const ramp of ramps) {
-      const parts = ramp.trim().split(' ');
-      const numbers = parts.map(Number);
-      this.ramps.push({ v: numbers[0], color: numbers.slice(1) as [number, number, number, number] });
-    }
-  }
-
-  get(num: number): [number, number, number, number] {
-    const first = this.ramps[0];
-    if (num <= first.v) return first.color;
-
-    for (let i = 0; i < this.ramps.length - 1; i++) {
-      const ramp = this.ramps[i];
-      if (num < ramp.v) continue;
-      if (ramp.v === num) return ramp.color;
-
-      const rampNext = this.ramps[i + 1];
-      if (num >= rampNext.v) continue;
-
-      const range = rampNext.v - ramp.v;
-      const offset = num - ramp.v;
-      const scale = offset / range;
-
-      const r = Math.round((rampNext.color[0] - ramp.color[0]) * scale + ramp.color[0]);
-      const g = Math.round((rampNext.color[1] - ramp.color[1]) * scale + ramp.color[1]);
-      const b = Math.round((rampNext.color[2] - ramp.color[2]) * scale + ramp.color[2]);
-      const a = Math.round((rampNext.color[3] - ramp.color[3]) * scale + ramp.color[3]);
-
-      return [r, g, b, a];
-    }
-    return this.ramps[this.ramps.length - 1].color;
-  }
-}
-
-export const Ramps: Record<DecompressedInterleaved['depth'], ColorRamp> = {
+export const Ramps: Record<DecompressedInterleaved['depth'], Colorizer> = {
   float32: new ColorRamp(DefaultColorRamp),
-  uint8: new ColorRamp(`0 0 0 0 255\n255 255 255 255 255`),
-  uint32: new ColorRamp(`0 0 0 0 255\n${2 ** 32 - 1} 255 255 255 255`),
+  uint8: new GreyScale(0, 255),
+  uint32: new GreyScale(0, 2 ** 32 - 1),
 };
 
 export const PipelineColorRamp: Pipeline = {
@@ -73,13 +37,7 @@ export const PipelineColorRamp: Pipeline = {
       if (noData != null && px === noData) continue;
 
       const target = i * 4;
-
-      const color = ramp.get(px);
-
-      raw[target + 0] = color[0];
-      raw[target + 1] = color[1];
-      raw[target + 2] = color[2];
-      raw[target + 3] = color[3];
+      ramp.set(px, raw, target);
     }
 
     return output;

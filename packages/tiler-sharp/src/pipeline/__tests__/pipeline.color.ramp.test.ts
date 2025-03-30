@@ -4,6 +4,8 @@ import { describe, it } from 'node:test';
 import { Tiff } from '@basemaps/shared';
 import { CompositionTiff } from '@basemaps/tiler';
 
+import { ColorRamp } from '../colorize/color.ramp.js';
+import { GreyScale } from '../colorize/grey.scale.js';
 import { DecompressedInterleaved } from '../decompressor.js';
 import { PipelineColorRamp } from '../pipeline.color.ramp.js';
 
@@ -44,6 +46,34 @@ describe('pipeline.color-ramp', () => {
     assert.equal(String(output.pixels.slice(0, 4)), '0,0,0,255');
     assert.equal(String(output.pixels.slice(4, 8)), '128,128,128,255');
     assert.equal(String(output.pixels.slice(8, 12)), '255,255,255,255');
+  });
+
+  it('should create the same uint8 from greyscale:uint8 or color-ramp', () => {
+    const greyRamp = new GreyScale(0, 255);
+    const greyOut = new Uint8ClampedArray(4);
+    const colorRamp = new ColorRamp(`0 0 0 0 255\n255 255 255 255 255`);
+    const colorOut = new Uint8ClampedArray(4);
+
+    for (let i = 0; i < 255; i++) {
+      greyRamp.set(i, greyOut, 0);
+      colorRamp.set(i, colorOut, 0);
+      assert.deepEqual(greyOut, colorOut);
+    }
+  });
+
+  it('should create the same uint8 from greyscale:uint32 or color-ramp', () => {
+    const intMax = 2 ** 32 - 1;
+    const greyRamp = new GreyScale(0, intMax);
+    const greyOut = new Uint8ClampedArray(4);
+    const colorRamp = new ColorRamp(`0 0 0 0 255\n${intMax} 255 255 255 255`);
+    const colorOut = new Uint8ClampedArray(4);
+
+    const intStep = intMax / 1_000;
+    for (let i = 0; i < intMax; i += intStep) {
+      greyRamp.set(i, greyOut, 0);
+      colorRamp.set(i, colorOut, 0);
+      assert.deepEqual(greyOut, colorOut);
+    }
   });
 
   it('should color-ramp a uint32', async () => {
