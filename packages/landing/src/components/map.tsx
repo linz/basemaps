@@ -5,7 +5,7 @@ import { Component, ReactNode } from 'react';
 
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
-import { getTileGrid, locationTransform } from '../tile.matrix.js';
+import { getTileGridStyle, locationTransform } from '../tile.matrix.js';
 import { Debug } from './debug.js';
 import { MapLabelControl } from './map.label.js';
 import { MapSwitcher } from './map.switcher.js';
@@ -134,8 +134,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     this.ensureGeoControl();
     this.ensureScaleControl();
     this.ensureElevationControl();
-    const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-    const style = tileGrid.getStyle(Config.map);
+    const style = getTileGridStyle(Config.map.tileMatrix, Config.map);
     this.map.setStyle(style);
     if (Config.map.tileMatrix !== GoogleTms) {
       this.map.setMaxBounds([-179.9, -85, 179.9, 85]);
@@ -153,8 +152,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     if (this.el == null) throw new Error('Unable to find #map element');
     const cfg = Config.map;
-    const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
-    const style = tileGrid.getStyle(Config.map);
+    const style = getTileGridStyle(Config.map.tileMatrix, Config.map);
     const location = locationTransform(cfg.location, cfg.tileMatrix, GoogleTms);
 
     this.map = new maplibre.Map({

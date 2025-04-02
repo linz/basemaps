@@ -1,7 +1,5 @@
-import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Projection, TileMatrixSet } from '@basemaps/geo';
-import { Citm2000Tms } from '@basemaps/geo/src/tms/citm2000.js';
+import { GoogleTms, Projection, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
-import { StyleSpecification } from 'maplibre-gl';
 
 import { Config } from './config.js';
 import { MapLocation, MapOptionType, WindowUrl } from './url.js';
@@ -14,45 +12,16 @@ export interface TileGridStyle {
   labels?: boolean | null;
 }
 
-// find the WebMercatorQuad zoom level that is closes to z0 of the provided matrix
-function findOffset(tileMatrix: TileMatrixSet): number {
-  const firstScale = tileMatrix.def.tileMatrix[0].scaleDenominator;
-  return GoogleTms.def.tileMatrix.findIndex((f) => Math.abs(f.scaleDenominator - firstScale) < 1e-5);
-}
-
-export class TileGrid {
-  tileMatrix: TileMatrixSet;
-  extraZoomLevels: number;
-  constructor(tileMatrix: TileMatrixSet) {
-    this.tileMatrix = tileMatrix;
-    this.extraZoomLevels = findOffset(tileMatrix);
-  }
-
-  getStyle(cfg: TileGridStyle): StyleSpecification | string {
-    return WindowUrl.toTileUrl({
-      urlType: MapOptionType.Style,
-      tileMatrix: this.tileMatrix,
-      layerId: cfg.layerId,
-      style: cfg.style,
-      config: cfg.config ?? Config.map.config,
-      terrain: cfg.terrain ?? Config.map.terrain,
-      labels: cfg.labels ?? Config.map.labels,
-    });
-  }
-}
-
-const Citm2000TileGrid = new TileGrid(Citm2000Tms);
-const Nztm2000TileGrid = new TileGrid(Nztm2000Tms);
-const Nztm2000QuadTileGrid = new TileGrid(Nztm2000QuadTms);
-const GoogleTileGrid = new TileGrid(GoogleTms);
-
-const Grids = [Nztm2000TileGrid, Nztm2000QuadTileGrid, Citm2000TileGrid, GoogleTileGrid];
-
-export function getTileGrid(id: string): TileGrid {
-  for (const g of Grids) {
-    if (id === g.tileMatrix.identifier) return g;
-  }
-  return GoogleTileGrid;
+export function getTileGridStyle(tileMatrixSet: TileMatrixSet, cfg: TileGridStyle): string {
+  return WindowUrl.toTileUrl({
+    urlType: MapOptionType.Style,
+    tileMatrix: tileMatrixSet,
+    layerId: cfg.layerId,
+    style: cfg.style,
+    config: cfg.config ?? Config.map.config,
+    terrain: cfg.terrain ?? Config.map.terrain,
+    labels: cfg.labels ?? Config.map.labels,
+  });
 }
 
 function isGoogle(tms: TileMatrixSet): boolean {
