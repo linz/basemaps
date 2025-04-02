@@ -1,4 +1,5 @@
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Projection, TileMatrixSet } from '@basemaps/geo';
+import { Citm2000Tms } from '@basemaps/geo/src/tms/citm2000.js';
 import { BBox } from '@linzjs/geojson';
 import { StyleSpecification } from 'maplibre-gl';
 
@@ -13,12 +14,18 @@ export interface TileGridStyle {
   labels?: boolean | null;
 }
 
+// find the WebMercatorQuad zoom level that is closes to z0 of the provided matrix
+function findOffset(tileMatrix: TileMatrixSet): number {
+  const firstScale = tileMatrix.def.tileMatrix[0].scaleDenominator;
+  return GoogleTms.def.tileMatrix.findIndex((f) => Math.abs(f.scaleDenominator - firstScale) < 1e-5);
+}
+
 export class TileGrid {
   tileMatrix: TileMatrixSet;
   extraZoomLevels: number;
-  constructor(tileMatrix: TileMatrixSet, extraZoomLevels = 0) {
+  constructor(tileMatrix: TileMatrixSet) {
     this.tileMatrix = tileMatrix;
-    this.extraZoomLevels = extraZoomLevels;
+    this.extraZoomLevels = findOffset(tileMatrix);
   }
 
   getStyle(cfg: TileGridStyle): StyleSpecification | string {
@@ -34,11 +41,12 @@ export class TileGrid {
   }
 }
 
-const Nztm2000TileGrid = new TileGrid(Nztm2000Tms, 2);
+const Citm2000TileGrid = new TileGrid(Citm2000Tms);
+const Nztm2000TileGrid = new TileGrid(Nztm2000Tms);
 const Nztm2000QuadTileGrid = new TileGrid(Nztm2000QuadTms);
 const GoogleTileGrid = new TileGrid(GoogleTms);
 
-const Grids = [Nztm2000TileGrid, Nztm2000QuadTileGrid, GoogleTileGrid];
+const Grids = [Nztm2000TileGrid, Nztm2000QuadTileGrid, Citm2000TileGrid, GoogleTileGrid];
 
 export function getTileGrid(id: string): TileGrid {
   for (const g of Grids) {
