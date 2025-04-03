@@ -159,9 +159,12 @@ Your Service/App URL:
   renderLinks(): ReactNode {
     return (
       <Fragment>
-        <h6>90 day API keys</h6>
-        <p>API keys expire after 90 days, if a longer duration is needed please request a developer API key</p>
-        <Copyable header="Api Key" value={Config.ApiKey} />
+        <h6>Individual API keys</h6>
+        <p>
+          These API keys are for individual users. For use in shared or public maps, apps or tools, please request a
+          free Developer API key.
+        </p>
+        <Copyable header="API Key" value={Config.ApiKey} />
         {this.renderLinksTiles()}
       </Fragment>
     );
