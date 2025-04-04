@@ -8,6 +8,10 @@ import { GdalCommand } from './gdal.runner.js';
 
 const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
 
+export interface VrtOptions {
+  /** should the vrt be created with `-addalpha` */
+  addAlpha?: boolean;
+}
 /**
  * Topographic mapsheets are rendered generally at 1:600 dpi,
  *
@@ -17,16 +21,16 @@ const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
  */
 const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
 
-export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha?: boolean): GdalCommand {
+export function gdalBuildVrt(targetVrt: URL, source: URL[], opts?: VrtOptions): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
-  return {
-    output: targetVrt,
-    command: 'gdalbuildvrt',
-    args: [addalpha ? ['-addalpha'] : undefined, urlToString(targetVrt), ...source.map(urlToString)]
-      .filter((f) => f != null)
-      .flat()
-      .map(String),
-  };
+
+  const args = [
+    '-strict', // force warnings to cause the process to fail.
+    urlToString(targetVrt),
+    ...source.map(urlToString),
+  ];
+  if (opts?.addAlpha) args.unshift('-addalpha');
+  return { output: targetVrt, command: 'gdalbuildvrt', args };
 }
 
 export function gdalBuildVrtWarp(
@@ -45,8 +49,6 @@ export function gdalBuildVrtWarp(
     command: 'gdalwarp',
     args: [
       ['-of', 'vrt'], // Output as a VRT
-      // ['-co', 'compress=lzw'],
-      // ['-co', 'bigtiff=yes'],
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
@@ -78,6 +80,14 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
 
   const targetResolution = tileMatrix.pixelScale(cfg.zoomLevel);
 
+  const expandBands = [];
+  if (cfg.preset === 'webp' && cfg.sourceBands?.join(',') === 'uint8') {
+    // Band #1 is the grey sale source, expand RGB from band #1
+    expandBands.push('-b', '1', '-b', '1', '-b', '1');
+    // the VRT should also have a alpha band as band #2
+    expandBands.push('-b', '2');
+  }
+
   return {
     command: 'gdal_translate',
     output: targetTiff,
@@ -93,7 +103,6 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
        */
       ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
-      // ['-co', 'RESAMPLING=cubic'],
       ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
       ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
       ['-co', `COMPRESS=${cfg.compression}`],
@@ -104,6 +113,7 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
       ['-co', `TARGET_SRS=${tileMatrix.projection.toEpsgString()}`],
       ['-co', `EXTENT=${tileExtent.join(',')},`],
       ['-tr', targetResolution, targetResolution],
+      ...expandBands,
       urlToString(sourceVrt),
       urlToString(targetTiff),
     ]
@@ -136,14 +146,24 @@ export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOpti
   // if the value of 'size' is not a power of 2
   if (!isPowerOfTwo(size)) throw new Error('Size did not compute to a power of 2');
 
+  const colors = [color.r ?? 0xff, color.g ?? 0xff, color.b ?? 0xff, color.alpha ?? 0xff];
+  let bandCount = opt.sourceBands?.length ?? 4;
+  const burnColor = colors.slice(0, bandCount);
+
+  if (bandCount < 4) {
+    bandCount++; //force a alpha band
+    burnColor.push(color.alpha);
+  }
+
   return {
     command: 'gdal_create',
     output: targetTiff,
     args: [
       ['-of', 'GTiff'],
       ['-outsize', size, size], // set the size to match that of the final COG
-      ['-bands', '4'],
-      ['-burn', `${color.r} ${color.g} ${color.b} ${color.alpha}`], // set all pixel values to the given color
+      ['-bands', bandCount],
+      bandCount < 4 ? ['-co', 'ALPHA=yes'] : undefined, // force a alpha band if the source image needs it
+      ['-burn', burnColor.join(' ')], // set all pixel values to the given color
       ['-a_srs', tileMatrix.projection.toEpsgString()],
       ['-a_ullr', bounds.x, bounds.bottom, bounds.right, bounds.y],
       ['-co', 'COMPRESS=LZW'],

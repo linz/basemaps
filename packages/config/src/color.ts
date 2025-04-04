@@ -5,9 +5,7 @@
 export function parseHex(str: string): number {
   if (str === '') return 0;
   const val = parseInt(str, 16);
-  if (isNaN(val)) {
-    throw new Error('Invalid hex byte: ' + str);
-  }
+  if (isNaN(val)) throw new Error('Invalid hex byte: ' + str);
   return val;
 }
 
@@ -31,9 +29,9 @@ export function parseRgba(str: string): Rgba {
     throw new Error('Invalid hex color: ' + str);
   }
   return {
-    r: parseHex(str.substr(0, 2)),
-    g: parseHex(str.substr(2, 2)),
-    b: parseHex(str.substr(4, 2)),
-    alpha: parseHex(str.substr(6, 2)),
+    r: parseHex(str.slice(0, 2)),
+    g: parseHex(str.slice(2, 2)),
+    b: parseHex(str.slice(4, 2)),
+    alpha: parseHex(str.slice(6, 2)),
   };
 }

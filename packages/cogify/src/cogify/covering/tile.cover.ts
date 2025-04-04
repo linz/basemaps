@@ -163,6 +163,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
           ...Presets[ctx.preset].options,
           tile,
           tileMatrix: ctx.tileMatrix.identifier,
+          sourceBands: ctx.imagery.bands,
           sourceEpsg: ctx.imagery.projection,
           zoomLevel: targetBaseZoom,
         },
