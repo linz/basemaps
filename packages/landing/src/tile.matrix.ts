@@ -1,6 +1,5 @@
-import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms, Projection, TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, Projection, TileMatrixSet } from '@basemaps/geo';
 import { BBox } from '@linzjs/geojson';
-import { StyleSpecification } from 'maplibre-gl';
 
 import { Config } from './config.js';
 import { MapLocation, MapOptionType, WindowUrl } from './url.js';
@@ -13,38 +12,16 @@ export interface TileGridStyle {
   labels?: boolean | null;
 }
 
-export class TileGrid {
-  tileMatrix: TileMatrixSet;
-  extraZoomLevels: number;
-  constructor(tileMatrix: TileMatrixSet, extraZoomLevels = 0) {
-    this.tileMatrix = tileMatrix;
-    this.extraZoomLevels = extraZoomLevels;
-  }
-
-  getStyle(cfg: TileGridStyle): StyleSpecification | string {
-    return WindowUrl.toTileUrl({
-      urlType: MapOptionType.Style,
-      tileMatrix: this.tileMatrix,
-      layerId: cfg.layerId,
-      style: cfg.style,
-      config: cfg.config ?? Config.map.config,
-      terrain: cfg.terrain ?? Config.map.terrain,
-      labels: cfg.labels ?? Config.map.labels,
-    });
-  }
-}
-
-const Nztm2000TileGrid = new TileGrid(Nztm2000Tms, 2);
-const Nztm2000QuadTileGrid = new TileGrid(Nztm2000QuadTms);
-const GoogleTileGrid = new TileGrid(GoogleTms);
-
-const Grids = [Nztm2000TileGrid, Nztm2000QuadTileGrid, GoogleTileGrid];
-
-export function getTileGrid(id: string): TileGrid {
-  for (const g of Grids) {
-    if (id === g.tileMatrix.identifier) return g;
-  }
-  return GoogleTileGrid;
+export function getTileGridStyle(tileMatrixSet: TileMatrixSet, cfg: TileGridStyle): string {
+  return WindowUrl.toTileUrl({
+    urlType: MapOptionType.Style,
+    tileMatrix: tileMatrixSet,
+    layerId: cfg.layerId,
+    style: cfg.style,
+    config: cfg.config ?? Config.map.config,
+    terrain: cfg.terrain ?? Config.map.terrain,
+    labels: cfg.labels ?? Config.map.labels,
+  });
 }
 
 function isGoogle(tms: TileMatrixSet): boolean {

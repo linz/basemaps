@@ -3,7 +3,7 @@ import { Component, ReactNode } from 'react';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
 import { MapConfig } from '../config.map.js';
-import { getTileGrid } from '../tile.matrix.js';
+import { getTileGridStyle } from '../tile.matrix.js';
 import { onMapLoaded } from './map.js';
 
 export class MapSwitcher extends Component {
@@ -19,12 +19,11 @@ export class MapSwitcher extends Component {
 
     if (this.el == null) return;
     const cfg = Config.map;
-    const tileGrid = getTileGrid(cfg.tileMatrix.identifier);
 
     const target = this.getStyleType();
     this.currentStyle = `${target.layerId}::${target.style}`;
 
-    const style = tileGrid.getStyle({ layerId: target.layerId, style: target.style });
+    const style = getTileGridStyle(cfg.tileMatrix, { layerId: target.layerId, style: target.style });
     const location = cfg.transformedLocation;
 
     this.map = new maplibre.Map({
@@ -70,8 +69,7 @@ export class MapSwitcher extends Component {
     const target = this.getStyleType();
     const styleId = `${target.layerId}::${target.style}`;
     if (this.currentStyle !== styleId) {
-      const tileGrid = getTileGrid(Config.map.tileMatrix.identifier);
-      const style = tileGrid.getStyle({ layerId: target.layerId, style: target.style });
+      const style = getTileGridStyle(Config.map.tileMatrix, { layerId: target.layerId, style: target.style });
       this.currentStyle = styleId;
       this.map.setStyle(style);
     }
