@@ -423,7 +423,7 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
     {
       id: 'elevation-dsm',
       title: 'Elevation DSM',
-      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      projections: new Set([EpsgCode.Google]),
       category: 'Basemaps',
       pipeline: 'terrain-rgb',
       imageFormat: 'png',
