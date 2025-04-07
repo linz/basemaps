@@ -75,7 +75,7 @@ export class Header extends Component<unknown, HeaderState> {
           <LayerSwitcherDropdown />
           {this.renderLinks()}
 
-          <h6>Developer API Keys</h6>
+          <h6>Developer API keys</h6>
           <p>Contact us for free API keys with better support for public web and mobile apps.</p>
           <button className="lui-button lui-button-primary contact-us" onClick={this.contactUs}>
             Contact us
