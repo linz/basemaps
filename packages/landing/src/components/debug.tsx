@@ -29,8 +29,9 @@ export interface DebugState {
 const HillShadeLayerId = 'debug-hillshade';
 /** dynamic hillshade sources are prefixed with this key */
 const HillShadePrefix = '__hillshade-';
-/** dynamic linz-elevation source key */
-const elevationProdId = 'LINZ-Terrain-Prod';
+/** dynamic linz-elevation source keys */
+const elevationDemProdId = 'LINZ-Elevation-DEM-Prod';
+const elevationDsmProdId = 'LINZ-Elevation-DSM-Prod';
 
 interface DropDownContext {
   /** Label for the drop down */
@@ -242,8 +243,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         {this.renderCaptureAreaToggle()}
         {this.renderTileToggle()}
         {this.renderRasterSourceDropdown()}
-        {this.renderDemSourceDropdown(demSources)}
-        {this.renderDemHillShadeSourceDropdown(demSources)}
+        {this.renderElevationSourceDropdown(demSources)}
+        {this.renderHillShadeSourceDropdown(demSources)}
       </div>
     );
   }
@@ -367,12 +368,13 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
   }
 
   /**
-   * Add a terrain source that points to production elevation data for debug
+   * Add terrain sources that point to production elevation tilesets
    */
   ensureElevationProd(): void {
     const map = this.props.map;
-    // Enable default linz-elevation terrain
-    if (map.getSource(elevationProdId) == null) {
+
+    // Enable default linz-elevation (dem)
+    if (map.getSource(elevationDemProdId) == null) {
       const url = WindowUrl.toTileUrl({
         urlType: MapOptionType.TileRaster,
         tileMatrix: Config.map.tileMatrix,
@@ -380,7 +382,23 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
         pipeline: 'terrain-rgb',
         imageFormat: 'png',
       });
-      map.addSource(elevationProdId, {
+      map.addSource(elevationDemProdId, {
+        type: 'raster-dem',
+        tiles: [url],
+        tileSize: 256,
+      });
+    }
+
+    // Enable default linz-elevation (dsm)
+    if (map.getSource(elevationDsmProdId) == null) {
+      const url = WindowUrl.toTileUrl({
+        urlType: MapOptionType.TileRaster,
+        tileMatrix: Config.map.tileMatrix,
+        layerId: 'elevation-dsm',
+        pipeline: 'terrain-rgb',
+        imageFormat: 'png',
+      });
+      map.addSource(elevationDsmProdId, {
         type: 'raster-dem',
         tiles: [url],
         tileSize: 256,
@@ -521,7 +539,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     });
   }
 
-  renderDemSourceDropdown(sourceIds: string[]): ReactNode | null {
+  renderElevationSourceDropdown(sourceIds: string[]): ReactNode | null {
     if (sourceIds.length === 0) return;
     return debugSourceDropdown({
       label: 'Elevation',
@@ -531,7 +549,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     });
   }
 
-  renderDemHillShadeSourceDropdown(sourceIds: string[]): ReactNode | null {
+  renderHillShadeSourceDropdown(sourceIds: string[]): ReactNode | null {
     if (sourceIds.length === 0) return;
     return debugSourceDropdown({
       label: 'Hillshade',
