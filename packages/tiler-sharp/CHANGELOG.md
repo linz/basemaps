@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* **tiler-sharp:** when resizing preserve input data type ([#3417](https://github.com/linz/basemaps/issues/3417)) ([41e0c38](https://github.com/linz/basemaps/commit/41e0c385c0c8d8e8c29a48c20c611a11da32810a))
+
+
+### Performance Improvements
+
+* **tiler-sharp:** split greyscale  color ramps into specalized function ([#3418](https://github.com/linz/basemaps/issues/3418)) ([30755fd](https://github.com/linz/basemaps/commit/30755fd8c2098b800405d8395058544704c27b21))
+
+
+
+
+
 # [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
 
 **Note:** Version bump only for package @basemaps/tiler-sharp

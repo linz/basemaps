@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* **landing:** fix developer api keys title BM-1181 ([#3423](https://github.com/linz/basemaps/issues/3423)) ([4066b31](https://github.com/linz/basemaps/commit/4066b3153dc5bce70e4e0ccab7286d98c108c16c))
+* **landing:** support viewing CITM2000Quad ([#3419](https://github.com/linz/basemaps/issues/3419)) ([10df2aa](https://github.com/linz/basemaps/commit/10df2aa0a91391435d5a02283e8706bd19700d86))
+
+
+### Features
+
+* **landing:** add dsm to layer dropdown BM-1248 ([#3421](https://github.com/linz/basemaps/issues/3421)) ([b830dff](https://github.com/linz/basemaps/commit/b830dffd5393461ad1c424f673c05e96c4196231))
+* **landing:** add the dsm elevation tileset as a default elevation and hillshade debug option BM-1247 ([#3422](https://github.com/linz/basemaps/issues/3422)) ([1e529a5](https://github.com/linz/basemaps/commit/1e529a50410b2e0137e67c7b3a1f7860f1694a8f))
+* **landing:** change text 90day api keys to single user api keys BM-1181 ([#3420](https://github.com/linz/basemaps/issues/3420)) ([215da68](https://github.com/linz/basemaps/commit/215da68fd7fd874f110a0c09180dc296f611fb59))
+
+
+
+
+
 ## [7.15.1](https://github.com/linz/basemaps/compare/v7.15.0...v7.15.1) (2025-03-24)
 
 
