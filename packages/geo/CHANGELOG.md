@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* **landing:** support viewing CITM2000Quad ([#3419](https://github.com/linz/basemaps/issues/3419)) ([10df2aa](https://github.com/linz/basemaps/commit/10df2aa0a91391435d5a02283e8706bd19700d86))
+
+
+
+
+
 # [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
 
 

@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** automatically choose pipelines ([#3416](https://github.com/linz/basemaps/issues/3416)) ([c206a8e](https://github.com/linz/basemaps/commit/c206a8e0a579bd542afa43f6a3186c88bf6a451c))
+
+
+### Features
+
+* **lambda-tiler:** load config from s3 ([#3415](https://github.com/linz/basemaps/issues/3415)) ([e6b89c3](https://github.com/linz/basemaps/commit/e6b89c3c941c15b8fe2adcb0189a9fed46cbe024))
+
+
+
+
+
 # [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler
