@@ -10,7 +10,9 @@ type CategoryMap = Map<string, { label: string; options: { label: string; value:
 
 const Categories = [
   'Basemaps',
-  'Scanned Aerial Imagery Basemaps',
+  'Basemaps - Hillshade',
+  'Basemaps - Elevation',
+  'Basemaps - Scanned Aerial Imagery',
   'Satellite Imagery',
   'Urban Aerial Photos',
   'Rural Aerial Photos',
@@ -157,7 +159,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
           value={ret.current}
           classNamePrefix="layer-selector"
           id="layer-selector"
-          maxMenuHeight={450}
+          maxMenuHeight={520}
         />
         <div
           className="lui-input-group-wrapper"
