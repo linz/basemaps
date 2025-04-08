@@ -389,58 +389,63 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Basemaps',
     },
-
-    {
-      id: 'topographic::topographic',
-      title: 'Topographic',
-      projections: new Set([EpsgCode.Google]),
-      category: 'Basemaps',
-    },
-
-    {
-      id: 'topographic::topolite',
-      title: 'Topolite',
-      projections: new Set([EpsgCode.Google]),
-      category: 'Basemaps',
-    },
-
     {
       id: 'topo-raster::topo-raster',
       title: 'NZ Topo Gridless Maps',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Basemaps',
     },
-
+    {
+      id: 'topographic::topographic',
+      title: 'Topographic',
+      projections: new Set([EpsgCode.Google]),
+      category: 'Basemaps',
+    },
+    {
+      id: 'topographic::topolite',
+      title: 'Topolite',
+      projections: new Set([EpsgCode.Google]),
+      category: 'Basemaps',
+    },
+    {
+      id: 'hillshade-igor',
+      title: 'Hillshade Igor',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Basemaps - Hillshade',
+    },
+    {
+      id: 'hillshade',
+      title: 'Hillshade Standard',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Basemaps - Hillshade',
+    },
     {
       id: 'elevation',
       title: 'Elevation DEM',
       projections: new Set([EpsgCode.Google]),
-      category: 'Basemaps',
+      category: 'Basemaps - Elevation',
       pipeline: 'terrain-rgb',
       imageFormat: 'png',
     },
-
     {
       id: 'elevation-dsm',
       title: 'Elevation DSM',
       projections: new Set([EpsgCode.Google]),
-      category: 'Basemaps',
+      category: 'Basemaps - Elevation',
       pipeline: 'terrain-rgb',
       imageFormat: 'png',
     },
-
     {
       id: 'scanned-aerial-imagery-pre-1990-01-01',
       title: 'Scanned Aerial Imagery pre 1 January 1990',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
-      category: 'Scanned Aerial Imagery Basemaps',
+      category: 'Basemaps - Scanned Aerial Imagery',
     },
-
     {
       id: 'scanned-aerial-imagery-post-1989-12-31',
       title: 'Scanned Aerial Imagery post 31 December 1989',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
-      category: 'Scanned Aerial Imagery Basemaps',
+      category: 'Basemaps - Scanned Aerial Imagery',
     },
   ];
 
