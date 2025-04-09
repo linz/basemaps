@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
+
+
+### Features
+
+* **landing:** Add hillshade and hillshade igor into the layer dropdown. BM-1250 ([#3425](https://github.com/linz/basemaps/issues/3425)) ([a02fb6a](https://github.com/linz/basemaps/commit/a02fb6a250f2a7d66d0bd6640f72a6ea4ad8322a))
+
+
+
+
+
 # [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
 
 
