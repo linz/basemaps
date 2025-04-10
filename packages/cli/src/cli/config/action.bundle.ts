@@ -1,59 +1,66 @@
 import { ConfigJson } from '@basemaps/config-loader';
-import { fsa, LogConfig } from '@basemaps/shared';
-import { CommandLineAction, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { fsa } from '@basemaps/shared';
+import { CliInfo } from '@basemaps/shared/src/cli/info.js';
+import { Metrics } from '@linzjs/metrics';
+import { command, option, optional, string } from 'cmd-ts';
 import pLimit from 'p-limit';
+
+import { getLogger, logArguments } from '../log.js';
 
 export const DefaultConfig = 'config/';
 export const DefaultOutput = 'config/config.json';
 
-export class CommandBundle extends CommandLineAction {
-  private config!: CommandLineStringParameter;
-  private output!: CommandLineStringParameter;
-  private assets!: CommandLineStringParameter;
-  private configCache!: CommandLineStringParameter;
+export const BundleAssetsCommand = command({
+  name: 'bundle',
+  version: CliInfo.version,
+  description:
+    'Given a path of config files and bundle them into one config json. Bundles a config json from config files.',
+  args: {
+    ...logArguments,
+    config: option({
+      type: string,
+      long: 'config',
+      description: 'Path of config files.',
+      defaultValue: () => DefaultConfig,
+      defaultValueIsSerializable: true,
+    }),
+    output: option({
+      type: string,
+      long: 'output',
+      description: 'Output of the bundle file.',
+      defaultValue: () => DefaultOutput,
+      defaultValueIsSerializable: true,
+    }),
+    assets: option({
+      type: optional(string),
+      long: 'assets',
+      description: 'Add assets location into the config bundle file.',
+    }),
+    cache: option({
+      type: optional(string),
+      long: 'cache',
+      description: 'Location of the config cache to reduce number of requests needed to source file.',
+    }),
+  },
 
-  public constructor() {
-    super({
-      actionName: 'bundle',
-      summary: 'bundle a config json from config files',
-      documentation: 'Given a path of config files and bundle them into one config json',
-    });
-  }
+  async handler(args): Promise<void> {
+    const metrics = new Metrics();
+    const logger = getLogger(this, args);
 
-  protected onDefineParameters(): void {
-    this.config = this.defineStringParameter({
-      argumentName: 'CONFIG',
-      parameterLongName: '--config',
-      description: 'Path of config files',
-    });
-    this.output = this.defineStringParameter({
-      argumentName: 'OUTPUT',
-      parameterLongName: '--output',
-      description: 'Output of the bundle file',
-    });
-    this.assets = this.defineStringParameter({
-      argumentName: 'ASSETS',
-      parameterLongName: '--assets',
-      description: 'Add assets location into the config bundle file',
-    });
-    this.configCache = this.defineStringParameter({
-      argumentName: 'CACHE',
-      parameterLongName: '--cache',
-      description: 'Location of the config cache to reduce number of requests needed to source file',
-    });
-  }
+    const configUrl = fsa.toUrl(args.config);
+    const outputUrl = fsa.toUrl(args.output);
+    const cacheLocation = args.cache ? fsa.toUrl(args.cache) : undefined;
 
-  async onExecute(): Promise<void> {
-    const logger = LogConfig.get();
-    const configUrl = fsa.toUrl(this.config.value ?? DefaultConfig);
-    const outputUrl = fsa.toUrl(this.output.value ?? DefaultOutput);
-    const cacheLocation = this.configCache.value ? fsa.toUrl(this.configCache.value) : undefined;
+    metrics.start('config:bundle');
+    logger.info({ configUrl }, 'BundleConfig:Start');
     const q = pLimit(25);
     const mem = await ConfigJson.fromUrl(configUrl, q, logger, cacheLocation);
-    if (this.assets.value) mem.assets = this.assets.value;
+    if (args.assets != null) mem.assets = args.assets;
+
     const configJson = mem.toJson();
     await fsa.write(outputUrl, JSON.stringify(configJson));
-    logger.info({ path: outputUrl }, 'ConfigBundled');
-    return;
-  }
-}
+
+    logger.info({ outputUrl }, 'BundleConfig:Finish');
+    metrics.end('config:bundle');
+  },
+});
