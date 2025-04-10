@@ -37,7 +37,7 @@ export const BundleAssetsCommand = command({
     }),
     output: option({
       type: string,
-      long: 'assets',
+      long: 'output',
       description: 'Paths of the output co tar file.',
     }),
   },
