@@ -12,13 +12,13 @@ import {
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import { Env, fsa, getDefaultConfig, getPreviewUrl, LogConfig, LogType, setDefaultConfig } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, option, optional, string, flag } from 'cmd-ts';
+import { command, flag, option, optional, string } from 'cmd-ts';
 import fetch from 'node-fetch';
 
+import { logArguments } from '../log.js';
 import { invalidateCache } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { Q, Updater } from './config.update.js';
-import { logArguments } from '../log.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 

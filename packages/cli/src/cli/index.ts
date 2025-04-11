@@ -11,6 +11,6 @@ export const Cli = subcommands({
   cmds: {
     bundle: BundleCommand,
     'bundle-assets': BundleAssetsCommand,
-    import: ImportCommand
+    import: ImportCommand,
   },
 });
