@@ -27,8 +27,7 @@ const VectorStyles = ['topographic', 'topolite', 'aerialhybrid']; // Vector styl
 export const ImportCommand = command({
   name: 'import',
   version: CliInfo.version,
-  description:
-    'Given a valid bundle config json, import them into dynamodb',
+  description: 'Given a valid bundle config json, import them into dynamodb',
   args: {
     ...logArguments,
     config: option({
@@ -53,10 +52,10 @@ export const ImportCommand = command({
       defaultValueIsSerializable: true,
     }),
   },
-  
+
   async handler(args): Promise<void> {
     const logger = LogConfig.get();
-    const commit = args.commit
+    const commit = args.commit;
     const config = args.config;
 
     if (config == null) throw new Error('Please provide a config json');
@@ -134,7 +133,7 @@ export const ImportCommand = command({
     if (output) await outputChange(output, mem, cfg, config);
 
     if (commit !== true) logger.info('DryRun:Done');
-  }
+  },
 });
 
 async function getConfig(logger: LogType, target?: string): Promise<BasemapsConfigProvider> {
@@ -179,114 +178,117 @@ function update(config: BaseConfig, oldConfig: BasemapsConfigProvider, commit: b
   promises.push(promise);
 }
 
-  /**
-   * This function compared new config with existing and output a markdown document to highlight the inserts and changes
-   * Changes includes
-   * - aerial config
-   * - vector config
-   * - vector style
-   * - individual config
-   *
-   * @param output a string of output markdown location
-   * @param mem new config data read from config bundle file
-   * @param cfg existing config data
-   * @param configPath path of config json
-   */
-  async function outputChange(output: string, mem: ConfigProviderMemory, cfg: BasemapsConfigProvider, configPath: string): Promise<void> {
-    const md: string[] = [];
-    // Output for aerial config changes
-    const inserts: string[] = [];
-    const updates: string[] = [];
-    const aerialId = 'ts_aerial';
-    const newData = await mem.TileSet.get(aerialId);
-    const oldData = await cfg.TileSet.get(aerialId);
+/**
+ * This function compared new config with existing and output a markdown document to highlight the inserts and changes
+ * Changes includes
+ * - aerial config
+ * - vector config
+ * - vector style
+ * - individual config
+ *
+ * @param output a string of output markdown location
+ * @param mem new config data read from config bundle file
+ * @param cfg existing config data
+ * @param configPath path of config json
+ */
+async function outputChange(
+  output: string,
+  mem: ConfigProviderMemory,
+  cfg: BasemapsConfigProvider,
+  configPath: string,
+): Promise<void> {
+  const md: string[] = [];
+  // Output for aerial config changes
+  const inserts: string[] = [];
+  const updates: string[] = [];
+  const aerialId = 'ts_aerial';
+  const newData = await mem.TileSet.get(aerialId);
+  const oldData = await cfg.TileSet.get(aerialId);
 
-    const aerialLayers: Set<string> = new Set<string>();
-    if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
+  const aerialLayers: Set<string> = new Set<string>();
+  if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
 
-    for (const layer of newData.layers) {
-      // if (aerialLayers.has(layer.name)) continue;
+  for (const layer of newData.layers) {
+    // if (aerialLayers.has(layer.name)) continue;
 
-      aerialLayers.add(layer.name);
+    aerialLayers.add(layer.name);
 
-      // There are duplicates layers inside the config this makes it hard to know what has changed
-      // so only allow comparisons to one layer at a time
-      const index = oldData.layers.findIndex((l) => l.name === layer.name);
-      if (index > -1) {
-        const [el] = oldData.layers.splice(index, 1);
-        await outputUpdatedLayers(mem, layer, el, updates, configPath, true);
-      } else await outputNewLayers(mem, layer, inserts, configPath, true);
-    }
-
-    if (inserts.length > 0) md.push('# Aerial Imagery Inserts', ...inserts);
-    if (updates.length > 0) md.push('# Aerial Imagery Updates', ...updates);
-
-    // Some layers were not removed from the old config so they no longer exist in the new config
-    if (oldData.layers.length > 0) {
-      md.push('# Aerial Imagery Deletes', ...oldData.layers.map((m) => `- ${m.title}`));
-    }
-
-    // Output for individual tileset config changes or inserts
-    const individualInserts: string[] = [];
-    const individualUpdates: string[] = [];
-    for (const config of mem.objects.values()) {
-      if (!mem.TileSet.is(config)) continue;
-      if (config.id === 'ts_aerial') continue;
-
-      if (aerialLayers.has(config.name)) continue;
-      if (config.type === TileSetType.Vector) continue;
-      if (config.layers.length > 1) continue; // Not an individual layer
-      const existing = await cfg.TileSet.get(config.id);
-      const layer = config.layers[0];
-      if (existing) await outputUpdatedLayers(mem, layer, existing.layers[0], individualUpdates, configPath);
-      else await outputNewLayers(mem, layer, individualInserts, configPath);
-    }
-
-    if (individualInserts.length > 0) md.push('# Individual Inserts', ...individualInserts);
-    if (individualUpdates.length > 0) md.push('# Individual Updates', ...individualUpdates);
-
-    // Output for vector config changes
-    const vectorUpdate = [];
-    const styleUpdate = [];
-    for (const change of changes) {
-      if (mem.TileSet.is(change) && change.type === TileSetType.Vector) {
-        vectorUpdate.push(`## Vector data updates for ${change.id}`);
-        const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
-        for (const style of VectorStyles) {
-          vectorUpdate.push(
-            `* [${style} - ${id}](${PublicUrlBase}?config=${configPath}&i=${id}&s=${style}&debug)\n`,
-          );
-        }
-        const existingTileSet = await cfg.TileSet.get(change.id);
-        const featureChanges = await diffVectorUpdate(change, existingTileSet);
-        vectorUpdate.push(`## Feature updates for ${change.id}`);
-        vectorUpdate.push(...featureChanges);
-      }
-      if (mem.Style.is(change)) {
-        styleUpdate.push(`## Vector Style updated for ${change.id}`);
-        const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
-        styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${configPath}&i=topographic&s=${style}&debug)\n`);
-      }
-    }
-
-    if (styleUpdate.length > 0) md.push('# Vector Style Update', ...styleUpdate);
-    if (vectorUpdate.length > 0) md.push('# Vector Data Update', ...vectorUpdate);
-
-    if (md.length > 0) {
-      await fsa.write(fsa.toUrl(output), md.join('\n'));
-    }
-
-    return;
+    // There are duplicates layers inside the config this makes it hard to know what has changed
+    // so only allow comparisons to one layer at a time
+    const index = oldData.layers.findIndex((l) => l.name === layer.name);
+    if (index > -1) {
+      const [el] = oldData.layers.splice(index, 1);
+      await outputUpdatedLayers(mem, layer, el, updates, configPath, true);
+    } else await outputNewLayers(mem, layer, inserts, configPath, true);
   }
 
+  if (inserts.length > 0) md.push('# Aerial Imagery Inserts', ...inserts);
+  if (updates.length > 0) md.push('# Aerial Imagery Updates', ...updates);
+
+  // Some layers were not removed from the old config so they no longer exist in the new config
+  if (oldData.layers.length > 0) {
+    md.push('# Aerial Imagery Deletes', ...oldData.layers.map((m) => `- ${m.title}`));
+  }
+
+  // Output for individual tileset config changes or inserts
+  const individualInserts: string[] = [];
+  const individualUpdates: string[] = [];
+  for (const config of mem.objects.values()) {
+    if (!mem.TileSet.is(config)) continue;
+    if (config.id === 'ts_aerial') continue;
+
+    if (aerialLayers.has(config.name)) continue;
+    if (config.type === TileSetType.Vector) continue;
+    if (config.layers.length > 1) continue; // Not an individual layer
+    const existing = await cfg.TileSet.get(config.id);
+    const layer = config.layers[0];
+    if (existing) await outputUpdatedLayers(mem, layer, existing.layers[0], individualUpdates, configPath);
+    else await outputNewLayers(mem, layer, individualInserts, configPath);
+  }
+
+  if (individualInserts.length > 0) md.push('# Individual Inserts', ...individualInserts);
+  if (individualUpdates.length > 0) md.push('# Individual Updates', ...individualUpdates);
+
+  // Output for vector config changes
+  const vectorUpdate = [];
+  const styleUpdate = [];
+  for (const change of changes) {
+    if (mem.TileSet.is(change) && change.type === TileSetType.Vector) {
+      vectorUpdate.push(`## Vector data updates for ${change.id}`);
+      const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
+      for (const style of VectorStyles) {
+        vectorUpdate.push(`* [${style} - ${id}](${PublicUrlBase}?config=${configPath}&i=${id}&s=${style}&debug)\n`);
+      }
+      const existingTileSet = await cfg.TileSet.get(change.id);
+      const featureChanges = await diffVectorUpdate(change, existingTileSet);
+      vectorUpdate.push(`## Feature updates for ${change.id}`);
+      vectorUpdate.push(...featureChanges);
+    }
+    if (mem.Style.is(change)) {
+      styleUpdate.push(`## Vector Style updated for ${change.id}`);
+      const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
+      styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${configPath}&i=topographic&s=${style}&debug)\n`);
+    }
+  }
+
+  if (styleUpdate.length > 0) md.push('# Vector Style Update', ...styleUpdate);
+  if (vectorUpdate.length > 0) md.push('# Vector Data Update', ...vectorUpdate);
+
+  if (md.length > 0) {
+    await fsa.write(fsa.toUrl(output), md.join('\n'));
+  }
+
+  return;
+}
+
 /**
-   * This function prepare for the markdown lines with preview urls for new inserted config layers
-   * @param mem new config data read from config bundle file
-   * @param layer new config tileset layer
-   * @param inserts string array to save all the lines for markdown output
-   * @param configPath path of config json
-   * @param aerial output preview link for aerial map
-   */
+ * This function prepare for the markdown lines with preview urls for new inserted config layers
+ * @param mem new config data read from config bundle file
+ * @param layer new config tileset layer
+ * @param inserts string array to save all the lines for markdown output
+ * @param configPath path of config json
+ * @param aerial output preview link for aerial map
+ */
 async function outputNewLayers(
   mem: ConfigProviderMemory,
   layer: ConfigLayer,
@@ -362,13 +364,13 @@ async function outputUpdatedLayers(
 }
 
 /**
-   * Prepare QA urls with center location
-   */
+ * Prepare QA urls with center location
+ */
 async function prepareUrl(
   id: string,
   mem: BasemapsConfigProvider,
   tileMatrix: TileMatrixSet,
-  configPath: string
+  configPath: string,
 ): Promise<{ layer: string; tag: string }> {
   const configImagery = await mem.Imagery.get(id);
   if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
