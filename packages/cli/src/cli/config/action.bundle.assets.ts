@@ -1,6 +1,6 @@
 import { base58 } from '@basemaps/config';
 import { fsa, LogType, SourceMemory } from '@basemaps/shared';
-import { CliInfo } from '@basemaps/shared/src/cli/info.js';
+import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CotarIndexBuilder, TarReader } from '@cotar/builder';
 import { CotarIndex } from '@cotar/core';
 import { TarBuilder } from '@cotar/tar';
