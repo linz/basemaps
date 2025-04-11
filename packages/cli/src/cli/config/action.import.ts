@@ -19,7 +19,6 @@ import { logArguments } from '../log.js';
 import { invalidateCache } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { Q, Updater } from './config.update.js';
-import { logArguments } from '../log.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
