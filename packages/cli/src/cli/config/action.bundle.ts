@@ -10,7 +10,7 @@ import { getLogger, logArguments } from '../log.js';
 export const DefaultConfig = 'config/';
 export const DefaultOutput = 'config/config.json';
 
-export const BundleAssetsCommand = command({
+export const BundleCommand = command({
   name: 'bundle',
   version: CliInfo.version,
   description:
