@@ -38,10 +38,8 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
+  "dependencies": {},
+  "devDependencies": {},
   "publishConfig": {
     "access": "public"
   },
