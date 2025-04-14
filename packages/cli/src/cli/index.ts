@@ -1,24 +1,16 @@
 #!/usr/bin/env node
-import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
+import { subcommands } from 'cmd-ts';
 
-import { CommandBundleAssets } from './config/action.bundle.assets.js';
-import { CommandBundle } from './config/action.bundle.js';
-import { CommandImport } from './config/action.import.js';
-import { CommandServe } from './server/action.serve.js';
+import { BundleAssetsCommand } from './config/action.bundle.assets.js';
+import { BundleCommand } from './config/action.bundle.js';
+import { ImportCommand } from './config/action.import.js';
 
-export class BasemapsConfigCommandLine extends BaseCommandLine {
-  constructor() {
-    super({
-      toolFilename: 'bmc',
-      toolDescription: 'Basemaps config command tools',
-    });
-
-    // Basemaps Config
-    this.addAction(new CommandBundle());
-    this.addAction(new CommandBundleAssets());
-    this.addAction(new CommandImport());
-
-    // CICD - Screenshot tests
-    this.addAction(new CommandServe());
-  }
-}
+export const Cli = subcommands({
+  name: 'bmc',
+  description: 'Basemaps config command tools',
+  cmds: {
+    bundle: BundleCommand,
+    'bundle-assets': BundleAssetsCommand,
+    import: ImportCommand,
+  },
+});

@@ -46,7 +46,7 @@ jobs:
         run: |
           # Copy the static files for v1/health check
           cp -r packages/lambda-tiler/static/ .
-          ./packages/cli/bin/bmc.js serve --config s3://linz-basemaps/config/config-latest.json.gz &
+          ./packages/server/bin/basemaps-server.cjs --config s3://linz-basemaps/config/config-latest.json.gz &
 
           # Wait for the server to start
           timeout 30 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' http://localhost:5000/v1/version)" !=  "200" ]]; do sleep 0.5; done' || false
