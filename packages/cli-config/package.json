@@ -7,24 +7,18 @@
     "url": "https://github.com/linz/basemaps.git",
     "directory": "packages/cli-config"
   },
-  "license": "MIT",
   "author": {
     "name": "Land Information New Zealand",
     "url": "https://linz.govt.nz",
     "organization": true
   },
   "type": "module",
-  "main": "./build/index.js",
-  "types": "./build/index.d.ts",
-  "bin": {
-    "bmc": "./bmc.js"
+  "engines": {
+    "node": ">=16.0.0"
   },
-  "files": [
-    "build/"
-  ],
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
-    "bundle": "../../scripts/bundle.mjs package.json",
     "test": "node --test"
   },
   "dependencies": {
@@ -49,21 +43,10 @@
   "devDependencies": {
     "@types/deep-diff": "^1.0.1"
   },
-  "engines": {
-    "node": ">=16.0.0"
-  },
   "publishConfig": {
     "access": "public"
   },
-  "bundle": [
-    {
-      "entry": "src/cli/bin.ts",
-      "minify": false,
-      "outfile": "dist/index.cjs",
-      "external": [
-        "sharp",
-        "pino-pretty"
-      ]
-    }
+  "files": [
+    "build/"
   ]
 }
