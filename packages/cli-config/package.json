@@ -17,14 +17,13 @@
     "node": ">=16.0.0"
   },
   "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "scripts": {
     "build": "tsc",
     "test": "node --test"
   },
   "dependencies": {
-    "@aws-sdk/client-cloudformation": "^3.470.0",
-    "@aws-sdk/client-cloudfront": "^3.470.0",
-    "@aws-sdk/client-s3": "^3.470.0",
     "@basemaps/config": "^7.16.0",
     "@basemaps/config-loader": "^7.16.0",
     "@basemaps/geo": "^7.16.0",
@@ -41,6 +40,9 @@
     "slugify": "^1.6.5"
   },
   "devDependencies": {
+    "@aws-sdk/client-cloudformation": "^3.470.0",
+    "@aws-sdk/client-cloudfront": "^3.470.0",
+    "@aws-sdk/client-s3": "^3.470.0",
     "@types/deep-diff": "^1.0.1"
   },
   "publishConfig": {
