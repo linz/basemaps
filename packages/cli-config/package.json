@@ -7,21 +7,53 @@
     "url": "https://github.com/linz/basemaps.git",
     "directory": "packages/cli-config"
   },
+  "license": "MIT",
   "author": {
     "name": "Land Information New Zealand",
     "url": "https://linz.govt.nz",
     "organization": true
   },
-  "license": "MIT",
+  "type": "module",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "bin": {
     "bmc": "./bmc.js"
   },
+  "files": [
+    "build/"
+  ],
   "scripts": {
     "build": "tsc",
     "bundle": "../../scripts/bundle.mjs package.json",
     "test": "node --test"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cloudformation": "^3.470.0",
+    "@aws-sdk/client-cloudfront": "^3.470.0",
+    "@aws-sdk/client-s3": "^3.470.0",
+    "@basemaps/config": "^7.16.0",
+    "@basemaps/config-loader": "^7.16.0",
+    "@basemaps/geo": "^7.16.0",
+    "@basemaps/shared": "^7.16.0",
+    "@cotar/builder": "^6.0.1",
+    "@cotar/core": "^6.0.1",
+    "@cotar/tar": "^6.0.1",
+    "@linzjs/metrics": "^7.5.0",
+    "ansi-colors": "^4.1.1",
+    "cmd-ts": "^0.12.1",
+    "deep-diff": "^1.0.2",
+    "node-fetch": "^3.2.3",
+    "p-limit": "^4.0.0",
+    "slugify": "^1.6.5"
+  },
+  "devDependencies": {
+    "@types/deep-diff": "^1.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "bundle": [
     {
@@ -33,17 +65,5 @@
         "pino-pretty"
       ]
     }
-  ],
-  "type": "module",
-  "engines": {
-    "node": ">=16.0.0"
-  },
-  "dependencies": {},
-  "devDependencies": {},
-  "publishConfig": {
-    "access": "public"
-  },
-  "files": [
-    "build/"
   ]
 }
