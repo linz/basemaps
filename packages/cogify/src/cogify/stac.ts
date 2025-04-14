@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import { Rgba } from '@basemaps/config';
+import { ImageryBandType, Rgba } from '@basemaps/config';
 import { EpsgCode, Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
@@ -16,6 +16,17 @@ export interface CogifyCreationOptions {
 
   /** Projection of source imagery */
   sourceEpsg: number;
+
+  /** Band information of the source imagery
+   *
+   * @example
+   * ```
+   * ["uint8"] // one band uint8 eg grey scale
+   * ["float32"] // one band float32 eg elevation data
+   * ["uint8","uint8","uint8"] // three band uint8 eg RGB
+   * ```
+   */
+  sourceBands?: ImageryBandType[];
 
   /**
    * Compression to use for the cog
