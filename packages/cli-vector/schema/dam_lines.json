@@ -1,0 +1,20 @@
+{
+  "name": "dam_lines",
+  "metadata": { "attributes": ["kind", "name", "dam_status"] },
+  "layers": [
+    {
+      "id": "50075",
+      "name": "50075-nz-chatham-island-dam-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50075/",
+      "tags": { "kind": "dam" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50260",
+      "name": "50260-nz-dam-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50260/",
+      "tags": { "kind": "dam" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}

@@ -1,0 +1,278 @@
+{
+  "name": "water_polygons",
+  "metadata": { "attributes": ["water", "kind", "name", "lid_type", "species", "height"] },
+  "layers": [
+    {
+      "id": "103631",
+      "name": "103631-nz-river-name-polygons-pilot",
+      "source": "s3://linz-lds-cache/103631/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 9, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.0003 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.00005 },
+        { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.00001 },
+        { "style": { "minZoom": 12, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50099",
+      "name": "50099-nz-chatham-island-river-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50099/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "52265",
+      "name": "52265-cook-islands-river-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52265/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "50293",
+      "name": "50293-nz-lake-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50293/",
+      "tags": { "kind": "water", "water": "lake" },
+      "style": { "minZoom": 1, "maxZoom": 15 }
+    },
+    {
+      "id": "50088",
+      "name": "50088-nz-chatham-island-lake-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50088/",
+      "tags": { "kind": "water", "water": "lake" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50894",
+      "name": "50894-nz-snares-island-tini-heke-lake-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50894/",
+      "tags": { "kind": "water", "water": "lake" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50909",
+      "name": "50909-nz-kermadec-is-lake-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50909/",
+      "tags": { "kind": "water", "water": "lake" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50933",
+      "name": "50933-nz-campbell-island-motu-ihupuku-lake-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50933/",
+      "tags": { "kind": "water", "water": "lake" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50960",
+      "name": "50960-nz-auckland-island-lake-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50960/",
+      "tags": { "kind": "water", "water": "lake" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52253",
+      "name": "52253-cook-islands-lake-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52253/",
+      "tags": { "kind": "water", "water": "lake" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52296",
+      "name": "52296-cook-islands-lake-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52296/",
+      "tags": { "kind": "water", "water": "lake" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50298",
+      "name": "50298-nz-marine-farm-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50298/",
+      "tags": { "kind": "marine_farm" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52262",
+      "name": "52262-cook-islands-reservoir-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52262/",
+      "tags": { "kind": "reservoir" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50292",
+      "name": "50292-nz-lagoon-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50292/",
+      "tags": { "kind": "water", "water": "lagoon" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50087",
+      "name": "50087-nz-chatham-island-lagoon-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50087/",
+      "tags": { "kind": "water", "water": "lagoon" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52150",
+      "name": "52150-tokelau-lagoon-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52150/",
+      "tags": { "kind": "water", "water": "lagoon" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52205",
+      "name": "52205-cook-islands-lagoon-polygons-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52205/",
+      "tags": { "kind": "water", "water": "lagoon" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52223",
+      "name": "52223-cook-islands-lagoon-polygons-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52223/",
+      "tags": { "kind": "water", "water": "lagoon" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52252",
+      "name": "52252-cook-islands-lagoon-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52252/",
+      "tags": { "kind": "water", "water": "lagoon" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52295",
+      "name": "52295-cook-islands-lagoon-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52295/",
+      "tags": { "kind": "water", "water": "lagoon" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50323",
+      "name": "50323-nz-reef-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50323/",
+      "tags": { "kind": "reef" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50094",
+      "name": "50094-nz-chatham-island-reef-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50094/",
+      "tags": { "kind": "reef" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52155",
+      "name": "52155-tokelau-reef-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52155/",
+      "tags": { "kind": "reef" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52187",
+      "name": "52187-niue-reef-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52187/",
+      "tags": { "kind": "reef" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52207",
+      "name": "52207-cook-islands-reef-polygons-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52207/",
+      "tags": { "kind": "reef" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52225",
+      "name": "52225-cook-islands-reef-polygons-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52225/",
+      "tags": { "kind": "reef" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52261",
+      "name": "52261-cook-islands-reef-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52261/",
+      "tags": { "kind": "reef" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52298",
+      "name": "52298-cook-islands-reef-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52298/",
+      "tags": { "kind": "reef" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50343",
+      "name": "50343-nz-shoal-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50343/",
+      "tags": { "kind": "shoal" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50917",
+      "name": "50917-nz-kermadec-is-shoal-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50917/",
+      "tags": { "kind": "shoal" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50939",
+      "name": "50939-nz-campbell-island-motu-ihupuku-shoal-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50939/",
+      "tags": { "kind": "shoal" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52161",
+      "name": "52161-tokelau-shoal-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52161/",
+      "tags": { "kind": "shoal" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52214",
+      "name": "52214-cook-islands-shoal-polygons-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52214/",
+      "tags": { "kind": "shoal" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52228",
+      "name": "52228-cook-islands-shoal-polygons-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52228/",
+      "tags": { "kind": "shoal" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52273",
+      "name": "52273-cook-islands-shoal-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52273/",
+      "tags": { "kind": "shoal" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52305",
+      "name": "52305-cook-islands-shoal-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52305/",
+      "tags": { "kind": "shoal" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50321",
+      "name": "50321-nz-rapid-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50321/",
+      "tags": { "kind": "stream" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50373",
+      "name": "50373-nz-waterfall-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50373/",
+      "tags": { "kind": "waterfall" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}

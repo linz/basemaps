@@ -1,0 +1,48 @@
+{
+  "name": "public_transport",
+  "metadata": { "attributes": ["kind", "name"] },
+  "layers": [
+    {
+      "id": "50237",
+      "name": "50237-nz-airport-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50237/",
+      "tags": { "kind": "aerodrome" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50063",
+      "name": "50063-nz-chatham-island-airport-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50063/",
+      "tags": { "kind": "aerodrome" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52231",
+      "name": "52231-cook-islands-airport-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52231/",
+      "tags": { "kind": "aerodrome" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52168",
+      "name": "52168-niue-airport-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52168/",
+      "tags": { "kind": "aerodrome" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50285",
+      "name": "50285-nz-helipad-points-topo-150k",
+      "source": "s3://linz-lds-cache/50285/",
+      "tags": { "kind": "helipad" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50318",
+      "name": "50318-nz-rail-station-points-topo-150k",
+      "source": "s3://linz-lds-cache/50318/",
+      "tags": { "kind": "station" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}

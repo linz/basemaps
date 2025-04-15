@@ -1,0 +1,984 @@
+{
+  "name": "land",
+  "metadata": {
+    "attributes": [
+      "kind",
+      "distribution",
+      "tree",
+      "landuse",
+      "embkmt_use",
+      "name",
+      "support_ty",
+      "species",
+      "substance",
+      "visibility",
+      "status"
+    ]
+  },
+  "layers": [
+    {
+      "id": "50287",
+      "name": "50287-nz-ice-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50287/",
+      "tags": { "kind": "ice" },
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.4 },
+        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.3 },
+        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.05 },
+        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.02 },
+        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.006 },
+        { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.003 },
+        { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.002 },
+        { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0013 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.0008 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0004 },
+        { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.00001 },
+        { "style": { "minZoom": 12, "maxZoom": 12 }, "tolerance": 0.000005 },
+        { "style": { "minZoom": 13, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50268",
+      "name": "50268-nz-fence-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50268/",
+      "tags": { "kind": "fence" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "52246",
+      "name": "52246-cook-islands-fence-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52246/",
+      "tags": { "kind": "fence" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52175",
+      "name": "52175-niue-fence-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/52175/",
+      "tags": { "kind": "fence" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50079",
+      "name": "50079-nz-chatham-island-fence-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50079/",
+      "tags": { "kind": "fence" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50307",
+      "name": "50307-nz-orchard-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50307/",
+      "tags": { "kind": "orchard" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52258",
+      "name": "52258-cook-islands-orchard-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52258/",
+      "tags": { "kind": "orchard" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52185",
+      "name": "52185-niue-orchard-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52185/",
+      "tags": { "kind": "orchard" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50281",
+      "name": "50281-nz-golf-course-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50281/",
+      "tags": { "kind": "golf_course" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52179",
+      "name": "52179-niue-golf-course-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52179/",
+      "tags": { "kind": "golf_course" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52248",
+      "name": "52248-cook-islands-golf-course-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52248/",
+      "tags": { "kind": "golf_course" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50083",
+      "name": "50083-nz-chatham-island-golf-course-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50083/",
+      "tags": { "kind": "golf_course" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50337",
+      "name": "50337-nz-scattered-scrub-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50337/",
+      "tags": { "kind": "scrub", "distribution": "scattered" },
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.4 },
+        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.3 },
+        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.05 },
+        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.02 },
+        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.006 },
+        { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.003 },
+        { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.002 },
+        { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0013 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.0008 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0004 },
+        { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.00001 },
+        { "style": { "minZoom": 12, "maxZoom": 12 }, "tolerance": 0.000005 },
+        { "style": { "minZoom": 13, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "52270",
+      "name": "52270-cook-islands-scattered-scrub-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52270/",
+      "tags": { "kind": "scrub", "distribution": "scattered" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50106",
+      "name": "50106-nz-chatham-island-scattered-scrub-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50106/",
+      "tags": { "kind": "scrub", "distribution": "scattered" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50339",
+      "name": "50339-nz-scrub-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50339/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.4 },
+        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.3 },
+        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.05 },
+        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.02 },
+        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.006 },
+        { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.003 },
+        { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.002 },
+        { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0013 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.0008 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0004 },
+        { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.00001 },
+        { "style": { "minZoom": 12, "maxZoom": 12 }, "tolerance": 0.000005 },
+        { "style": { "minZoom": 13, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50938",
+      "name": "50938-nz-campbell-island-motu-ihupuku-scrub-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50938/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50898",
+      "name": "50898-nz-snares-island-tini-heke-scrub-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50898/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50916",
+      "name": "50916-nz-kermadec-is-scrub-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50916/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52160",
+      "name": "52160-tokelau-scrub-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52160/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52304",
+      "name": "52304-cook-islands-scrub-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52304/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52271",
+      "name": "52271-cook-islands-scrub-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52271/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52191",
+      "name": "52191-niue-scrub-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52191/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52227",
+      "name": "52227-cook-islands-scrub-polygons-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52227/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52213",
+      "name": "52213-cook-islands-scrub-polygons-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52213/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50107",
+      "name": "50107-nz-chatham-island-scrub-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50107/",
+      "tags": { "kind": "scrub" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50304",
+      "name": "50304-nz-moraine-wall-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50304/",
+      "tags": { "kind": "moraine_wall" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50303",
+      "name": "50303-nz-moraine-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50303/",
+      "tags": { "kind": "moraine" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50305",
+      "name": "50305-nz-mud-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50305/",
+      "tags": { "kind": "mud" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50092",
+      "name": "50092-nz-chatham-island-mud-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50092/",
+      "tags": { "kind": "mud" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50257",
+      "name": "50257-nz-cliff-edges-topo-150k",
+      "source": "s3://linz-lds-cache/50257/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50953",
+      "name": "50953-nz-auckland-island-cliff-edges-topo-150k",
+      "source": "s3://linz-lds-cache/50953/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50926",
+      "name": "50926-nz-campbell-island-motu-ihupuku-cliff-edges-topo-150k",
+      "source": "s3://linz-lds-cache/50926/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50889",
+      "name": "50889-nz-snares-island-tini-heke-cliff-edges-topo-125k",
+      "source": "s3://linz-lds-cache/50889/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50973",
+      "name": "50973-nz-antipodes-island-cliff-edges-topo-125k",
+      "source": "s3://linz-lds-cache/50973/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50988",
+      "name": "50988-nz-bounty-islands-cliff-edges-topo-125k",
+      "source": "s3://linz-lds-cache/50988/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50903",
+      "name": "50903-nz-kermadec-is-cliff-edges-topo-125k",
+      "source": "s3://linz-lds-cache/50903/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52241",
+      "name": "52241-cook-islands-cliff-edges-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52241/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50074",
+      "name": "50074-nz-chatham-island-cliff-edges-topo-150k",
+      "source": "s3://linz-lds-cache/50074/",
+      "tags": { "kind": "cliff" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "50259",
+      "name": "50259-nz-cutting-edges-topo-150k",
+      "source": "s3://linz-lds-cache/50259/",
+      "tags": { "kind": "cutting" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50350",
+      "name": "50350-nz-slip-edges-topo-150k",
+      "source": "s3://linz-lds-cache/50350/",
+      "tags": { "kind": "slip" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50266",
+      "name": "50266-nz-embankment-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50266/",
+      "tags": { "kind": "embankment" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52245",
+      "name": "52245-cook-islands-embankment-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52245/",
+      "tags": { "kind": "embankment" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "52291",
+      "name": "52291-cook-islands-embankment-centrelines-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52291/",
+      "tags": { "kind": "embankment" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "50335",
+      "name": "50335-nz-sand-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50335/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50104",
+      "name": "50104-nz-chatham-island-sand-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50104/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50937",
+      "name": "50937-nz-campbell-island-motu-ihupuku-sand-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50937/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50966",
+      "name": "50966-nz-auckland-island-sand-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50966/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50915",
+      "name": "50915-nz-kermadec-is-sand-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50915/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50983",
+      "name": "50983-nz-antipodes-island-sand-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50983/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52159",
+      "name": "52159-tokelau-sand-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52159/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52303",
+      "name": "52303-cook-islands-sand-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52303/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52269",
+      "name": "52269-cook-islands-sand-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52269/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52226",
+      "name": "52226-cook-islands-sand-polygons-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52226/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52212",
+      "name": "52212-cook-islands-sand-polygons-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52212/",
+      "tags": { "kind": "sand" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50338",
+      "name": "50338-nz-scree-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50338/",
+      "tags": { "kind": "scree" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50342",
+      "name": "50342-nz-shingle-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50342/",
+      "tags": { "kind": "shingle" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50109",
+      "name": "50109-nz-chatham-island-shingle-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50109/",
+      "tags": { "kind": "shingle" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50984",
+      "name": "50984-nz-antipodes-island-shingle-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50984/",
+      "tags": { "kind": "shingle" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50359",
+      "name": "50359-nz-swamp-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50359/",
+      "tags": { "kind": "swamp" },
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.4 },
+        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.3 },
+        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.05 },
+        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.02 },
+        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.006 },
+        { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.003 },
+        { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.002 },
+        { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0013 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.0008 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0004 },
+        { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.00001 },
+        { "style": { "minZoom": 12, "maxZoom": 12 }, "tolerance": 0.000005 },
+        { "style": { "minZoom": 13, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50968",
+      "name": "50968-nz-auckland-island-swamp-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50968/",
+      "tags": { "kind": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50920",
+      "name": "50920-nz-kermadec-is-swamp-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50920/",
+      "tags": { "kind": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50986",
+      "name": "50986-nz-antipodes-island-swamp-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50986/",
+      "tags": { "kind": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52307",
+      "name": "52307-cook-islands-swamp-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52307/",
+      "tags": { "kind": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52278",
+      "name": "52278-cook-islands-swamp-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52278/",
+      "tags": { "kind": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50113",
+      "name": "50113-nz-chatham-island-swamp-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50113/",
+      "tags": { "kind": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50306",
+      "name": "50306-nz-native-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50306/",
+      "tags": { "kind": "forest", "landuse": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.4 },
+        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.3 },
+        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.05 },
+        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.02 },
+        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.006 },
+        { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.003 },
+        { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.002 },
+        { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0013 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.0008 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0004 },
+        { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.00001 },
+        { "style": { "minZoom": 12, "maxZoom": 12 }, "tolerance": 0.000005 },
+        { "style": { "minZoom": 13, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50267",
+      "name": "50267-nz-exotic-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50267/",
+      "tags": { "kind": "forest", "landuse": "wood", "tree": "exotic" },
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.4 },
+        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.3 },
+        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.05 },
+        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.02 },
+        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.006 },
+        { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.003 },
+        { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.002 },
+        { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0013 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.0008 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0004 },
+        { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.00001 },
+        { "style": { "minZoom": 12, "maxZoom": 12 }, "tolerance": 0.000005 },
+        { "style": { "minZoom": 13, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50078",
+      "name": "50078-nz-chatham-island-exotic-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50078/",
+      "tags": { "kind": "forest", "landuse": "wood", "tree": "exotic" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50961",
+      "name": "50961-nz-auckland-island-native-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50961/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50895",
+      "name": "50895-nz-snares-island-tini-heke-native-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50895/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50910",
+      "name": "50910-nz-kermadec-is-native-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50910/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52154",
+      "name": "52154-tokelau-native-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52154/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52297",
+      "name": "52297-cook-islands-native-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52297/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52257",
+      "name": "52257-cook-islands-native-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52257/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52206",
+      "name": "52206-cook-islands-native-polygons-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52206/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52184",
+      "name": "52184-niue-native-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52184/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52224",
+      "name": "52224-cook-islands-native-polygons-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52224/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50093",
+      "name": "50093-nz-chatham-island-native-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50093/",
+      "tags": { "kind": "forest", "tree": "native" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50341",
+      "name": "50341-nz-shelter-belt-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50341/",
+      "tags": { "kind": "tree_row" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "52272",
+      "name": "52272-cook-islands-shelter-belt-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52272/",
+      "tags": { "kind": "tree_row" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52192",
+      "name": "52192-niue-shelter-belt-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/52192/",
+      "tags": { "kind": "tree_row" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50108",
+      "name": "50108-nz-chatham-island-shelter-belt-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50108/",
+      "tags": { "kind": "tree_row" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50255",
+      "name": "50255-nz-cemetery-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50255/",
+      "tags": { "kind": "cemetery" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50071",
+      "name": "50071-nz-chatham-island-cemetery-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50071/",
+      "tags": { "kind": "cemetery" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52240",
+      "name": "52240-cook-islands-cemetery-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52240/",
+      "tags": { "kind": "cemetery" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50290",
+      "name": "50290-nz-ladder-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50290/",
+      "tags": { "kind": "ladder" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50294",
+      "name": "50294-nz-landfill-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50294/",
+      "tags": { "kind": "landfill" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52151",
+      "name": "52151-tokelau-landfill-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52151/",
+      "tags": { "kind": "landfill" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52182",
+      "name": "52182-niue-landfill-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52182/",
+      "tags": { "kind": "landfill" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52254",
+      "name": "52254-cook-islands-landfill-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52254/",
+      "tags": { "kind": "landfill" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50311",
+      "name": "50311-nz-powerline-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50311/",
+      "tags": { "kind": "powerline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50096",
+      "name": "50096-nz-chatham-island-powerline-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50096/",
+      "tags": { "kind": "powerline" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52186",
+      "name": "52186-niue-quarry-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52186/",
+      "tags": { "kind": "quarry" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52260",
+      "name": "52260-cook-islands-quarry-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52260/",
+      "tags": { "kind": "quarry" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50325",
+      "name": "50325-nz-residential-area-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50325/",
+      "tags": { "kind": "residential" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52156",
+      "name": "52156-tokelau-residential-area-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52156/",
+      "tags": { "kind": "residential" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52263",
+      "name": "52263-cook-islands-residential-area-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52263/",
+      "tags": { "kind": "residential" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50362",
+      "name": "50362-nz-telephone-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50362/",
+      "tags": { "kind": "telephone" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50368",
+      "name": "50368-nz-walkwire-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50368/",
+      "tags": { "kind": "walkwire" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50310",
+      "name": "50310-nz-pond-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50310/",
+      "tags": { "kind": "pond" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52259",
+      "name": "52259-cook-islands-pond-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52259/",
+      "tags": { "kind": "pond" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50296",
+      "name": "50296-nz-mangrove-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50296/",
+      "tags": { "kind": "mangrove" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50065",
+      "name": "50065-nz-chatham-island-boatramp-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50065/",
+      "tags": { "kind": "boatramp" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "50241",
+      "name": "50241-nz-boatramp-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50241/",
+      "tags": { "kind": "boatramp" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52169",
+      "name": "52169-niue-boatramp-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/52169/",
+      "tags": { "kind": "boatramp" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52233",
+      "name": "52233-cook-islands-boatramp-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52233/",
+      "tags": { "kind": "boatramp" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50264",
+      "name": "50264-nz-dredge-tailing-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50264/",
+      "tags": { "kind": "dredge_tailing" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50301",
+      "name": "50301-nz-mine-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50301/",
+      "tags": { "kind": "mine" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50097",
+      "name": "50097-nz-chatham-island-quarry-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50097/",
+      "tags": { "kind": "quarry" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50314",
+      "name": "50314-nz-quarry-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50314/",
+      "tags": { "kind": "quarry" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50332",
+      "name": "50332-nz-rock-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50332/",
+      "tags": { "kind": "bare_rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50102",
+      "name": "50102-nz-chatham-island-rock-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50102/",
+      "tags": { "kind": "bare_rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50897",
+      "name": "50897-nz-snares-island-tini-heke-rock-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50897/",
+      "tags": { "kind": "bare_rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50913",
+      "name": "50913-nz-kermadec-is-rock-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50913/",
+      "tags": { "kind": "bare_rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50936",
+      "name": "50936-nz-campbell-island-motu-ihupuku-rock-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50936/",
+      "tags": { "kind": "bare_rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50965",
+      "name": "50965-nz-auckland-island-rock-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50965/",
+      "tags": { "kind": "bare_rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50982",
+      "name": "50982-nz-antipodes-island-rock-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50982/",
+      "tags": { "kind": "bare_rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50994",
+      "name": "50994-nz-bounty-islands-rock-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50994/",
+      "tags": { "kind": "bare_rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50309",
+      "name": "50309-nz-pipeline-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50309/",
+      "tags": { "kind": "pipeline" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50367",
+      "name": "50367-nz-vineyard-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50367/",
+      "tags": { "kind": "vineyard" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50351",
+      "name": "50351-nz-slipway-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50351/",
+      "tags": { "kind": "slipway" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50347",
+      "name": "50347-nz-siphon-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50347/",
+      "tags": { "kind": "siphon" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50265",
+      "name": "50265-nz-dry-dock-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50265/",
+      "tags": { "kind": "dry_dock" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}
