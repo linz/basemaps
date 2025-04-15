@@ -40,6 +40,7 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
+    "@basemaps/cli-config": "^7.16.0",
     "@basemaps/cogify": "^7.16.0",
     "@basemaps/config": "^7.16.0",
     "@basemaps/config-loader": "^7.16.0",
