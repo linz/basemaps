@@ -1,7 +1,6 @@
 #!/usr/bin/env node
-import { subcommands } from 'cmd-ts';
-
 import { BundleAssetsCommand, BundleCommand, ImportCommand } from '@basemaps/cli-config';
+import { subcommands } from 'cmd-ts';
 
 export const Cli = subcommands({
   name: 'bmc',
