@@ -8,6 +8,7 @@
   "include": ["src"],
   "references": [
     { "path": "../config/tsconfig.json" },
+    { "path": "../cli-config/tsconfig.json" },
     { "path": "../geo/tsconfig.json" },
     { "path": "../server/tsconfig.json" },
     { "path": "../shared/tsconfig.json" },
