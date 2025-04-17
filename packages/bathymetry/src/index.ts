@@ -1,4 +1,3 @@
-import { makeTempFolder } from '@basemaps/cli/build/cli/folder.js';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, LogConfig } from '@basemaps/shared';
 import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
@@ -10,6 +9,7 @@ import * as ulid from 'ulid';
 
 import { BathyMaker } from './bathy.maker.js';
 import { FilePath, FileType } from './file.js';
+import { makeTempFolder } from './folder.js';
 
 /** This zoom level gives a good enough quality world while not making too many tiles */
 const GoodZoom = GoogleTms.def.tileMatrix[4];
