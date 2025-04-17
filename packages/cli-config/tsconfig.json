@@ -8,10 +8,8 @@
   "include": ["src"],
   "references": [
     { "path": "../config/tsconfig.json" },
+    { "path": "../config-loader/tsconfig.json" },
     { "path": "../geo/tsconfig.json" },
-    { "path": "../server/tsconfig.json" },
-    { "path": "../shared/tsconfig.json" },
-    { "path": "../lambda-tiler/tsconfig.json" },
-    { "path": "../tiler-sharp/tsconfig.json" }
+    { "path": "../shared/tsconfig.json" }
   ]
 }

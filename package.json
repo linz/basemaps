@@ -50,5 +50,8 @@
     "trim-newlines": ">=3.0.1 <4.0.0",
     "normalize-url": ">=4.5.1 <5.0.0",
     "ansi-regex": ">=5.0.1 <6.0.0"
+  },
+  "dependencies": {
+    "@basemaps/cli": "^7.16.0"
   }
 }

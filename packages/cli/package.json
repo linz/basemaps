@@ -41,27 +41,10 @@
   },
   "dependencies": {
     "@basemaps/cli-config": "^7.16.0",
-    "@basemaps/cogify": "^7.16.0",
-    "@basemaps/config": "^7.16.0",
-    "@basemaps/config-loader": "^7.16.0",
-    "@basemaps/geo": "^7.16.0",
     "@basemaps/shared": "^7.16.0",
-    "@cotar/builder": "^6.0.1",
-    "@cotar/core": "^6.0.1",
-    "@cotar/tar": "^6.0.1",
-    "@linzjs/metrics": "^7.5.0",
-    "ansi-colors": "^4.1.1",
-    "cmd-ts": "^0.13.0",
-    "deep-diff": "^1.0.2",
-    "node-fetch": "^3.2.3",
-    "p-limit": "^4.0.0",
-    "slugify": "^1.6.5"
+    "cmd-ts": "^0.13.0"
   },
   "devDependencies": {
-    "@aws-sdk/client-cloudformation": "^3.470.0",
-    "@aws-sdk/client-cloudfront": "^3.470.0",
-    "@aws-sdk/client-s3": "^3.470.0",
-    "@types/deep-diff": "^1.0.1"
   },
   "publishConfig": {
     "access": "public"
