@@ -18,14 +18,13 @@ RUN apt-get install -y nodejs
 RUN npm install sharp@0.33.0
 
 # Install the landing assets
-COPY ./basemaps-cli-config*.tgz /app/
 COPY ./basemaps-cogify*.tgz /app/
 COPY ./basemaps-smoke*.tgz /app/
 
 # Copy the static files for v1/health check
 COPY ./static/ /app/static/
 
-RUN npm install ./basemaps-cli-config*.tgz ./basemaps-cogify*.tgz ./basemaps-smoke*.tgz
+RUN npm install ./basemaps-cogify*.tgz ./basemaps-smoke*.tgz
 
 COPY dist/index.cjs /app/
 

@@ -12,8 +12,8 @@
   "scripts": {
     "lint": "eslint . --quiet --fix --report-unused-disable-directives --ignore-path .gitignore",
     "test": "cross-env NODE_OPTIONS=--enable-source-maps lerna run test --parallel",
-    "clean": "tsc -b --clean && rimraf 'packages/*/build' && npm run clean:dist",
-    "clean:dist": "rimraf 'packages/*/dist' && rimraf 'packages/_infra/cdk.out'",
+    "clean": "tsc -b --clean && rimraf packages/*/build && npm run clean:dist",
+    "clean:dist": "rimraf packages/*/dist && rimraf 'packages/_infra/cdk.out'",
     "clean:modules": "rimraf 'packages/*/node_modules' && rimraf node_modules",
     "build": "tsc -b"
   },
@@ -50,8 +50,5 @@
     "trim-newlines": ">=3.0.1 <4.0.0",
     "normalize-url": ">=4.5.1 <5.0.0",
     "ansi-regex": ">=5.0.1 <6.0.0"
-  },
-  "dependencies": {
-    "@basemaps/cli": "^7.16.0"
   }
 }

@@ -44,7 +44,6 @@
     "@basemaps/shared": "^7.16.0",
     "cmd-ts": "^0.13.0"
   },
-  "devDependencies": {},
   "publishConfig": {
     "access": "public"
   },
