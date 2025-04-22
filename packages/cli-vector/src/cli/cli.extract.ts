@@ -1,7 +1,7 @@
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { fsa } from '@chunkd/fs';
-import { command, number, option, optional, string } from 'cmd-ts';
+import { command, number, option, string } from 'cmd-ts';
 
 import { Layer, SchemaMetadata } from '../schema-loader/schema.js';
 import { SchemaLoader } from '../schema-loader/schema.loader.js';
@@ -29,12 +29,14 @@ export const ExtractArgs = {
   path: option({
     type: string,
     long: 'path',
+    defaultValue: () => './schema/',
+    defaultValueIsSerializable: true,
     description: 'Path of Tiles schema json files that define the source layer and schemas',
   }),
   cache: option({
-    type: optional(string),
+    type: string,
     long: 'cache',
-    description: 'Path of cache location, process all if not provided',
+    description: 'Path of cache location, could be local or s3',
   }),
   group: option({
     type: number,
@@ -53,7 +55,7 @@ export const ExtractCommand = command({
   async handler(args) {
     const logger = getLogger(this, args);
     const path = pathToURLFolder(args.path);
-    const cache = args.cache ? pathToURLFolder(args.cache) : undefined;
+    const cache = pathToURLFolder(args.cache);
 
     // Find all lds layers that need to be process
     logger.info({ path }, 'Extract: Start');
@@ -86,10 +88,13 @@ export const ExtractCommand = command({
         };
 
         // Separate large layer as individual task
-        if (layer.largeLayer) toProcess.push({ tasks: [task] });
-        // Group the tasks together
-        tasks.push(task);
-        counter++;
+        if (layer.largeLayer) {
+          toProcess.push({ tasks: [task] });
+        } else {
+          // Group the tasks together
+          tasks.push(task);
+          counter++;
+        }
         total++;
       }
     }

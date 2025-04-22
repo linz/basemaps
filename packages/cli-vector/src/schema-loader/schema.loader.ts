@@ -7,7 +7,7 @@ import { lds, LDS_CACHE_BUCKET } from '../extract/extract.js';
 import { zSchema } from './parser.js';
 import { Schema } from './schema.js';
 
-const LARGE_LAYER_SIZE = 2 * 1024 * 1024 * 1024; // processing for large layers that over 2GB
+const LARGE_LAYER_SIZE = 1024 * 1024 * 1024; // processing for large layers that over 1GB
 
 export class SchemaLoader {
   path: URL;
@@ -79,7 +79,7 @@ export class SchemaLoader {
         const configHash = sha256base58(JSON.stringify({ ...layer, version: CliInfo.version }));
         if (this.cache != null) {
           const fileName = ldsFile
-            ? `${layer.id}_${layer.version}${configHash}.mbtiles`
+            ? `${layer.id}_${layer.version}_${configHash}.mbtiles`
             : `${layer.id}_${configHash}.mbtiles`;
           layer.cache = new URL(fileName, this.cache);
         }
