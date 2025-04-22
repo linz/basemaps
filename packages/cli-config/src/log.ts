@@ -10,7 +10,7 @@ export const logArguments = {
 
 export function getLogger(cli: { name: string }, args: { verbose: boolean; extraVerbose: boolean }): LogType {
   const logger = LogConfig.get();
-  CliInfo.package = '@' + 'basemaps/cli';
+  CliInfo.package = '@' + 'basemaps/cli-config';
   if (args.verbose) logger.level = 'debug';
   if (args.extraVerbose) logger.level = 'trace';
   logger.info({ package: CliInfo, cli: cli.name, args, isArgo: isArgo() }, 'Cli:Start');
