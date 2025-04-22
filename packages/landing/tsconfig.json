@@ -9,6 +9,7 @@
   },
   "include": ["scripts", "src"],
   "references": [
+    { "path": "../cli-config/tsconfig.json" },
     { "path": "../config/tsconfig.json" },
     { "path": "../geo/tsconfig.json" },
     { "path": "../shared/tsconfig.json" }

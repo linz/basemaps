@@ -61,6 +61,10 @@ async function deploy() {
       const isVersioned = HasVersionRe.test(basename(filePath.pathname));
       const contentType = mime.contentType(extname(filePath.pathname));
 
+      if (contentType === false) {
+        throw new Error('Could not determine content type');
+      }
+
       const cacheControl = isVersioned
         ? // Set cache control for versioned files to immutable
           'public, max-age=604800, immutable'
@@ -91,7 +95,7 @@ async function deploy() {
     const toInvalidate = [...invalidationPaths];
 
     // Only 15 wild cards can be used in a invalidation
-    const wildCardCount = toInvalidate.filter((f) => f.includes('*'));
+    const wildCardCount = toInvalidate.filter((f) => f.includes('*')).length;
     if (wildCardCount > 14) {
       logger.warn({ toInvalidate }, 'InvalidEverything');
       await invalidateCache('/*', true);
