@@ -1,4 +1,4 @@
-import { invalidateCache, uploadStaticFile } from '@basemaps/cli-config/build/cli/util.js';
+import { invalidateCache, uploadStaticFile } from '@basemaps/cli-config/build/util.js';
 import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { LogConfig } from '@basemaps/shared/build/log.js';
