@@ -1,13 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "checkJs": true,
     "jsx": "react-jsx",
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./build",
     "lib": ["DOM"]
   },
-  "include": ["src"],
+  "include": ["scripts", "src"],
   "references": [
+    { "path": "../cli-config/tsconfig.json" },
     { "path": "../config/tsconfig.json" },
     { "path": "../geo/tsconfig.json" },
     { "path": "../shared/tsconfig.json" }
