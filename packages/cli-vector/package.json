@@ -1,0 +1,53 @@
+{
+  "name": "@basemaps/cli-vector",
+  "version": "7.16.0",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linz/basemaps.git",
+    "directory": "packages/cli-vector"
+  },
+  "author": {
+    "name": "Land Information New Zealand",
+    "url": "https://linz.govt.nz",
+    "organization": true
+  },
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "bin": {
+    "etl": "./build/bin.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "bundle": "../../scripts/bundle.mjs package.json",
+    "prepack": "../../scripts/bundle.mjs package.json",
+    "test": "node --test"
+  },
+  "bundle": [
+    {
+      "entry": "src/bin.ts",
+      "minify": false,
+      "outfile": "dist/index.cjs"
+    }
+  ],
+  "type": "module",
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "devDependencies": {
+    "@basemaps/config": "^7.16.0",
+    "@basemaps/shared": "^7.16.0",
+    "@types/node-fetch": "^2.6.12",
+    "cmd-ts": "^0.12.1",
+    "p-limit": "^4.0.0",
+    "stac-ts": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "build/",
+    "dist/"
+  ]
+}

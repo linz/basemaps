@@ -1,0 +1,14 @@
+{
+  "name": "parcel_boundaries",
+  "metadata": { "attributes": ["parcel_intent", "name", "id"] },
+  "layers": [
+    {
+      "id": "50772",
+      "name": "50772-nz-primary-parcels",
+      "source": "s3://linz-lds-cache/50772/",
+      "tags": { "kind": "parcel" },
+      "style": { "minZoom": 14, "maxZoom": 15, "detail": 14 },
+      "tippecanoe": ["--detect-shared-borders"]
+    }
+  ]
+}

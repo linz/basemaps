@@ -1,0 +1,13 @@
+{
+  "name": "place_labels",
+  "metadata": { "attributes": ["water", "name", "natural", "place"] },
+  "layers": [
+    {
+      "id": "51154",
+      "name": "51154-nzgb-gazetteer-application-labels-wfs-layer",
+      "source": "s3://linz-lds-cache/51154/",
+      "tags": { "kind": "place" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    }
+  ]
+}

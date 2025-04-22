@@ -1,0 +1,318 @@
+{
+  "name": "streets",
+  "metadata": {
+    "attributes": [
+      "kind",
+      "track_use",
+      "subclass",
+      "lane_count",
+      "surface",
+      "status",
+      "rway_use",
+      "track_type",
+      "bridge",
+      "use_1",
+      "ford",
+      "name",
+      "tunnel",
+      "hway_num",
+      "use_2"
+    ]
+  },
+  "layers": [
+    {
+      "id": "50329",
+      "name": "50329-nz-road-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50329/",
+      "tags": { "kind": "road" },
+      "style": { "minZoom": 8, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.1 },
+        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.03 },
+        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.008 },
+        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.004 },
+        { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.001 },
+        { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.00075 },
+        { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0005 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.00025 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0001 },
+        { "style": { "minZoom": 11, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50100",
+      "name": "50100-nz-chatham-island-road-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50100/",
+      "tags": { "kind": "road" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52157",
+      "name": "52157-tokelau-road-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/52157/",
+      "tags": { "kind": "road" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52188",
+      "name": "52188-niue-road-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/52188/",
+      "tags": { "kind": "road" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52209",
+      "name": "52209-cook-islands-road-centrelines-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52209/",
+      "tags": { "kind": "road" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52266",
+      "name": "52266-cook-islands-road-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52266/",
+      "tags": { "kind": "road" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52300",
+      "name": "52300-cook-islands-road-centrelines-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52300/",
+      "tags": { "kind": "road" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50364",
+      "name": "50364-nz-track-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50364/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50115",
+      "name": "50115-nz-chatham-island-track-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50115/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50921",
+      "name": "50921-nz-kermadec-is-track-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/50921/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50941",
+      "name": "50941-nz-campbell-island-motu-ihupuku-track-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50941/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50969",
+      "name": "50969-nz-auckland-island-track-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50969/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52162",
+      "name": "52162-tokelau-track-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/52162/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52194",
+      "name": "52194-niue-track-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/52194/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52215",
+      "name": "52215-cook-islands-track-centrelines-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52215/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52281",
+      "name": "52281-cook-islands-track-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52281/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52308",
+      "name": "52308-cook-islands-track-centrelines-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52308/",
+      "tags": { "kind": "track" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50319",
+      "name": "50319-nz-railway-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50319/",
+      "tags": { "kind": "rail" },
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.1 },
+        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.01 },
+        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.03 },
+        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.008 },
+        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.004 },
+        { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.001 },
+        { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.00075 },
+        { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0005 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.00025 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0001 },
+        { "style": { "minZoom": 11, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50237",
+      "name": "50237-nz-airport-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50237/",
+      "tags": { "kind": "aerodrome" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50063",
+      "name": "50063-nz-chatham-island-airport-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50063/",
+      "tags": { "kind": "aerodrome" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52231",
+      "name": "52231-cook-islands-airport-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52231/",
+      "tags": { "kind": "aerodrome" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52168",
+      "name": "52168-niue-airport-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52168/",
+      "tags": { "kind": "aerodrome" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50333",
+      "name": "50333-nz-runway-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50333/",
+      "tags": { "kind": "runway" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50914",
+      "name": "50914-nz-kermadec-is-runway-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50914/",
+      "tags": { "kind": "runway" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52302",
+      "name": "52302-cook-islands-runway-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52302/",
+      "tags": { "kind": "runway" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "52268",
+      "name": "52268-cook-islands-runway-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52268/",
+      "tags": { "kind": "runway" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "52211",
+      "name": "52211-cook-islands-runway-polygons-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52211/",
+      "tags": { "kind": "runway" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "52190",
+      "name": "52190-niue-runway-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52190/",
+      "tags": { "kind": "runway" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "50103",
+      "name": "50103-nz-chatham-island-runway-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50103/",
+      "tags": { "kind": "runway" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50244",
+      "name": "50244-nz-bridge-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50244/",
+      "tags": { "kind": "secondary", "bridge": "true" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50067",
+      "name": "50067-nz-chatham-island-bridge-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50067/",
+      "tags": { "kind": "secondary", "bridge": "true" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52143",
+      "name": "52143-tokelau-bridge-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/52143/",
+      "tags": { "kind": "secondary", "bridge": "true" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52235",
+      "name": "52235-cook-islands-bridge-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52235/",
+      "tags": { "kind": "secondary", "bridge": "true" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50275",
+      "name": "50275-nz-ford-points-topo-150k",
+      "source": "s3://linz-lds-cache/50275/",
+      "tags": { "kind": "secondary", "ford": "true" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50080",
+      "name": "50080-nz-chatham-island-ford-points-topo-150k",
+      "source": "s3://linz-lds-cache/50080/",
+      "tags": { "kind": "secondary", "ford": "true" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50366",
+      "name": "50366-nz-tunnel-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50366/",
+      "tags": { "kind": "secondary", "tunnel": "true" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50315",
+      "name": "50315-nz-racetrack-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50315/",
+      "tags": { "kind": "raceway" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50095",
+      "name": "50095-nz-chatham-island-racetrack-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50095/",
+      "tags": { "kind": "raceway" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}

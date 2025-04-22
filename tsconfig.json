@@ -12,6 +12,7 @@
     { "path": "./packages/cogify/tsconfig.json" },
     { "path": "./packages/cli/tsconfig.json" },
     { "path": "./packages/cli-config/tsconfig.json" },
+    { "path": "./packages/cli-vector/tsconfig.json" },
     { "path": "./packages/bathymetry/tsconfig.json" },
     { "path": "./packages/_infra/tsconfig.json" },
     { "path": "./packages/config/tsconfig.json" },
