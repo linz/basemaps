@@ -10,12 +10,20 @@ import {
   TileSetType,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
-import { Env, fsa, getDefaultConfig, getPreviewUrl, LogConfig, LogType, setDefaultConfig } from '@basemaps/shared';
+import {
+  Env,
+  fsa,
+  getDefaultConfig,
+  getPreviewUrl,
+  logArguments,
+  LogConfig,
+  LogType,
+  setDefaultConfig,
+} from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, flag, option, optional, string } from 'cmd-ts';
 import fetch from 'node-fetch';
 
-import { logArguments } from '../log.js';
 import { invalidateCache } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { Q, Updater } from './config.update.js';

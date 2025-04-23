@@ -1,7 +1,6 @@
-import { isArgo } from '@basemaps/cogify/build/argo.js';
-import { Url, UrlFolder } from '@basemaps/cogify/build/cogify/parsers.js';
 import { base58, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
 import { initImageryFromTiffUrl } from '@basemaps/config-loader';
+import { getLogger, isArgo, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { fsa, getPreviewUrl, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
@@ -9,8 +8,6 @@ import { command, number, option, optional, positional } from 'cmd-ts';
 import pLimit from 'p-limit';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
-
-import { getLogger, logArguments } from '../log.js';
 
 const gzipPromise = promisify(gzip);
 

@@ -1,5 +1,5 @@
 import { base58 } from '@basemaps/config';
-import { fsa, LogType, SourceMemory } from '@basemaps/shared';
+import { fsa, getLogger, logArguments, LogType, SourceMemory } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CotarIndexBuilder, TarReader } from '@cotar/builder';
 import { CotarIndex } from '@cotar/core';
@@ -9,8 +9,6 @@ import { command, option, string } from 'cmd-ts';
 import { BinaryLike, createHash } from 'crypto';
 import { createReadStream, promises as fs } from 'fs';
 import { Readable } from 'stream';
-
-import { getLogger, logArguments } from '../log.js';
 
 const Packing = 25; // Packing factor for the hash map
 const MaxSearch = 50; // Max search factor
