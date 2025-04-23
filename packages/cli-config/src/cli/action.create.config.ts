@@ -1,21 +1,53 @@
+import { isArgo } from '@basemaps/cogify/build/argo.js';
 import { base58, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
 import { initImageryFromTiffUrl } from '@basemaps/config-loader';
 import { fsa, getPreviewUrl, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
-import { command, number, option, optional, positional } from 'cmd-ts';
+import { command, number, option, optional, positional, Type } from 'cmd-ts';
 import pLimit from 'p-limit';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
 
-import { isArgo } from '../../argo.js';
-import { getLogger, logArguments } from '../../log.js';
-import { Url, UrlFolder } from '../parsers.js';
+import { getLogger, logArguments } from '../log.js';
 
 const gzipPromise = promisify(gzip);
+import { pathToFileURL } from 'node:url';
 
-export const BasemapsCogifyConfigCommand = command({
-  name: 'cogify-config',
+/**
+ * Parse an input parameter as a URL.
+ *
+ * If it looks like a file path, it will be converted using `pathToFileURL`.
+ **/
+const Url: Type<string, URL> = {
+  from(str) {
+    try {
+      return Promise.resolve(new URL(str));
+    } catch (e) {
+      return Promise.resolve(pathToFileURL(str));
+    }
+  },
+};
+
+/**
+ * Parse an input parameter as a URL which represents a folder.
+ *
+ * If it looks like a file path, it will be converted using `pathToFileURL`.
+ * Any search parameters or hash will be removed, and a trailing slash added
+ * to the path section if it's not present.
+ **/
+const UrlFolder: Type<string, URL> = {
+  async from(str) {
+    const url = await Url.from(str);
+    url.search = '';
+    url.hash = '';
+    if (!url.pathname.endsWith('/')) url.pathname += '/';
+    return url;
+  },
+};
+
+export const CreateConfigCommand = command({
+  name: 'create-config',
   version: CliInfo.version,
   description: 'Create a Basemaps configuration from a path to imagery',
   args: {
