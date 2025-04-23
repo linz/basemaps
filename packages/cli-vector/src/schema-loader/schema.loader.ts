@@ -32,14 +32,14 @@ export class SchemaLoader {
         const schema = await fsa.readJson(file);
         // Validate the json
         try {
-          zSchema.parse(schema);
+          const parsed = zSchema.parse(schema);
+          this.schemas.push(parsed);
         } catch (e) {
           if (e instanceof z.ZodError) {
             // Thrown error
             throw new Error(`Schema ${file.href} is invalid: ${e.message}`);
           }
         }
-        this.schemas.push(schema as Schema);
       }
     }
     return this.schemas;

@@ -6,13 +6,13 @@ export const zStyling = z.object({
   detail: z.number().optional(),
 });
 
-export const zTag = z.record(z.string().or(z.boolean()));
+export const zTags = z.record(z.string().or(z.boolean()));
 
 export const zAttributes = z.record(z.string());
 
 export const zSpecialTag = z.object({
   condition: z.string(),
-  tags: zTag,
+  tags: zTags,
 });
 
 export const zSimplify = z.object({
@@ -24,7 +24,7 @@ export const zLayer = z.object({
   id: z.string(),
   name: z.string(),
   source: z.string(),
-  tags: zTag,
+  tags: zTags,
   attributes: zAttributes.optional(),
   style: zStyling,
   simplify: z.array(zSimplify).optional(),

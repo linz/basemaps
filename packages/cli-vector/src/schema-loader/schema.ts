@@ -14,7 +14,7 @@ export interface Styling {
  *   "kind": "wood"
  * }
  */
-export type Tag = Record<string, string | boolean>;
+export type Tags = Record<string, string | boolean>;
 
 /**
  * Attributes to keep in the layer, mapping the existing source attribute name to the new name in the output schema
@@ -35,7 +35,7 @@ export type Attributes = Record<string, string>;
  *   }
  * }
  */
-export type SpecialTag = { condition: string; tags: Tag };
+export type SpecialTag = { condition: string; tags: Tags };
 
 /**
  * Generalization setting for multiple zoom levels tolerance, to set this will simplify the geometry greatly reducing the size of the vector tile
@@ -48,7 +48,7 @@ export type SpecialTag = { condition: string; tags: Tag };
  *   "tolerance": 0.5
  * }
  */
-export type Simplify = { style: Styling; tolerance: number | undefined };
+export type Simplify = { style: Styling; tolerance?: number };
 
 /**
  * Layer interface for source data layer config metadata
@@ -67,7 +67,7 @@ export interface Layer {
   source: string;
 
   /** new tags added to layer, with key value pair, like Class:Wood */
-  tag: Tag;
+  tags: Tags;
 
   /** existing attributes to keep, with key(existing attribute), value(renamed attribute), if key !== value, map the attribute name to value */
   attributes?: Attributes;
