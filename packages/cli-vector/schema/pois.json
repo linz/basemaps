@@ -1,0 +1,797 @@
+{
+  "name": "pois",
+  "metadata": {
+    "attributes": [
+      "leisure",
+      "building",
+      "store_item",
+      "man_made",
+      "type",
+      "name",
+      "amenity",
+      "materials",
+      "seamark",
+      "natural",
+      "landuse",
+      "waterway",
+      "pipeline",
+      "barrier",
+      "historic",
+      "ref",
+      "ladder",
+      "fortification_type",
+      "power",
+      "farmyard",
+      "elevation",
+      "status",
+      "geological",
+      "wetland",
+      "temp",
+      "height",
+      "direction",
+      "orientation",
+      "substance",
+      "visibility"
+    ]
+  },
+  "layers": [
+    {
+      "id": "50276",
+      "name": "50276-nz-fumarole-points-topo-150k",
+      "source": "s3://linz-lds-cache/50276/",
+      "tags": { "natural": "fumarole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50116",
+      "name": "50116-nz-chatham-island-tree-points-topo-150k",
+      "source": "s3://linz-lds-cache/50116/",
+      "tags": { "natural": "tree" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52163",
+      "name": "52163-tokelau-tree-points-topo-125k",
+      "source": "s3://linz-lds-cache/52163/",
+      "tags": { "natural": "tree" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52309",
+      "name": "52309-cook-islands-tree-points-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52309/",
+      "tags": { "natural": "tree" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52282",
+      "name": "52282-cook-islands-tree-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52282/",
+      "tags": { "natural": "tree" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52195",
+      "name": "52195-niue-tree-points-topo-150k",
+      "source": "s3://linz-lds-cache/52195/",
+      "tags": { "natural": "tree" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52229",
+      "name": "52229-cook-islands-tree-points-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52229/",
+      "tags": { "natural": "tree" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52216",
+      "name": "52216-cook-islands-tree-points-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52216/",
+      "tags": { "natural": "tree" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50358",
+      "name": "50358-nz-swamp-points-topo-150k",
+      "source": "s3://linz-lds-cache/50358/",
+      "tags": { "wetland": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50967",
+      "name": "50967-nz-auckland-island-swamp-points-topo-150k",
+      "source": "s3://linz-lds-cache/50967/",
+      "tags": { "wetland": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52277",
+      "name": "52277-cook-islands-swamp-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52277/",
+      "tags": { "wetland": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52306",
+      "name": "52306-cook-islands-swamp-points-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52306/",
+      "tags": { "wetland": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50112",
+      "name": "50112-nz-chatham-island-swamp-points-topo-150k",
+      "source": "s3://linz-lds-cache/50112/",
+      "tags": { "wetland": "swamp" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50282",
+      "name": "50282-nz-grave-points-topo-150k",
+      "source": "s3://linz-lds-cache/50282/",
+      "tags": { "amenity": "grave_yard" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50363",
+      "name": "50363-nz-tower-points-topo-150k",
+      "source": "s3://linz-lds-cache/50363/",
+      "tags": { "man_made": "tower" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50238",
+      "name": "50238-nz-beacon-points-topo-150k",
+      "source": "s3://linz-lds-cache/50238/",
+      "tags": { "man_made": "beacon" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52232",
+      "name": "52232-cook-islands-beacon-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52232/",
+      "tags": { "man_made": "beacon" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52218",
+      "name": "52218-cook-islands-beacon-points-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52218/",
+      "tags": { "man_made": "beacon" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50064",
+      "name": "50064-nz-chatham-island-beacon-points-topo-150k",
+      "source": "s3://linz-lds-cache/50064/",
+      "tags": { "man_made": "beacon" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50247",
+      "name": "50247-nz-buoy-points-topo-150k",
+      "source": "s3://linz-lds-cache/50247/",
+      "tags": { "seamark": "buoy" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50253",
+      "name": "50253-nz-cave-points-topo-150k",
+      "source": "s3://linz-lds-cache/50253/",
+      "tags": { "natural": "cave_entrance" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52172",
+      "name": "52172-niue-cave-points-topo-150k",
+      "source": "s3://linz-lds-cache/52172/",
+      "tags": { "natural": "cave_entrance" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52238",
+      "name": "52238-cook-islands-cave-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52238/",
+      "tags": { "natural": "cave_entrance" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50952",
+      "name": "50952-nz-auckland-island-cemetery-points-topo-150k",
+      "source": "s3://linz-lds-cache/50952/",
+      "tags": { "landuse": "cemetery" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50073",
+      "name": "50073-nz-chatham-island-cemetery-points-topo-150k",
+      "source": "s3://linz-lds-cache/50073/",
+      "tags": { "landuse": "cemetery" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50254",
+      "name": "50254-nz-cemetery-points-topo-150k",
+      "source": "s3://linz-lds-cache/50254/",
+      "tags": { "landuse": "cemetery" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52146",
+      "name": "52146-tokelau-cemetery-points-topo-125k",
+      "source": "s3://linz-lds-cache/52146/",
+      "tags": { "landuse": "cemetery" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52239",
+      "name": "52239-cook-islands-cemetery-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52239/",
+      "tags": { "landuse": "cemetery" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52289",
+      "name": "52289-cook-islands-cemetery-points-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52289/",
+      "tags": { "landuse": "cemetery" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50256",
+      "name": "50256-nz-chimney-points-topo-150k",
+      "source": "s3://linz-lds-cache/50256/",
+      "tags": { "man_made": "chimney" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50263",
+      "name": "50263-nz-dredge-points-topo-150k",
+      "source": "s3://linz-lds-cache/50263/",
+      "tags": { "man_made": "dredge" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50360",
+      "name": "50360-nz-tank-points-topo-150k",
+      "source": "s3://linz-lds-cache/50360/",
+      "tags": { "building": "storage_tank" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50114",
+      "name": "50114-nz-chatham-island-tank-points-topo-150k",
+      "source": "s3://linz-lds-cache/50114/",
+      "tags": { "building": "storage_tank" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52193",
+      "name": "52193-niue-tank-points-topo-150k",
+      "source": "s3://linz-lds-cache/52193/",
+      "tags": { "building": "storage_tank" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52279",
+      "name": "52279-cook-islands-tank-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52279/",
+      "tags": { "building": "storage_tank" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50375",
+      "name": "50375-nz-well-points-topo-150k",
+      "source": "s3://linz-lds-cache/50375/",
+      "tags": { "man_made": "water_well" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52164",
+      "name": "52164-tokelau-well-points-topo-125k",
+      "source": "s3://linz-lds-cache/52164/",
+      "tags": { "man_made": "water_well" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52196",
+      "name": "52196-niue-well-points-topo-150k",
+      "source": "s3://linz-lds-cache/52196/",
+      "tags": { "man_made": "water_well" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50379",
+      "name": "50379-nz-wreck-points-topo-150k",
+      "source": "s3://linz-lds-cache/50379/",
+      "tags": { "historic": "wreck" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50971",
+      "name": "50971-nz-auckland-island-wreck-points-topo-150k",
+      "source": "s3://linz-lds-cache/50971/",
+      "tags": { "historic": "wreck" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50923",
+      "name": "50923-nz-kermadec-is-wreck-points-topo-125k",
+      "source": "s3://linz-lds-cache/50923/",
+      "tags": { "historic": "wreck" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52198",
+      "name": "52198-niue-wreck-points-topo-150k",
+      "source": "s3://linz-lds-cache/52198/",
+      "tags": { "historic": "wreck" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50118",
+      "name": "50118-nz-chatham-island-wreck-points-topo-150k",
+      "source": "s3://linz-lds-cache/50118/",
+      "tags": { "historic": "wreck" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50356",
+      "name": "50356-nz-spring-points-topo-150k",
+      "source": "s3://linz-lds-cache/50356/",
+      "tags": { "natural": "spring" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50919",
+      "name": "50919-nz-kermadec-is-spring-points-topo-125k",
+      "source": "s3://linz-lds-cache/50919/",
+      "tags": { "natural": "spring" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50372",
+      "name": "50372-nz-waterfall-points-topo-150k",
+      "source": "s3://linz-lds-cache/50372/",
+      "tags": { "waterway": "waterfall" },
+      "attributes": { "orientatn": "direction" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50942",
+      "name": "50942-nz-campbell-island-motu-ihupuku-waterfall-points-topo-150k",
+      "source": "s3://linz-lds-cache/50942/",
+      "tags": { "waterway": "waterfall" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50970",
+      "name": "50970-nz-auckland-island-waterfall-points-topo-150k",
+      "source": "s3://linz-lds-cache/50970/",
+      "tags": { "waterway": "waterfall" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50987",
+      "name": "50987-nz-antipodes-island-waterfall-points-topo-125k",
+      "source": "s3://linz-lds-cache/50987/",
+      "tags": { "waterway": "waterfall" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52283",
+      "name": "52283-cook-islands-waterfall-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52283/",
+      "tags": { "waterway": "waterfall" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50330",
+      "name": "50330-nz-rock-outcrop-points-topo-150k",
+      "source": "s3://linz-lds-cache/50330/",
+      "tags": { "natural": "rock", "geological": "outcrop" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50935",
+      "name": "50935-nz-campbell-island-motu-ihupuku-rock-outcrop-points-topo-150k",
+      "source": "s3://linz-lds-cache/50935/",
+      "tags": { "natural": "rock", "geological": "outcrop" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50963",
+      "name": "50963-nz-auckland-island-rock-outcrop-points-topo-150k",
+      "source": "s3://linz-lds-cache/50963/",
+      "tags": { "natural": "rock", "geological": "outcrop" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50980",
+      "name": "50980-nz-antipodes-island-rock-outcrop-points-topo-125k",
+      "source": "s3://linz-lds-cache/50980/",
+      "tags": { "natural": "rock", "geological": "outcrop" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50331",
+      "name": "50331-nz-rock-points-topo-150k",
+      "source": "s3://linz-lds-cache/50331/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50101",
+      "name": "50101-nz-chatham-island-rock-points-topo-150k",
+      "source": "s3://linz-lds-cache/50101/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50912",
+      "name": "50912-nz-kermadec-is-rock-points-topo-125k",
+      "source": "s3://linz-lds-cache/50912/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50964",
+      "name": "50964-nz-auckland-island-rock-points-topo-150k",
+      "source": "s3://linz-lds-cache/50964/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50981",
+      "name": "50981-nz-antipodes-island-rock-points-topo-125k",
+      "source": "s3://linz-lds-cache/50981/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50993",
+      "name": "50993-nz-bounty-islands-rock-points-topo-125k",
+      "source": "s3://linz-lds-cache/50993/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52158",
+      "name": "52158-tokelau-rock-points-topo-125k",
+      "source": "s3://linz-lds-cache/52158/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52189",
+      "name": "52189-niue-rock-points-topo-150k",
+      "source": "s3://linz-lds-cache/52189/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52210",
+      "name": "52210-cook-islands-rock-points-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52210/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52267",
+      "name": "52267-cook-islands-rock-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52267/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52301",
+      "name": "52301-cook-islands-rock-points-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52301/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "52390",
+      "name": "52390-nz-campbell-island-motu-ihupuku-rock-points-topo-150k",
+      "source": "s3://linz-lds-cache/52390/",
+      "tags": { "natural": "rock" },
+      "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50239",
+      "name": "50239-nz-bivouac-points-topo-150k",
+      "source": "s3://linz-lds-cache/50239/",
+      "tags": { "amenity": "bivouac" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50271",
+      "name": "50271-nz-flare-points-topo-150k",
+      "source": "s3://linz-lds-cache/50271/",
+      "tags": { "man_made": "flare" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50272",
+      "name": "50272-nz-floodgate-points-topo-150k",
+      "source": "s3://linz-lds-cache/50272/",
+      "tags": { "waterway": "sluice_gate" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50277",
+      "name": "50277-nz-gas-valve-points-topo-150k",
+      "source": "s3://linz-lds-cache/50277/",
+      "tags": { "pipeline": "valve" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50278",
+      "name": "50278-nz-gate-points-topo-150k",
+      "source": "s3://linz-lds-cache/50278/",
+      "tags": { "barrier": "gate" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50081",
+      "name": "50081-nz-chatham-island-gate-points-topo-150k",
+      "source": "s3://linz-lds-cache/50081/",
+      "tags": { "barrier": "gate" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50279",
+      "name": "50279-nz-geo-bore-points-topo-150k",
+      "source": "s3://linz-lds-cache/50279/",
+      "tags": { "man_made": "geo_bore" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50084",
+      "name": "50084-nz-chatham-island-grave-points-topo-150k",
+      "source": "s3://linz-lds-cache/50084/",
+      "tags": { "amenity": "grave_yard" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52178",
+      "name": "52178-niue-grave-points-topo-150k",
+      "source": "s3://linz-lds-cache/52178/",
+      "tags": { "amenity": "grave_yard" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50286",
+      "name": "50286-nz-historic-site-points-topo-150k",
+      "source": "s3://linz-lds-cache/50286/",
+      "tags": { "historic": "yes" },
+      "attributes": { "descriptn": "ref" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52294",
+      "name": "52294-cook-islands-kiln-points-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52294/",
+      "tags": { "man_made": "kiln" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50291",
+      "name": "50291-nz-ladder-points-topo-150k",
+      "source": "s3://linz-lds-cache/50291/",
+      "tags": { "ladder": "yes" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50299",
+      "name": "50299-nz-mast-points-topo-150k",
+      "source": "s3://linz-lds-cache/50299/",
+      "tags": { "man_made": "mast" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50090",
+      "name": "50090-nz-chatham-island-mast-points-topo-150k",
+      "source": "s3://linz-lds-cache/50090/",
+      "tags": { "man_made": "mast" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52152",
+      "name": "52152-tokelau-mast-points-topo-125k",
+      "source": "s3://linz-lds-cache/52152/",
+      "tags": { "man_made": "mast" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52183",
+      "name": "52183-niue-mast-points-topo-150k",
+      "source": "s3://linz-lds-cache/52183/",
+      "tags": { "man_made": "mast" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52255",
+      "name": "52255-cook-islands-mast-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52255/",
+      "tags": { "man_made": "mast" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50300",
+      "name": "50300-nz-mine-points-topo-150k",
+      "source": "s3://linz-lds-cache/50300/",
+      "tags": { "landuse": "mine" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50302",
+      "name": "50302-nz-monument-points-topo-150k",
+      "source": "s3://linz-lds-cache/50302/",
+      "tags": { "historic": "monument" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50091",
+      "name": "50091-nz-chatham-island-monument-points-topo-150k",
+      "source": "s3://linz-lds-cache/50091/",
+      "tags": { "historic": "monument" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52153",
+      "name": "52153-tokelau-monument-points-topo-125k",
+      "source": "s3://linz-lds-cache/52153/",
+      "tags": { "historic": "monument" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52256",
+      "name": "52256-cook-islands-monument-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52256/",
+      "tags": { "historic": "monument" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50308",
+      "name": "50308-nz-pa-points-topo-150k",
+      "source": "s3://linz-lds-cache/50308/",
+      "tags": { "fortification_type": "pa" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50378",
+      "name": "50378-nz-windmill-points-topo-150k",
+      "source": "s3://linz-lds-cache/50378/",
+      "tags": { "man_made": "wind_turbine" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50313",
+      "name": "50313-nz-pylon-points-topo-150k",
+      "source": "s3://linz-lds-cache/50313/",
+      "tags": { "power": "pole" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50317",
+      "name": "50317-nz-radar-dome-points-topo-150k",
+      "source": "s3://linz-lds-cache/50317/",
+      "tags": { "man_made": "radar_dome" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50322",
+      "name": "50322-nz-redoubt-points-topo-150k",
+      "source": "s3://linz-lds-cache/50322/",
+      "tags": { "historic": "redoubt" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50326",
+      "name": "50326-nz-rifle-range-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50326/",
+      "tags": { "leisure": "shooting_ground" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50336",
+      "name": "50336-nz-satellite-station-points-topo-150k",
+      "source": "s3://linz-lds-cache/50336/",
+      "tags": { "man_made": "telescope" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50340",
+      "name": "50340-nz-shaft-points-topo-150k",
+      "source": "s3://linz-lds-cache/50340/",
+      "tags": { "man_made": "mineshaft" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50345",
+      "name": "50345-nz-sinkhole-points-topo-150k",
+      "source": "s3://linz-lds-cache/50345/",
+      "tags": { "natural": "sinkhole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50985",
+      "name": "50985-nz-antipodes-island-sinkhole-points-topo-125k",
+      "source": "s3://linz-lds-cache/50985/",
+      "tags": { "natural": "sinkhole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52274",
+      "name": "52274-cook-islands-sinkhole-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52274/",
+      "tags": { "natural": "sinkhole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50346",
+      "name": "50346-nz-siphon-points-topo-150k",
+      "source": "s3://linz-lds-cache/50346/",
+      "tags": { "waterway": "siphon" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50353",
+      "name": "50353-nz-soakhole-points-topo-150k",
+      "source": "s3://linz-lds-cache/50353/",
+      "tags": { "waterway": "soakhole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50110",
+      "name": "50110-nz-chatham-island-soakhole-points-topo-150k",
+      "source": "s3://linz-lds-cache/50110/",
+      "tags": { "waterway": "soakhole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50918",
+      "name": "50918-nz-kermadec-is-soakhole-points-topo-125k",
+      "source": "s3://linz-lds-cache/50918/",
+      "tags": { "waterway": "soakhole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50940",
+      "name": "50940-nz-campbell-island-motu-ihupuku-soakhole-points-topo-150k",
+      "source": "s3://linz-lds-cache/50940/",
+      "tags": { "waterway": "soakhole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52275",
+      "name": "52275-cook-islands-soakhole-points-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52275/",
+      "tags": { "waterway": "soakhole" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50357",
+      "name": "50357-nz-stockyard-points-topo-150k",
+      "source": "s3://linz-lds-cache/50357/",
+      "tags": { "farmyard": "stockyard" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50111",
+      "name": "50111-nz-chatham-island-stockyard-points-topo-150k",
+      "source": "s3://linz-lds-cache/50111/",
+      "tags": { "farmyard": "stockyard" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "103476",
+      "name": "103476-nz-trig-points-topo-150k",
+      "source": "s3://linz-lds-cache/103476/",
+      "tags": { "man_made": "trig_point" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}

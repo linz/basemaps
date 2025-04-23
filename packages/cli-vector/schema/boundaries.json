@@ -1,0 +1,109 @@
+{
+  "name": "boundaries",
+  "metadata": { "attributes": ["name"] },
+  "simplify": [
+    { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.1 },
+    { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.09 },
+    { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.084 },
+    { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.059 },
+    { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.02 },
+    { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.015 },
+    { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.007 },
+    { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.001 },
+    { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0005 },
+    { "style": { "minZoom": 9, "maxZoom": 15 } }
+  ],
+  "layers": [
+    {
+      "id": "51153",
+      "name": "51153-nz-coastlines-and-islands-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/51153/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50932",
+      "name": "50932-nz-campbell-island-motu-ihupuku-island-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50932/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50959",
+      "name": "50959-nz-auckland-island-island-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50959/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50893",
+      "name": "50893-nz-snares-island-tini-heke-island-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50893/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50908",
+      "name": "50908-nz-kermadec-is-island-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50908/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50992",
+      "name": "50992-nz-bounty-islands-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50992/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50978",
+      "name": "50978-nz-antipodes-island-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/50978/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52149",
+      "name": "52149-tokelau-island-polygons-topo-125k",
+      "source": "s3://linz-lds-cache/52149/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52293",
+      "name": "52293-cook-islands-island-polygons-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52293/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52251",
+      "name": "52251-cook-islands-island-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52251/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52181",
+      "name": "52181-niue-island-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/52181/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52222",
+      "name": "52222-cook-islands-island-polygons-topo-150k-zone3",
+      "source": "s3://linz-lds-cache/52222/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "52203",
+      "name": "52203-cook-islands-island-polygons-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52203/",
+      "tags": { "natural": "coastline" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    }
+  ]
+}

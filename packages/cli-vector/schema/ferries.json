@@ -1,0 +1,13 @@
+{
+  "name": "ferries",
+  "metadata": { "attributes": ["kind", "name"] },
+  "layers": [
+    {
+      "id": "50269",
+      "name": "50269-nz-ferry-crossing-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50269/",
+      "tags": { "kind": "ferry" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "buildings",
+  "metadata": { "attributes": ["building", "store_item", "kind", "name", "use"] },
+  "layers": [
+    {
+      "id": "101290",
+      "name": "101290-nz-building-outlines",
+      "source": "s3://linz-lds-cache/101290/",
+      "tags": { "kind": "building" },
+      "style": { "minZoom": 14, "maxZoom": 15 },
+      "tippecanoe": ["--detect-shared-borders"]
+    },
+    {
+      "id": "50361",
+      "name": "50361-nz-tank-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50361/",
+      "tags": { "building": "storage_tank" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52280",
+      "name": "52280-cook-islands-tank-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52280/",
+      "tags": { "building": "storage_tank" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    }
+  ]
+}

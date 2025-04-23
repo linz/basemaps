@@ -1,0 +1,55 @@
+{
+  "name": "sites",
+  "metadata": { "attributes": ["kind", "species", "name", "type", "track_type", "track_use"] },
+  "layers": [
+    {
+      "id": "50283",
+      "name": "50283-nz-gravel-pit-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50283/",
+      "tags": { "kind": "gravel_pit" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50312",
+      "name": "50312-nz-pumice-pit-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50312/",
+      "tags": { "kind": "pumice_pit" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50270",
+      "name": "50270-nz-fish-farm-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50270/",
+      "tags": { "kind": "fish_farm" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50316",
+      "name": "50316-nz-racetrack-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50316/",
+      "tags": { "kind": "raceway" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50344",
+      "name": "50344-nz-showground-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50344/",
+      "tags": { "kind": "showground" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50355",
+      "name": "50355-nz-sportsfield-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50355/",
+      "tags": { "kind": "sports_field" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52276",
+      "name": "52276-cook-islands-sportsfield-polygons-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52276/",
+      "tags": { "kind": "sports_field" },
+      "style": { "minZoom": 0, "maxZoom": 15 }
+    }
+  ]
+}

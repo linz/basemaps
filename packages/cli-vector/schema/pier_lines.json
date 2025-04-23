@@ -1,0 +1,34 @@
+{
+  "name": "pier_lines",
+  "metadata": { "attributes": ["kind", "name"] },
+  "layers": [
+    {
+      "id": "50243",
+      "name": "50243-nz-breakwater-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50243/",
+      "tags": { "kind": "breakwater" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50066",
+      "name": "50066-nz-chatham-island-breakwater-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50066/",
+      "tags": { "kind": "breakwater" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52141",
+      "name": "52141-tokelau-breakwater-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/52141/",
+      "tags": { "kind": "breakwater" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "52234",
+      "name": "52234-cook-islands-breakwater-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52234/",
+      "tags": { "kind": "breakwater" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}

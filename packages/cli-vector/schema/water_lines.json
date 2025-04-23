@@ -1,0 +1,210 @@
+{
+  "name": "water_lines",
+  "metadata": { "attributes": ["kind", "name", "feature", "species", "height"] },
+  "layers": [
+    {
+      "id": "103632",
+      "name": "103632-nz-river-name-lines-pilot",
+      "source": "s3://linz-lds-cache/103632/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 9, "maxZoom": 15 },
+      "simplify": [
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.001 },
+        { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0005 },
+        { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.0001 },
+        { "style": { "minZoom": 12, "maxZoom": 12 }, "tolerance": 0.00005 },
+        { "style": { "minZoom": 13, "maxZoom": 13 }, "tolerance": 0.00001 },
+        { "style": { "minZoom": 14, "maxZoom": 15 } }
+      ]
+    },
+    {
+      "id": "50077",
+      "name": "50077-nz-chatham-island-drain-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50077/",
+      "tags": { "kind": "drain" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50098",
+      "name": "50098-nz-chatham-island-river-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50098/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 13, "maxZoom": 15 }
+    },
+    {
+      "id": "50896",
+      "name": "50896-nz-snares-island-tini-heke-river-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/50896/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50911",
+      "name": "50911-nz-kermadec-is-river-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/50911/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50934",
+      "name": "50934-nz-campbell-island-motu-ihupuku-river-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50934/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50962",
+      "name": "50962-nz-auckland-island-river-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50962/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50979",
+      "name": "50979-nz-antipodes-island-river-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/50979/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52208",
+      "name": "52208-cook-islands-river-centrelines-topo-150k-zone4",
+      "source": "s3://linz-lds-cache/52208/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52244",
+      "name": "52244-cook-islands-drain-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52244/",
+      "tags": { "kind": "drain" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52264",
+      "name": "52264-cook-islands-river-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52264/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "52299",
+      "name": "52299-cook-islands-river-centrelines-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52299/",
+      "tags": { "kind": "river" },
+      "style": { "minZoom": 8, "maxZoom": 15 }
+    },
+    {
+      "id": "50242",
+      "name": "50242-nz-boom-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50242/",
+      "tags": { "kind": "boom" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50297",
+      "name": "50297-nz-marine-farm-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50297/",
+      "tags": { "kind": "marine_farm" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50377",
+      "name": "50377-nz-wharf-edges-topo-150k",
+      "source": "s3://linz-lds-cache/50377/",
+      "tags": { "kind": "wharf_edge" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52166",
+      "name": "52166-tokelau-wharf-edges-topo-125k",
+      "source": "s3://linz-lds-cache/52166/",
+      "tags": { "kind": "wharf_edge" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52197",
+      "name": "52197-niue-wharf-edges-topo-150k",
+      "source": "s3://linz-lds-cache/52197/",
+      "tags": { "kind": "wharf_edge" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52285",
+      "name": "52285-cook-islands-wharf-edges-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52285/",
+      "tags": { "kind": "wharf_edge" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50376",
+      "name": "50376-nz-wharf-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50376/",
+      "tags": { "kind": "wharf" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50117",
+      "name": "50117-nz-chatham-island-wharf-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50117/",
+      "tags": { "kind": "wharf" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52165",
+      "name": "52165-tokelau-wharf-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/52165/",
+      "tags": { "kind": "wharf" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52310",
+      "name": "52310-cook-islands-wharf-centrelines-topo-125k-zone3",
+      "source": "s3://linz-lds-cache/52310/",
+      "tags": { "kind": "wharf" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "52284",
+      "name": "52284-cook-islands-wharf-centrelines-topo-125k-zone4",
+      "source": "s3://linz-lds-cache/52284/",
+      "tags": { "kind": "wharf" },
+      "style": { "minZoom": 10, "maxZoom": 15 }
+    },
+    {
+      "id": "50273",
+      "name": "50273-nz-flume-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50273/",
+      "tags": { "kind": "flume" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50369",
+      "name": "50369-nz-water-race-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50369/",
+      "tags": { "kind": "water_race" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50320",
+      "name": "50320-nz-rapid-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50320/",
+      "tags": { "kind": "stream" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50371",
+      "name": "50371-nz-waterfall-edges-topo-150k",
+      "source": "s3://linz-lds-cache/50371/",
+      "tags": { "kind": "waterfall", "feature": "edge" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50370",
+      "name": "50370-nz-waterfall-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50370/",
+      "tags": { "kind": "waterfall" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}
