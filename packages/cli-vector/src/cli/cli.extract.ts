@@ -62,15 +62,13 @@ export const ExtractCommand = command({
     const schemaLoader = new SchemaLoader(new URL(path), logger, cache);
     const schemas = await schemaLoader.load();
     const toProcess: ToProcess[] = [];
-    let counter = 0;
     let total = 0;
     let tasks: Task[] = [];
     for (const schema of schemas) {
       for (const layer of schema.layers) {
-        if (counter >= args.group) {
-          toProcess.push({ tasks: tasks });
+        if (tasks.length >= args.group) {
+          toProcess.push({ tasks });
           tasks = [];
-          counter = 0;
         }
 
         // Skip if the layer is already processed in cache
@@ -93,11 +91,12 @@ export const ExtractCommand = command({
         } else {
           // Group the tasks together
           tasks.push(task);
-          counter++;
         }
         total++;
       }
     }
+    // Push remaining tasks
+    toProcess.push({ tasks });
 
     logger.info({ ToProcess: total }, 'CheckUpdate: Finish');
     await fsa.write(fsa.toUrl('tmp/vector/toProcess.json'), JSON.stringify(toProcess, null, 2));
