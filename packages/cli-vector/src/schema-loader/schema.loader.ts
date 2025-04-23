@@ -61,8 +61,8 @@ export class SchemaLoader {
         if (schema.simplify != null && layer.simplify == null) layer.simplify = schema.simplify;
 
         // Set layer path to the latest layer in lds-cache
-        const ldsFile = layer.source.startsWith(LDS_CACHE_BUCKET);
-        if (ldsFile) {
+        const isLdsFile = layer.source.startsWith(LDS_CACHE_BUCKET);
+        if (isLdsFile) {
           const file = files.get(layer.id);
           if (file == null) throw new Error(`Layer ${layer.id} is not exist in lds cache.`);
           // Set the layer path to the latest layer
@@ -71,14 +71,14 @@ export class SchemaLoader {
         }
 
         // Check existence of the layer path and set file size for larger layers
-        const stat = await fsa.head(new URL(layer.source));
-        if (stat == null) throw new Error(`Layer ${layer.id} path ${layer.source} does not exist`);
-        if (stat.size && stat.size > LARGE_LAYER_SIZE) layer.largeLayer = true;
+        const fileInfo = await fsa.head(new URL(layer.source));
+        if (fileInfo == null) throw new Error(`Layer ${layer.id} path ${layer.source} does not exist`);
+        if (fileInfo.size != null && fileInfo.size > LARGE_LAYER_SIZE) layer.largeLayer = true;
 
         // Set the cache path for the layer
         const configHash = sha256base58(JSON.stringify({ ...layer, version: CliInfo.version }));
         if (this.cache != null) {
-          const fileName = ldsFile
+          const fileName = isLdsFile
             ? `${layer.id}_${layer.version}_${configHash}.mbtiles`
             : `${layer.id}_${configHash}.mbtiles`;
           layer.cache = new URL(fileName, this.cache);
