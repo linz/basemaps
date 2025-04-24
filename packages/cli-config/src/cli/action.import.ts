@@ -14,9 +14,9 @@ import {
   Env,
   fsa,
   getDefaultConfig,
+  getLogger,
   getPreviewUrl,
   logArguments,
-  LogConfig,
   LogType,
   setDefaultConfig,
 } from '@basemaps/shared';
@@ -62,7 +62,7 @@ export const ImportCommand = command({
   },
 
   async handler(args): Promise<void> {
-    const logger = LogConfig.get();
+    const logger = getLogger(this, args, 'cli-config');
     const commit = args.commit;
     const config = args.config;
 
