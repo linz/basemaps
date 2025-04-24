@@ -1,7 +1,6 @@
 import { BoundingBox, Bounds, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
-import { CliDate, CliId, CliInfo } from '@basemaps/shared/src/cli/info.js';
-import { dirname } from 'path';
+import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
 import { LDS_CACHE_BUCKET } from './extract.js';
@@ -53,7 +52,7 @@ export class VectorStac {
     if (layer.source.startsWith(LDS_CACHE_BUCKET)) {
       // Create stac link for lds layer
       this.logger.info({ layer: layer.id }, 'VectorStac: CreateLdsStacLink');
-      const collectionPath = new URL('collection.json', dirname(layer.source));
+      const collectionPath = new URL('collection.json', layer.source);
       const sourceCollection = await fsa.readJson<StacCollection>(collectionPath);
       const spatialExtents = sourceCollection.extent.spatial.bbox;
       this.bboxArr.push(...spatialExtents.map((b) => Bounds.fromBbox(b)));

@@ -87,7 +87,7 @@ export const ExtractCommand = command({
 
         // Create stac file for the cache mbtiles
         logger.info({ layer: schema.name, id: layer.id }, 'Extract: StacItem');
-        const stacFile = new URL(layer.cache.path.href.replace(/\.gpkg$/, '.json'));
+        const stacFile = new URL(layer.cache.path.href.replace(/\.mbtiles$/, '.json'));
         const stacLink = await vectorStac.createStacLink(schema.name, layer);
         const options: VectorCreationOptions = {
           name: schema.name,
@@ -103,10 +103,10 @@ export const ExtractCommand = command({
 
         // Separate large layer as individual task
         if (layer.largeLayer) {
-          toProcess.push({ tasks: [layer.cache.path.href] });
+          toProcess.push({ tasks: [stacFile.href] });
         } else {
           // Group the tasks together
-          tasks.push(layer.cache.path.href);
+          tasks.push(stacFile.href);
         }
         total++;
       }
