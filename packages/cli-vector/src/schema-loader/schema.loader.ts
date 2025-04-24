@@ -3,7 +3,7 @@ import { fsa, LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { z } from 'zod';
 
-import { lds, LDS_CACHE_BUCKET } from '../extract/extract.js';
+import { lds, LDS_CACHE_BUCKET } from '../extract.js';
 import { zSchema } from './parser.js';
 import { Schema } from './schema.js';
 
@@ -81,7 +81,14 @@ export class SchemaLoader {
           const fileName = isLdsFile
             ? `${layer.id}_${layer.version}_${configHash}.mbtiles`
             : `${layer.id}_${configHash}.mbtiles`;
-          layer.cache = new URL(fileName, this.cache);
+          const path = new URL(fileName, this.cache);
+          const exists = await fsa.exists(path);
+          const cache = {
+            fileName,
+            path,
+            exists,
+          };
+          layer.cache = cache;
         }
       }
     }
