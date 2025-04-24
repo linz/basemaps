@@ -104,6 +104,9 @@ export interface Layer {
   /** cached mbtile filename */
   fileName?: URL;
 
+  /** cached mbtile filename */
+  fileName?: URL;
+
   /** cached mbtile location */
   cache?: CacheFile;
 
