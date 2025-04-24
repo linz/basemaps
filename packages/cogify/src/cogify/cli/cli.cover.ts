@@ -2,16 +2,14 @@ import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
 import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
 import { fsa, urlToString } from '@basemaps/shared';
+import { getLogger, isArgo, logArguments, RgbaType, Url, UrlFolder } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 
-import { isArgo } from '../../argo.js';
-import { getLogger, logArguments } from '../../log.js';
 import { Presets } from '../../preset.js';
 import { CutlineOptimizer } from '../covering/cutline.js';
 import { createTileCover, TileCoverContext } from '../covering/tile.cover.js';
-import { RgbaType, Url, UrlFolder } from '../parsers.js';
 import { createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];
@@ -70,7 +68,7 @@ export const BasemapsCogifyCoverCommand = command({
   },
   async handler(args) {
     const metrics = new Metrics();
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cogify');
 
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');

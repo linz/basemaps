@@ -1,5 +1,6 @@
 import { base58, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
 import { initImageryFromTiffUrl } from '@basemaps/config-loader';
+import { getLogger, isArgo, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { fsa, getPreviewUrl, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
@@ -8,14 +9,10 @@ import pLimit from 'p-limit';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
 
-import { isArgo } from '../../argo.js';
-import { getLogger, logArguments } from '../../log.js';
-import { Url, UrlFolder } from '../parsers.js';
-
 const gzipPromise = promisify(gzip);
 
-export const BasemapsCogifyConfigCommand = command({
-  name: 'cogify-config',
+export const CreateConfigCommand = command({
+  name: 'create-config',
   version: CliInfo.version,
   description: 'Create a Basemaps configuration from a path to imagery',
   args: {
@@ -44,7 +41,7 @@ export const BasemapsCogifyConfigCommand = command({
 
   async handler(args) {
     const metrics = new Metrics();
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cli-config');
     const provider = new ConfigProviderMemory();
     const q = pLimit(args.concurrency);
 

@@ -25,3 +25,11 @@ Import all configs from a bundled config.json into dynamo db from a given config
 ```bash
 ./build/bin.js import --config config.json --commit
 ```
+
+## Usage -- Create Config
+
+Create a Basemaps configuration from a path to imagery. This is mainly use for [linz/basemaps-config](https://github.com/linz/basemaps-config) repository ci/cd process to deploy the config changes into DynamoDB.
+
+```bash
+./build/bin.js create-config --path path/ --target target/
+```

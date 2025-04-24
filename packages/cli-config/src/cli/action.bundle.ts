@@ -1,11 +1,9 @@
 import { ConfigJson } from '@basemaps/config-loader';
-import { fsa } from '@basemaps/shared';
+import { fsa, getLogger, logArguments } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, option, optional, string } from 'cmd-ts';
 import pLimit from 'p-limit';
-
-import { getLogger, logArguments } from '../log.js';
 
 export const DefaultConfig = 'config/';
 export const DefaultOutput = 'config/config.json';
@@ -45,7 +43,7 @@ export const BundleCommand = command({
 
   async handler(args): Promise<void> {
     const metrics = new Metrics();
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cli-config');
 
     const configUrl = fsa.toUrl(args.config);
     const outputUrl = fsa.toUrl(args.output);

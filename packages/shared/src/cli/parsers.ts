@@ -1,8 +1,9 @@
 import { pathToFileURL } from 'node:url';
 
 import { parseRgba, Rgba } from '@basemaps/config';
-import { fsa } from '@basemaps/shared';
 import { Type } from 'cmd-ts';
+
+import { Fsa } from '../file.system.js';
 
 /**
  * Parse an input RGBA hexstring as an RGBA object.
@@ -56,7 +57,7 @@ export const UrlFolder: Type<string, URL> = {
  **/
 export const UrlArrayJsonFile: Type<string, URL[]> = {
   async from(str) {
-    const raw: { path: string }[] = await fsa.readJson(await Url.from(str));
+    const raw: { path: string }[] = await Fsa.readJson(await Url.from(str));
     if (!Array.isArray(raw)) throw new Error('JSON does not contain an outer array');
     const urls = raw.map((f) => {
       if (!('path' in f)) throw new Error('Missing key "path"');

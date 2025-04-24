@@ -1,13 +1,11 @@
 import { loadTiffsFromPaths } from '@basemaps/config-loader/build/json/tiff.config.js';
 import { Bounds } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
+import { getLogger, isArgo, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { boolean, command, flag, option, optional, restPositionals, string } from 'cmd-ts';
 import pLimit from 'p-limit';
 
-import { isArgo } from '../../argo.js';
-import { Url, UrlFolder } from '../../cogify/parsers.js';
-import { getLogger, logArguments } from '../../log.js';
 import { brokenTiffs, extractLatestTiffItemsByMapCode, extractTiffItemsByEpsg } from '../topo/extract.js';
 import { mapEpsgToSlug } from '../topo/slug.js';
 import { createStacCollection, createStacItems, writeStacFiles } from '../topo/stac.creation.js';
@@ -85,7 +83,7 @@ export const TopoStacCreationCommand = command({
     }),
   },
   async handler(args) {
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cogify');
     const startTime = performance.now();
     logger.info('TopoCogify:Start');
 

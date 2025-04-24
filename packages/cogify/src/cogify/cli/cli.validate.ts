@@ -1,9 +1,8 @@
+import { getLogger, logArguments, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, number, option, restPositionals } from 'cmd-ts';
 import pLimit from 'p-limit';
 
-import { getLogger, logArguments } from '../../log.js';
-import { Url } from '../parsers.js';
 import { validateOutputTiff } from './cli.cog.js';
 
 export const BasemapsCogifyValidateCommand = command({
@@ -23,7 +22,7 @@ export const BasemapsCogifyValidateCommand = command({
   },
 
   async handler(args) {
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cogify');
     const q = pLimit(args.concurrency);
 
     const promises = args.tiffs.map((tiff) => {

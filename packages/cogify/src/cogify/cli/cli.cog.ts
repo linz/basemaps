@@ -1,6 +1,7 @@
 import { isEmptyTiff } from '@basemaps/config-loader';
 import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
+import { getLogger, logArguments, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
@@ -13,7 +14,6 @@ import { pathToFileURL } from 'url';
 
 import { SourceDownloader } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';
-import { getLogger, logArguments } from '../../log.js';
 import { CutlineOptimizer } from '../covering/cutline.js';
 import {
   gdalBuildCog,
@@ -23,7 +23,6 @@ import {
   gdalCreate,
 } from '../gdal/gdal.command.js';
 import { GdalRunner } from '../gdal/gdal.runner.js';
-import { Url, UrlArrayJsonFile } from '../parsers.js';
 import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources, isTopoStacItem } from '../stac.js';
 
 const Collections = new Map<string, Promise<StacCollection>>();
@@ -86,7 +85,7 @@ export const BasemapsCogifyCreateCommand = command({
 
   async handler(args) {
     const metrics = new Metrics();
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cogify');
 
     if (args.docker) process.env['GDAL_DOCKER'] = '1';
     const paths = args.fromFile != null ? args.path.concat(args.fromFile) : args.path;
