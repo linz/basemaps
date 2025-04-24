@@ -42,7 +42,7 @@ export const BundleAssetsCommand = command({
 
   async handler(args) {
     const metrics = new Metrics();
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cli-config');
 
     if (!args.output.endsWith('.tar.co')) throw new Error(`Invalid output, needs to be .tar.co :"${args.output}"`);
 

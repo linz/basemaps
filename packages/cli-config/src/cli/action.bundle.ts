@@ -43,7 +43,7 @@ export const BundleCommand = command({
 
   async handler(args): Promise<void> {
     const metrics = new Metrics();
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cli-config');
 
     const configUrl = fsa.toUrl(args.config);
     const outputUrl = fsa.toUrl(args.output);

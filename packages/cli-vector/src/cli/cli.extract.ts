@@ -53,7 +53,7 @@ export const ExtractCommand = command({
   description: 'Validation for the Vector ETL to check for updates.',
   args: ExtractArgs,
   async handler(args) {
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cli-vector');
     const path = pathToURLFolder(args.path);
     const cache = pathToURLFolder(args.cache);
 

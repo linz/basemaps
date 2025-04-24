@@ -85,7 +85,7 @@ export const BasemapsCogifyCreateCommand = command({
 
   async handler(args) {
     const metrics = new Metrics();
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cogify');
 
     if (args.docker) process.env['GDAL_DOCKER'] = '1';
     const paths = args.fromFile != null ? args.path.concat(args.fromFile) : args.path;

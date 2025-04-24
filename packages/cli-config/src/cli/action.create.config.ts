@@ -41,7 +41,7 @@ export const CreateConfigCommand = command({
 
   async handler(args) {
     const metrics = new Metrics();
-    const logger = getLogger(this, args);
+    const logger = getLogger(this, args, 'cli-config');
     const provider = new ConfigProviderMemory();
     const q = pLimit(args.concurrency);
 
