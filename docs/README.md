@@ -56,7 +56,7 @@ To efficiently serve aerial imagery to huge number of consumers, it should be op
 - **Tile Alignment**: By aligning the COGs to the output XYZ tile grid
 - **Additional overviews**: It is hard to fetch data from 1,000s of COGs to create a single tile, so we create additional overviews up to z0.
 
-These additional processing steps are part of the basemaps [import process](#TODO) and are controlled by [@basemaps/cogify](../packages/cogify/README.md)
+These additional processing steps are part of the basemaps [import process](#TODO) and are controlled by [@basemaps/cli-raster](../packages/cli-raster/README.md)
 
 The additional steps are optional but do **greatly improve** the tile serving performance of the service.
 
