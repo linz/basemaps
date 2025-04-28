@@ -4,6 +4,7 @@ import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, optional, restPositionals } from 'cmd-ts';
 import { createGunzip } from 'zlib';
 
+import { generalize } from '../generalization/generalization.js';
 import { Metrics } from '../schema-loader/schema.js';
 import { VectorStacItem } from '../stac.js';
 import { ogr2ogrNDJson } from '../transform/ogr2ogr.js';
@@ -75,6 +76,8 @@ async function createMbtiles(path: URL, logger: LogType): Promise<Metrics> {
   if (options == null) throw new Error(`Failed to read vector creation options from stac ${path.href}`);
   const layer = options.layer;
   const name = options.name;
+  const cache = layer.cache;
+  if (cache == null) throw new Error(`Failed to read cache path from stac ${path.href}`);
   logger.info({ name, layer: layer.name }, 'CreateMbtiles: Layer');
 
   // download latest source file
@@ -97,13 +100,19 @@ async function createMbtiles(path: URL, logger: LogType): Promise<Metrics> {
 
   // Read the ndjson file and apply the generalization options
   logger.info({ name, layer: layer.name, source: ndjsonFile.href }, 'CreateMbtiles: Generalization');
+  const generalizedFile = new URL(`${layer.id}-gen.ndjson`, tmpPath);
+  const generalized = await generalize(ndjsonFile, generalizedFile, options);
+  if (generalized == null) throw new Error(`Failed to generalize ndjson file ${ndjsonFile.href}`);
 
   // Transform the generalized ndjson file to mbtiles
   const mbtilesFile = new URL(`${layer.id}.mbtiles`, tmpPath);
-  await tippecanoe(ndjsonFile, mbtilesFile, layer, logger);
+  await tippecanoe(generalizedFile, mbtilesFile, layer, logger);
 
   // Write the mbtiles file to the cache
   logger.info({ name, layer: layer.name, mbtilesFile: mbtilesFile.href }, 'CreateMbtiles: WriteMbtiles');
-  await fsa.write(new URL(layer.source.replace(/\.json$/, '.mbtiles')), fsa.readStream(mbtilesFile));
+  await fsa.write(new URL(path.href.replace(/\.json$/, '.mbtiles')), fsa.readStream(mbtilesFile));
+  // Update stac file
+  stac.properties['linz_basemaps:options']!.layer.cache!.exists = true;
+  await fsa.write(path, JSON.stringify(stac, null, 2));
   return metrics;
 }
