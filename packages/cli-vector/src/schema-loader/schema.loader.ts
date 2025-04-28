@@ -81,7 +81,7 @@ export class SchemaLoader {
           const fileName = isLdsFile
             ? `${layer.id}_${layer.version}_${configHash}.mbtiles`
             : `${layer.id}_${configHash}.mbtiles`;
-          const path = new URL(fileName, this.cache);
+          const path = new URL(`${layer.id}/${fileName}`, this.cache);
           const exists = await fsa.exists(path);
           const cache = {
             fileName,

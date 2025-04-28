@@ -15,10 +15,6 @@ function pathToURLFolder(path: string): URL {
   return url;
 }
 
-export interface ToProcess {
-  tasks: string[];
-}
-
 export const ExtractArgs = {
   ...logArguments,
   path: option({
@@ -63,9 +59,9 @@ export const ExtractCommand = command({
 
     // Find all lds layers that need to be process
     logger.info({ path }, 'Extract: Start');
-    const schemaLoader = new SchemaLoader(new URL(path), logger, cache);
+    const schemaLoader = new SchemaLoader(path, logger, cache);
     const schemas = await schemaLoader.load();
-    const toProcess: ToProcess[] = [];
+    const toProcess = [];
     let total = 0;
     let tasks: string[] = [];
     const allFiles: string[] = [];
@@ -75,7 +71,7 @@ export const ExtractCommand = command({
         if (layer.cache == null) throw new Error(`Fail to prepare cache path for layer ${schema.name}:${layer.id}`);
         allFiles.push(layer.cache.path.href);
         if (tasks.length >= args.group) {
-          toProcess.push({ tasks });
+          toProcess.push(tasks);
           tasks = [];
         }
 
@@ -103,7 +99,7 @@ export const ExtractCommand = command({
 
         // Separate large layer as individual task
         if (layer.largeLayer) {
-          toProcess.push({ tasks: [stacFile.href] });
+          toProcess.push([stacFile.href]);
         } else {
           // Group the tasks together
           tasks.push(stacFile.href);
@@ -112,11 +108,11 @@ export const ExtractCommand = command({
       }
     }
     // Push remaining tasks
-    toProcess.push({ tasks });
+    toProcess.push(tasks);
 
     logger.info({ ToProcess: total }, 'CheckUpdate: Finish');
-    await fsa.write(fsa.toUrl('tmp/vector/allFiles.json'), JSON.stringify(allFiles, null, 2));
-    await fsa.write(fsa.toUrl('tmp/vector/toProcess.json'), JSON.stringify(toProcess, null, 2));
-    await fsa.write(fsa.toUrl('tmp/vector/updateRequired'), String(total > 0));
+    await fsa.write(fsa.toUrl('tmp/extract/allFiles.json'), JSON.stringify(allFiles, null, 2));
+    await fsa.write(fsa.toUrl('tmp/extract/toProcess.json'), JSON.stringify(toProcess, null, 2));
+    await fsa.write(fsa.toUrl('tmp/extract/updateRequired'), String(total > 0));
   },
 });

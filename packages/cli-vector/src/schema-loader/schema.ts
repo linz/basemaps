@@ -60,6 +60,14 @@ export interface CacheFile {
 }
 
 /**
+ * Record the input and output features of the
+ */
+export interface Metrics {
+  input: number;
+  output: number;
+}
+
+/**
  * Layer interface for source data layer config metadata
  */
 export interface Layer {
@@ -91,7 +99,7 @@ export interface Layer {
   tippecanoe?: string[];
 
   /** Metrics data during the process, will capture into the stac once processed */
-  metrics?: { input: number; output: number };
+  metrics?: Metrics;
 
   /** cached mbtile filename */
   fileName?: URL;
