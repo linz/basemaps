@@ -40,7 +40,6 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "devDependencies": {
-    "@basemaps/cli": "^7.16.0",
     "@basemaps/config": "^7.16.0",
     "@basemaps/config-loader": "^7.16.0",
     "@basemaps/geo": "^7.16.0",
