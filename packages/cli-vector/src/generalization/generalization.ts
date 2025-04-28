@@ -79,6 +79,8 @@ function tag(options: VectorCreationOptions, line: string, simplify?: Simplify):
 
   Object.entries(options.layer.tags).forEach(([key, value]) => (feature.properties[key] = value));
 
+  // TODO: Add support of special tagging logics.
+
   // Simplify geometry
   if (simplify != null) {
     // Update the simplified feature zoom level

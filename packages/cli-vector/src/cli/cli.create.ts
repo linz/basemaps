@@ -70,6 +70,8 @@ export const CreateCommand = command({
 async function createMbtiles(path: URL, logger: LogType): Promise<Metrics> {
   logger.info({ path: path.href }, 'CreateMbtiles: Start');
   const metrics: Metrics = { input: 0, output: 0 };
+
+  // Read the stac file and get mbtiles creation options
   const stac = await fsa.readJson<VectorStacItem>(path);
   if (stac == null) throw new Error(`Failed to read stac file from ${path.href}`);
   const options = stac.properties['linz_basemaps:options'];
@@ -86,7 +88,6 @@ async function createMbtiles(path: URL, logger: LogType): Promise<Metrics> {
   if (format == null) throw new Error(`Failed to parse source file format ${layer.source}`);
   const contentType = sourceFormats[format];
   if (contentType == null) throw new Error(`Unsupported source file format ${layer.source}`);
-
   const srouceFile = new URL(`${layer.id}.${format}`, tmpPath);
   const stream = fsa.readStream(new URL(layer.source));
   await fsa.write(srouceFile, stream.pipe(createGunzip()), {
@@ -110,8 +111,10 @@ async function createMbtiles(path: URL, logger: LogType): Promise<Metrics> {
 
   // Write the mbtiles file to the cache
   logger.info({ name, layer: layer.name, mbtilesFile: mbtilesFile.href }, 'CreateMbtiles: WriteMbtiles');
-  await fsa.write(new URL(path.href.replace(/\.json$/, '.mbtiles')), fsa.readStream(mbtilesFile));
-  // Update stac file
+  const output = new URL(path.href.replace(/\.json$/, '.mbtiles'));
+  await fsa.write(output, fsa.readStream(mbtilesFile));
+  if (!(await fsa.exists(path))) throw new Error(`Failed to upload the output mbtiles ${output.href}`);
+  logger.info({ name, layer: layer.name, mbtilesFile: output.href }, 'CreateMbtiles: UpdateStac');
   stac.properties['linz_basemaps:options']!.layer.cache!.exists = true;
   await fsa.write(path, JSON.stringify(stac, null, 2));
   return metrics;
