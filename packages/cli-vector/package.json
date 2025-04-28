@@ -37,6 +37,7 @@
   },
   "devDependencies": {
     "@basemaps/config": "^7.16.0",
+    "@basemaps/geo": "^7.16.0",
     "@basemaps/shared": "^7.16.0",
     "@types/node-fetch": "^2.6.12",
     "cmd-ts": "^0.12.1",
