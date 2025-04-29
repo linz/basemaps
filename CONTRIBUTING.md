@@ -36,7 +36,7 @@ this repository is a monorepo for everything related to basemaps
 - [@basemaps/attribution](packages/attribution/) - Calculate the attribution for given map location
 - [@basemaps/bathymetry](packages/bathymetry/) - Convert bathymetry from [GEBCO](https://www.gebco.net/) into colorized HillShade geotiff.
 - [@basemaps/cli](packages/cli/) - cli that using for CICD process
-- [@basemaps/cogify](packages/cogify/) - CLI to re-tile imagery into a Cloud Optimised Geotiffs (COG)
+- [@basemaps/cli-raster](packages/cli-raster/) - CLI to re-tile imagery into a Cloud Optimised Geotiffs (COG)
 - [@basemaps/config](packages/config/) - Configurations for Basemaps system
 - [@basemaps/geo](packages/geo/) - Utility to work with QuadKeys, Tiles and Projections.
 - [@basemaps/lambda-analytics](packages/lambda-analytics/) - Generate analytics from CloudFront distribution statistics

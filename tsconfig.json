@@ -9,7 +9,7 @@
     { "path": "./packages/geo/tsconfig.json" },
     { "path": "./packages/tiler/tsconfig.json" },
     { "path": "./packages/tiler-sharp/tsconfig.json" },
-    { "path": "./packages/cogify/tsconfig.json" },
+    { "path": "./packages/cli-raster/tsconfig.json" },
     { "path": "./packages/cli/tsconfig.json" },
     { "path": "./packages/cli-config/tsconfig.json" },
     { "path": "./packages/cli-vector/tsconfig.json" },

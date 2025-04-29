@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@basemaps/cli-config": "^7.16.0",
+    "@basemaps/cli-raster": "^7.16.0",
     "@basemaps/shared": "^7.16.0",
     "cmd-ts": "^0.13.0"
   },
