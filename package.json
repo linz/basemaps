@@ -13,8 +13,8 @@
     "lint": "eslint . --quiet --fix --report-unused-disable-directives --ignore-path .gitignore",
     "test": "cross-env NODE_OPTIONS=--enable-source-maps lerna run test --parallel",
     "clean": "tsc -b --clean && rimraf --glob 'packages/*/build' && npm run clean:dist",
-    "clean:dist": "rimraf --glob 'packages/*/dist' && rimraf --glob 'packages/_infra/cdk.out'",
-    "clean:modules": "rimraf --glob 'packages/*/node_modules' && rimraf node_modules",
+    "clean:dist": "rimraf --glob 'packages/*/dist' 'packages/_infra/cdk.out'",
+    "clean:modules": "rimraf --glob 'packages/*/node_modules' node_modules",
     "build": "tsc -b"
   },
   "type": "module",
