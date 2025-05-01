@@ -27,11 +27,13 @@ async function main() {
   const packages = await fs.readdir('./packages');
 
   // Set of all packages in this repository eg `@basemaps/geo` or `@linzjs/geojson`
-  const localPackages = new Set(
+  const localPackageNames = new Set(
     await Promise.all(packages.map(async (f) => JSON.parse(await fs.readFile(`./packages/${f}/package.json`)).name)),
   );
 
-  console.log('Found local packages: ', localPackages);
+  const packageNames = [...localPackageNames];
+  packageNames.sort();
+  console.log('Found local packages: ', packageNames);
 
   let hasFailures = false;
   for (const pkg of packages) {
@@ -45,13 +47,13 @@ async function main() {
 
     const allDeps = Object.keys(pkgJson.dependencies || {}).concat(Object.keys(pkgJson.devDependencies || {}));
 
-    const localDeps = new Set(allDeps.filter((packageName) => localPackages.has(packageName)));
+    const localDeps = new Set(allDeps.filter((packageName) => localPackageNames.has(packageName)));
     const allImports = getAllImports(pkgPath);
     // console.log(pkg, allImports);
 
     for (const importedPackage of allImports) {
       // If the package is external ignore
-      if (!localPackages.has(importedPackage)) continue;
+      if (!localPackageNames.has(importedPackage)) continue;
       // Package is missing from the package.json
       if (!localDeps.has(importedPackage)) {
         if (importedPackage.includes('/build/')) continue;
