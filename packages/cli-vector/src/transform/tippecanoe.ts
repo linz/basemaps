@@ -57,13 +57,13 @@ export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: 
  *
  * @returns { cmd: string; args: string[] } cmd and arguments for tippecanoe tile-join docker command
  */
-export async function tileJoin(inputs: URL[], output: string, logger: LogType): Promise<void> {
+export async function tileJoin(inputs: URL[], output: URL, logger: LogType): Promise<void> {
   const cmd = Command.create('/usr/bin/tile-join');
 
-  cmd.mount(dirname(output));
+  cmd.mount(dirname(output.pathname));
 
   cmd.args.push('-pk');
-  cmd.args.push('-o', output);
+  cmd.args.push('-o', output.pathname);
   for (const input of inputs) {
     if (input.pathname.endsWith('mbtiles')) {
       cmd.mount(dirname(input.pathname));
