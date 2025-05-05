@@ -1,8 +1,10 @@
 import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, option } from 'cmd-ts';
+import { command, option, string } from 'cmd-ts';
 
+import { toTarIndex } from '../transform/covt.js';
+import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
 import { tileJoin } from '../transform/tippecanoe.js';
 
 async function fromFile(path: URL): Promise<URL[]> {
@@ -31,6 +33,13 @@ export const JoinArgs = {
     long: 'from-file',
     description: 'Path to JSON file containing array of paths to mbtiles.',
   }),
+  filename: option({
+    type: string,
+    long: 'filename',
+    description: 'Output filename default topographic',
+    defaultValue: () => 'topographic',
+    defaultValueIsSerializable: true,
+  }),
 };
 
 export const JoinCommand = command({
@@ -44,6 +53,14 @@ export const JoinCommand = command({
 
     logger.info({ files: filePaths.length }, 'JoinMbtiles: Start');
 
-    await tileJoin(filePaths, '/home/c/bm/basemaps/tmp/one.mbtiles', logger);
+    const outputMbtiles = fsa.toUrl(`tmp/${args.filename}.mbtiles`);
+
+    await tileJoin(filePaths, outputMbtiles, logger);
+
+    const outputCotar = fsa.toUrl(`tmp/${args.filename}.covt`);
+
+    await toTarTiles(outputMbtiles, outputCotar, logger);
+
+    await toTarIndex(outputCotar, 'tmp/', args.filename, logger);
   },
 });
