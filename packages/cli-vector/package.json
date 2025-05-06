@@ -39,7 +39,9 @@
     "@basemaps/config": "^7.16.0",
     "@basemaps/geo": "^7.16.0",
     "@basemaps/shared": "^7.16.0",
+    "@types/mapbox__geojson-area": "^0.2.6",
     "@types/node-fetch": "^2.6.12",
+    "@types/polylabel": "^1.1.3",
     "cmd-ts": "^0.12.1",
     "p-limit": "^4.0.0",
     "stac-ts": "^1.0.0"
@@ -50,5 +52,9 @@
   "files": [
     "build/",
     "dist/"
-  ]
+  ],
+  "dependencies": {
+    "@mapbox/geojson-area": "^0.2.2",
+    "polylabel": "^2.0.1"
+  }
 }

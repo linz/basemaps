@@ -1,14 +1,16 @@
+import { LogType } from '@basemaps/shared';
 import { createWriteStream } from 'fs';
 import { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 import readline from 'readline';
 
+import { overrideFeature } from '../override/override.js';
 import { Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
 import { createReadStreamSafe } from '../util.js';
 import { Point, simplify } from './simplify.js';
 
-interface VectorGeoFeature extends Feature {
-  properties: Record<string, string | boolean | undefined>;
+export interface VectorGeoFeature extends Feature {
+  properties: Record<string, boolean | number | string | undefined>;
   tippecanoe: {
     layer: string;
     minzoom: number;
@@ -22,7 +24,12 @@ interface VectorGeoFeature extends Feature {
  *
  * @returns {string} output of joined ndJson filepath
  */
-export async function generalize(input: URL, output: URL, options: VectorCreationOptions): Promise<URL | undefined> {
+export async function generalize(
+  input: URL,
+  output: URL,
+  options: VectorCreationOptions,
+  logger: LogType,
+): Promise<URL | undefined> {
   const features: VectorGeoFeature[] = [];
   const fileStream = await createReadStreamSafe(input.pathname);
   const simplify = options.layer.simplify;
@@ -40,13 +47,13 @@ export async function generalize(input: URL, output: URL, options: VectorCreatio
     // For simplify Duplicate feature for each zoom level with different tolerance
     if (simplify != null) {
       for (const s of simplify) {
-        const feature = tag(options, line, s);
+        const feature = tag(options, line, s, logger);
         if (feature == null) continue;
         outputCount++;
         features.push(JSON.parse(feature) as VectorGeoFeature);
       }
     } else {
-      const feature = tag(options, line);
+      const feature = tag(options, line, null, logger);
       if (feature == null) continue;
       outputCount++;
       features.push(JSON.parse(feature) as VectorGeoFeature);
@@ -59,7 +66,9 @@ export async function generalize(input: URL, output: URL, options: VectorCreatio
     for (const feature of features) {
       writeStream.write(JSON.stringify(feature) + '\n');
     }
-    writeStream.close();
+    await new Promise((resolve) => {
+      writeStream.close(resolve);
+    });
     return output;
   }
   return undefined;
@@ -68,18 +77,30 @@ export async function generalize(input: URL, output: URL, options: VectorCreatio
 /**
  * Tag feature for layer
  */
-function tag(options: VectorCreationOptions, line: string, simplify?: Simplify): string | undefined {
-  const feature = JSON.parse(line) as VectorGeoFeature;
-
-  feature['tippecanoe'] = {
+function tag(
+  options: VectorCreationOptions,
+  line: string,
+  simplify: Simplify | null,
+  logger: LogType,
+): string | undefined {
+  logger.info({}, 'Tag:Start');
+  let feature = JSON.parse(line) as VectorGeoFeature;
+  feature.tippecanoe = {
     layer: options.name,
     minzoom: options.layer.style.minZoom,
     maxzoom: options.layer.style.maxZoom,
   };
 
+  // copy the stac json's tags to the feature (i.e. 'kind')
   Object.entries(options.layer.tags).forEach(([key, value]) => (feature.properties[key] = value));
 
-  // TODO: Add support of special tagging logics.
+  // adjust the feature's metadata and properties
+  const newFeature = overrideFeature(feature, options, logger);
+  if (newFeature == null) {
+    logger.info({}, 'Tag:End');
+    return undefined;
+  }
+  feature = newFeature;
 
   // Simplify geometry
   if (simplify != null) {
@@ -93,26 +114,31 @@ function tag(options: VectorCreationOptions, line: string, simplify?: Simplify):
       const geom = feature.geometry;
       const type = geom.type;
       const coordinates = simplifyFeature(type, geom, simplify.tolerance);
-      if (coordinates == null) return undefined;
+      if (coordinates == null) {
+        logger.info({}, 'Tag:End');
+        return undefined;
+      }
       feature.geometry = coordinates;
     }
   }
 
   // Remove unused properties
-  removeAttributes(feature, options);
+  // REVIEW: this function just removes the special tags. something isn't right here
+  feature = removeAttributes(feature, options);
 
+  logger.info({}, 'Tag:End');
   return JSON.stringify(feature);
 }
 
-function removeAttributes(feature: VectorGeoFeature, options: VectorCreationOptions, remove = true): void {
+function removeAttributes(feature: VectorGeoFeature, options: VectorCreationOptions, remove = true): VectorGeoFeature {
+  feature = structuredClone(feature);
   // Add existing attributes into keep attributes and update attribute name if needed
   const properties = feature['properties'];
   const mappings = options.layer.attributes;
   const attributes = new Set(options.metadata.attributes);
-  if (mappings != null)
-    Object.keys(mappings).forEach((key) => {
-      properties[mappings[key]] = properties[key];
-    });
+  if (mappings != null) {
+    Object.keys(mappings).forEach((key) => (properties[mappings[key]] = properties[key]));
+  }
 
   // Remove unused attributes
   Object.keys(properties).forEach((key) => {
@@ -125,6 +151,8 @@ function removeAttributes(feature: VectorGeoFeature, options: VectorCreationOpti
   });
 
   feature.properties = properties;
+
+  return feature;
 }
 
 /**
