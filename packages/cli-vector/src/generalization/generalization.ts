@@ -3,6 +3,7 @@ import { createWriteStream } from 'fs';
 import { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 import readline from 'readline';
 
+import { PlaceLabelsFeatures } from '../override/layers/place_labels.js';
 import { overrideFeature } from '../override/override.js';
 import { Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
@@ -30,7 +31,7 @@ export async function generalize(
   options: VectorCreationOptions,
   logger: LogType,
 ): Promise<URL | undefined> {
-  const features: VectorGeoFeature[] = [];
+  let features: VectorGeoFeature[] = [];
   const fileStream = await createReadStreamSafe(input.pathname);
   const simplify = options.layer.simplify;
 
@@ -59,7 +60,16 @@ export async function generalize(
       features.push(JSON.parse(feature) as VectorGeoFeature);
     }
   }
+
   options.layer.metrics = { input: inputCount, output: outputCount };
+
+  // special handling for the gazatteer (place_labels) dataset
+  // issues: bypasses the 'simplify' and 'removeAttributes' operations of the 'tag' function
+  if (options.layer.id === '51154') {
+    logger.info({}, 'Special handling for the gazatteer (place_labels) dataset');
+    features = Array.from(PlaceLabelsFeatures.values());
+    options.layer.metrics.output = features.length;
+  }
 
   if (features.length > 0) {
     const writeStream = createWriteStream(output);
@@ -69,8 +79,10 @@ export async function generalize(
     await new Promise((resolve) => {
       writeStream.close(resolve);
     });
+
     return output;
   }
+
   return undefined;
 }
 
