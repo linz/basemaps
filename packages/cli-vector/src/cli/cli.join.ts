@@ -3,6 +3,7 @@ import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, string } from 'cmd-ts';
 
+import { createStacFiles } from '../stac/stac.js';
 import { toTarIndex } from '../transform/covt.js';
 import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
 import { tileJoin } from '../transform/tippecanoe.js';
@@ -40,6 +41,18 @@ export const JoinArgs = {
     defaultValue: () => 'topographic',
     defaultValueIsSerializable: true,
   }),
+  title: option({
+    type: string,
+    long: 'title',
+    description: 'Title for the output etl data in the STAC file',
+    defaultValue: () => 'Topographic',
+    defaultValueIsSerializable: true,
+  }),
+  target: option({
+    type: string,
+    long: 'target',
+    description: 'Path of target location, could be local or s3',
+  }),
 };
 
 export const JoinCommand = command({
@@ -62,5 +75,7 @@ export const JoinCommand = command({
     await toTarTiles(outputMbtiles, outputCotar, logger);
 
     await toTarIndex(outputCotar, 'tmp/', args.filename, logger);
+
+    await createStacFiles(filePaths, args.target, args.filename, args.title, logger);
   },
 });
