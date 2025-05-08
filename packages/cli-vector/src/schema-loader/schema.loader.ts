@@ -76,7 +76,7 @@ export class SchemaLoader {
         if (fileInfo.size != null && fileInfo.size > LARGE_LAYER_SIZE) layer.largeLayer = true;
 
         // Set the cache path for the layer
-        const configHash = sha256base58(JSON.stringify({ ...layer, version: CliInfo.version }));
+        const configHash = sha256base58(JSON.stringify({ name: schema.name, layer, version: CliInfo.version }));
         if (this.cache != null) {
           const fileName = isLdsFile
             ? `${layer.id}_${layer.version}_${configHash}.mbtiles`
