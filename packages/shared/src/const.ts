@@ -42,6 +42,13 @@ export const Env = {
   /** Github api token */
   GitHubToken: 'GITHUB_API_TOKEN',
 
+  /**
+   * JSON encoded array of api keys to block
+   *
+   * @example '["apiKeyA","apiKeyB"]'
+   */
+  BlockedApiKeys: 'BASEMAPS_API_KEY_BLOCKS',
+
   Gdal: {
     /** Should the gdal docker container be used? */
     UseDocker: 'GDAL_DOCKER',

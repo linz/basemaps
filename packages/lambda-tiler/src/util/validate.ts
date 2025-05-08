@@ -1,6 +1,6 @@
 import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
 import { ImageFormat, LatLon, Projection, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Const, isValidApiKey, truncateApiKey } from '@basemaps/shared';
+import { Const, Env, isValidApiKey, truncateApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
@@ -24,6 +24,9 @@ export interface TileMatrixRequest {
 }
 
 export const Validate = {
+  /** list of API Keys that have been disabled */
+  blockedApiKeys: new Set<string>(JSON.parse(Env.get(Env.BlockedApiKeys) ?? '[]') as string[]),
+
   /**
    * Validate that the api key exists and is valid
    *
@@ -36,6 +39,11 @@ export const Validate = {
     if (!valid.valid) throw new LambdaHttpResponse(400, 'API Key Invalid: ' + valid.message);
     // Truncate the API Key so we are not logging the full key
     req.set('api', truncateApiKey(apiKey));
+
+    if (this.blockedApiKeys.has(apiKey as string)) {
+      throw new LambdaHttpResponse(429, 'Too many requests! Please contact basemaps@linz.govt.nz');
+    }
+
     return apiKey as string;
   },
 
