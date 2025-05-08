@@ -30,7 +30,7 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
   feature = structuredClone(feature);
 
   // parse the feature's `label` and `zoom_level` properties
-  // every feature should define these two properties at minimum
+  // the feature should define these two properties at minimum
   const label = feature.properties['label'];
   if (typeof label !== 'string') throw new Error('Label property is not a string');
 

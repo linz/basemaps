@@ -2,29 +2,7 @@ import { LogType } from '@basemaps/shared';
 
 import { VectorGeoFeature } from '../../generalization/generalization.js';
 import { VectorCreationOptions } from '../../stac.js';
-
-export const MajorHighWays: Readonly<Set<string>> = new Set([
-  '1',
-  '1B',
-  '2',
-  '3',
-  '3A',
-  '4',
-  '5',
-  '6',
-  '6A',
-  '7',
-  '8',
-  '8A',
-  '18',
-  '20',
-  '51',
-  '76',
-  '73',
-  '1,3',
-  '6,94',
-  '6,96',
-]);
+import { MajorHighWays } from '../consts.js';
 
 export function handleLayerStreets(
   feature: VectorGeoFeature,
@@ -34,45 +12,43 @@ export function handleLayerStreets(
   logger.info({}, 'HandleStreets:Start');
   feature = structuredClone(feature);
 
+  // REVIEW: the following logic is very similar (but different)
+  // to the handleKindRoad function's logic. We should reusue.
   const highwayNum = feature.properties['hway_num'];
   if (typeof highwayNum === 'string') {
+    // append/override tags
     const kind = 'motorway';
     feature.properties['kind'] = kind;
-    logger.info({ kind }, 'new/overidden tags');
+    const ref = highwayNum;
+    feature.properties['ref'] = ref;
+    logger.info({ kind, ref }, 'new/overidden tags');
 
-    let minzoom;
-    if (MajorHighWays.has(highwayNum)) {
-      minzoom = 2;
-    } else {
-      minzoom = 8;
-    }
-
+    // override styles
+    const minzoom = MajorHighWays.has(highwayNum) ? 2 : 8;
     feature.tippecanoe.minzoom = minzoom;
     logger.info({ minzoom }, 'overidden styles');
 
+    // return feature
     logger.info({}, 'HandleStreets:End');
     return feature;
   }
 
   const laneCount = feature.properties['lane_count'];
   if (typeof laneCount === 'number') {
-    let kind;
-    if (laneCount >= 4) {
-      kind = 'primary';
-    } else {
-      kind = 'secondary';
-    }
-
+    // append/override tags
+    const kind = laneCount >= 4 ? 'primary' : 'secondary';
     feature.properties['kind'] = kind;
     logger.info({ kind }, 'new/overidden tags');
   }
 
+  // override styles
   if (options.layer.style.minZoom < 10) {
     const minzoom = 10;
     feature.tippecanoe.minzoom = minzoom;
     logger.info({ minzoom }, 'overidden styles');
   }
 
+  // return feature
   logger.info({}, 'HandleStreets:End');
   return feature;
 }

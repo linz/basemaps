@@ -19,19 +19,16 @@ export function handleLayerContours(
   logger.info({}, 'HandleContours:Start');
   const kind = options.layer.tags['kind'];
 
-  try {
-    switch (kind) {
-      case 'contours':
-        return handleKindContours(feature, logger);
-      case 'peak':
-        return handleKindPeak(feature, logger);
-      default:
-        logger.warn({ kind }, 'Kind not captured');
-    }
-  } finally {
-    logger.info({}, 'HandleContours:End');
+  switch (kind) {
+    case 'contours':
+      feature = handleKindContours(feature, logger);
+      break;
+    case 'peak':
+      feature = handleKindPeak(feature, logger);
+      break;
   }
 
+  logger.info({}, 'HandleContours:End');
   return feature;
 }
 

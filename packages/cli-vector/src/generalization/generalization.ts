@@ -3,8 +3,8 @@ import { createWriteStream } from 'fs';
 import { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 import readline from 'readline';
 
-import { PlaceLabelsFeatures } from '../override/layers/place_labels.js';
-import { overrideFeature } from '../override/override.js';
+import { PlaceLabelsFeatures } from '../modify/layers/place_labels.js';
+import { modifyFeature } from '../modify/modify.js';
 import { Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
 import { createReadStreamSafe } from '../util.js';
@@ -107,7 +107,7 @@ function tag(
   Object.entries(options.layer.tags).forEach(([key, value]) => (feature.properties[key] = value));
 
   // adjust the feature's metadata and properties
-  const newFeature = overrideFeature(feature, options, logger);
+  const newFeature = modifyFeature(feature, options, logger);
   if (newFeature == null) {
     logger.info({}, 'Tag:End');
     return undefined;

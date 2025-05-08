@@ -8,7 +8,10 @@ export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): Vec
 
   if (feature.properties['building'] === 'building') {
     const bldgUse = feature.properties['bldg_use'];
+
     if (bldgUse == null) {
+      // discard the feature
+      logger.info({}, 'HandlePois:End');
       return null;
     }
 
