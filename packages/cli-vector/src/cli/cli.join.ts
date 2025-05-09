@@ -1,9 +1,10 @@
+import { TileMatrixSets } from '@basemaps/geo';
 import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, string } from 'cmd-ts';
 
-import { createStacFiles } from '../stac/stac.js';
+import { createStacFiles } from '../stac.js';
 import { toTarIndex } from '../transform/covt.js';
 import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
 import { tileJoin } from '../transform/tippecanoe.js';
@@ -41,6 +42,13 @@ export const JoinArgs = {
     defaultValue: () => 'topographic',
     defaultValueIsSerializable: true,
   }),
+  tileMatrix: option({
+    type: string,
+    long: 'tile-matrix',
+    description: `Output TileMatrix to use WebMercatorQuad or NZTM2000Quad`,
+    defaultValue: () => 'WebMercatorQuad',
+    defaultValueIsSerializable: true,
+  }),
   title: option({
     type: string,
     long: 'title',
@@ -76,6 +84,8 @@ export const JoinCommand = command({
 
     await toTarIndex(outputCotar, 'tmp/', args.filename, logger);
 
-    await createStacFiles(filePaths, args.target, args.filename, args.title, logger);
+    const tileMatrix = TileMatrixSets.find(args.tileMatrix);
+    if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
+    await createStacFiles(filePaths, args.target, args.filename, tileMatrix, args.title, logger);
   },
 });
