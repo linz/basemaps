@@ -1,7 +1,7 @@
 import { LogType } from '@basemaps/shared';
 
-import { VectorGeoFeature } from '../generalization/generalization.js';
 import { VectorCreationOptions } from '../stac.js';
+import { VectorGeoFeature } from '../types/VectorGeoFeature.js';
 import { handleLayerContours } from './layers/contours.js';
 import { handleLayerPlaceLabels } from './layers/place_labels.js';
 import { handleLayerPois } from './layers/pois.js';

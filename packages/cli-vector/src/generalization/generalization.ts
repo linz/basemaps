@@ -1,24 +1,15 @@
 import { LogType } from '@basemaps/shared';
 import { createWriteStream } from 'fs';
-import { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
+import { Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 import readline from 'readline';
 
 import { PlaceLabelsFeatures } from '../modify/layers/place_labels.js';
 import { modifyFeature } from '../modify/modify.js';
 import { Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
+import { VectorGeoFeature, VectorGeoFeatureSchema } from '../types/VectorGeoFeature.js';
 import { createReadStreamSafe } from '../util.js';
 import { Point, simplify } from './simplify.js';
-
-export interface VectorGeoFeature extends Feature {
-  properties: Record<string, boolean | number | string | undefined>;
-  tippecanoe: {
-    layer: string;
-    minzoom: number;
-    maxzoom: number;
-  };
-  id?: string;
-}
 
 /**
  * Read and modify all ndJson file, then combine into one file,
@@ -45,31 +36,37 @@ export async function generalize(
   for await (const line of rl) {
     if (line === '') continue;
     inputCount++;
-    // For simplify Duplicate feature for each zoom level with different tolerance
+    // For simplify, duplicate feature for each zoom level with different tolerance
     if (simplify != null) {
       for (const s of simplify) {
         const feature = tag(options, line, s, logger);
         if (feature == null) continue;
+
+        features.push(feature);
         outputCount++;
-        features.push(JSON.parse(feature) as VectorGeoFeature);
       }
     } else {
       const feature = tag(options, line, null, logger);
       if (feature == null) continue;
+
+      features.push(feature);
       outputCount++;
-      features.push(JSON.parse(feature) as VectorGeoFeature);
+    }
+
+    if (outputCount >= 10) {
+      break;
     }
   }
-
-  options.layer.metrics = { input: inputCount, output: outputCount };
 
   // special handling for the gazatteer (place_labels) dataset
   // issues: bypasses the 'simplify' and 'removeAttributes' operations of the 'tag' function
   if (options.layer.id === '51154') {
     logger.info({}, 'Special handling for the gazatteer (place_labels) dataset');
     features = Array.from(PlaceLabelsFeatures.values());
-    options.layer.metrics.output = features.length;
+    outputCount = features.length;
   }
+
+  options.layer.metrics = { input: inputCount, output: outputCount };
 
   if (features.length > 0) {
     const writeStream = createWriteStream(output);
@@ -94,52 +91,53 @@ function tag(
   line: string,
   simplify: Simplify | null,
   logger: LogType,
-): string | undefined {
+): VectorGeoFeature | null {
   logger.info({}, 'Tag:Start');
-  let feature = JSON.parse(line) as VectorGeoFeature;
-  feature.tippecanoe = {
-    layer: options.name,
-    minzoom: options.layer.style.minZoom,
-    maxzoom: options.layer.style.maxZoom,
-  };
+  const feature = VectorGeoFeatureSchema.parse({
+    ...JSON.parse(line),
+    tippecanoe: {
+      layer: options.name,
+      minzoom: options.layer.style.minZoom,
+      maxzoom: options.layer.style.maxZoom,
+    },
+  });
 
   // copy the stac json's tags to the feature (i.e. 'kind')
   Object.entries(options.layer.tags).forEach(([key, value]) => (feature.properties[key] = value));
 
   // adjust the feature's metadata and properties
-  const newFeature = modifyFeature(feature, options, logger);
-  if (newFeature == null) {
+  const modifiedFeature = modifyFeature(feature, options, logger);
+  if (modifiedFeature == null) {
     logger.info({}, 'Tag:End');
-    return undefined;
+    return null;
   }
-  feature = newFeature;
 
   // Simplify geometry
   if (simplify != null) {
     // Update the simplified feature zoom level
-    feature['tippecanoe'] = {
+    modifiedFeature['tippecanoe'] = {
       layer: options.name,
       minzoom: simplify.style.minZoom,
       maxzoom: simplify.style.maxZoom,
     };
     if (simplify.tolerance != null) {
-      const geom = feature.geometry;
+      const geom = modifiedFeature.geometry;
       const type = geom.type;
       const coordinates = simplifyFeature(type, geom, simplify.tolerance);
       if (coordinates == null) {
         logger.info({}, 'Tag:End');
-        return undefined;
+        return null;
       }
-      feature.geometry = coordinates;
+      modifiedFeature.geometry = coordinates;
     }
   }
 
   // Remove unused properties
   // REVIEW: this function just removes the special tags. something isn't right here
-  feature = removeAttributes(feature, options);
+  const cleanedFeature = removeAttributes(feature, options);
 
   logger.info({}, 'Tag:End');
-  return JSON.stringify(feature);
+  return cleanedFeature;
 }
 
 function removeAttributes(feature: VectorGeoFeature, options: VectorCreationOptions, remove = true): VectorGeoFeature {
@@ -148,6 +146,7 @@ function removeAttributes(feature: VectorGeoFeature, options: VectorCreationOpti
   const properties = feature['properties'];
   const mappings = options.layer.attributes;
   const attributes = new Set(options.metadata.attributes);
+  // console.log({ properties, mappings, attributes });
   if (mappings != null) {
     Object.keys(mappings).forEach((key) => (properties[mappings[key]] = properties[key]));
   }

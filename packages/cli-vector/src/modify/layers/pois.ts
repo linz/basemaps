@@ -1,6 +1,6 @@
 import { LogType } from '@basemaps/shared';
 
-import { VectorGeoFeature } from '../../generalization/generalization.js';
+import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 
 export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature | null {
   logger.info({}, 'HandlePois:Start');

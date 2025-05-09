@@ -2,8 +2,8 @@ import { LogType } from '@basemaps/shared';
 import { Geometry, Point, Position } from 'geojson';
 import polylabel from 'polylabel';
 
-import { VectorGeoFeature } from '../../generalization/generalization.js';
 import { VectorCreationOptions } from '../../stac.js';
+import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 
 export function handleLayerPublicTransport(
   feature: VectorGeoFeature,

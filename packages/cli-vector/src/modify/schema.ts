@@ -1,4 +1,4 @@
-import { VectorGeoFeature } from '../generalization/generalization.js';
+import { VectorGeoFeature } from '../types/VectorGeoFeature.js';
 
 export interface VectorGeoPlaceLabelsFeature extends VectorGeoFeature {
   properties: {

@@ -1,7 +1,7 @@
 import { LogType } from '@basemaps/shared';
 import { z } from 'zod';
 
-import { VectorGeoFeature } from '../../generalization/generalization.js';
+import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 import {
   zPlaceLabelsProperties,
   zPlaceLabelsTippecanoe,

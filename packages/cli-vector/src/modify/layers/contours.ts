@@ -1,7 +1,7 @@
 import { LogType } from '@basemaps/shared';
 
-import { VectorGeoFeature } from '../../generalization/generalization.js';
 import { VectorCreationOptions } from '../../stac.js';
+import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 
 /**
  * Processes a 'contours' layer feature.
@@ -39,8 +39,8 @@ export function handleLayerContours(
  * @param logger
  * @returns the processed feature
  */
-function handleKindContours(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
-  logger.info({}, 'HandleKindContours:Start');
+export function handleKindContours(feature: VectorGeoFeature, logger?: LogType): VectorGeoFeature {
+  logger?.info({}, 'HandleKindContours:Start');
   feature = structuredClone(feature);
 
   // read the 'elevation' property
@@ -52,15 +52,15 @@ function handleKindContours(feature: VectorGeoFeature, logger: LogType): VectorG
     // append 'type' property
     const type = 'index';
     feature.properties['type'] = type;
-    logger.info({ type }, 'new/overidden tags');
+    logger?.info({ type }, 'new/overidden tags');
   } else {
     // override 'minzoom'
     const minzoom = 14;
     feature.tippecanoe.minzoom = minzoom;
-    logger.info({ minzoom }, 'overidden styles');
+    logger?.info({ minzoom }, 'overidden styles');
   }
 
-  logger.info({}, 'HandleKindContours:End');
+  logger?.info({}, 'HandleKindContours:End');
   return feature;
 }
 
@@ -71,15 +71,15 @@ function handleKindContours(feature: VectorGeoFeature, logger: LogType): VectorG
  * @param logger
  * @returns the processed feature
  */
-function handleKindPeak(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
-  logger.info({}, 'HandleKindPeak:Start');
+export function handleKindPeak(feature: VectorGeoFeature, logger?: LogType): VectorGeoFeature {
+  logger?.info({}, 'HandleKindPeak:Start');
   feature = structuredClone(feature);
 
   // read the 'elevation' property
   const elevation = feature.properties['elevation'];
   if (typeof elevation !== 'number') throw new Error('Elevation is not a number');
 
-  let rank = 5;
+  let rank: number;
   if (elevation >= 2000) {
     rank = 1;
   } else if (elevation >= 1500) {
@@ -88,12 +88,14 @@ function handleKindPeak(feature: VectorGeoFeature, logger: LogType): VectorGeoFe
     rank = 3;
   } else if (elevation >= 500) {
     rank = 4;
+  } else {
+    rank = 5;
   }
 
   // append 'rank' property
   feature.properties['rank'] = rank;
-  logger.info({ rank }, 'new/overidden tags');
+  logger?.info({ rank }, 'new/overidden tags');
 
-  logger.info({}, 'HandleKindPeak:End');
+  logger?.info({}, 'HandleKindPeak:End');
   return feature;
 }

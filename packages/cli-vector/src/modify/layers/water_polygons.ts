@@ -1,8 +1,8 @@
 import { LogType } from '@basemaps/shared';
 import geojsonArea from '@mapbox/geojson-area';
 
-import { VectorGeoFeature } from '../../generalization/generalization.js';
 import { VectorCreationOptions } from '../../stac.js';
+import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 
 export const LargeLakeSize = 4_000_000;
 

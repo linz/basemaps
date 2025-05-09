@@ -1,7 +1,7 @@
 import { LogType } from '@basemaps/shared';
 
-import { VectorGeoFeature } from '../../generalization/generalization.js';
 import { VectorCreationOptions } from '../../stac.js';
+import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 import { MajorHighWays } from '../consts.js';
 
 export function handleLayerStreets(
