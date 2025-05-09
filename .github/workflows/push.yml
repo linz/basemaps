@@ -124,6 +124,7 @@ jobs:
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
+          BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           NODE_ENV: 'dev'
 
@@ -179,8 +180,9 @@ jobs:
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
-          NODE_ENV: 'production'
+          BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
+          NODE_ENV: 'production'
 
       - name: (Prod) After Deploy Smoke Test
         run: |
