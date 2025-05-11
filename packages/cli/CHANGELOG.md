@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+
+### Features
+
+* **cli:** add cli-config package BM-1260 ([#3428](https://github.com/linz/basemaps/issues/3428)) ([4ca5a47](https://github.com/linz/basemaps/commit/4ca5a474d4e4548f6c8d2a5437a793586efd1673))
+* **cli:** rename cogify package to cli-raster BM-1262 ([#3433](https://github.com/linz/basemaps/issues/3433)) ([36d4449](https://github.com/linz/basemaps/commit/36d44492fa84d6cbca8b5c735f4bc2c22773c649))
+* **cli:** update cli-package commands to cmd-ts BM-1259 ([#3427](https://github.com/linz/basemaps/issues/3427)) ([46cc342](https://github.com/linz/basemaps/commit/46cc34223094f6b148abf2eb2d0c86897e1de5d0))
+
+
+
+
+
 # [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
 
 **Note:** Version bump only for package @basemaps/cli

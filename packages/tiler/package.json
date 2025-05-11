@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler",
-  "version": "7.16.0",
+  "version": "8.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -22,9 +22,9 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@basemaps/geo": "^7.16.0",
+    "@basemaps/geo": "^8.0.0",
     "@cogeotiff/core": "^9.0.3",
-    "@linzjs/metrics": "^7.5.0"
+    "@linzjs/metrics": "^8.0.0"
   },
   "devDependencies": {
     "@types/pixelmatch": "^5.2.3",
