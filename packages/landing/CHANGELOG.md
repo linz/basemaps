@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+
+### Bug Fixes
+
+* **cli:** update landing deploy script with new cli-config package BM-1260 ([#3431](https://github.com/linz/basemaps/issues/3431)) ([4d7e86d](https://github.com/linz/basemaps/commit/4d7e86d100baf83e92402f39e3ded38707d3fdde)), closes [/github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs#L1](https://github.com//github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs/issues/L1)
+* ensure all linzjs packages are correctly labeled as deps ([#3439](https://github.com/linz/basemaps/issues/3439)) ([de9df87](https://github.com/linz/basemaps/commit/de9df87031da70523b3f7683f53d113633fcd8be)), closes [#3438](https://github.com/linz/basemaps/issues/3438)
+
+
+
+
+
 # [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
 
 
