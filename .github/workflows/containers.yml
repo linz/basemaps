@@ -2,6 +2,7 @@ name: Containers
 
 # Build containers when pushed to master or if a pull request has been labeled with "container"
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
