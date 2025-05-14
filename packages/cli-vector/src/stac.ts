@@ -170,7 +170,7 @@ export async function createStacFiles(
   tileMatrix: TileMatrixSet,
   title: string,
   logger: LogType,
-): Promise<void> {
+): Promise<URL[]> {
   const bucketPath = fsa.toUrl(`${target}/vector/${Epsg.Google.toString()}/`);
   const vectorStac = new VectorStac(logger);
 
@@ -225,7 +225,12 @@ export async function createStacFiles(
     type: 'application/json',
   });
 
-  await fsa.write(fsa.toUrl(`tmp/${filename}.json`), JSON.stringify(stacItem, null, 2));
-  await fsa.write(fsa.toUrl('tmp/collection.json'), JSON.stringify(stacCollection, null, 2));
-  await fsa.write(fsa.toUrl('tmp/catalog.json'), JSON.stringify(stacCatalog, null, 2));
+  const item = fsa.toUrl(`tmp/${filename}.json`);
+  await fsa.write(item, JSON.stringify(stacItem, null, 2));
+  const collection = fsa.toUrl('tmp/collection.json');
+  await fsa.write(collection, JSON.stringify(stacCollection, null, 2));
+  const catalog = fsa.toUrl('tmp/catalog.json');
+  await fsa.write(catalog, JSON.stringify(stacCatalog, null, 2));
+
+  return [item, collection, catalog];
 }
