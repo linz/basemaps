@@ -22,6 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: deploy-${{ github.ref }}
 
+    outputs:
+      # Current configuration location
+      config_location: ${{ steps.config.outputs.config_location }}
+
     permissions:
       id-token: write
       contents: write
@@ -72,6 +76,13 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
+
+      - name: Get current configuration location
+        id: config
+        run: |
+          CONFIG_HASH=$(curl https://basemaps.linz.govt.nz/v1/version | jq .config.hash)
+
+          echo "config_location=s3://linz-basemaps/config/config-${CONFIG_HASH}.json.gz" >> $GITHUB_OUTPUT
 
       - name: Benchmark
         uses: blacha/hyperfine-action@v1
@@ -124,6 +135,7 @@ jobs:
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
+          BASEMAPS_CONFIG_LOCATION: "s3://linz-basemaps/config/"
           BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           NODE_ENV: 'dev'
@@ -180,6 +192,7 @@ jobs:
           npx lerna run bundle --stream
           npx lerna run deploy:deploy --stream
         env:
+          BASEMAPS_CONFIG_LOCATION: "s3://linz-basemaps/config/"
           BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           NODE_ENV: 'production'
