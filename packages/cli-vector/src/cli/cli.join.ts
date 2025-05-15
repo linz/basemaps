@@ -26,7 +26,7 @@ async function fromFile(path: URL): Promise<URL[]> {
       const localFile = new URL(fileName, fsa.toUrl('tmp/join/'));
       const stream = fsa.readStream(sourceFile);
       await fsa.write(localFile, stream);
-      paths.push(sourceFile);
+      paths.push(localFile);
     }
   }
   return paths;
