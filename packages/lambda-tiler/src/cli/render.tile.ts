@@ -1,12 +1,13 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
 import { Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
+import { fsa, LogConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import { extname } from 'path';
 
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
+import { ConfigLoader } from '../util/config.loader.js';
 
 // Render configuration
 const source = fsa.toUrl(`/home/blacha/data/elevation/christchurch_2020-2021/`);
@@ -27,7 +28,7 @@ async function main(): Promise<void> {
   const log = LogConfig.get();
   log.level = 'trace';
   const provider = new ConfigProviderMemory();
-  setDefaultConfig(provider);
+  ConfigLoader.setDefaultConfig(provider);
   const { imagery, tileSets } = await initConfigFromUrls(provider, [source]);
 
   const tileSet = tileSets.find((f) => f.layers.length > 0);

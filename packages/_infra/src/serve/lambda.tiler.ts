@@ -33,9 +33,11 @@ export class LambdaTiler extends Construct {
     const environment: Record<string, string> = {
       [Env.PublicUrlBase]: config.PublicUrlBase,
       [Env.AwsRoleConfigPath]: `s3://${config.AwsRoleConfigBucket}/config.json`,
+      [Env.ConfigLocation]: Env.get(Env.ConfigLocation) as string,
       AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
     };
 
+    if (environment[Env.ConfigLocation] == null) throw new Error(`$${Env.ConfigLocation} is required`);
     if (props.staticBucketName) {
       environment[Env.StaticAssetLocation] = `s3://${props.staticBucketName}/`;
     }
