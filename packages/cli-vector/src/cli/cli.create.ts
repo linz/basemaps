@@ -1,7 +1,7 @@
 import { fsa, LogType, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, option, optional, restPositionals } from 'cmd-ts';
+import { command, flag, option, optional, restPositionals } from 'cmd-ts';
 import { createGunzip } from 'zlib';
 
 import { generalize } from '../generalization/generalization.js';
@@ -45,6 +45,12 @@ export const CreateArgs = {
     long: 'from-file',
     description: 'Path to JSON file containing array of paths to mbtiles stac json.',
   }),
+  // TODO: new parapmeter to join multiple mbtiles for local test only, because tile-join is not access to aws.
+  // join: flag({
+  //   long: 'join',
+  //   defaultValue: false,
+  //   description: 'Path to JSON file containing array of paths to mbtiles stac json.',
+  // }),
 };
 
 export const CreateCommand = command({

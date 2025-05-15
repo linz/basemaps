@@ -146,7 +146,6 @@ function removeAttributes(feature: VectorGeoFeature, options: VectorCreationOpti
   const properties = feature['properties'];
   const mappings = options.layer.attributes;
   const attributes = new Set(options.metadata.attributes);
-  // console.log({ properties, mappings, attributes });
   if (mappings != null) {
     Object.keys(mappings).forEach((key) => (properties[mappings[key]] = properties[key]));
   }
