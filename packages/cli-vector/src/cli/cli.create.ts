@@ -1,7 +1,7 @@
 import { fsa, LogType, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, option, optional, restPositionals } from 'cmd-ts';
+import { command, flag, option, optional, restPositionals } from 'cmd-ts';
 import { createGunzip } from 'zlib';
 
 import { generalize } from '../generalization/generalization.js';
@@ -45,6 +45,12 @@ export const CreateArgs = {
     long: 'from-file',
     description: 'Path to JSON file containing array of paths to mbtiles stac json.',
   }),
+  // TODO: new parapmeter to join multiple mbtiles for local test only, because tile-join is not access to aws.
+  // join: flag({
+  //   long: 'join',
+  //   defaultValue: false,
+  //   description: 'Path to JSON file containing array of paths to mbtiles stac json.',
+  // }),
 };
 
 export const CreateCommand = command({
@@ -88,22 +94,34 @@ async function createMbtiles(path: URL, logger: LogType): Promise<Metrics> {
   if (format == null) throw new Error(`Failed to parse source file format ${layer.source}`);
   const contentType = sourceFormats[format];
   if (contentType == null) throw new Error(`Unsupported source file format ${layer.source}`);
-  const srouceFile = new URL(`${layer.id}.${format}`, tmpPath);
-  const stream = fsa.readStream(new URL(layer.source));
-  await fsa.write(srouceFile, stream.pipe(createGunzip()), {
-    contentType,
-  });
+  const sourceFile = new URL(`${layer.id}.${format}`, tmpPath);
+
+  const sourceFileExists = await fsa.exists(sourceFile);
+  if (!sourceFileExists) {
+    const stream = fsa.readStream(new URL(layer.source));
+    await fsa.write(sourceFile, stream.pipe(createGunzip()), {
+      contentType,
+    });
+  }
 
   // Transform the source file to ndjson for generalization
-  logger.info({ name, layer: layer.name, source: srouceFile.href }, 'CreateMbtiles: ToNdjson');
+  logger.info({ name, layer: layer.name, source: sourceFile.href }, 'CreateMbtiles: ToNdjson');
   const ndjsonFile = new URL(`${layer.id}.ndjson`, tmpPath);
-  await ogr2ogrNDJson(srouceFile, ndjsonFile, logger);
+
+  const ndjsonFileExists = await fsa.exists(ndjsonFile);
+  if (!ndjsonFileExists) {
+    await ogr2ogrNDJson(sourceFile, ndjsonFile, logger);
+  }
 
   // Read the ndjson file and apply the generalization options
   logger.info({ name, layer: layer.name, source: ndjsonFile.href }, 'CreateMbtiles: Generalization');
   const generalizedFile = new URL(`${layer.id}-gen.ndjson`, tmpPath);
-  const generalized = await generalize(ndjsonFile, generalizedFile, options);
+  const generalized = await generalize(ndjsonFile, generalizedFile, options, logger);
   if (generalized == null) throw new Error(`Failed to generalize ndjson file ${ndjsonFile.href}`);
+
+  if (true) {
+    throw new Error('Short circuit');
+  }
 
   // Transform the generalized ndjson file to mbtiles
   const mbtilesFile = new URL(`${layer.id}.mbtiles`, tmpPath);

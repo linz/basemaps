@@ -1,6 +1,7 @@
 {
   "name": "contours",
-  "metadata": { "attributes": ["designated", "type", "nat_form", "elevation", "kind", "name"] },
+  // TODO : Add sepcial tags into attributes, so they not removed
+  "metadata": { "attributes": ["designated", "type", "nat_form", "elevation", "kind", "name", "rank"] },
   "layers": [
     {
       "id": "50768",
