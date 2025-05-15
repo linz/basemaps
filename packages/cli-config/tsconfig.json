@@ -10,6 +10,7 @@
     { "path": "../config/tsconfig.json" },
     { "path": "../config-loader/tsconfig.json" },
     { "path": "../geo/tsconfig.json" },
+    { "path": "../linzjs-metrics/tsconfig.json" },
     { "path": "../shared/tsconfig.json" }
   ]
 }

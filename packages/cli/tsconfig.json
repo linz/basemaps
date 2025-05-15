@@ -6,5 +6,9 @@
     "rootDir": "./src"
   },
   "include": ["src"],
-  "references": [{ "path": "../cli-config/tsconfig.json" }]
+  "references": [
+    { "path": "../cli-config/tsconfig.json" },
+    { "path": "../cli-raster/tsconfig.json" },
+    { "path": "../shared/tsconfig.json" }
+  ]
 }

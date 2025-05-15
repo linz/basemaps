@@ -44,7 +44,7 @@ export const ImportCommand = command({
       description: 'Path of config json, this can be both a local path or s3 location',
     }),
     output: option({
-      type: string,
+      type: optional(string),
       long: 'output',
       description: 'Output a markdown file with the config changes',
     }),
@@ -138,7 +138,7 @@ export const ImportCommand = command({
     }
 
     const output = args.output;
-    if (output) await outputChange(output, mem, cfg, config);
+    if (output != null) await outputChange(output, mem, cfg, config);
 
     if (commit !== true) logger.info('DryRun:Done');
   },
