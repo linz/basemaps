@@ -41,8 +41,8 @@ export class LambdaTiler extends Construct {
     }
 
     // Set blocked api keys if some are present
-    const blockedKeys = Env.get(Env.BlockedApiKeys);
-    if (blockedKeys != null) {
+    const blockedKeys = Env.get(Env.BlockedApiKeys) ?? '';
+    if (blockedKeys.length > 0) {
       const listOfKeys = JSON.parse(blockedKeys) as string[];
       if (!Array.isArray(listOfKeys)) throw new Error(` ${Env.BlockedApiKeys} is not valid`);
       for (const key of listOfKeys) {
