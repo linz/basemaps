@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/infra",
-  "version": "8.0.0",
+  "version": "8.1.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -26,8 +26,8 @@
   "devDependencies": {
     "@aws-sdk/client-acm": "^3.470.0",
     "@aws-sdk/client-cloudformation": "^3.470.0",
-    "@basemaps/lambda-tiler": "^8.0.0",
-    "@basemaps/shared": "^8.0.0",
+    "@basemaps/lambda-tiler": "^8.1.0",
+    "@basemaps/shared": "^8.1.0",
     "@linzjs/cdk-tags": "^1.7.0",
     "aws-cdk": "2.162.x",
     "aws-cdk-lib": "2.162.x",

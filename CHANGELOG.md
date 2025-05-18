@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+
+### Bug Fixes
+
+* correct cli-config 'import' parameters ([#3445](https://github.com/linz/basemaps/issues/3445)) ([f349080](https://github.com/linz/basemaps/commit/f349080c473100cc5361162719011c2b152ea299)), closes [/github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61#diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70](https://github.com//github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61/issues/diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70) [/github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml#L131](https://github.com//github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml/issues/L131)
+* parsing of blocked api keys ([#3448](https://github.com/linz/basemaps/issues/3448)) ([ab8bf72](https://github.com/linz/basemaps/commit/ab8bf7221df32eac59beb2d4e5cad78015c88395))
+
+
+### Features
+
+* **lambda-tiler:** expose configuration id and hash if present ([#3446](https://github.com/linz/basemaps/issues/3446)) ([43803b4](https://github.com/linz/basemaps/commit/43803b48a404591417453331ac9e3aa16c85248f))
+
+
+
+
+
 # [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
 
 
