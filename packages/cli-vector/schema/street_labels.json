@@ -1,6 +1,6 @@
 {
   "name": "street_labels",
-  "metadata": { "attributes": ["kind", "name"] },
+  "metadata": { "attributes": ["kind", "ref", "name"] },
   "layers": [
     {
       "id": "50329",
