@@ -3,7 +3,6 @@ import { createWriteStream } from 'fs';
 import { Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 import readline from 'readline';
 
-import { PlaceLabelsFeatures } from '../modify/layers/place_labels.js';
 import { modifyFeature } from '../modify/modify.js';
 import { Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
@@ -22,7 +21,7 @@ export async function generalize(
   options: VectorCreationOptions,
   logger: LogType,
 ): Promise<URL | undefined> {
-  let features: VectorGeoFeature[] = [];
+  logger.info({}, 'Generalize:Start');
   const fileStream = await createReadStreamSafe(input.pathname);
   const simplify = options.layer.simplify;
 
@@ -30,6 +29,8 @@ export async function generalize(
     input: fileStream,
     crlfDelay: Infinity,
   });
+
+  const writeStream = createWriteStream(output);
 
   let inputCount = 0;
   let outputCount = 0;
@@ -42,45 +43,37 @@ export async function generalize(
         const feature = tag(options, line, s, logger);
         if (feature == null) continue;
 
-        features.push(feature);
+        writeStream.write(JSON.stringify(feature) + '\n');
         outputCount++;
       }
     } else {
       const feature = tag(options, line, null, logger);
       if (feature == null) continue;
 
-      features.push(feature);
+      writeStream.write(JSON.stringify(feature) + '\n');
       outputCount++;
     }
+  }
 
-    if (outputCount >= 10) {
-      break;
-    }
+  await new Promise((resolve) => {
+    writeStream.close(resolve);
+  });
+
+  if (options.layer.metrics != null) {
+    options.layer.metrics.input = inputCount;
+    options.layer.metrics.output = outputCount;
   }
 
   // special handling for the gazatteer (place_labels) dataset
   // issues: bypasses the 'simplify' and 'removeAttributes' operations of the 'tag' function
-  if (options.layer.id === '51154') {
-    logger.info({}, 'Special handling for the gazatteer (place_labels) dataset');
-    features = Array.from(PlaceLabelsFeatures.values());
-    outputCount = features.length;
-  }
+  // if (options.layer.id === '51154') {
+  //   logger.info({}, 'Special handling for the gazatteer (place_labels) dataset');
+  //   features = Array.from(PlaceLabelsFeatures.values());
+  //   outputCount = features.length;
+  // }
 
-  options.layer.metrics = { input: inputCount, output: outputCount };
-
-  if (features.length > 0) {
-    const writeStream = createWriteStream(output);
-    for (const feature of features) {
-      writeStream.write(JSON.stringify(feature) + '\n');
-    }
-    await new Promise((resolve) => {
-      writeStream.close(resolve);
-    });
-
-    return output;
-  }
-
-  return undefined;
+  logger.info({ inputCount, outputCount }, 'Generalize:End');
+  return outputCount > 0 ? output : undefined;
 }
 
 /**
@@ -134,7 +127,7 @@ function tag(
 
   // Remove unused properties
   // REVIEW: this function just removes the special tags. something isn't right here
-  const cleanedFeature = removeAttributes(feature, options);
+  const cleanedFeature = removeAttributes(modifiedFeature, options);
 
   logger.info({}, 'Tag:End');
   return cleanedFeature;
