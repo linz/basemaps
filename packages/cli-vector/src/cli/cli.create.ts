@@ -1,7 +1,8 @@
 import { fsa, LogType, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, flag, option, optional, restPositionals } from 'cmd-ts';
+import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
+import PLimit from 'p-limit';
 import { createGunzip } from 'zlib';
 
 import { generalize } from '../generalization/generalization.js';
@@ -45,12 +46,19 @@ export const CreateArgs = {
     long: 'from-file',
     description: 'Path to JSON file containing array of paths to mbtiles stac json.',
   }),
-  // TODO: new parapmeter to join multiple mbtiles for local test only, because tile-join is not access to aws.
-  // join: flag({
-  //   long: 'join',
-  //   defaultValue: false,
-  //   description: 'Path to JSON file containing array of paths to mbtiles stac json.',
-  // }),
+  concurrency: option({
+    type: number,
+    long: 'concurrency',
+    defaultValue: () => 1,
+    defaultValueIsSerializable: true,
+  }),
+  join: flag({
+    long: 'join',
+    description:
+      'TODO: new parameter to join multiple mbtiles for local test only, because tile-join is not access to aws',
+    defaultValue: () => false,
+    defaultValueIsSerializable: true,
+  }),
 };
 
 export const CreateCommand = command({
@@ -67,7 +75,8 @@ export const CreateCommand = command({
     }
 
     logger.info({ files: paths.length }, 'CreateMbtiles: Start');
-    const promises = paths.map((path) => createMbtiles(path, logger));
+    const q = PLimit(args.concurrency);
+    const promises = paths.map((path) => q(() => createMbtiles(path, logger)));
     const metrics = await Promise.all(promises);
     logger.info({ processed: metrics.length }, 'CreateMbtiles: Done');
   },
