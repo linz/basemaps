@@ -11,7 +11,7 @@ export function handleLayerWaterPolygons(
   options: VectorCreationOptions,
   logger: LogType,
 ): VectorGeoFeature {
-  logger.info({}, 'HandleWaterPolygons:Start');
+  logger.debug({}, 'HandleWaterPolygons:Start');
   feature = structuredClone(feature);
   const kind = options.layer.tags['kind'];
 
@@ -32,12 +32,12 @@ export function handleLayerWaterPolygons(
     logger.info({ direction }, 'new/overidden tags');
   }
 
-  logger.info({}, 'HandleWaterPolygons:End');
+  logger.debug({}, 'HandleWaterPolygons:End');
   return feature;
 }
 
 function handleKindWater(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
-  logger.info({}, 'HandleKindWater:Start');
+  logger.trace({}, 'HandleKindWater:Start');
   feature = structuredClone(feature);
 
   const name = feature.properties['name'];
@@ -45,7 +45,7 @@ function handleKindWater(feature: VectorGeoFeature, logger: LogType): VectorGeoF
     // inherit the lake's name from the feature's 'grp_name' property
     const grpName = feature.properties['grp_name'];
     feature.properties['name'] = grpName;
-    logger.info({ name: grpName }, 'new/overidden tags');
+    logger.trace({ name: grpName }, 'new/overidden tags');
   }
 
   // determine if the lake is large
@@ -53,14 +53,14 @@ function handleKindWater(feature: VectorGeoFeature, logger: LogType): VectorGeoF
 
   const minzoom = area >= LargeLakeSize ? 1 : 9;
   feature.tippecanoe.minzoom = minzoom;
-  logger.info({ minzoom }, 'overidden styles');
+  logger.trace({ minzoom }, 'overidden styles');
 
-  logger.info({}, 'HandleKindWater:End');
+  logger.trace({}, 'HandleKindWater:End');
   return feature;
 }
 
 function handleKindRiver(feature: VectorGeoFeature, options: VectorCreationOptions, logger: LogType): VectorGeoFeature {
-  logger.info({}, 'HandleKindRiver:Start');
+  logger.trace({}, 'HandleKindRiver:Start');
   feature = structuredClone(feature);
 
   if (options.layer.style.minZoom < 11) {
@@ -69,10 +69,10 @@ function handleKindRiver(feature: VectorGeoFeature, options: VectorCreationOptio
     if (name === '') {
       const minzoom = 11;
       feature.tippecanoe.minzoom = minzoom;
-      logger.info({ minzoom }, 'overidden styles');
+      logger.trace({ minzoom }, 'overidden styles');
     }
   }
 
-  logger.info({}, 'HandleKindRiver:End');
+  logger.trace({}, 'HandleKindRiver:End');
   return feature;
 }

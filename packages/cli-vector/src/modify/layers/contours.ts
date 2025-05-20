@@ -16,7 +16,7 @@ export function handleLayerContours(
   options: VectorCreationOptions,
   logger: LogType,
 ): VectorGeoFeature {
-  logger.info({}, 'HandleContours:Start');
+  logger.debug({}, 'HandleContours:Start');
   const kind = options.layer.tags['kind'];
 
   switch (kind) {
@@ -28,7 +28,7 @@ export function handleLayerContours(
       break;
   }
 
-  logger.info({}, 'HandleContours:End');
+  logger.debug({}, 'HandleContours:End');
   return feature;
 }
 
@@ -40,7 +40,7 @@ export function handleLayerContours(
  * @returns the processed feature
  */
 export function handleKindContours(feature: VectorGeoFeature, logger?: LogType): VectorGeoFeature {
-  logger?.info({}, 'HandleKindContours:Start');
+  logger?.trace({}, 'HandleKindContours:Start');
   feature = structuredClone(feature);
 
   // read the 'elevation' property
@@ -52,15 +52,15 @@ export function handleKindContours(feature: VectorGeoFeature, logger?: LogType):
     // append 'type' property
     const type = 'index';
     feature.properties['type'] = type;
-    logger?.info({ type }, 'new/overidden tags');
+    logger?.trace({ type }, 'new/overidden tags');
   } else {
     // override 'minzoom'
     const minzoom = 14;
     feature.tippecanoe.minzoom = minzoom;
-    logger?.info({ minzoom }, 'overidden styles');
+    logger?.trace({ minzoom }, 'overidden styles');
   }
 
-  logger?.info({}, 'HandleKindContours:End');
+  logger?.trace({}, 'HandleKindContours:End');
   return feature;
 }
 
@@ -72,30 +72,33 @@ export function handleKindContours(feature: VectorGeoFeature, logger?: LogType):
  * @returns the processed feature
  */
 export function handleKindPeak(feature: VectorGeoFeature, logger?: LogType): VectorGeoFeature {
-  logger?.info({}, 'HandleKindPeak:Start');
+  logger?.trace({}, 'HandleKindPeak:Start');
   feature = structuredClone(feature);
 
   // read the 'elevation' property
   const elevation = feature.properties['elevation'];
-  if (typeof elevation !== 'number') throw new Error('Elevation is not a number');
 
-  let rank: number;
-  if (elevation >= 2000) {
-    rank = 1;
-  } else if (elevation >= 1500) {
-    rank = 2;
-  } else if (elevation >= 1000) {
-    rank = 3;
-  } else if (elevation >= 500) {
-    rank = 4;
-  } else {
-    rank = 5;
+  // if 'elevation' is a number
+  if (typeof elevation === 'number') {
+    let rank: number;
+
+    if (elevation >= 2000) {
+      rank = 1;
+    } else if (elevation >= 1500) {
+      rank = 2;
+    } else if (elevation >= 1000) {
+      rank = 3;
+    } else if (elevation >= 500) {
+      rank = 4;
+    } else {
+      rank = 5;
+    }
+
+    // append 'rank' property
+    feature.properties['rank'] = rank;
+    logger?.trace({ rank }, 'new/overidden tags');
   }
 
-  // append 'rank' property
-  feature.properties['rank'] = rank;
-  logger?.info({ rank }, 'new/overidden tags');
-
-  logger?.info({}, 'HandleKindPeak:End');
+  logger?.trace({}, 'HandleKindPeak:End');
   return feature;
 }

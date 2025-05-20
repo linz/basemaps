@@ -26,7 +26,7 @@ export const PlaceLabelsFeatures = new Map<string, VectorGeoPlaceLabelsFeature>(
  * @returns the processed feature
  */
 export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature | null {
-  logger.info({}, 'HandlePlaceLabels:Start');
+  logger.debug({}, 'HandlePlaceLabels:Start');
   feature = structuredClone(feature);
 
   // parse the feature's `label` and `zoom_level` properties
@@ -81,7 +81,7 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
 
     PlaceLabelsFeatures.set(label, newFeature);
 
-    logger.info({}, 'HandlePlaceLabels:End');
+    logger.debug({}, 'HandlePlaceLabels:End');
     return newFeature;
   }
 
@@ -97,7 +97,7 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
     PlaceLabelsFeatures.set(label, storedFeature);
   }
 
-  logger.info({}, 'HandlePlaceLabels:End');
+  logger.debug({}, 'HandlePlaceLabels:End');
   return storedFeature;
 }
 

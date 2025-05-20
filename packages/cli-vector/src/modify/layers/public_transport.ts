@@ -12,7 +12,7 @@ export function handleLayerPublicTransport(
   options: VectorCreationOptions,
   logger: LogType,
 ): VectorGeoFeature {
-  logger.info({}, 'HandlePublicTransport:Start');
+  logger.debug({}, 'HandlePublicTransport:Start');
   const kind = options.layer.tags['kind'];
 
   switch (kind) {
@@ -21,12 +21,12 @@ export function handleLayerPublicTransport(
       break;
   }
 
-  logger.info({}, 'HandlePublicTransport:End');
+  logger.debug({}, 'HandlePublicTransport:End');
   return feature;
 }
 
 function handleKindAerodrome(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
-  logger.info({}, 'HandleKindAerodrome:Start');
+  logger.trace({}, 'HandleKindAerodrome:Start');
   feature = structuredClone(feature);
 
   const coordinates = getCoordinates(feature.geometry, logger);
@@ -38,7 +38,7 @@ function handleKindAerodrome(feature: VectorGeoFeature, logger: LogType): Vector
   const point: Point = { type: 'Point', coordinates: inaccessibilityPole };
   feature.geometry = point;
 
-  logger.info({}, 'HandleKindAerodrome:Start');
+  logger.trace({}, 'HandleKindAerodrome:End');
   return feature;
 }
 
