@@ -63,9 +63,9 @@ export interface CacheFile {
  * Record the input and output features of the
  */
 export interface Metrics {
-  path: URL; //TODO: need a path for mbtiles so we can join them locally.
   input: number;
   output: number;
+  mbTilesPath?: URL;
 }
 
 /**

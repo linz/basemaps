@@ -4,7 +4,7 @@ import { Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 import readline from 'readline';
 
 import { modifyFeature } from '../modify/modify.js';
-import { Simplify } from '../schema-loader/schema.js';
+import { Metrics, Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
 import { VectorGeoFeature, VectorGeoFeatureSchema } from '../types/VectorGeoFeature.js';
 import { createReadStreamSafe } from '../util.js';
@@ -20,7 +20,7 @@ export async function generalize(
   output: URL,
   options: VectorCreationOptions,
   logger: LogType,
-): Promise<URL | undefined> {
+): Promise<Metrics> {
   logger.info({}, 'Generalize:Start');
   const fileStream = await createReadStreamSafe(input.pathname);
   const simplify = options.layer.simplify;
@@ -59,11 +59,6 @@ export async function generalize(
     writeStream.close(resolve);
   });
 
-  if (options.layer.metrics != null) {
-    options.layer.metrics.input = inputCount;
-    options.layer.metrics.output = outputCount;
-  }
-
   // special handling for the gazatteer (place_labels) dataset
   // issues: bypasses the 'simplify' and 'removeAttributes' operations of the 'tag' function
   // if (options.layer.id === '51154') {
@@ -72,8 +67,13 @@ export async function generalize(
   //   outputCount = features.length;
   // }
 
+  const metrics: Metrics = {
+    input: inputCount,
+    output: outputCount,
+  };
+
   logger.info({ inputCount, outputCount }, 'Generalize:End');
-  return outputCount > 0 ? output : undefined;
+  return metrics;
 }
 
 /**
@@ -85,7 +85,7 @@ function tag(
   simplify: Simplify | null,
   logger: LogType,
 ): VectorGeoFeature | null {
-  logger.info({}, 'Tag:Start');
+  logger.debug({}, 'Tag:Start');
   const feature = VectorGeoFeatureSchema.parse({
     ...JSON.parse(line),
     tippecanoe: {
@@ -101,7 +101,7 @@ function tag(
   // adjust the feature's metadata and properties
   const modifiedFeature = modifyFeature(feature, options, logger);
   if (modifiedFeature == null) {
-    logger.info({}, 'Tag:End');
+    logger.debug({}, 'Tag:End');
     return null;
   }
 
@@ -118,7 +118,7 @@ function tag(
       const type = geom.type;
       const coordinates = simplifyFeature(type, geom, simplify.tolerance);
       if (coordinates == null) {
-        logger.info({}, 'Tag:End');
+        logger.debug({}, 'Tag:End');
         return null;
       }
       modifiedFeature.geometry = coordinates;
@@ -129,7 +129,7 @@ function tag(
   // REVIEW: this function just removes the special tags. something isn't right here
   const cleanedFeature = removeAttributes(modifiedFeature, options);
 
-  logger.info({}, 'Tag:End');
+  logger.debug({}, 'Tag:End');
   return cleanedFeature;
 }
 
