@@ -9,9 +9,9 @@ export function handleLayerStreets(
   options: VectorCreationOptions,
   logger: LogType,
 ): VectorGeoFeature {
-  logger.debug({}, 'HandleStreets:Start');
+  logger.trace({}, 'HandleStreets:Start');
   feature = handleRoadFeature(feature, options, logger);
 
-  logger.debug({}, 'HandleStreets:End');
+  logger.trace({}, 'HandleStreets:End');
   return feature;
 }

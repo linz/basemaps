@@ -16,7 +16,7 @@ export function handleLayerContours(
   options: VectorCreationOptions,
   logger: LogType,
 ): VectorGeoFeature {
-  logger.debug({}, 'HandleContours:Start');
+  logger.trace({}, 'HandleContours:Start');
   const kind = options.layer.tags['kind'];
 
   switch (kind) {
@@ -28,7 +28,7 @@ export function handleLayerContours(
       break;
   }
 
-  logger.debug({}, 'HandleContours:End');
+  logger.trace({}, 'HandleContours:End');
   return feature;
 }
 
@@ -39,7 +39,7 @@ export function handleLayerContours(
  * @param logger
  * @returns the processed feature
  */
-export function handleKindContours(feature: VectorGeoFeature, logger?: LogType): VectorGeoFeature {
+export function handleKindContours(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
   logger?.trace({}, 'HandleKindContours:Start');
   feature = structuredClone(feature);
 
@@ -71,7 +71,7 @@ export function handleKindContours(feature: VectorGeoFeature, logger?: LogType):
  * @param logger
  * @returns the processed feature
  */
-export function handleKindPeak(feature: VectorGeoFeature, logger?: LogType): VectorGeoFeature {
+export function handleKindPeak(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
   logger?.trace({}, 'HandleKindPeak:Start');
   feature = structuredClone(feature);
 

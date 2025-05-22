@@ -3,7 +3,7 @@ import { LogType } from '@basemaps/shared';
 import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 
 export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature | null {
-  logger.debug({}, 'HandlePois:Start');
+  logger.trace({}, 'HandlePois:Start');
   feature = structuredClone(feature);
 
   // REVIEW: We don't have any use for this criteria as we don't include the following layers:
@@ -14,13 +14,13 @@ export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): Vec
 
     if (bldgUse == null) {
       // discard the feature
-      logger.debug({}, 'HandlePois:End');
+      logger.trace({}, 'HandlePois:End');
       return null;
     }
 
     feature.properties['building'] = bldgUse;
   }
 
-  logger.debug({}, 'HandlePois:End');
+  logger.trace({}, 'HandlePois:End');
   return feature;
 }

@@ -25,7 +25,7 @@ export function modifyFeature(
   const id = options.layer.id; // lds dataset id
   const layerName = options.name; // shortbread layer
 
-  logger.debug({ id, layerName }, 'ModifyFeature:Start');
+  logger.trace({ id, layerName }, 'ModifyFeature:Start');
   let modifiedFeature: VectorGeoFeature | null;
 
   switch (layerName) {
@@ -54,6 +54,6 @@ export function modifyFeature(
       modifiedFeature = structuredClone(feature);
   }
 
-  logger.debug({ id, layerName }, 'ModifyFeature:End');
+  logger.trace({ id, layerName }, 'ModifyFeature:End');
   return modifiedFeature;
 }

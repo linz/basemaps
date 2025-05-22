@@ -9,7 +9,7 @@ export function handleLayerStreetLabels(
   options: VectorCreationOptions,
   logger: LogType,
 ): VectorGeoFeature {
-  logger.debug({}, 'HandleStreetLabels:Start');
+  logger.trace({}, 'HandleStreetLabels:Start');
   feature = structuredClone(feature);
   const kind = options.layer.tags['kind'];
 
@@ -19,7 +19,7 @@ export function handleLayerStreetLabels(
       break;
   }
 
-  logger.debug({}, 'HandleStreetLabels:End');
+  logger.trace({}, 'HandleStreetLabels:End');
   return feature;
 }
 

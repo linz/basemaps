@@ -11,7 +11,7 @@ export function handleLayerWaterPolygons(
   options: VectorCreationOptions,
   logger: LogType,
 ): VectorGeoFeature {
-  logger.debug({}, 'HandleWaterPolygons:Start');
+  logger.trace({}, 'HandleWaterPolygons:Start');
   feature = structuredClone(feature);
   const kind = options.layer.tags['kind'];
 
@@ -29,10 +29,10 @@ export function handleLayerWaterPolygons(
   if (orientatn != null) {
     const direction = orientatn;
     feature.properties['direction'] = direction;
-    logger.info({ direction }, 'new/overidden tags');
+    logger.trace({ direction }, 'new/overidden tags');
   }
 
-  logger.debug({}, 'HandleWaterPolygons:End');
+  logger.trace({}, 'HandleWaterPolygons:End');
   return feature;
 }
 

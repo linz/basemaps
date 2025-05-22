@@ -12,7 +12,7 @@ export function handleLayerPublicTransport(
   options: VectorCreationOptions,
   logger: LogType,
 ): VectorGeoFeature {
-  logger.debug({}, 'HandlePublicTransport:Start');
+  logger.trace({}, 'HandlePublicTransport:Start');
   const kind = options.layer.tags['kind'];
 
   switch (kind) {
@@ -21,7 +21,7 @@ export function handleLayerPublicTransport(
       break;
   }
 
-  logger.debug({}, 'HandlePublicTransport:End');
+  logger.trace({}, 'HandlePublicTransport:End');
   return feature;
 }
 

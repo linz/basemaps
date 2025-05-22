@@ -59,14 +59,6 @@ export async function generalize(
     writeStream.close(resolve);
   });
 
-  // special handling for the gazatteer (place_labels) dataset
-  // issues: bypasses the 'simplify' and 'removeAttributes' operations of the 'tag' function
-  // if (options.layer.id === '51154') {
-  //   logger.info({}, 'Special handling for the gazatteer (place_labels) dataset');
-  //   features = Array.from(PlaceLabelsFeatures.values());
-  //   outputCount = features.length;
-  // }
-
   const metrics: Metrics = {
     input: inputCount,
     output: outputCount,
@@ -85,7 +77,6 @@ function tag(
   simplify: Simplify | null,
   logger: LogType,
 ): VectorGeoFeature | null {
-  logger.debug({}, 'Tag:Start');
   const feature = VectorGeoFeatureSchema.parse({
     ...JSON.parse(line),
     tippecanoe: {
@@ -101,7 +92,6 @@ function tag(
   // adjust the feature's metadata and properties
   const modifiedFeature = modifyFeature(feature, options, logger);
   if (modifiedFeature == null) {
-    logger.debug({}, 'Tag:End');
     return null;
   }
 
@@ -118,7 +108,6 @@ function tag(
       const type = geom.type;
       const coordinates = simplifyFeature(type, geom, simplify.tolerance);
       if (coordinates == null) {
-        logger.debug({}, 'Tag:End');
         return null;
       }
       modifiedFeature.geometry = coordinates;
@@ -128,8 +117,6 @@ function tag(
   // Remove unused properties
   // REVIEW: this function just removes the special tags. something isn't right here
   const cleanedFeature = removeAttributes(modifiedFeature, options);
-
-  logger.debug({}, 'Tag:End');
   return cleanedFeature;
 }
 
