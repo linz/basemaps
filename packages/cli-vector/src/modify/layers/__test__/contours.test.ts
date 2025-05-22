@@ -1,11 +1,13 @@
 import { before, describe, it } from 'node:test';
 
+import { LogConfig } from '@basemaps/shared';
 import { strictEqual } from 'assert';
 
 import { VectorGeoFeature, VectorGeoFeatureSchema } from '../../../types/VectorGeoFeature.js';
 import { handleKindContours, handleKindPeak } from '../contours.js';
 
 describe('HandleLayerContours', () => {
+  const Logger = LogConfig.get();
   const FakeFeature: VectorGeoFeature = {
     type: 'Feature',
     properties: {},
@@ -34,7 +36,7 @@ describe('HandleLayerContours', () => {
       const feature = structuredClone(FakeFeature);
       feature.properties['elevation'] = 100;
 
-      const modifiedFeature = handleKindContours(feature);
+      const modifiedFeature = handleKindContours(feature, Logger);
 
       strictEqual(modifiedFeature.properties['type'], 'index');
       strictEqual(modifiedFeature.tippecanoe.minzoom, FakeFeature.tippecanoe.minzoom);
@@ -44,7 +46,7 @@ describe('HandleLayerContours', () => {
       const feature = structuredClone(FakeFeature);
       feature.properties['elevation'] = 105;
 
-      const modifiedFeature = handleKindContours(feature);
+      const modifiedFeature = handleKindContours(feature, Logger);
 
       strictEqual(modifiedFeature.properties['type'], undefined);
       strictEqual(modifiedFeature.tippecanoe.minzoom, 14);
@@ -65,7 +67,7 @@ describe('HandleLayerContours', () => {
         const feature = structuredClone(FakeFeature);
         feature.properties['elevation'] = elevation;
 
-        const modifiedFeature = handleKindPeak(feature);
+        const modifiedFeature = handleKindPeak(feature, Logger);
 
         strictEqual(modifiedFeature.properties['rank'], rank);
       }
