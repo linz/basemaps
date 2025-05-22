@@ -16,7 +16,8 @@
       "name",
       "tunnel",
       "hway_num",
-      "use_2"
+      "use_2",
+      "ref"
     ]
   },
   "layers": [

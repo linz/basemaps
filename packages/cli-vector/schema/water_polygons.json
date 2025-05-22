@@ -1,6 +1,6 @@
 {
   "name": "water_polygons",
-  "metadata": { "attributes": ["water", "kind", "name", "lid_type", "species", "height"] },
+  "metadata": { "attributes": ["water", "kind", "name", "lid_type", "species", "height", "direction"] },
   "layers": [
     {
       "id": "103631",
