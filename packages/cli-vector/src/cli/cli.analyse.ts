@@ -1,10 +1,10 @@
-import { Url } from '@basemaps/shared';
+import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { VectorTile } from '@mapbox/vector-tile';
 import bs3 from 'better-sqlite3';
 import { command, option, restPositionals } from 'cmd-ts';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import Mustache from 'mustache';
 import sizeof from 'object-sizeof';
 import Protobuf from 'pbf';
@@ -65,8 +65,7 @@ export const AnalyseArgs = {
   }),
   target: option({
     long: 'target',
-    defaultValue: () => 'packages/cli-vector/analysis/result.md',
-    defaultValueIsSerializable: true,
+    type: Url,
     description: 'Target location for the result file',
   }),
 };
@@ -169,6 +168,6 @@ export const AnalyseCommand = command({
 
     const template = readFileSync(args.template).toString();
     const output = Mustache.render(template, { data: analysisData });
-    writeFileSync(args.target, output);
+    await fsa.write(args.target, fsa.readStream(fsa.toUrl(output)));
   },
 });
