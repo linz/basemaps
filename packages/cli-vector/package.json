@@ -54,7 +54,6 @@
     "dist/"
   ],
   "dependencies": {
-    "@chunkd/fs": "^11.2.0",
     "@linzjs/docker-command": "^7.5.0",
     "@mapbox/geojson-area": "^0.2.2",
     "geojson": "^0.5.0",

@@ -1,8 +1,7 @@
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
-import { Url } from '@basemaps/shared';
+import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { fsa } from '@chunkd/fs';
 import { command, number, oneOf, option, string } from 'cmd-ts';
 
 import { SchemaLoader } from '../schema-loader/schema.loader.js';
