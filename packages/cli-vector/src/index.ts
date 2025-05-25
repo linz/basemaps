@@ -3,7 +3,7 @@ import { subcommands } from 'cmd-ts';
 import { ExtractCommand } from './cli/cli.extract.js';
 import { CreateCommand } from './cli/cli.create.js';
 
-export const vectorCli = subcommands({
+export const VectorCli = subcommands({
   name: 'vector',
   cmds: {
     extract: ExtractCommand,
