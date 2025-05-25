@@ -22,62 +22,24 @@ export const PlaceLabelsFeatures = new Map<string, VectorGeoPlaceLabelsFeature>(
  *
  * @param feature - the feature to process
  * @param options - the layer's options
- * @param logger
+ * @param logger - a logger instance
  * @returns the processed feature
  */
 export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature | null {
   logger.trace({}, 'HandlePlaceLabels:Start');
   feature = structuredClone(feature);
 
-  // parse the feature's `label` and `zoom_level` properties
-  // a feature must at least define these two properties
+  // read the 'label' and 'zoom_level' properties (required)
   const label = feature.properties['label'];
   if (typeof label !== 'string') throw new Error('Label property is not a string');
 
   const zoomLevel = feature.properties['zoom_level'];
   if (typeof zoomLevel !== 'number') throw new Error('Zoom level is not a number');
 
-  // check if we already store a feature with the same 'label' value
   const storedFeature = PlaceLabelsFeatures.get(label);
-
   if (storedFeature == null) {
-    let properties: zTypePlaceLabelsProperties;
-    let tippecanoe: zTypePlaceLabelsTippecanoe;
-
-    try {
-      properties = zPlaceLabelsProperties.parse({
-        name: label,
-        kind: feature.properties['style'],
-        place: feature.properties['place'],
-        adminlevel: feature.properties['adminlevel'],
-        natural: feature.properties['natural'],
-        water: feature.properties['water'],
-      });
-
-      tippecanoe = zPlaceLabelsTippecanoe.parse({
-        layer: 'place_labels',
-        minzoom: zoomLevel,
-        maxzoom: zoomLevel,
-      });
-    } catch (e) {
-      if (e instanceof z.ZodError) {
-        logger.warn({ label }, 'Failed to parse expected properties. Discarding feature.');
-        return null;
-      } else {
-        throw new Error('Unexpected error');
-      }
-    }
-
-    const newFeature = {
-      type: feature.type,
-      properties: {
-        ...properties,
-        // convert the feature's 'kind' property after zod validates 'kind' and 'minzoom'
-        kind: convertKind(properties.kind, tippecanoe.minzoom),
-      },
-      geometry: feature.geometry,
-      tippecanoe,
-    };
+    const newFeature = createNewFeature(feature, label, zoomLevel, logger);
+    if (newFeature == null) return null;
 
     PlaceLabelsFeatures.set(label, newFeature);
 
@@ -85,13 +47,13 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
     return newFeature;
   }
 
-  // update the 'minzoom' value of the stored feature
+  // update the stored feature's 'minzoom' value
   if (zoomLevel < storedFeature.tippecanoe.minzoom) {
     storedFeature.tippecanoe.minzoom = zoomLevel;
     PlaceLabelsFeatures.set(label, storedFeature);
   }
 
-  // update the 'maxzoom' value of the stored feature
+  // update the stored feature's 'maxzoom' value
   if (zoomLevel > storedFeature.tippecanoe.maxzoom) {
     storedFeature.tippecanoe.maxzoom = zoomLevel;
     PlaceLabelsFeatures.set(label, storedFeature);
@@ -102,17 +64,77 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
 }
 
 /**
- * Logic to tag gazetteer data based on a feature's 'styles' property value.
- * @param kind - 'style' property from gazetteer data
+ * Parses a 'place_labels' layer feature into a VectorGeoPlaceLabelsFeature object.
+ *
+ * @param feature - the feature to process
+ * @param label - the feature's 'label' property
+ * @param zoomLevel - the feature's 'zoom_level' property
+ * @param logger - a logger instance
+ * @returns a VectorGeoPlaceLabelsFeature object
  */
-function convertKind(kind: string, minzoom: number): string {
-  if (kind.startsWith('ANT')) return 'ant';
-  if (kind.startsWith('GEO')) return 'geo';
-  if (kind.startsWith('TWN')) {
+function createNewFeature(
+  feature: VectorGeoFeature,
+  label: string,
+  zoomLevel: number,
+  logger: LogType,
+): VectorGeoPlaceLabelsFeature | null {
+  let properties: zTypePlaceLabelsProperties;
+  let tippecanoe: zTypePlaceLabelsTippecanoe;
+
+  try {
+    properties = zPlaceLabelsProperties.parse({
+      label,
+      style: feature.properties['style'],
+      place: feature.properties['place'],
+      adminlevel: feature.properties['adminlevel'],
+      natural: feature.properties['natural'],
+      water: feature.properties['water'],
+    });
+
+    tippecanoe = zPlaceLabelsTippecanoe.parse({
+      layer: 'place_labels',
+      minzoom: zoomLevel,
+      maxzoom: zoomLevel,
+    });
+  } catch (e) {
+    if (e instanceof z.ZodError) {
+      logger.trace({ label }, 'Failed to parse expected properties. Discarding feature.');
+      return null;
+    } else {
+      throw new Error('An unexpected error occurred.');
+    }
+  }
+
+  const newFeature = {
+    type: feature.type,
+    properties: {
+      name: properties.label,
+      kind: convertStyleToKind(properties.style, tippecanoe.minzoom),
+      place: properties.place,
+      adminlevel: properties.adminlevel,
+      natural: properties.natural,
+      water: properties.water,
+    },
+    geometry: feature.geometry,
+    tippecanoe,
+  };
+
+  return newFeature;
+}
+
+/**
+ * Determines a feature's 'kind' based on its 'styles' property.
+ *
+ * @param style - the feature's 'style' property
+ */
+function convertStyleToKind(style: string, minzoom: number): string {
+  if (style.startsWith('ANT')) return 'ant';
+  if (style.startsWith('GEO')) return 'geo';
+  if (style.startsWith('TWN')) {
     if (minzoom <= 8) return 'city';
-    if (kind === 'TWN1') return 'suburb';
-    if (kind === 'TWN2') return 'town';
-    if (kind === 'TWN3') return 'city';
+    if (style === 'TWN1') return 'suburb';
+    if (style === 'TWN2') return 'town';
+    if (style === 'TWN3') return 'city';
   }
   return '';
 }

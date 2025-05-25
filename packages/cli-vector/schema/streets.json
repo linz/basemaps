@@ -17,7 +17,8 @@
       "tunnel",
       "hway_num",
       "use_2",
-      "ref"
+      "ref",
+      "subclass"
     ]
   },
   "layers": [

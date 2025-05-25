@@ -5,7 +5,7 @@ export interface VectorGeoPlaceLabelsFeature extends VectorGeoFeature {
     /** @example "Kaitaia" */
     name: string;
 
-    /** @example "TWN1" */
+    /** @example "ant" */
     kind: string;
 
     /** @example "city" */

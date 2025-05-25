@@ -55,7 +55,6 @@ export class SchemaLoader {
     const files = await lds.getLdsCacheFiles();
     for (const schema of this.schemas) {
       this.logger.info({ layer: schema.name }, 'SchemaLoader: PrepareLayer');
-      if (schema.layers == null) continue;
       for (const layer of schema.layers) {
         // Set layer simplify
         if (schema.simplify != null && layer.simplify == null) layer.simplify = schema.simplify;

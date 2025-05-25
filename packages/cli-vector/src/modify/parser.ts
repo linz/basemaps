@@ -2,10 +2,10 @@ import { z } from 'zod';
 
 export const zPlaceLabelsProperties = z.object({
   /** @example "Kaitaia" */
-  name: z.string(),
+  label: z.string(),
 
   /** @example "TWN1" */
-  kind: z.string(),
+  style: z.string(),
 
   /** @example "city" */
   place: z.string(),

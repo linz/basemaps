@@ -5,6 +5,12 @@ import { createReadStream, promises as fs, ReadStream } from 'fs';
 
 export const projection = Epsg.Wgs84.toEpsgString();
 
+export const ContentType = {
+  gpkg: 'application/x-ogc-gpkg',
+  shp: 'application/x-ogc-shp',
+  geojson: 'application/geo+json',
+} as const;
+
 /**
  * Asynchronously touch the file by path and return true if file exists
  */
@@ -26,9 +32,23 @@ export function createReadStreamSafe(filename: string): Promise<ReadStream> {
   });
 }
 
-interface TmpPaths {
-  /** @example "tmp/create/layers/50248/50248.gpkg" */
-  source: URL;
+export interface TmpPaths {
+  /**
+   * @example "local-cache/layerId/{layerId}_{version}_{hash}.json"
+   * @example "s3://linz-lds-cache/layerId/{layerId}_{version}_{hash}.json"
+   */
+  origin: URL;
+
+  source: {
+    /** @example "tmp/create/layers/50248/50248.gpkg" */
+    path: URL;
+
+    /** @example "gpkg" */
+    format: keyof typeof ContentType;
+
+    /** @example "application/x-ogc-gpkg" */
+    contentType: (typeof ContentType)[keyof typeof ContentType];
+  };
 
   /** @example "tmp/create/layers/50248/50248.ndjson" */
   ndjson: URL;
@@ -50,7 +70,7 @@ export function prepareTmpPaths(
   tmpPath: URL,
   path: URL,
   layerId: string,
-  format: string,
+  format: keyof typeof ContentType,
   shortbreadLayer: string,
 ): TmpPaths {
   /** @example "tmp/create/layers/50248/" */
@@ -65,11 +85,18 @@ export function prepareTmpPaths(
     mkdirSync(TransformDir, { recursive: true });
   }
 
-  return {
-    source: new URL(`${layerId}.${format}`, LayersDir),
+  const tmpPaths = {
+    origin: path,
+    source: {
+      path: new URL(`${layerId}.${format}`, LayersDir),
+      format,
+      contentType: ContentType[format],
+    },
     ndjson: new URL(`${layerId}.ndjson`, LayersDir),
     genNdjson: new URL(`${layerId}-gen.ndjson`, TransformDir),
     mbtiles: new URL(`${layerId}.mbtiles`, TransformDir),
     mbtilesCopy: new URL(path.href.replace(/\.json$/, '.mbtiles')),
   };
+
+  return tmpPaths;
 }

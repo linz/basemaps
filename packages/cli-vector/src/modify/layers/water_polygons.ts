@@ -6,6 +6,14 @@ import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 
 export const LargeLakeSize = 4_000_000;
 
+/**
+ * Processes a 'water_polygons' layer feature.
+ *
+ * @param feature - the feature to process
+ * @param options - the layer's options
+ * @param logger - a logger instance
+ * @returns the processed feature
+ */
 export function handleLayerWaterPolygons(
   feature: VectorGeoFeature,
   options: VectorCreationOptions,
@@ -36,6 +44,13 @@ export function handleLayerWaterPolygons(
   return feature;
 }
 
+/**
+ * Processes a 'water_polygons' layer feature with a 'kind' value of 'water'.
+ *
+ * @param feature - the feature to process
+ * @param logger - a logger instance
+ * @returns the processed feature
+ */
 function handleKindWater(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
   logger.trace({}, 'HandleKindWater:Start');
   feature = structuredClone(feature);
@@ -59,6 +74,13 @@ function handleKindWater(feature: VectorGeoFeature, logger: LogType): VectorGeoF
   return feature;
 }
 
+/**
+ * Processes a 'water_polygons' layer feature with a 'kind' value of 'river'.
+ *
+ * @param feature - the feature to process
+ * @param logger - a logger instance
+ * @returns the processed feature
+ */
 function handleKindRiver(feature: VectorGeoFeature, options: VectorCreationOptions, logger: LogType): VectorGeoFeature {
   logger.trace({}, 'HandleKindRiver:Start');
   feature = structuredClone(feature);

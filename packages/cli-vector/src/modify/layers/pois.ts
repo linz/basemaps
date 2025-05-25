@@ -2,6 +2,14 @@ import { LogType } from '@basemaps/shared';
 
 import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 
+/**
+ * Processes a 'pois' layer feature.
+ *
+ * @param feature - the feature to process
+ * @param options - the layer's options
+ * @param logger - a logger instance
+ * @returns the processed feature
+ */
 export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature | null {
   logger.trace({}, 'HandlePois:Start');
   feature = structuredClone(feature);

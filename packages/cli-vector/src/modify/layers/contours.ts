@@ -8,7 +8,7 @@ import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
  *
  * @param feature - the feature to process
  * @param options - the layer's options
- * @param logger
+ * @param logger - a logger instance
  * @returns the processed feature
  */
 export function handleLayerContours(
@@ -36,7 +36,7 @@ export function handleLayerContours(
  * Processes a 'contours' layer feature with a 'kind' value of 'contours'.
  *
  * @param feature - the feature to process
- * @param logger
+ * @param logger - a logger instance
  * @returns the processed feature
  */
 export function handleKindContours(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
@@ -68,7 +68,7 @@ export function handleKindContours(feature: VectorGeoFeature, logger: LogType): 
  * Processes a 'contours' layer feature with a 'kind' value of 'peak'.
  *
  * @param feature - the feature to process
- * @param logger
+ * @param logger - a logger instance
  * @returns the processed feature
  */
 export function handleKindPeak(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
