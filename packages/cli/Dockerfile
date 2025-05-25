@@ -42,6 +42,5 @@ COPY dist/index.cjs /app/
 ENTRYPOINT [ "node", "./index.cjs" ]
 
 # Add tippecanoe into the image
-ADD build/src /app/
 COPY --from=builder /tmp/tippecanoe/tippecanoe /usr/bin/tippecanoe
 COPY --from=builder /tmp/tippecanoe/tile-join /usr/bin/tile-join
