@@ -6,7 +6,6 @@ import PLimit from 'p-limit';
 import { createGunzip } from 'zlib';
 
 import { generalize } from '../generalization/generalization.js';
-import { Metrics } from '../schema-loader/schema.js';
 import { VectorStacItem } from '../stac.js';
 import { ogr2ogrNDJson } from '../transform/ogr2ogr.js';
 import { tileJoin, tippecanoe } from '../transform/tippecanoe.js';
