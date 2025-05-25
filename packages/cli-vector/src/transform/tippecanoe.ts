@@ -11,7 +11,7 @@ import { Layer } from '../schema-loader/schema.js';
  * @returns { cmd: string; args: string[] } cmd and arguments for tippecanoe docker command
  */
 export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: LogType): Promise<void> {
-  const cmd = Command.create('/usr/bin/tippecanoe');
+  const cmd = Command.create('tippecanoe');
 
   // parallel processing for line-delimited geojson file.
   cmd.args.push('--read-parallel');
@@ -58,7 +58,7 @@ export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: 
  * @returns { cmd: string; args: string[] } cmd and arguments for tippecanoe tile-join docker command
  */
 export async function tileJoin(inputs: string[], output: string, logger: LogType): Promise<void> {
-  const cmd = Command.create('/usr/bin/tile-join');
+  const cmd = Command.create('tile-join');
 
   cmd.mount(dirname(output));
 
