@@ -6,6 +6,24 @@ import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { Validate } from '../validate.js';
 
+describe('Validate.blockedApiKeys', () => {
+  const validApiKey = 'c01jswmpe1yn3mwne7e0ggtp8vg';
+  it('should disable api keys', () => {
+    const req = mockUrlRequest('/v1/blank', `api=${validApiKey}`);
+    const parsedKey = Validate.apiKey(req);
+    assert.equal(parsedKey, validApiKey);
+  });
+
+  it('should disable api keys', () => {
+    const req = mockUrlRequest('/v1/blank', `api=${validApiKey}`);
+    Validate.blockedApiKeys.add(validApiKey);
+    assert.throws(() => Validate.apiKey(req));
+
+    Validate.blockedApiKeys.delete(validApiKey);
+    assert.equal(Validate.apiKey(req), validApiKey);
+  });
+});
+
 describe('GetImageFormats', () => {
   it('should parse all formats', () => {
     const req = mockUrlRequest('/v1/blank', 'format=png&format=jpeg');

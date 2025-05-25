@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+
+### Bug Fixes
+
+* parsing of blocked api keys ([#3448](https://github.com/linz/basemaps/issues/3448)) ([ab8bf72](https://github.com/linz/basemaps/commit/ab8bf7221df32eac59beb2d4e5cad78015c88395))
+
+
+
+
+
+# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
 # [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
 
 **Note:** Version bump only for package @basemaps/infra

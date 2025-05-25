@@ -69,8 +69,14 @@ function removeUndefined(obj: unknown): void {
 export class ConfigProviderMemory extends BasemapsConfigProvider {
   override type = 'memory' as const;
 
+  static is(cfg: BasemapsConfigProvider): cfg is ConfigProviderMemory {
+    return cfg.type === 'memory';
+  }
+
   /** Optional id of the configuration */
   id?: string;
+  /** Optional hash of the config if the config was loaded from JSON */
+  hash?: string;
 
   Imagery = new MemoryConfigObject<ConfigImagery>(this, ConfigPrefix.Imagery);
   Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);
@@ -245,6 +251,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
     mem.assets = cfg.assets;
     mem.id = cfg.id;
+    mem.hash = cfg.hash;
 
     return mem;
   }

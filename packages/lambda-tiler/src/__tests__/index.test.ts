@@ -1,7 +1,10 @@
 import assert from 'node:assert';
 import { afterEach, describe, it } from 'node:test';
 
+import { ConfigProviderMemory } from '@basemaps/config';
+
 import { handler } from '../index.js';
+import { ConfigLoader } from '../util/config.loader.js';
 import { mockRequest } from './xyz.util.js';
 
 describe('LambdaXyz index', () => {
@@ -17,7 +20,10 @@ describe('LambdaXyz index', () => {
       delete process.env['BUILD_ID'];
     });
 
-    it('should return version', async () => {
+    it('should return version', async (t) => {
+      const config = new ConfigProviderMemory();
+      t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
+
       process.env['GIT_VERSION'] = '1.2.3';
       process.env['GIT_HASH'] = 'abc456';
 
@@ -32,7 +38,10 @@ describe('LambdaXyz index', () => {
       });
     });
 
-    it('should include buildId if exists', async () => {
+    it('should include buildId if exists', async (t) => {
+      const config = new ConfigProviderMemory();
+      t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
+
       process.env['GIT_VERSION'] = '1.2.3';
       process.env['BUILD_ID'] = '1658821493-3';
 
@@ -44,6 +53,25 @@ describe('LambdaXyz index', () => {
       assert.deepEqual(JSON.parse(response.body), {
         version: '1.2.3',
         buildId: '1658821493-3',
+      });
+    });
+
+    it('should return config information if present', async (t) => {
+      const config = new ConfigProviderMemory();
+      t.mock.method(ConfigLoader, 'getDefaultConfig', () => config);
+      config.id = 'config-id';
+
+      const response = await handler.router.handle(mockRequest('/v1/version'));
+      assert.deepEqual(JSON.parse(response.body), {
+        version: 'dev',
+        config: { id: 'config-id' },
+      });
+
+      config.hash = 'config-hash';
+      const responseHash = await handler.router.handle(mockRequest('/v1/version'));
+      assert.deepEqual(JSON.parse(responseHash.body), {
+        version: 'dev',
+        config: { id: 'config-id', hash: 'config-hash' },
       });
     });
   });

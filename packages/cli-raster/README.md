@@ -1,4 +1,4 @@
-# @basemaps/cogify
+# @basemaps/cli-raster
 
 CLI to retile imagery into a [Cloud Optimised Geotiffs (COG)](https://www.cogeo.org/) aligned to a [TileMatrix](https://www.ogc.org/standard/tms/)
 
@@ -41,7 +41,7 @@ cogify validate  --tile-matrix WebMercatorQuad ./output/WebMercatorQuad/porirua_
 
 Install `cogify` using `npm`
 ```
-npm install -g @basemaps/cogify
+npm install -g @basemaps/cli-raster
 ```
 
 

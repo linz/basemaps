@@ -1,4 +1,6 @@
-import { Env } from '@basemaps/shared';
+import assert from 'node:assert';
+
+import { Env, isValidApiKey } from '@basemaps/shared';
 import * as cdk from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
 import iam from 'aws-cdk-lib/aws-iam';
@@ -36,6 +38,17 @@ export class LambdaTiler extends Construct {
 
     if (props.staticBucketName) {
       environment[Env.StaticAssetLocation] = `s3://${props.staticBucketName}/`;
+    }
+
+    // Set blocked api keys if some are present
+    const blockedKeys = Env.get(Env.BlockedApiKeys) ?? '';
+    if (blockedKeys.length > 0) {
+      const listOfKeys = JSON.parse(blockedKeys) as string[];
+      if (!Array.isArray(listOfKeys)) throw new Error(` ${Env.BlockedApiKeys} is not valid`);
+      for (const key of listOfKeys) {
+        assert.ok(isValidApiKey(key).valid, `${key} is not a valid api key to block ${Env.BlockedApiKeys}`);
+      }
+      environment[Env.BlockedApiKeys] = blockedKeys;
     }
 
     const code = lambda.Code.fromAsset(CODE_PATH);

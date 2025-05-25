@@ -3,6 +3,45 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+
+### Bug Fixes
+
+* correct cli-config 'import' parameters ([#3445](https://github.com/linz/basemaps/issues/3445)) ([f349080](https://github.com/linz/basemaps/commit/f349080c473100cc5361162719011c2b152ea299)), closes [/github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61#diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70](https://github.com//github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61/issues/diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70) [/github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml#L131](https://github.com//github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml/issues/L131)
+* parsing of blocked api keys ([#3448](https://github.com/linz/basemaps/issues/3448)) ([ab8bf72](https://github.com/linz/basemaps/commit/ab8bf7221df32eac59beb2d4e5cad78015c88395))
+
+
+### Features
+
+* **lambda-tiler:** expose configuration id and hash if present ([#3446](https://github.com/linz/basemaps/issues/3446)) ([43803b4](https://github.com/linz/basemaps/commit/43803b48a404591417453331ac9e3aa16c85248f))
+
+
+
+
+
+# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+
+### Bug Fixes
+
+* **cli:** update landing deploy script with new cli-config package BM-1260 ([#3431](https://github.com/linz/basemaps/issues/3431)) ([4d7e86d](https://github.com/linz/basemaps/commit/4d7e86d100baf83e92402f39e3ded38707d3fdde)), closes [/github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs#L1](https://github.com//github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs/issues/L1)
+* ensure all linzjs packages are correctly labeled as deps ([#3439](https://github.com/linz/basemaps/issues/3439)) ([de9df87](https://github.com/linz/basemaps/commit/de9df87031da70523b3f7683f53d113633fcd8be)), closes [#3438](https://github.com/linz/basemaps/issues/3438)
+* ensure api key blocks are set in ci/cd ([#3442](https://github.com/linz/basemaps/issues/3442)) ([28f6403](https://github.com/linz/basemaps/commit/28f6403bed5efc82742e381ffb60b4fe8dfc8787))
+
+
+### Features
+
+* **cli-vector:** Extract cli to load schema json and prepare jobs to process vector mbtiles. BM-1267 ([#3429](https://github.com/linz/basemaps/issues/3429)) ([db113e2](https://github.com/linz/basemaps/commit/db113e27ad935fab4538ffad607c2cd04f52dbdd))
+* **cli:** add cli-config package BM-1260 ([#3428](https://github.com/linz/basemaps/issues/3428)) ([4ca5a47](https://github.com/linz/basemaps/commit/4ca5a474d4e4548f6c8d2a5437a793586efd1673))
+* **cli:** move cogify create-config into cli-config package BM-1261 ([#3432](https://github.com/linz/basemaps/issues/3432)) ([5f72430](https://github.com/linz/basemaps/commit/5f72430690d330e8542d272ede461d3a711493de))
+* **cli:** rename cogify package to cli-raster BM-1262 ([#3433](https://github.com/linz/basemaps/issues/3433)) ([36d4449](https://github.com/linz/basemaps/commit/36d44492fa84d6cbca8b5c735f4bc2c22773c649))
+* **cli:** update cli-package commands to cmd-ts BM-1259 ([#3427](https://github.com/linz/basemaps/issues/3427)) ([46cc342](https://github.com/linz/basemaps/commit/46cc34223094f6b148abf2eb2d0c86897e1de5d0))
+
+
+
+
+
 # [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
 
 

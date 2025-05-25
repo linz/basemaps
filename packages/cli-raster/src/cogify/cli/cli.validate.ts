@@ -22,7 +22,7 @@ export const BasemapsCogifyValidateCommand = command({
   },
 
   async handler(args) {
-    const logger = getLogger(this, args, 'cogify');
+    const logger = getLogger(this, args, 'cli-raster');
     const q = pLimit(args.concurrency);
 
     const promises = args.tiffs.map((tiff) => {

@@ -1,6 +1,6 @@
 # Gebco re-project to NZTM2000Quad cog file
 
-[GEBCO](https://www.gebco.net/) grid data are based on WGS84 which required to re-project into NZTM2000Quad tilematrix before importing into Basemaps. This instruction include the process of re-project [Gebco data](https://www.gebco.net/data_and_products/gridded_bathymetry_data/) into NZTM2000Quad tiff file by using gdal commands. Then we can process the output by [cogify](https://github.com/linz/basemaps/tree/master/packages/cogify) commands to import into LINZ Basemaps.
+[GEBCO](https://www.gebco.net/) grid data are based on WGS84 which required to re-project into NZTM2000Quad tilematrix before importing into Basemaps. This instruction include the process of re-project [Gebco data](https://www.gebco.net/data_and_products/gridded_bathymetry_data/) into NZTM2000Quad tiff file by using gdal commands. Then we can process the output by [cogify](https://github.com/linz/basemaps/tree/master/packages/cli-raster) commands to import into LINZ Basemaps.
 
 ## Process
 

@@ -68,7 +68,7 @@ export const BasemapsCogifyCoverCommand = command({
   },
   async handler(args) {
     const metrics = new Metrics();
-    const logger = getLogger(this, args, 'cogify');
+    const logger = getLogger(this, args, 'cli-raster');
 
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');

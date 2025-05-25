@@ -83,7 +83,7 @@ export const TopoStacCreationCommand = command({
     }),
   },
   async handler(args) {
-    const logger = getLogger(this, args, 'cogify');
+    const logger = getLogger(this, args, 'cli-raster');
     const startTime = performance.now();
     logger.info('TopoCogify:Start');
 

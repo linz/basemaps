@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/bathymetry",
-  "version": "7.16.0",
+  "version": "8.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -28,8 +28,8 @@
     "build/"
   ],
   "dependencies": {
-    "@basemaps/geo": "^7.16.0",
-    "@basemaps/shared": "^7.16.0",
+    "@basemaps/geo": "^8.0.0",
+    "@basemaps/shared": "^8.1.0",
     "@rushstack/ts-command-line": "^4.3.13",
     "ulid": "^2.3.0"
   },
