@@ -65,7 +65,6 @@ export interface CacheFile {
 export interface Metrics {
   input: number;
   output: number;
-  mbTilesPath?: URL;
 }
 
 /**
