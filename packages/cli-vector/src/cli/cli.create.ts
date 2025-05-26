@@ -130,6 +130,14 @@ async function downloadSourceFile(
   logger.info({ source: layer.source }, 'DownloadSourceFile: Start');
 
   if (!(await fsa.exists(tmpPaths.source.path))) {
+    // TODO: We don't acturally need to head file from lds-cache here.
+    // As the fsa.stream doesn't retry to register roles, we need head to register it.
+    // We could delete this once that is fixed.
+    const stats = await fsa.head(new URL(layer.source));
+    logger.debug(
+      { size: stats?.size, ContentType: stats?.contentType, LastModified: stats?.lastModified },
+      'DownloadSourceFile: stats',
+    );
     const stream = fsa.readStream(new URL(layer.source));
     await fsa.write(tmpPaths.source.path, stream.pipe(createGunzip()), {
       contentType: tmpPaths.source.contentType,
