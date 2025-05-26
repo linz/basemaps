@@ -1,4 +1,4 @@
-import { fsa, LogType, Url } from '@basemaps/shared';
+import { fsa, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
@@ -14,30 +14,11 @@ import { ContentType, prepareTmpPaths, TmpPaths } from '../util.js';
 
 const TmpPath = fsa.toUrl('tmp/create/');
 
-async function fromFile(path: URL): Promise<URL[]> {
-  const toProcess = await fsa.readJson(path);
-  const paths: URL[] = [];
-  if (!Array.isArray(toProcess)) throw new Error(`File ${path.href} is not an array`);
-  for (const tasks of toProcess) {
-    if (Array.isArray(tasks)) {
-      for (const task of tasks) {
-        if (typeof task !== 'string') throw new Error(`File ${path.href} is not an array of strings`);
-        paths.push(new URL(task));
-      }
-    } else if (typeof tasks === 'string') {
-      paths.push(new URL(tasks));
-    } else {
-      throw new Error(`File ${path.href} is not an array of strings`);
-    }
-  }
-  return paths;
-}
-
 export const CreateArgs = {
   ...logArguments,
   path: restPositionals({ type: Url, displayName: 'path', description: 'Path to vector Stac Item' }),
   fromFile: option({
-    type: optional(Url),
+    type: optional(UrlArrayJsonFile),
     long: 'from-file',
     description: 'Path to JSON file containing array of paths to mbtiles stac json.',
   }),
@@ -63,11 +44,7 @@ export const CreateCommand = command({
   args: CreateArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    const paths = args.path;
-    if (args.fromFile != null) {
-      const filePaths = await fromFile(args.fromFile);
-      paths.push(...filePaths);
-    }
+    const paths = args.fromFile != null ? args.path.concat(args.fromFile) : args.path;
 
     // parse files as vector stac items and prepare tmp file paths
     logger.info({ files: paths.length }, 'Parse Vector Stac Items: Start');

@@ -2,7 +2,7 @@ import { GoogleTms, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, number, oneOf, option, string } from 'cmd-ts';
+import { command, oneOf, option, string } from 'cmd-ts';
 
 import { SchemaLoader } from '../schema-loader/schema.loader.js';
 import { VectorCreationOptions, VectorStac } from '../stac.js';
@@ -36,13 +36,6 @@ export const ExtractArgs = {
     defaultValue: () => GoogleTms.identifier,
     defaultValueIsSerializable: true,
   }),
-  group: option({
-    type: number,
-    long: 'group',
-    defaultValue: () => 100,
-    defaultValueIsSerializable: true,
-    description: 'Number of layers grouped together, default to 100',
-  }),
 };
 
 export const ExtractCommand = command({
@@ -60,19 +53,15 @@ export const ExtractCommand = command({
     logger.info({ schema: args.schema }, 'Extract: Start');
     const schemaLoader = new SchemaLoader(args.schema, logger, cache);
     const schemas = await schemaLoader.load();
-    const toProcess = [];
+    const smallLayers = [];
+    const largeLayers = [];
     let total = 0;
-    let tasks: string[] = [];
     const allFiles: string[] = [];
     const vectorStac = new VectorStac(logger);
     for (const schema of schemas) {
       for (const layer of schema.layers) {
         if (layer.cache == null) throw new Error(`Fail to prepare cache path for layer ${schema.name}:${layer.id}`);
         allFiles.push(layer.cache.path.href);
-        if (tasks.length >= args.group) {
-          toProcess.push(tasks);
-          tasks = [];
-        }
 
         // Skip if the layer is already processed in cache
         if (layer.cache.exists) {
@@ -98,20 +87,18 @@ export const ExtractCommand = command({
 
         // Separate large layer as individual task
         if (layer.largeLayer) {
-          toProcess.push([stacFile.href]);
+          largeLayers.push({ path: stacFile.href });
         } else {
-          // Group the tasks together
-          tasks.push(stacFile.href);
+          smallLayers.push({ path: stacFile.href });
         }
         total++;
       }
     }
-    // Push remaining tasks
-    toProcess.push(tasks);
 
     logger.info({ ToProcess: total }, 'CheckUpdate: Finish');
-    await fsa.write(fsa.toUrl('tmp/extract/allFiles.json'), JSON.stringify(allFiles, null, 2));
-    await fsa.write(fsa.toUrl('tmp/extract/toProcess.json'), JSON.stringify(toProcess, null, 2));
+    await fsa.write(fsa.toUrl('tmp/extract/allCaches.json'), JSON.stringify(allFiles, null, 2));
+    await fsa.write(fsa.toUrl('tmp/extract/smallLayers.json'), JSON.stringify(smallLayers, null, 2));
+    await fsa.write(fsa.toUrl('tmp/extract/largeLayers.json'), JSON.stringify(largeLayers, null, 2));
     await fsa.write(fsa.toUrl('tmp/extract/updateRequired'), String(total > 0));
   },
 });
