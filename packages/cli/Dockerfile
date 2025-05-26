@@ -34,6 +34,8 @@ COPY ./basemaps-smoke*.tgz /app/
 
 # Copy the static files for v1/health check
 COPY ./static/ /app/static/
+# Copy the Vector Schema into the image
+COPY ./schema/ /app/schema/
 
 RUN npm install  ./basemaps-smoke*.tgz
 
