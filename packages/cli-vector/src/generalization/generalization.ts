@@ -6,7 +6,7 @@ import readline from 'readline';
 import { modifyFeature } from '../modify/modify.js';
 import { Metrics, Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
-import { VectorGeoFeature, VectorGeoFeatureSchema } from '../types/VectorGeoFeature.js';
+import { VectorGeoFeature } from '../types/VectorGeoFeature.js';
 import { createReadStreamSafe } from '../util.js';
 import { Point, simplify } from './simplify.js';
 
@@ -77,14 +77,14 @@ function tag(
   simplify: Simplify | null,
   logger: LogType,
 ): VectorGeoFeature | null {
-  const feature = VectorGeoFeatureSchema.parse({
+  const feature = {
     ...JSON.parse(line),
     tippecanoe: {
       layer: options.name,
       minzoom: options.layer.style.minZoom,
       maxzoom: options.layer.style.maxZoom,
     },
-  });
+  } as VectorGeoFeature;
 
   // copy the stac json's tags to the feature (i.e. 'kind')
   Object.entries(options.layer.tags).forEach(([key, value]) => (feature.properties[key] = value));
