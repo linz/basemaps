@@ -6,6 +6,7 @@ import PLimit from 'p-limit';
 import { createGunzip } from 'zlib';
 
 import { generalize } from '../generalization/generalization.js';
+import { Metrics } from '../schema-loader/schema.js';
 import { VectorStacItem } from '../stac.js';
 import { ogr2ogrNDJson } from '../transform/ogr2ogr.js';
 import { tileJoin, tippecanoe } from '../transform/tippecanoe.js';
@@ -197,10 +198,10 @@ async function createMbtilesFile(
    * Parse the ndjson file and apply the generalization options
    */
   logger.info({ source: tmpPaths.ndjson }, '[2/5] Generalise ndjson features: Start');
+  let metrics: Metrics | null = null;
   if (!(await fsa.exists(tmpPaths.genNdjson))) {
-    const metrics = await generalize(tmpPaths.ndjson, tmpPaths.genNdjson, options, logger);
+    metrics = await generalize(tmpPaths.ndjson, tmpPaths.genNdjson, options, logger);
     if (metrics.output === 0) throw new Error(`Failed to generalize ndjson file ${tmpPaths.ndjson.href}`);
-    layer.metrics = metrics;
   }
   logger.info({ destination: tmpPaths.genNdjson }, '[2/5] Generalise ndjson features: End');
 
@@ -241,7 +242,11 @@ async function createMbtilesFile(
   if (ldsLayerIndex === -1) throw new Error('Failed to locate `lds:layer` link object');
 
   if (links[ldsLayerIndex]['lds:feature_count'] == null) {
-    const metrics = layer.metrics;
+    // the 'metrics' variable is only ever null if the gen-ndjson file already exists, i.e.
+    // generated in a previous run. In such case, that run would have written the
+    // 'lds:feature_count' property to the Vector Stac Item file. If the following error occurs,
+    // then the previous run must have failed after creating the gen-ndjson file, but before
+    // updating the Vector Stac Item file.
     if (metrics == null) throw new Error('Metrics object does not exist');
 
     links[ldsLayerIndex]['lds:feature_count'] = metrics.input;
