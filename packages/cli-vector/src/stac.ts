@@ -1,4 +1,4 @@
-import { BoundingBox, Bounds, TileMatrixSet } from '@basemaps/geo';
+import { BoundingBox, Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { StacCatalog, StacCollection, StacItem, StacLink, StacProvider } from 'stac-ts';
@@ -35,7 +35,7 @@ export interface GeneratedProperties {
 export type VectorStacItem = StacItem & {
   properties: {
     'linz_basemaps:generated': GeneratedProperties;
-    'linz_basemaps:options': VectorCreationOptions;
+    'linz_basemaps:options'?: VectorCreationOptions;
   };
 };
 
@@ -92,7 +92,7 @@ export class VectorStac {
     layers: StacLink[],
     filename: string,
     tileMatrix: TileMatrixSet,
-    options: VectorCreationOptions,
+    options?: VectorCreationOptions,
   ): VectorStacItem {
     this.logger.info({ filename }, 'VectorStac: CreateStacItem');
     const item: VectorStacItem = {
@@ -111,7 +111,6 @@ export class VectorStac {
       ],
       properties: {
         'proj:epsg': tileMatrix.projection.code,
-        'linz_basemaps:options': options,
         'linz_basemaps:generated': {
           package: CliInfo.package,
           hash: CliInfo.hash,
@@ -121,6 +120,9 @@ export class VectorStac {
       },
       assets: {},
     };
+
+    // Set options for individual mbtiles stac file
+    if (options != null) item.properties['linz_basemaps:options'] = options;
 
     return item;
   }
