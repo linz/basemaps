@@ -95,6 +95,7 @@ async function prepareItem(
   // parse Vector Stac Item file
   const stac = await fsa.readJson<VectorStacItem>(path);
   const options = stac.properties['linz_basemaps:options'];
+  if (options == null) throw new Error(`Stac file missing linz_basemaps:options ${stac.id}`);
   const layer = options.layer;
   const shortbreadLayer = options.name;
 
@@ -125,6 +126,8 @@ async function downloadSourceFile(
   logger: LogType,
 ): Promise<void> {
   const options = stac.properties['linz_basemaps:options'];
+  if (options == null) throw new Error(`Stac file missing linz_basemaps:options ${stac.id}`);
+
   const layer = options.layer;
 
   logger.info({ source: layer.source }, 'DownloadSourceFile: Start');
@@ -165,6 +168,8 @@ async function createMbtilesFile(
   logger: LogType,
 ): Promise<void> {
   const options = stac.properties['linz_basemaps:options'];
+  if (options == null) throw new Error(`Stac file missing linz_basemaps:options ${stac.id}`);
+
   const layer = options.layer;
   const shortbreadLayer = options.name;
 

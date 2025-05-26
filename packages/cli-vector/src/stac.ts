@@ -1,9 +1,10 @@
-import { BoundingBox, Bounds, TileMatrixSet } from '@basemaps/geo';
+import { BoundingBox, Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { StacCollection, StacItem, StacLink } from 'stac-ts';
+import { StacCatalog, StacCollection, StacItem, StacLink, StacProvider } from 'stac-ts';
 
 import { LDS_CACHE_BUCKET } from './extract.js';
+import { zLayer, zTypeLayer } from './schema-loader/parser.js';
 import { Layer, SchemaMetadata } from './schema-loader/schema.js';
 
 export interface VectorCreationOptions {
@@ -34,9 +35,13 @@ export interface GeneratedProperties {
 export type VectorStacItem = StacItem & {
   properties: {
     'linz_basemaps:generated': GeneratedProperties;
-    'linz_basemaps:options': VectorCreationOptions;
+    'linz_basemaps:options'?: VectorCreationOptions;
   };
 };
+
+const providers: StacProvider[] = [
+  { name: 'Land Information New Zealand', url: 'https://www.linz.govt.nz/', roles: ['processor', 'host'] },
+];
 
 export class VectorStac {
   logger: LogType;
@@ -87,7 +92,7 @@ export class VectorStac {
     layers: StacLink[],
     filename: string,
     tileMatrix: TileMatrixSet,
-    options: VectorCreationOptions,
+    options?: VectorCreationOptions,
   ): VectorStacItem {
     this.logger.info({ filename }, 'VectorStac: CreateStacItem');
     const item: VectorStacItem = {
@@ -106,7 +111,6 @@ export class VectorStac {
       ],
       properties: {
         'proj:epsg': tileMatrix.projection.code,
-        'linz_basemaps:options': options,
         'linz_basemaps:generated': {
           package: CliInfo.package,
           hash: CliInfo.hash,
@@ -117,6 +121,118 @@ export class VectorStac {
       assets: {},
     };
 
+    // Set options for individual mbtiles stac file
+    if (options != null) item.properties['linz_basemaps:options'] = options;
+
     return item;
   }
+
+  createStacCollection(bbBox: number[], layers: StacLink[], filename: string, title: string): StacCollection {
+    return {
+      stac_version: '1.0.0',
+      stac_extensions: [],
+      type: 'Collection',
+      license: 'CC-BY-4.0',
+      id: 'sc_' + CliId,
+      title,
+      description: 'Linz Vector Basemaps.',
+      extent: {
+        spatial: {
+          bbox: [bbBox],
+        },
+        temporal: { interval: [[CliDate, null]] },
+      },
+      links: [
+        { rel: 'self', href: './collection.json', type: 'application/json' },
+        { rel: 'item', href: `./${filename}.json` },
+        ...layers,
+      ],
+      providers,
+      summaries: {},
+    };
+  }
+
+  createStacCatalog(): StacCatalog {
+    return {
+      stac_version: '1.0.0',
+      stac_extensions: [],
+      type: 'Catalog',
+      title: 'ETL',
+      description: 'ETL process to generate LINZ Vector Basemaps',
+      id: 'sl_' + CliId,
+      links: [{ rel: 'self', href: './catalog.json', type: 'application/json' }],
+    };
+  }
+}
+
+export async function createStacFiles(
+  filePaths: string[],
+  target: string,
+  filename: string,
+  tileMatrix: TileMatrixSet,
+  title: string,
+  logger: LogType,
+): Promise<URL[]> {
+  const bucketPath = fsa.toUrl(`${target}/vector/${Epsg.Google.toString()}/`);
+  const vectorStac = new VectorStac(logger);
+
+  // Prepare stac item links
+  const bboxArr: BoundingBox[] = [];
+  const layers: StacLink[] = [];
+  const duplicateLayer = new Map<unknown, StacLink>();
+  for (const file of filePaths) {
+    const stacPath = fsa.toUrl(`${file.slice(0, -8)}.json`);
+    const stac: StacItem = await fsa.readJson(stacPath);
+    if (stac.bbox) bboxArr.push(Bounds.fromBbox(stac.bbox));
+
+    const layer = zLayer.parse((stac.properties['linz_basemaps:options'] as { layer: zTypeLayer }).layer);
+    const layerLink = await vectorStac.createStacLink(
+      (stac.properties['linz_basemaps:options'] as { name: string }).name,
+      layer,
+    );
+
+    if (duplicateLayer.has(layer.id)) {
+      const duplicate = duplicateLayer.get(layer.id);
+      if (JSON.stringify(duplicate) === JSON.stringify(layerLink)) continue;
+      logger.warn({ layer: layer.id, layerLink, duplicate }, 'Duplicated Layer with different StacLink.');
+    }
+    duplicateLayer.set(layer.id, layerLink);
+    layers.push(layerLink);
+  }
+
+  // Create stac item
+  const stacItem = vectorStac.createStacItem(layers, filename, tileMatrix);
+
+  // Union bbox
+  const unionBound = Bounds.union(bboxArr);
+  const unionBbox = unionBound.toBbox();
+  stacItem.bbox = unionBbox;
+  stacItem.geometry = {
+    type: 'Polygon',
+    coordinates: unionBound.toPolygon(),
+  };
+
+  // Create stac collection
+  const stacCollection = vectorStac.createStacCollection(unionBbox, layers, filename, title);
+
+  // Create stac catalog
+  let stacCatalog = vectorStac.createStacCatalog();
+  const catalogPath = new URL('catalog.json', bucketPath);
+  if (await fsa.exists(catalogPath)) stacCatalog = await fsa.readJson<StacCatalog>(catalogPath);
+  // Add link for new collection
+  stacCatalog.links.push({
+    rel: 'child',
+    href: `./${CliId}/collection.json`,
+    created: CliDate,
+    type: 'application/json',
+  });
+
+  const item = fsa.toUrl(`tmp/${filename}.json`);
+  await fsa.write(item, JSON.stringify(stacItem, null, 2));
+  const collection = fsa.toUrl('tmp/collection.json');
+  await fsa.write(collection, JSON.stringify(stacCollection, null, 2));
+  const catalog = fsa.toUrl('tmp/catalog.json');
+  await fsa.write(catalog, JSON.stringify(stacCatalog, null, 2));
+
+  return [item, collection, catalog];
 }
