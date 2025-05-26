@@ -65,12 +65,12 @@ export const CreateCommand = command({
 
     // if applicable, combine all mbtiles files into a single mbtiles file
     if (args.join === true) {
-      const mbtileFiles = items.map((item) => item.tmpPaths.mbtiles.pathname);
+      const mbtileFiles = items.map((item) => item.tmpPaths.mbtiles);
       logger.info({ joining: mbtileFiles.length }, 'JoinMbtiles:Start');
 
       const joinedFile = new URL(`joined.mbtiles`, TmpPath);
 
-      await tileJoin(mbtileFiles, joinedFile.pathname, logger);
+      await tileJoin(mbtileFiles, joinedFile, logger);
       if (!(await fsa.exists(joinedFile))) throw new Error(`Failed to create joined mbtiles ${joinedFile.href}`);
       logger.info({ output: joinedFile.href }, 'JoinMbtiles:End');
     }

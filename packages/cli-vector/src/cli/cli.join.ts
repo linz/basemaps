@@ -1,5 +1,5 @@
 import { Epsg, TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogType, Url } from '@basemaps/shared';
+import { fsa, LogType, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, string } from 'cmd-ts';
@@ -10,27 +10,6 @@ import { createStacFiles } from '../stac.js';
 import { toTarIndex } from '../transform/covt.js';
 import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
 import { tileJoin } from '../transform/tippecanoe.js';
-
-async function fromFile(path: URL): Promise<string[]> {
-  const toProcess = await fsa.readJson(path);
-  const paths: string[] = [];
-  if (!Array.isArray(toProcess)) throw new Error(`File ${path.href} is not an array`);
-  for (const task of toProcess) {
-    if (typeof task !== 'string') throw new Error(`File ${path.href} is not an array of strings`);
-    const sourceFile = new URL(task);
-    if (sourceFile.protocol === 'file:') {
-      paths.push(sourceFile.pathname);
-    } else {
-      const fileName = basename(sourceFile.pathname);
-      if (fileName == null) throw new Error(`Unsupported source pathname ${sourceFile.pathname}`);
-      const localFile = `tmp/join/${fileName}`;
-      const stream = fsa.readStream(sourceFile);
-      await fsa.write(fsa.toUrl(localFile), stream);
-      paths.push(localFile);
-    }
-  }
-  return paths;
-}
 
 /**
  * Upload output file into s3 bucket
@@ -58,7 +37,7 @@ async function upload(file: URL, bucketPath: string, logger: LogType): Promise<U
 export const JoinArgs = {
   ...logArguments,
   fromFile: option({
-    type: Url,
+    type: UrlArrayJsonFile,
     long: 'from-file',
     description: 'Path to JSON file containing array of paths to mbtiles.',
   }),
@@ -97,19 +76,20 @@ export const JoinCommand = command({
   args: JoinArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    const filePaths = await fromFile(args.fromFile);
+    const filePaths = args.fromFile;
+    const outputPath = `/tmp/join/`;
 
     logger.info({ files: filePaths.length }, 'JoinMbtiles: Start');
 
-    const outputMbtiles = fsa.toUrl(`tmp/${args.filename}.mbtiles`).pathname;
+    const outputMbtiles = new URL(`${args.filename}.mbtiles`, outputPath);
 
     await tileJoin(filePaths, outputMbtiles, logger);
 
-    const outputCotar = fsa.toUrl(`tmp/${args.filename}.covt`);
+    const outputCotar = new URL(`${args.filename}.tar.co`, outputPath);
 
     await toTarTiles(outputMbtiles, outputCotar, logger);
 
-    const [outputIndex, outputTar] = await toTarIndex(outputCotar, 'tmp/', args.filename, logger);
+    const outputIndex = await toTarIndex(outputCotar, fsa.toUrl(outputPath), args.filename, logger);
 
     const tileMatrix = TileMatrixSets.find(args.tileMatrix);
     if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
@@ -117,9 +97,9 @@ export const JoinCommand = command({
 
     // Upload output to s3
     const bucketPath = `${args.target}/vector/${Epsg.Google.code.toString()}/${args.filename}`;
-    await upload(fsa.toUrl(outputMbtiles), bucketPath, logger);
-    await upload(fsa.toUrl(outputTar), bucketPath, logger);
-    await upload(fsa.toUrl(outputIndex), bucketPath, logger);
+    await upload(outputMbtiles, bucketPath, logger);
+    await upload(outputCotar, bucketPath, logger);
+    await upload(outputIndex, bucketPath, logger);
     // Upload stac Files
     for (const file of stacFiles) {
       await upload(file, bucketPath, logger);

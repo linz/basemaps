@@ -31,7 +31,7 @@ export async function* readMbTiles(
   return null;
 }
 
-export async function toTarTiles(fileName: string, tarFileName: URL, logger: LogType, limit = -1): Promise<void> {
+export async function toTarTiles(fileName: URL, tarFileName: URL, logger: LogType, limit = -1): Promise<void> {
   const packer = tar.pack();
   const startTime = Date.now();
   let writeCount = 0;
@@ -40,7 +40,7 @@ export async function toTarTiles(fileName: string, tarFileName: URL, logger: Log
   packer.pipe(createWriteStream(tarFileName));
 
   let startTileTime = Date.now();
-  for await (const { tile, index, total } of readMbTiles(fileName, limit)) {
+  for await (const { tile, index, total } of readMbTiles(fileName.href, limit)) {
     if (index === 0) logger.info({ path: tarFileName, count: total }, 'Covt.Tar:Start');
 
     const z = tile.zoom_level;

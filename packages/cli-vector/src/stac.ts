@@ -166,7 +166,7 @@ export class VectorStac {
 }
 
 export async function createStacFiles(
-  filePaths: string[],
+  filePaths: URL[],
   target: string,
   filename: string,
   tileMatrix: TileMatrixSet,
@@ -181,7 +181,7 @@ export async function createStacFiles(
   const layers: StacLink[] = [];
   const duplicateLayer = new Map<unknown, StacLink>();
   for (const file of filePaths) {
-    const stacPath = fsa.toUrl(`${file.slice(0, -8)}.json`);
+    const stacPath = fsa.toUrl(`${file.href.split('.mbtiles')[0]}.json`);
     const stac: StacItem = await fsa.readJson(stacPath);
     if (stac.bbox) bboxArr.push(Bounds.fromBbox(stac.bbox));
 
