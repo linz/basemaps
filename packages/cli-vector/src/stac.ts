@@ -35,7 +35,7 @@ export interface GeneratedProperties {
 export type VectorStacItem = StacItem & {
   properties: {
     'linz_basemaps:generated': GeneratedProperties;
-    'linz_basemaps:options': VectorCreationOptions;
+    'linz_basemaps:options'?: VectorCreationOptions;
   };
 };
 
@@ -92,7 +92,7 @@ export class VectorStac {
     layers: StacLink[],
     filename: string,
     tileMatrix: TileMatrixSet,
-    options: VectorCreationOptions,
+    options?: VectorCreationOptions,
   ): VectorStacItem {
     this.logger.info({ filename }, 'VectorStac: CreateStacItem');
     const item: VectorStacItem = {
@@ -111,7 +111,6 @@ export class VectorStac {
       ],
       properties: {
         'proj:epsg': tileMatrix.projection.code,
-        'linz_basemaps:options': options,
         'linz_basemaps:generated': {
           package: CliInfo.package,
           hash: CliInfo.hash,
@@ -121,6 +120,9 @@ export class VectorStac {
       },
       assets: {},
     };
+
+    // Set options for individual mbtiles stac file
+    if (options != null) item.properties['linz_basemaps:options'] = options;
 
     return item;
   }
@@ -164,7 +166,7 @@ export class VectorStac {
 }
 
 export async function createStacFiles(
-  filePaths: URL[],
+  filePaths: string[],
   target: string,
   filename: string,
   tileMatrix: TileMatrixSet,
@@ -179,7 +181,7 @@ export async function createStacFiles(
   const layers: StacLink[] = [];
   const duplicateLayer = new Map<unknown, StacLink>();
   for (const file of filePaths) {
-    const stacPath = fsa.toUrl(`${file.pathname.slice(0, -8)}.json`);
+    const stacPath = fsa.toUrl(`${file.slice(0, -8)}.json`);
     const stac: StacItem = await fsa.readJson(stacPath);
     if (stac.bbox) bboxArr.push(Bounds.fromBbox(stac.bbox));
 

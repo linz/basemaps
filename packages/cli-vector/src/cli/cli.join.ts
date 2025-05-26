@@ -11,21 +11,21 @@ import { toTarIndex } from '../transform/covt.js';
 import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
 import { tileJoin } from '../transform/tippecanoe.js';
 
-async function fromFile(path: URL): Promise<URL[]> {
+async function fromFile(path: URL): Promise<string[]> {
   const toProcess = await fsa.readJson(path);
-  const paths: URL[] = [];
+  const paths: string[] = [];
   if (!Array.isArray(toProcess)) throw new Error(`File ${path.href} is not an array`);
   for (const task of toProcess) {
     if (typeof task !== 'string') throw new Error(`File ${path.href} is not an array of strings`);
     const sourceFile = new URL(task);
     if (sourceFile.protocol === 'file:') {
-      paths.push(sourceFile);
+      paths.push(sourceFile.pathname);
     } else {
       const fileName = basename(sourceFile.pathname);
       if (fileName == null) throw new Error(`Unsupported source pathname ${sourceFile.pathname}`);
-      const localFile = new URL(fileName, fsa.toUrl('tmp/join/'));
+      const localFile = `tmp/join/${fileName}`;
       const stream = fsa.readStream(sourceFile);
-      await fsa.write(localFile, stream);
+      await fsa.write(fsa.toUrl(localFile), stream);
       paths.push(localFile);
     }
   }
@@ -101,7 +101,7 @@ export const JoinCommand = command({
 
     logger.info({ files: filePaths.length }, 'JoinMbtiles: Start');
 
-    const outputMbtiles = fsa.toUrl(`tmp/${args.filename}.mbtiles`);
+    const outputMbtiles = fsa.toUrl(`tmp/${args.filename}.mbtiles`).pathname;
 
     await tileJoin(filePaths, outputMbtiles, logger);
 
@@ -117,7 +117,7 @@ export const JoinCommand = command({
 
     // Upload output to s3
     const bucketPath = `${args.target}/vector/${Epsg.Google.code.toString()}/${args.filename}`;
-    await upload(outputMbtiles, bucketPath, logger);
+    await upload(fsa.toUrl(outputMbtiles), bucketPath, logger);
     await upload(fsa.toUrl(outputTar), bucketPath, logger);
     await upload(fsa.toUrl(outputIndex), bucketPath, logger);
     // Upload stac Files

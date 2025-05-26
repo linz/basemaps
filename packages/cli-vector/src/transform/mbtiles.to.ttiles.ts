@@ -15,10 +15,10 @@ export function xyzToPath(x: number | string, y: number | string, z: number | st
 }
 
 export async function* readMbTiles(
-  fileName: URL,
+  fileName: string,
   limit = -1,
 ): AsyncGenerator<{ tile: TileTable; index: number; total: number }, null> {
-  const db = bs3(fileName.pathname);
+  const db = bs3(fileName);
 
   let limitQuery = '';
   if (limit > 0) limitQuery = 'LIMIT ' + limit;
@@ -31,7 +31,7 @@ export async function* readMbTiles(
   return null;
 }
 
-export async function toTarTiles(fileName: URL, tarFileName: URL, logger: LogType, limit = -1): Promise<void> {
+export async function toTarTiles(fileName: string, tarFileName: URL, logger: LogType, limit = -1): Promise<void> {
   const packer = tar.pack();
   const startTime = Date.now();
   let writeCount = 0;
