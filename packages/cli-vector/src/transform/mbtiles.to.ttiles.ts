@@ -1,4 +1,4 @@
-import { LogType } from '@basemaps/shared';
+import { LogType, urlToString } from '@basemaps/shared';
 import bs3 from 'better-sqlite3';
 import { createWriteStream } from 'fs';
 import * as tar from 'tar-stream';
@@ -31,17 +31,17 @@ export async function* readMbTiles(
   return null;
 }
 
-export async function toTarTiles(fileName: URL, tarFileName: URL, logger: LogType, limit = -1): Promise<void> {
+export async function toTarTiles(input: URL, output: URL, logger: LogType, limit = -1): Promise<void> {
   const packer = tar.pack();
   const startTime = Date.now();
   let writeCount = 0;
   const writeProm = new Promise((resolve) => packer.on('end', resolve));
 
-  packer.pipe(createWriteStream(tarFileName));
+  packer.pipe(createWriteStream(urlToString(output)));
 
   let startTileTime = Date.now();
-  for await (const { tile, index, total } of readMbTiles(fileName.href, limit)) {
-    if (index === 0) logger.info({ path: tarFileName, count: total }, 'Covt.Tar:Start');
+  for await (const { tile, index, total } of readMbTiles(urlToString(input), limit)) {
+    if (index === 0) logger.info({ path: output.href, count: total }, 'Covt.Tar:Start');
 
     const z = tile.zoom_level;
     const x = tile.tile_column;
@@ -62,5 +62,5 @@ export async function toTarTiles(fileName: URL, tarFileName: URL, logger: LogTyp
   logger.debug('Covt.Tar:Finalize');
   packer.finalize();
   await writeProm;
-  logger.info({ path: tarFileName, count: writeCount, duration: Date.now() - startTime }, 'Covt.Tar:Done');
+  logger.info({ path: output.href, count: writeCount, duration: Date.now() - startTime }, 'Covt.Tar:Done');
 }

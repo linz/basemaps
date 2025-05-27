@@ -60,13 +60,13 @@ export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: 
 export async function tileJoin(inputs: URL[], output: URL, logger: LogType): Promise<void> {
   const cmd = Command.create('tile-join');
 
-  cmd.mount(dirname(output.href));
+  cmd.mount(dirname(output.pathname));
 
   cmd.args.push('-pk');
   cmd.args.push('-o', output.href);
   for (const input of inputs) {
     if (input.href.endsWith('mbtiles')) {
-      cmd.mount(dirname(input.href));
+      cmd.mount(dirname(input.pathname));
       cmd.args.push(input.href);
     }
   }

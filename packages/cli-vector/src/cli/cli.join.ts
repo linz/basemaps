@@ -1,4 +1,4 @@
-import { Epsg, TileMatrixSets } from '@basemaps/geo';
+import { TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
@@ -7,16 +7,39 @@ import { basename } from 'path';
 import { createGzip } from 'zlib';
 
 import { createStacFiles } from '../stac.js';
-import { toTarIndex } from '../transform/covt.js';
-import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
-import { tileJoin } from '../transform/tippecanoe.js';
+// import { toTarIndex } from '../transform/covt.js';
+// import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
+// import { tileJoin } from '../transform/tippecanoe.js';
+
+// async function download(filePaths: URL[], outputPath: string, logger: LogType): Promise<URL[]> {
+//   const paths: URL[] = [];
+//   for (const file of filePaths) {
+//     if (file.protocol === 'file:') {
+//       paths.push(file);
+//     } else {
+//       const fileName = basename(file.pathname);
+//       if (fileName == null) throw new Error(`Unsupported source pathname ${file.pathname}`);
+//       const localFile = fsa.toUrl(`${outputPath}/${fileName}`);
+//       if (await fsa.exists(localFile)) {
+//         logger.info({ file: file, fileName: fileName }, 'Download:FileExists');
+//       } else {
+//         logger.info({ file: file, fileName: fileName }, 'Download:Start');
+//         const stream = fsa.readStream(file);
+//         await fsa.write(localFile, stream);
+//         logger.info({ file: file, fileName: fileName }, 'Download:End');
+//       }
+//       paths.push(localFile);
+//     }
+//   }
+//   return paths;
+// }
 
 /**
  * Upload output file into s3 bucket
  *
  */
-async function upload(file: URL, bucketPath: string, logger: LogType): Promise<URL> {
-  logger.info({ file: file }, 'Load:Start');
+async function upload(file: URL, bucketPath: URL, logger: LogType): Promise<URL> {
+  logger.info({ file: file.href }, 'Load:Start');
   let filename = basename(file.pathname);
   let stream = fsa.readStream(file);
 
@@ -27,8 +50,8 @@ async function upload(file: URL, bucketPath: string, logger: LogType): Promise<U
   }
 
   // Upload to s3
-  let path = fsa.toUrl(`${bucketPath}/${CliId}/${filename}`);
-  if (filename.endsWith('catalog.json')) path = fsa.toUrl(`${bucketPath}/${filename}`); // Upload catalog to root directory
+  let path = new URL(`${CliId}/${filename}`, bucketPath);
+  if (filename.endsWith('catalog.json')) path = new URL(filename, bucketPath); // Upload catalog to root directory
   await fsa.write(path, stream);
   logger.info({ file: file, path: path }, 'Load:Finish');
   return path;
@@ -76,27 +99,33 @@ export const JoinCommand = command({
   args: JoinArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    const filePaths = args.fromFile;
-    const outputPath = `/tmp/join/`;
+    const outputPath = `tmp/join/`;
+    // const filePaths = await download(args.fromFile, outputPath, logger);
 
-    logger.info({ files: filePaths.length }, 'JoinMbtiles: Start');
+    const outputMbtiles = fsa.toUrl(`${outputPath}/${args.filename}.mbtiles`);
+    // logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: Start');
+    // await tileJoin(filePaths, outputMbtiles, logger);
+    // logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: End');
 
-    const outputMbtiles = new URL(`${args.filename}.mbtiles`, outputPath);
+    const outputCotar = fsa.toUrl(`${outputPath}/${args.filename}.tar.co`);
+    // logger.info({ mbtiles: outputMbtiles, outputCotar }, 'ToTartTiles: Start');
+    // await toTarTiles(outputMbtiles, outputCotar, logger);
+    // logger.info({ mbtiles: outputMbtiles, outputCotar }, 'ToTartTiles: End');
 
-    await tileJoin(filePaths, outputMbtiles, logger);
-
-    const outputCotar = new URL(`${args.filename}.tar.co`, outputPath);
-
-    await toTarTiles(outputMbtiles, outputCotar, logger);
-
-    const outputIndex = await toTarIndex(outputCotar, fsa.toUrl(outputPath), args.filename, logger);
+    const outputIndex = fsa.toUrl(`${outputPath}/${args.filename}.tar.index`);
+    // logger.info({ cotar: outputCotar, outputIndex }, 'toTarIndex: Start');
+    // await toTarIndex(outputCotar, outputIndex, logger);
+    // logger.info({ cotar: outputCotar, outputIndex }, 'toTarIndex: End');
 
     const tileMatrix = TileMatrixSets.find(args.tileMatrix);
     if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
-    const stacFiles = await createStacFiles(filePaths, args.target, args.filename, tileMatrix, args.title, logger);
+    const bucketPath = new URL(`vector/${tileMatrix.projection.code}/`, args.target);
+    // logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'CreateStac: Start');
+    const stacFiles = await createStacFiles(args.fromFile, bucketPath, args.filename, tileMatrix, args.title, logger);
+    // logger.info({ cotar: outputCotar, outputIndex }, 'CreateStac: End');
 
     // Upload output to s3
-    const bucketPath = `${args.target}/vector/${Epsg.Google.code.toString()}/${args.filename}`;
+    logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: Start');
     await upload(outputMbtiles, bucketPath, logger);
     await upload(outputCotar, bucketPath, logger);
     await upload(outputIndex, bucketPath, logger);
@@ -104,5 +133,6 @@ export const JoinCommand = command({
     for (const file of stacFiles) {
       await upload(file, bucketPath, logger);
     }
+    logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: End');
   },
 });
