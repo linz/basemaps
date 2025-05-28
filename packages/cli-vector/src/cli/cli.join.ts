@@ -103,7 +103,8 @@ export const JoinCommand = command({
   args: JoinArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    const outputPath = 'tmp/join/';
+    const outputPath = path.resolve('tmp/join/');
+    mkdirSync(outputPath, { recursive: true });
     const tileMatrix = TileMatrixSets.find(args.tileMatrix);
     if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
     const bucketPath = new URL(`vector/${tileMatrix.projection.code}/`, args.target);
