@@ -2,7 +2,7 @@ import { TileMatrixSets } from '@basemaps/geo';
 import { fsa, isArgo, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, option, string } from 'cmd-ts';
+import { command, option, optional, string } from 'cmd-ts';
 import { mkdirSync } from 'fs';
 import path, { basename } from 'path';
 import { createGzip } from 'zlib';
@@ -90,7 +90,7 @@ export const JoinArgs = {
     defaultValueIsSerializable: true,
   }),
   target: option({
-    type: Url,
+    type: optional(Url),
     long: 'target',
     description: 'Path of target location to upload the processed file, could be local or s3',
   }),
@@ -132,14 +132,16 @@ export const JoinCommand = command({
 
     // Upload output to s3
     logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: Start');
-    await upload(fsa.toUrl(outputMbtiles), bucketPath, logger);
-    await upload(fsa.toUrl(outputCotar), bucketPath, logger);
-    await upload(fsa.toUrl(outputIndex), bucketPath, logger);
-    // Upload stac Files
-    for (const file of stacFiles) {
-      await upload(file, bucketPath, logger);
+    if (args.target) {
+      await upload(fsa.toUrl(outputMbtiles), bucketPath, logger);
+      await upload(fsa.toUrl(outputCotar), bucketPath, logger);
+      await upload(fsa.toUrl(outputIndex), bucketPath, logger);
+      // Upload stac Files
+      for (const file of stacFiles) {
+        await upload(file, bucketPath, logger);
+      }
+      logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: End');
     }
-    logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: End');
 
     // Write output target for argo tasks to create pull request
     if (isArgo()) {

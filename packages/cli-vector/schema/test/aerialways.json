@@ -1,0 +1,41 @@
+{
+  "name": "aerialways",
+  "metadata": { "attributes": ["kind", "feature", "name"] },
+  "layers": [
+    {
+      "id": "50248",
+      "name": "50248-nz-cableway-industrial-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50248/",
+      "tags": { "kind": "cable_car", "feature": "industrial" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50249",
+      "name": "50249-nz-cableway-people-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50249/",
+      "tags": { "kind": "cable_car", "feature": "people" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50902",
+      "name": "50902-nz-kermadec-is-cableway-people-centrelines-topo-125k",
+      "source": "s3://linz-lds-cache/50902/",
+      "tags": { "kind": "cable_car", "feature": "people" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50348",
+      "name": "50348-nz-ski-lift-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50348/",
+      "tags": { "kind": "ski_lift" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50349",
+      "name": "50349-nz-ski-tow-centrelines-topo-150k",
+      "source": "s3://linz-lds-cache/50349/",
+      "tags": { "kind": "ski_tow" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    }
+  ]
+}
