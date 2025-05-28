@@ -1,38 +1,40 @@
 import { TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogType, UrlArrayJsonFile } from '@basemaps/shared';
+import { fsa, isArgo, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, string } from 'cmd-ts';
+import { mkdirSync } from 'fs';
 import { basename } from 'path';
 import { createGzip } from 'zlib';
 
 import { createStacFiles } from '../stac.js';
-// import { toTarIndex } from '../transform/covt.js';
-// import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
-// import { tileJoin } from '../transform/tippecanoe.js';
+import { toTarIndex } from '../transform/covt.js';
+import { toTarTiles } from '../transform/mbtiles.to.ttiles.js';
+import { tileJoin } from '../transform/tippecanoe.js';
 
-// async function download(filePaths: URL[], outputPath: string, logger: LogType): Promise<URL[]> {
-//   const paths: URL[] = [];
-//   for (const file of filePaths) {
-//     if (file.protocol === 'file:') {
-//       paths.push(file);
-//     } else {
-//       const fileName = basename(file.pathname);
-//       if (fileName == null) throw new Error(`Unsupported source pathname ${file.pathname}`);
-//       const localFile = fsa.toUrl(`${outputPath}/${fileName}`);
-//       if (await fsa.exists(localFile)) {
-//         logger.info({ file: file, fileName: fileName }, 'Download:FileExists');
-//       } else {
-//         logger.info({ file: file, fileName: fileName }, 'Download:Start');
-//         const stream = fsa.readStream(file);
-//         await fsa.write(localFile, stream);
-//         logger.info({ file: file, fileName: fileName }, 'Download:End');
-//       }
-//       paths.push(localFile);
-//     }
-//   }
-//   return paths;
-// }
+async function download(filePaths: URL[], outputPath: string, logger: LogType): Promise<URL[]> {
+  const paths: URL[] = [];
+  for (const file of filePaths) {
+    if (file.protocol === 'file:') {
+      paths.push(file);
+    } else {
+      const fileName = basename(file.pathname);
+      if (fileName == null) throw new Error(`Unsupported source pathname ${file.pathname}`);
+      const localFile = fsa.toUrl(`${outputPath}/downloads/${fileName}`);
+      if (await fsa.exists(localFile)) {
+        logger.info({ file: file, localFile, fileName }, 'Download:FileExists');
+      } else {
+        const stats = await fsa.head(file);
+        logger.info({ file: file, localFile, fileName, size: stats?.size }, 'Download:Start');
+        const stream = fsa.readStream(file);
+        await fsa.write(localFile, stream);
+        logger.info({ file: file, localFile, fileName }, 'Download:End');
+      }
+      paths.push(localFile);
+    }
+  }
+  return paths;
+}
 
 /**
  * Upload output file into s3 bucket
@@ -49,8 +51,10 @@ async function upload(file: URL, bucketPath: URL, logger: LogType): Promise<URL>
     stream = stream.pipe(createGzip());
   }
 
-  // Upload to s3
-  let path = new URL(`${CliId}/${filename}`, bucketPath);
+  // Upload to s3 or copy to local
+  let path = new URL(`topographic/${CliId}/${filename}`, bucketPath);
+  logger.info({ file: file, path: path }, 'Load:Path');
+  if (path.protocol === 'file:') mkdirSync(path, { recursive: true });
   if (filename.endsWith('catalog.json')) path = new URL(filename, bucketPath); // Upload catalog to root directory
   await fsa.write(path, stream);
   logger.info({ file: file, path: path }, 'Load:Finish');
@@ -85,8 +89,15 @@ export const JoinArgs = {
     defaultValue: () => 'Topographic',
     defaultValueIsSerializable: true,
   }),
-  target: option({
+  output: option({
     type: string,
+    long: 'output',
+    description: 'Output path for the processing files, default is /tmp/join/',
+    defaultValue: () => '/tmp/join/',
+    defaultValueIsSerializable: true,
+  }),
+  target: option({
+    type: Url,
     long: 'target',
     description: 'Path of target location, could be local or s3',
   }),
@@ -99,30 +110,31 @@ export const JoinCommand = command({
   args: JoinArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    const outputPath = `tmp/join/`;
-    // const filePaths = await download(args.fromFile, outputPath, logger);
-
-    const outputMbtiles = fsa.toUrl(`${outputPath}/${args.filename}.mbtiles`);
-    // logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: Start');
-    // await tileJoin(filePaths, outputMbtiles, logger);
-    // logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: End');
-
-    const outputCotar = fsa.toUrl(`${outputPath}/${args.filename}.tar.co`);
-    // logger.info({ mbtiles: outputMbtiles, outputCotar }, 'ToTartTiles: Start');
-    // await toTarTiles(outputMbtiles, outputCotar, logger);
-    // logger.info({ mbtiles: outputMbtiles, outputCotar }, 'ToTartTiles: End');
-
-    const outputIndex = fsa.toUrl(`${outputPath}/${args.filename}.tar.index`);
-    // logger.info({ cotar: outputCotar, outputIndex }, 'toTarIndex: Start');
-    // await toTarIndex(outputCotar, outputIndex, logger);
-    // logger.info({ cotar: outputCotar, outputIndex }, 'toTarIndex: End');
-
+    const outputPath = args.output;
     const tileMatrix = TileMatrixSets.find(args.tileMatrix);
     if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
     const bucketPath = new URL(`vector/${tileMatrix.projection.code}/`, args.target);
-    // logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'CreateStac: Start');
+    const filePaths = await download(args.fromFile, outputPath, logger);
+
+    // Mbtiles output path to be string type path to avoid issues with tippecanoe and better-sqlite3
+    const outputMbtiles = fsa.toUrl(`${outputPath}${args.filename}.mbtiles`);
+    logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: Start');
+    await tileJoin(filePaths, outputMbtiles.pathname, logger);
+    logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: End');
+
+    const outputCotar = fsa.toUrl(`${outputPath}/${args.filename}.tar.co`);
+    logger.info({ mbtiles: outputMbtiles, outputCotar }, 'ToTartTiles: Start');
+    await toTarTiles(outputMbtiles.pathname, outputCotar.pathname, logger);
+    logger.info({ mbtiles: outputMbtiles, outputCotar }, 'ToTartTiles: End');
+
+    const outputIndex = fsa.toUrl(`${outputPath}/${args.filename}.tar.index`);
+    logger.info({ cotar: outputCotar, outputIndex }, 'toTarIndex: Start');
+    await toTarIndex(outputCotar.pathname, outputIndex.pathname, logger);
+    logger.info({ cotar: outputCotar, outputIndex }, 'toTarIndex: End');
+
+    logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'CreateStac: Start');
     const stacFiles = await createStacFiles(args.fromFile, bucketPath, args.filename, tileMatrix, args.title, logger);
-    // logger.info({ cotar: outputCotar, outputIndex }, 'CreateStac: End');
+    logger.info({ cotar: outputCotar, outputIndex }, 'CreateStac: End');
 
     // Upload output to s3
     logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: Start');
@@ -134,5 +146,11 @@ export const JoinCommand = command({
       await upload(file, bucketPath, logger);
     }
     logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: End');
+
+    // Write output target for argo tasks to create pull request
+    if (isArgo()) {
+      const target = new URL(`topographic/${CliId}/${args.filename}.tar.co`, bucketPath);
+      await fsa.write(fsa.toUrl('/tmp/target'), JSON.stringify([target]));
+    }
   },
 });

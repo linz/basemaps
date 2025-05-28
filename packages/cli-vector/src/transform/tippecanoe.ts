@@ -1,7 +1,7 @@
 import { Epsg } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { Command } from '@linzjs/docker-command';
-import { dirname } from 'path';
+import path, { dirname } from 'path';
 
 import { Layer } from '../schema-loader/schema.js';
 
@@ -57,13 +57,13 @@ export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: 
  *
  * @returns { cmd: string; args: string[] } cmd and arguments for tippecanoe tile-join docker command
  */
-export async function tileJoin(inputs: URL[], output: URL, logger: LogType): Promise<void> {
+export async function tileJoin(inputs: URL[], output: string, logger: LogType): Promise<void> {
   const cmd = Command.create('tile-join');
 
-  cmd.mount(dirname(output.pathname));
+  cmd.mount(path.resolve(dirname(output)));
 
   cmd.args.push('-pk');
-  cmd.args.push('-o', output.href);
+  cmd.args.push('-o', output);
   for (const input of inputs) {
     if (input.href.endsWith('mbtiles')) {
       cmd.mount(dirname(input.pathname));

@@ -1,4 +1,4 @@
-import { fsa, LogType, SourceMemory, urlToString } from '@basemaps/shared';
+import { fsa, LogType, SourceMemory } from '@basemaps/shared';
 import { CotarIndexBuilder, CotarIndexOptions, TarReader } from '@cotar/builder';
 import { CotarIndex } from '@cotar/core';
 import { promises as fs } from 'fs';
@@ -6,8 +6,8 @@ import { promises as fs } from 'fs';
 /**
  * Create index for the COVT tar file
  */
-export async function toTarIndex(input: URL, output: URL, logger: LogType): Promise<URL> {
-  logger.info({ output: output.href }, 'Cotar.Index:Start');
+export async function toTarIndex(input: string, output: string, logger: LogType): Promise<string> {
+  logger.info({ output: output }, 'Cotar.Index:Start');
 
   const fd = await fs.open(input, 'r');
 
@@ -16,11 +16,11 @@ export async function toTarIndex(input: URL, output: URL, logger: LogType): Prom
 
   const index = await CotarIndex.create(new SourceMemory('index', buffer));
   await TarReader.validate(fd, index);
-  await fs.writeFile(urlToString(output), buffer);
-  await fs.appendFile(urlToString(input), buffer);
+  await fs.writeFile(output, buffer);
+  await fs.appendFile(input, buffer);
 
   await fd.close();
-  if (!(await fsa.exists(output))) throw new Error('Error - Cotar.Index creation Failure.');
+  if (!(await fsa.exists(fsa.toUrl(output)))) throw new Error('Error - Cotar.Index creation Failure.');
 
   logger.info({ index, count }, 'Cotar.Index:Done');
   return output;
