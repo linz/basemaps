@@ -2,7 +2,7 @@ import { TileMatrixSets } from '@basemaps/geo';
 import { fsa, isArgo, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, option, string } from 'cmd-ts';
+import { command, option, optional, string } from 'cmd-ts';
 import { mkdirSync } from 'fs';
 import { basename } from 'path';
 import { createGzip } from 'zlib';
@@ -97,9 +97,9 @@ export const JoinArgs = {
     defaultValueIsSerializable: true,
   }),
   target: option({
-    type: Url,
+    type: optional(Url),
     long: 'target',
-    description: 'Path of target location, could be local or s3',
+    description: 'Path of target location to upload the processed file, could be local or s3',
   }),
 };
 
@@ -148,7 +148,7 @@ export const JoinCommand = command({
     logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: End');
 
     // Write output target for argo tasks to create pull request
-    if (isArgo()) {
+    if (isArgo() && args.target) {
       const target = new URL(`topographic/${CliId}/${args.filename}.tar.co`, bucketPath);
       await fsa.write(fsa.toUrl('/tmp/target'), JSON.stringify([target]));
     }

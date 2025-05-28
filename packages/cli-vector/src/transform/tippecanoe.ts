@@ -67,7 +67,7 @@ export async function tileJoin(inputs: URL[], output: string, logger: LogType): 
   for (const input of inputs) {
     if (input.href.endsWith('mbtiles')) {
       cmd.mount(dirname(input.pathname));
-      cmd.args.push(input.href);
+      cmd.args.push(input.pathname);
     }
   }
   cmd.args.push('--force');
