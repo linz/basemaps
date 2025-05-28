@@ -2,7 +2,7 @@ import { TileMatrixSets } from '@basemaps/geo';
 import { fsa, isArgo, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, option, optional, string } from 'cmd-ts';
+import { command, option, string } from 'cmd-ts';
 import { mkdirSync } from 'fs';
 import { basename } from 'path';
 import { createGzip } from 'zlib';
@@ -89,15 +89,8 @@ export const JoinArgs = {
     defaultValue: () => 'Topographic',
     defaultValueIsSerializable: true,
   }),
-  output: option({
-    type: string,
-    long: 'output',
-    description: 'Output path for the processing files, default is /tmp/join/',
-    defaultValue: () => '/tmp/join/',
-    defaultValueIsSerializable: true,
-  }),
   target: option({
-    type: optional(Url),
+    type: Url,
     long: 'target',
     description: 'Path of target location to upload the processed file, could be local or s3',
   }),
@@ -110,7 +103,7 @@ export const JoinCommand = command({
   args: JoinArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    const outputPath = args.output;
+    const outputPath = 'tmp/join/';
     const tileMatrix = TileMatrixSets.find(args.tileMatrix);
     if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
     const bucketPath = new URL(`vector/${tileMatrix.projection.code}/`, args.target);
@@ -148,7 +141,7 @@ export const JoinCommand = command({
     logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: End');
 
     // Write output target for argo tasks to create pull request
-    if (isArgo() && args.target) {
+    if (isArgo()) {
       const target = new URL(`topographic/${CliId}/${args.filename}.tar.co`, bucketPath);
       await fsa.write(fsa.toUrl('/tmp/target'), JSON.stringify([target]));
     }
