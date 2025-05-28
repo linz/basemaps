@@ -4,7 +4,7 @@ import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, string } from 'cmd-ts';
 import { mkdirSync } from 'fs';
-import { basename } from 'path';
+import path, { basename } from 'path';
 import { createGzip } from 'zlib';
 
 import { createStacFiles } from '../stac.js';
@@ -110,19 +110,19 @@ export const JoinCommand = command({
     const filePaths = await download(args.fromFile, outputPath, logger);
 
     // Mbtiles output path to be string type path to avoid issues with tippecanoe and better-sqlite3
-    const outputMbtiles = fsa.toUrl(`${outputPath}${args.filename}.mbtiles`);
+    const outputMbtiles = path.join(outputPath, `${args.filename}.mbtiles`);
     logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: Start');
-    await tileJoin(filePaths, outputMbtiles.pathname, logger);
+    await tileJoin(filePaths, outputMbtiles, logger);
     logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: End');
 
-    const outputCotar = fsa.toUrl(`${outputPath}/${args.filename}.tar.co`);
+    const outputCotar = path.join(outputPath, `${args.filename}.tar.co`);
     logger.info({ mbtiles: outputMbtiles, outputCotar }, 'ToTartTiles: Start');
-    await toTarTiles(outputMbtiles.pathname, outputCotar.pathname, logger);
+    await toTarTiles(outputMbtiles, outputCotar, logger);
     logger.info({ mbtiles: outputMbtiles, outputCotar }, 'ToTartTiles: End');
 
-    const outputIndex = fsa.toUrl(`${outputPath}/${args.filename}.tar.index`);
+    const outputIndex = path.join(outputPath, `${args.filename}.tar.index`);
     logger.info({ cotar: outputCotar, outputIndex }, 'toTarIndex: Start');
-    await toTarIndex(outputCotar.pathname, outputIndex.pathname, logger);
+    await toTarIndex(outputCotar, outputIndex, logger);
     logger.info({ cotar: outputCotar, outputIndex }, 'toTarIndex: End');
 
     logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'CreateStac: Start');
@@ -131,9 +131,9 @@ export const JoinCommand = command({
 
     // Upload output to s3
     logger.info({ target: bucketPath, tileMatrix: tileMatrix.identifier }, 'Upload: Start');
-    await upload(outputMbtiles, bucketPath, logger);
-    await upload(outputCotar, bucketPath, logger);
-    await upload(outputIndex, bucketPath, logger);
+    await upload(fsa.toUrl(outputMbtiles), bucketPath, logger);
+    await upload(fsa.toUrl(outputCotar), bucketPath, logger);
+    await upload(fsa.toUrl(outputIndex), bucketPath, logger);
     // Upload stac Files
     for (const file of stacFiles) {
       await upload(file, bucketPath, logger);
