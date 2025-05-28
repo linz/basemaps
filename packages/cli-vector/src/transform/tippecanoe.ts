@@ -1,5 +1,5 @@
 import { Epsg } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
+import { LogType, urlToString } from '@basemaps/shared';
 import { Command } from '@linzjs/docker-command';
 import path, { dirname } from 'path';
 
@@ -11,7 +11,7 @@ import { Layer } from '../schema-loader/schema.js';
  * @returns { cmd: string; args: string[] } cmd and arguments for tippecanoe docker command
  */
 export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: LogType): Promise<void> {
-  const cmd = Command.create('tippecanoe');
+  const cmd = Command.create('/usr/bin/tippecanoe');
 
   // parallel processing for line-delimited geojson file.
   cmd.args.push('--read-parallel');
@@ -58,7 +58,7 @@ export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: 
  * @returns { cmd: string; args: string[] } cmd and arguments for tippecanoe tile-join docker command
  */
 export async function tileJoin(inputs: URL[], output: string, logger: LogType): Promise<void> {
-  const cmd = Command.create('tile-join');
+  const cmd = Command.create('/usr/bin/tile-join');
 
   cmd.mount(path.resolve(dirname(output)));
 
@@ -66,8 +66,8 @@ export async function tileJoin(inputs: URL[], output: string, logger: LogType): 
   cmd.args.push('-o', output);
   for (const input of inputs) {
     if (input.href.endsWith('mbtiles')) {
-      cmd.mount(dirname(input.pathname));
-      cmd.args.push(input.pathname);
+      cmd.mount(dirname(urlToString(input)));
+      cmd.args.push(urlToString(input));
     }
   }
   cmd.args.push('--force');
