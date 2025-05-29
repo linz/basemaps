@@ -17,7 +17,7 @@ ENV NODE_ENV=PRODUCTION
 WORKDIR /app/
 
 RUN apt-get update
-RUN apt-get install -y ca-certificates curl gnupg
+RUN apt-get install -y ca-certificates curl gnupg build-essential python3 libsqlite3-dev
 RUN mkdir -p /etc/apt/keyrings
 RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
 ENV NODE_MAJOR=20
@@ -41,8 +41,8 @@ RUN npm install  ./basemaps-smoke*.tgz
 
 COPY dist/index.cjs /app/
 
-ENTRYPOINT [ "node", "./index.cjs" ]
-
 # Add tippecanoe into the image
 COPY --from=builder /tmp/tippecanoe/tippecanoe /usr/bin/tippecanoe
 COPY --from=builder /tmp/tippecanoe/tile-join /usr/bin/tile-join
+
+ENTRYPOINT [ "node", "./index.cjs" ]
