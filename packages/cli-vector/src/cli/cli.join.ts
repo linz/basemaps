@@ -110,7 +110,6 @@ export const JoinCommand = command({
     const bucketPath = new URL(`vector/${tileMatrix.projection.code}/`, args.target ?? outputPath);
     const filePaths = await download(args.fromFile, outputPath, logger);
 
-    // Mbtiles output path to be string type path to avoid issues with tippecanoe and better-sqlite3
     const outputMbtiles = path.join(outputPath, `${args.filename}.mbtiles`);
     logger.info({ files: filePaths.length, outputMbtiles }, 'JoinMbtiles: Start');
     await tileJoin(filePaths, outputMbtiles, logger);

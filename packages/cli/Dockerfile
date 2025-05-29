@@ -1,5 +1,5 @@
 # Building container for tippecanoe
-FROM node:20-slim as builder
+FROM node:22-slim as builder
 
 RUN apt-get update \
   && apt-get -y upgrade \
