@@ -1,6 +1,7 @@
 import { LogType } from '@basemaps/shared';
-import bs3 from 'better-sqlite3';
 import { createWriteStream } from 'fs';
+import { open } from 'sqlite';
+import sqlite3 from 'sqlite3';
 import * as tar from 'tar-stream';
 
 export interface TileTable {
@@ -20,15 +21,25 @@ export async function* readMbTiles(
   logger: LogType,
 ): AsyncGenerator<{ tile: TileTable; index: number; total: number }, null> {
   logger.debug({ file: fileName }, 'ReadMbTiles:Start');
-  const db = bs3(fileName);
+
+  const db = await open({
+    filename: fileName,
+    driver: sqlite3.Database,
+  });
+
   let limitQuery = '';
   if (limit > 0) limitQuery = 'LIMIT ' + limit;
 
-  const total = await db.prepare('SELECT count(*) from tiles;').pluck().get();
-  const query = db.prepare(`SELECT * from tiles order by zoom_level ${limitQuery}`);
+  const totalRow = await db.get<{ 'count(*)': number }>('SELECT count(*) FROM tiles;');
+  const total = totalRow?.['count(*)'] ?? 0;
+
+  const tiles = await db.all<TileTable[]>(`SELECT * FROM tiles ORDER BY zoom_level ${limitQuery}`);
 
   let index = 0;
-  for (const tile of query.iterate()) yield { tile: tile as TileTable, index: index++, total: total as number };
+  for (const tile of tiles) {
+    yield { tile, index: index++, total };
+  }
+
   logger.debug({ file: fileName }, 'ReadMbTiles:End');
   return null;
 }
