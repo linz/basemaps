@@ -29,6 +29,9 @@ RUN apt-get install -y nodejs apt-utils build-essential
 # Install sharp TODO update this when we change sharp versions
 RUN npm install sharp@0.33.0
 
+# Rebuild sqlite3 to compile the missing native binding
+RUN npm rebuild sqlite3 --build-from-source
+
 # Install the landing assets
 COPY ./basemaps-smoke*.tgz /app/
 
