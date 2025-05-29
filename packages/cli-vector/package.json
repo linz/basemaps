@@ -60,8 +60,6 @@
     "geojson": "^0.5.0",
     "p-limit": "^6.2.0",
     "polylabel": "^2.0.1",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7",
     "tar-stream": "^2.2.0",
     "zod": "^3.24.4",
     "zod-geojson": "^0.0.3"

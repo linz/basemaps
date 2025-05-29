@@ -1,7 +1,7 @@
+import sq from 'node:sqlite';
+
 import { LogType } from '@basemaps/shared';
 import { createWriteStream } from 'fs';
-import { open } from 'sqlite';
-import sqlite3 from 'sqlite3';
 import * as tar from 'tar-stream';
 
 export interface TileTable {
@@ -15,28 +15,33 @@ export function xyzToPath(x: number | string, y: number | string, z: number | st
   return `tiles/${z}/${x}/${y}.pbf` + (compressed ? '.gz' : '');
 }
 
-export async function* readMbTiles(
+export function* readMbTiles(
   fileName: string,
   limit = -1,
   logger: LogType,
-): AsyncGenerator<{ tile: TileTable; index: number; total: number }, null> {
+): Generator<{ tile: TileTable; index: number; total: number }, null> {
   logger.debug({ file: fileName }, 'ReadMbTiles:Start');
 
-  const db = await open({
-    filename: fileName,
-    driver: sqlite3.Database,
-  });
+  const db = new sq.DatabaseSync(fileName);
 
   let limitQuery = '';
-  if (limit > 0) limitQuery = 'LIMIT ' + limit;
+  if (limit > 0) limitQuery = `LIMIT ${limit}`;
 
-  const totalRow = await db.get<{ 'count(*)': number }>('SELECT count(*) FROM tiles;');
-  const total = totalRow?.['count(*)'] ?? 0;
+  const getAll = db.prepare('SELECT count(*) as count FROM tiles;');
+  const totalRow = getAll.get();
+  const total = totalRow ? (totalRow['count'] as number) : 0;
 
-  const tiles = await db.all<TileTable[]>(`SELECT * FROM tiles ORDER BY zoom_level ${limitQuery}`);
+  const getTiles = db.prepare(`SELECT * FROM tiles ORDER BY zoom_level ${limitQuery}`);
+  const tiles = getTiles.all();
 
   let index = 0;
-  for (const tile of tiles) {
+  for (const data of tiles) {
+    const tile: TileTable = {
+      zoom_level: data['zoom_level'] as number,
+      tile_column: data['tile_column'] as number,
+      tile_row: data['tile_row'] as number,
+      tile_data: Buffer.from(data['tile_data'] as Uint8Array),
+    };
     yield { tile, index: index++, total };
   }
 

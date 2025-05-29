@@ -3,8 +3,8 @@ import { fsa, isArgo, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, optional, string } from 'cmd-ts';
-import { mkdirSync } from 'fs';
-import path, { basename } from 'path';
+import { mkdir } from 'fs/promises';
+import path, { basename, dirname } from 'path';
 import { createGzip } from 'zlib';
 
 import { createStacFiles } from '../stac.js';
@@ -54,7 +54,7 @@ async function upload(file: URL, bucketPath: URL, logger: LogType): Promise<URL>
   // Upload to s3 or copy to local
   let path = new URL(`topographic/${CliId}/${filename}`, bucketPath);
   logger.info({ file: file, path: path }, 'Load:Path');
-  if (path.protocol === 'file:') mkdirSync(path, { recursive: true });
+  if (path.protocol === 'file:') await mkdir(dirname(path.pathname), { recursive: true });
   if (filename.endsWith('catalog.json')) path = new URL(filename, bucketPath); // Upload catalog to root directory
   await fsa.write(path, stream);
   logger.info({ file: file, path: path }, 'Load:Finish');
@@ -104,10 +104,10 @@ export const JoinCommand = command({
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
     const outputPath = path.resolve('tmp/join/');
-    mkdirSync(outputPath, { recursive: true });
+    await mkdir(outputPath, { recursive: true });
     const tileMatrix = TileMatrixSets.find(args.tileMatrix);
     if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
-    const bucketPath = new URL(`vector/${tileMatrix.projection.code}/`, args.target);
+    const bucketPath = new URL(`vector/${tileMatrix.projection.code}/`, args.target ?? outputPath);
     const filePaths = await download(args.fromFile, outputPath, logger);
 
     // Mbtiles output path to be string type path to avoid issues with tippecanoe and better-sqlite3
