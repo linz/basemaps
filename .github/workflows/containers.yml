@@ -156,6 +156,7 @@ jobs:
           cp *.tgz packages/cli/
           cp -r packages/lambda-tiler/static/ packages/server/
           cp -r packages/lambda-tiler/static/ packages/cli/
+          cp -r packages/cli-vector/schema/ packages/cli/
 
       - name: Create docker metadata
         id: meta

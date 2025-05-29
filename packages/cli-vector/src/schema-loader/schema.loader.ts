@@ -3,7 +3,7 @@ import { fsa, LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { z } from 'zod';
 
-import { lds, LDS_CACHE_BUCKET } from '../extract/extract.js';
+import { lds, LDS_CACHE_BUCKET } from '../extract.js';
 import { zSchema } from './parser.js';
 import { Schema } from './schema.js';
 
@@ -55,7 +55,6 @@ export class SchemaLoader {
     const files = await lds.getLdsCacheFiles();
     for (const schema of this.schemas) {
       this.logger.info({ layer: schema.name }, 'SchemaLoader: PrepareLayer');
-      if (schema.layers == null) continue;
       for (const layer of schema.layers) {
         // Set layer simplify
         if (schema.simplify != null && layer.simplify == null) layer.simplify = schema.simplify;
@@ -76,12 +75,19 @@ export class SchemaLoader {
         if (fileInfo.size != null && fileInfo.size > LARGE_LAYER_SIZE) layer.largeLayer = true;
 
         // Set the cache path for the layer
-        const configHash = sha256base58(JSON.stringify({ ...layer, version: CliInfo.version }));
+        const configHash = sha256base58(JSON.stringify({ name: schema.name, layer, version: CliInfo.version }));
         if (this.cache != null) {
           const fileName = isLdsFile
             ? `${layer.id}_${layer.version}_${configHash}.mbtiles`
             : `${layer.id}_${configHash}.mbtiles`;
-          layer.cache = new URL(fileName, this.cache);
+          const path = new URL(`${layer.id}/${fileName}`, this.cache);
+          const exists = await fsa.exists(path);
+          const cache = {
+            fileName,
+            path,
+            exists,
+          };
+          layer.cache = cache;
         }
       }
     }

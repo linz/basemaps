@@ -9,6 +9,7 @@
   "references": [
     { "path": "../cli-config/tsconfig.json" },
     { "path": "../cli-raster/tsconfig.json" },
+    { "path": "../cli-vector/tsconfig.json" },
     { "path": "../shared/tsconfig.json" }
   ]
 }

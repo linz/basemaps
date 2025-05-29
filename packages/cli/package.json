@@ -31,6 +31,7 @@
       "external": [
         "sharp",
         "pino-pretty",
+        "node:sqlite",
         "lerc"
       ]
     }
@@ -42,6 +43,7 @@
   "dependencies": {
     "@basemaps/cli-config": "^8.1.0",
     "@basemaps/cli-raster": "^8.1.0",
+    "@basemaps/cli-vector": "^8.1.0",
     "@basemaps/shared": "^8.1.0",
     "cmd-ts": "^0.13.0"
   },
