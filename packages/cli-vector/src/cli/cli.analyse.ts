@@ -1,8 +1,9 @@
+import sq from 'node:sqlite';
+
 import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { VectorTile } from '@mapbox/vector-tile';
-import bs3 from 'better-sqlite3';
 import { command, option, restPositionals } from 'cmd-ts';
 import { readFileSync } from 'fs';
 import Mustache from 'mustache';
@@ -80,7 +81,7 @@ export const AnalyseCommand = command({
     logger.info('AnalyseMbTiles: Start');
 
     const analysisData: AnalysisData[] = [];
-    const db = bs3(args.path[0].pathname);
+    const db = new sq.DatabaseSync(args.path[0].pathname);
     const MaxZoom = 15;
     for (let i = 0; i <= MaxZoom; i++) {
       const result = db
@@ -168,6 +169,6 @@ export const AnalyseCommand = command({
 
     const template = readFileSync(args.template).toString();
     const output = Mustache.render(template, { data: analysisData });
-    await fsa.write(args.target, fsa.readStream(fsa.toUrl(output)));
+    await fsa.write(args.target, Buffer.from(output, 'utf8'));
   },
 });
