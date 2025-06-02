@@ -1,4 +1,4 @@
-import { BoundingBox, Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
+import { BoundingBox, Bounds, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { StacCatalog, StacCollection, StacItem, StacLink, StacProvider } from 'stac-ts';
