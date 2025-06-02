@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync } from 'node:fs';
 
 import { Epsg } from '@basemaps/geo';
-import { createReadStream, promises as fs, ReadStream } from 'fs';
+import { createReadStream, ReadStream } from 'fs';
 
 export const projection = Epsg.Wgs84.toEpsgString();
 
@@ -10,18 +10,6 @@ export const ContentType = {
   shp: 'application/x-ogc-shp',
   geojson: 'application/geo+json',
 } as const;
-
-/**
- * Asynchronously touch the file by path and return true if file exists
- */
-export async function fileExist(path: string): Promise<boolean> {
-  try {
-    await fs.access(path);
-    return true;
-  } catch (ENOENT) {
-    return false;
-  }
-}
 
 export function createReadStreamSafe(filename: string): Promise<ReadStream> {
   return new Promise((resolve, reject) => {

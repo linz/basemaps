@@ -56,12 +56,12 @@ export const ExtractCommand = command({
     const smallLayers = [];
     const largeLayers = [];
     let total = 0;
-    const allFiles: string[] = [];
+    const allFiles = [];
     const vectorStac = new VectorStac(logger);
     for (const schema of schemas) {
       for (const layer of schema.layers) {
         if (layer.cache == null) throw new Error(`Fail to prepare cache path for layer ${schema.name}:${layer.id}`);
-        allFiles.push(layer.cache.path.href);
+        allFiles.push({ path: layer.cache.path.href });
 
         // Skip if the layer is already processed in cache
         if (layer.cache.exists) {

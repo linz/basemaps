@@ -65,7 +65,7 @@ export const CreateCommand = command({
 
     // if applicable, combine all mbtiles files into a single mbtiles file
     if (args.join === true) {
-      const mbtileFiles = items.map((item) => item.tmpPaths.mbtiles.pathname);
+      const mbtileFiles = items.map((item) => item.tmpPaths.mbtiles);
       logger.info({ joining: mbtileFiles.length }, 'JoinMbtiles:Start');
 
       const joinedFile = new URL(`joined.mbtiles`, TmpPath);
@@ -130,7 +130,7 @@ async function downloadSourceFile(
 
   const layer = options.layer;
 
-  logger.info({ source: layer.source }, 'DownloadSourceFile: Start');
+  logger.info({ source: layer.source, id: layer.id, name: layer.name }, 'DownloadSourceFile: Start');
 
   if (!(await fsa.exists(tmpPaths.source.path))) {
     // TODO: We don't acturally need to head file from lds-cache here.
@@ -147,7 +147,7 @@ async function downloadSourceFile(
     });
   }
 
-  logger.info({ destination: tmpPaths.source.path }, 'DownloadSourceFile: End');
+  logger.info({ destination: tmpPaths.source.path, id: layer.id, name: layer.name }, 'DownloadSourceFile: End');
 }
 
 /**
@@ -178,36 +178,42 @@ async function createMbtilesFile(
   /**
    * Convert the source file into an ndjson
    */
-  logger.info({ source: tmpPaths.source.path }, '[1/5] Convert source file to ndjson: Start');
+  logger.info({ source: tmpPaths.source.path, dataset: layer.name }, '[1/5] Convert source file to ndjson: Start');
   if (!(await fsa.exists(tmpPaths.ndjson))) {
     await ogr2ogrNDJson(tmpPaths.source.path, tmpPaths.ndjson, logger);
   }
-  logger.info({ destination: tmpPaths.ndjson }, '[1/5] Convert source file to ndjson: End');
+  logger.info({ destination: tmpPaths.ndjson, dataset: layer.name }, '[1/5] Convert source file to ndjson: End');
 
   /**
    * Parse the ndjson file and apply the generalization options
    */
-  logger.info({ source: tmpPaths.ndjson }, '[2/5] Generalise ndjson features: Start');
+  logger.info({ source: tmpPaths.ndjson, dataset: layer.name }, '[2/5] Generalise ndjson features: Start');
   let metrics: Metrics | null = null;
   if (!(await fsa.exists(tmpPaths.genNdjson))) {
     metrics = await generalize(tmpPaths.ndjson, tmpPaths.genNdjson, options, logger);
     if (metrics.output === 0) throw new Error(`Failed to generalize ndjson file ${tmpPaths.ndjson.href}`);
   }
-  logger.info({ destination: tmpPaths.genNdjson }, '[2/5] Generalise ndjson features: End');
+  logger.info({ destination: tmpPaths.genNdjson, dataset: layer.name }, '[2/5] Generalise ndjson features: End');
 
   /**
    * Transform the generalized ndjson file to an mbtiles file
    */
-  logger.info({ source: tmpPaths.genNdjson }, '[3/5] Transform generalised ndjson into mbtiles: Start');
+  logger.info(
+    { source: tmpPaths.genNdjson, dataset: layer.name },
+    '[3/5] Transform generalised ndjson into mbtiles: Start',
+  );
   if (!(await fsa.exists(tmpPaths.mbtiles))) {
     await tippecanoe(tmpPaths.genNdjson, tmpPaths.mbtiles, layer, logger);
   }
-  logger.info({ destination: tmpPaths.mbtiles }, '[3/5] Transform generalised ndjson into mbtiles: End');
+  logger.info(
+    { destination: tmpPaths.mbtiles, dataset: layer.name },
+    '[3/5] Transform generalised ndjson into mbtiles: End',
+  );
 
   /**
    * Copy the mbtiles file to the same directory as the Vector Stac Item file
    */
-  logger.info({ source: tmpPaths.mbtiles }, '[4/5] Copy mbtiles to stac location: Start');
+  logger.info({ source: tmpPaths.mbtiles, dataset: layer.name }, '[4/5] Copy mbtiles to stac location: Start');
   if (!(await fsa.exists(tmpPaths.mbtilesCopy))) {
     await fsa.write(tmpPaths.mbtilesCopy, fsa.readStream(tmpPaths.mbtiles));
 
@@ -216,12 +222,12 @@ async function createMbtilesFile(
       throw new Error(`Failed to write the mbtiles file to ${tmpPaths.mbtilesCopy.href}`);
     }
   }
-  logger.info({ destination: tmpPaths.mbtilesCopy }, '[4/5] Copy mbtiles to stac location: End');
+  logger.info({ destination: tmpPaths.mbtilesCopy, dataset: layer.name }, '[4/5] Copy mbtiles to stac location: End');
 
   /**
    * Update the Vector Stac Item file
    */
-  logger.info({ source: tmpPaths.origin }, '[5/5] Update stac: Start');
+  logger.info({ source: tmpPaths.origin, dataset: layer.name }, '[5/5] Update stac: Start');
 
   // Update 'cache' flag to 'true' now that the mbtiles file exists
   layer.cache!.exists = true;

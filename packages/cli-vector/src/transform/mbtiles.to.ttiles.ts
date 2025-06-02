@@ -1,5 +1,6 @@
+import sq from 'node:sqlite';
+
 import { LogType } from '@basemaps/shared';
-import bs3 from 'better-sqlite3';
 import { createWriteStream } from 'fs';
 import * as tar from 'tar-stream';
 
@@ -14,34 +15,51 @@ export function xyzToPath(x: number | string, y: number | string, z: number | st
   return `tiles/${z}/${x}/${y}.pbf` + (compressed ? '.gz' : '');
 }
 
-export async function* readMbTiles(
+export function* readMbTiles(
   fileName: string,
   limit = -1,
-): AsyncGenerator<{ tile: TileTable; index: number; total: number }, null> {
-  const db = bs3(fileName);
+  logger: LogType,
+): Generator<{ tile: TileTable; index: number; total: number }, null> {
+  logger.debug({ file: fileName }, 'ReadMbTiles:Start');
+
+  const db = new sq.DatabaseSync(fileName);
 
   let limitQuery = '';
-  if (limit > 0) limitQuery = 'LIMIT ' + limit;
+  if (limit > 0) limitQuery = `LIMIT ${limit}`;
 
-  const total = await db.prepare('SELECT count(*) from tiles;').pluck().get();
-  const query = db.prepare(`SELECT * from tiles order by zoom_level ${limitQuery}`);
+  const getAll = db.prepare('SELECT count(*) as count FROM tiles;');
+  const totalRow = getAll.get();
+  const total = totalRow ? (totalRow['count'] as number) : 0;
+
+  const getTiles = db.prepare(`SELECT * FROM tiles ORDER BY zoom_level ${limitQuery}`);
+  const tiles = getTiles.all();
 
   let index = 0;
-  for (const tile of query.iterate()) yield { tile: tile as TileTable, index: index++, total: total as number };
+  for (const data of tiles) {
+    const tile: TileTable = {
+      zoom_level: data['zoom_level'] as number,
+      tile_column: data['tile_column'] as number,
+      tile_row: data['tile_row'] as number,
+      tile_data: Buffer.from(data['tile_data'] as Uint8Array),
+    };
+    yield { tile, index: index++, total };
+  }
+
+  logger.debug({ file: fileName }, 'ReadMbTiles:End');
   return null;
 }
 
-export async function toTarTiles(fileName: string, tarFileName: URL, logger: LogType, limit = -1): Promise<void> {
+export async function toTarTiles(input: string, output: string, logger: LogType, limit = -1): Promise<void> {
   const packer = tar.pack();
   const startTime = Date.now();
   let writeCount = 0;
   const writeProm = new Promise((resolve) => packer.on('end', resolve));
 
-  packer.pipe(createWriteStream(tarFileName));
+  packer.pipe(createWriteStream(output));
 
   let startTileTime = Date.now();
-  for await (const { tile, index, total } of readMbTiles(fileName, limit)) {
-    if (index === 0) logger.info({ path: tarFileName, count: total }, 'Covt.Tar:Start');
+  for await (const { tile, index, total } of readMbTiles(input, limit, logger)) {
+    if (index === 0) logger.info({ path: output, count: total }, 'Covt.Tar:Start');
 
     const z = tile.zoom_level;
     const x = tile.tile_column;
@@ -62,5 +80,5 @@ export async function toTarTiles(fileName: string, tarFileName: URL, logger: Log
   logger.debug('Covt.Tar:Finalize');
   packer.finalize();
   await writeProm;
-  logger.info({ path: tarFileName, count: writeCount, duration: Date.now() - startTime }, 'Covt.Tar:Done');
+  logger.info({ path: output, count: writeCount, duration: Date.now() - startTime }, 'Covt.Tar:Done');
 }

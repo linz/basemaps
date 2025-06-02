@@ -23,6 +23,7 @@ export const zSimplify = z.object({
 export const zLayer = z.object({
   id: z.string(),
   name: z.string(),
+  version: z.number().optional(),
   source: z.string(),
   tags: zTags,
   attributes: zAttributes.optional(),

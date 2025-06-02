@@ -1,4 +1,4 @@
-import { BoundingBox, Bounds, Epsg, TileMatrixSet } from '@basemaps/geo';
+import { BoundingBox, Bounds, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { StacCatalog, StacCollection, StacItem, StacLink, StacProvider } from 'stac-ts';
@@ -67,7 +67,7 @@ export class VectorStac {
         'lds:name': layer.name,
         'lds:title': sourceCollection.title,
         'lds:version': layer.version,
-        'basemaps:layers': targetLayer,
+        'basemaps:layers': [targetLayer],
         href: `https://data.linz.govt.nz/services/api/v1/layers/${layer.id}/versions/${layer.version}/`,
       };
       if (layer.metrics != null) {
@@ -166,40 +166,36 @@ export class VectorStac {
 }
 
 export async function createStacFiles(
-  filePaths: string[],
-  target: string,
+  filePaths: URL[],
+  targetPath: URL,
   filename: string,
   tileMatrix: TileMatrixSet,
   title: string,
   logger: LogType,
 ): Promise<URL[]> {
-  const bucketPath = fsa.toUrl(`${target}/vector/${Epsg.Google.toString()}/`);
   const vectorStac = new VectorStac(logger);
 
   // Prepare stac item links
   const bboxArr: BoundingBox[] = [];
-  const layers: StacLink[] = [];
-  const duplicateLayer = new Map<unknown, StacLink>();
+  const layersMap = new Map<string, StacLink>();
   for (const file of filePaths) {
-    const stacPath = fsa.toUrl(`${file.slice(0, -8)}.json`);
+    const stacPath = fsa.toUrl(`${file.href.split('.mbtiles')[0]}.json`);
     const stac: StacItem = await fsa.readJson(stacPath);
     if (stac.bbox) bboxArr.push(Bounds.fromBbox(stac.bbox));
 
     const layer = zLayer.parse((stac.properties['linz_basemaps:options'] as { layer: zTypeLayer }).layer);
-    const layerLink = await vectorStac.createStacLink(
-      (stac.properties['linz_basemaps:options'] as { name: string }).name,
-      layer,
-    );
+    const name = (stac.properties['linz_basemaps:options'] as { name: string }).name;
+    const layerLink = await vectorStac.createStacLink(name, layer);
 
-    if (duplicateLayer.has(layer.id)) {
-      const duplicate = duplicateLayer.get(layer.id);
-      if (JSON.stringify(duplicate) === JSON.stringify(layerLink)) continue;
-      logger.warn({ layer: layer.id, layerLink, duplicate }, 'Duplicated Layer with different StacLink.');
+    const existing = layersMap.get(layer.id);
+    if (existing != null) {
+      (existing['basemaps:layers'] as string[]).push(name);
+    } else {
+      layersMap.set(layer.id, layerLink);
     }
-    duplicateLayer.set(layer.id, layerLink);
-    layers.push(layerLink);
   }
 
+  const layers = Array.from(layersMap.values());
   // Create stac item
   const stacItem = vectorStac.createStacItem(layers, filename, tileMatrix);
 
@@ -217,7 +213,7 @@ export async function createStacFiles(
 
   // Create stac catalog
   let stacCatalog = vectorStac.createStacCatalog();
-  const catalogPath = new URL('catalog.json', bucketPath);
+  const catalogPath = new URL('catalog.json', targetPath);
   if (await fsa.exists(catalogPath)) stacCatalog = await fsa.readJson<StacCatalog>(catalogPath);
   // Add link for new collection
   stacCatalog.links.push({
@@ -227,11 +223,11 @@ export async function createStacFiles(
     type: 'application/json',
   });
 
-  const item = fsa.toUrl(`tmp/${filename}.json`);
+  const item = fsa.toUrl(`tmp/join/${filename}.json`);
   await fsa.write(item, JSON.stringify(stacItem, null, 2));
-  const collection = fsa.toUrl('tmp/collection.json');
+  const collection = fsa.toUrl('tmp/join/collection.json');
   await fsa.write(collection, JSON.stringify(stacCollection, null, 2));
-  const catalog = fsa.toUrl('tmp/catalog.json');
+  const catalog = fsa.toUrl('tmp/join/catalog.json');
   await fsa.write(catalog, JSON.stringify(stacCatalog, null, 2));
 
   return [item, collection, catalog];
