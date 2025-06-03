@@ -51,6 +51,8 @@
     "@basemaps/config": "^8.1.0",
     "@basemaps/geo": "^8.0.0",
     "@basemaps/shared": "^8.1.0",
+    "@cotar/builder": "^6.0.1",
+    "@cotar/core": "^6.0.1",
     "@linzjs/docker-command": "^7.5.0",
     "@linzjs/geojson": "^8.0.0",
     "cmd-ts": "^0.12.1",
