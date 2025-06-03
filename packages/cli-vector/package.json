@@ -54,6 +54,7 @@
     "@linzjs/docker-command": "^7.5.0",
     "@linzjs/geojson": "^8.0.0",
     "cmd-ts": "^0.12.1",
+    "p-limit": "^6.2.0",
     "polylabel": "^2.0.1",
     "stac-ts": "^1.0.0",
     "tar-stream": "^2.2.0",
