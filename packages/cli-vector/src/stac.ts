@@ -185,7 +185,8 @@ export async function createStacFiles(
 
     const layer = zLayer.parse((stac.properties['linz_basemaps:options'] as { layer: zTypeLayer }).layer);
     const name = (stac.properties['linz_basemaps:options'] as { name: string }).name;
-    const layerLink = await vectorStac.createStacLink(name, layer);
+    const layerLink = stac.links.find((l) => l.rel === 'lds:layer' && l['lds:id'] === layer.id);
+    if (layerLink == null) throw new Error(`Layer link not found for ${layer.id} in ${stacPath.href}`);
 
     const existing = layersMap.get(layer.id);
     if (existing != null) {
