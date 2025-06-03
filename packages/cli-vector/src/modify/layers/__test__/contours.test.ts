@@ -1,9 +1,9 @@
-import { before, describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 
 import { LogConfig } from '@basemaps/shared';
 import { strictEqual } from 'assert';
 
-import { VectorGeoFeature, VectorGeoFeatureSchema } from '../../../types/VectorGeoFeature.js';
+import { VectorGeoFeature } from '../../../types/VectorGeoFeature.js';
 import { handleKindContours, handleKindPeak } from '../contours.js';
 
 describe('HandleLayerContours', () => {
@@ -26,10 +26,6 @@ describe('HandleLayerContours', () => {
       ],
     },
   };
-
-  before(() => {
-    VectorGeoFeatureSchema.parse(FakeFeature);
-  });
 
   describe('handleKindContours', () => {
     it('should assign a feature a type of index', () => {
