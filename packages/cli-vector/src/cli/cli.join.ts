@@ -146,6 +146,8 @@ export const JoinCommand = command({
     if (isArgo()) {
       const target = new URL(`topographic/${CliId}/${args.filename}.tar.co`, bucketPath);
       await fsa.write(fsa.toUrl('/tmp/target'), JSON.stringify([target]));
+      const mbTilesTarget = new URL(`topographic/${CliId}/${args.filename}.mbtiles`, bucketPath);
+      await fsa.write(fsa.toUrl('/tmp/mbTilesTarget'), JSON.stringify([mbTilesTarget]));
     }
   },
 });
