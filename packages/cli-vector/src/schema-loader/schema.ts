@@ -51,6 +51,23 @@ export type SpecialTag = { condition: string; tags: Tags };
 export type Simplify = { style: Styling; tolerance?: number };
 
 /**
+ * Cache mbtile file
+ */
+export interface CacheFile {
+  fileName: string;
+  path: URL;
+  exists: boolean;
+}
+
+/**
+ * Record the input and output features of the
+ */
+export interface Metrics {
+  input: number;
+  output: number;
+}
+
+/**
  * Layer interface for source data layer config metadata
  */
 export interface Layer {
@@ -82,10 +99,13 @@ export interface Layer {
   tippecanoe?: string[];
 
   /** Metrics data during the process, will capture into the stac once processed */
-  metrics?: { input: number; output: number };
+  metrics?: Metrics;
+
+  /** cached mbtile filename */
+  fileName?: URL;
 
   /** cached mbtile location */
-  cache?: URL;
+  cache?: CacheFile;
 
   /** true for layer over 2GB, which will require separated node to process */
   largeLayer?: boolean;

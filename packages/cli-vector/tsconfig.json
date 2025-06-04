@@ -6,5 +6,9 @@
     "rootDir": "./src"
   },
   "include": ["src"],
-  "references": [{ "path": "../shared/tsconfig.json" }, { "path": "../config/tsconfig.json" }]
+  "references": [
+    { "path": "../shared/tsconfig.json" },
+    { "path": "../geo/tsconfig.json" },
+    { "path": "../config/tsconfig.json" }
+  ]
 }

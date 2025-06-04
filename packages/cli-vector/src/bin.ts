@@ -2,9 +2,9 @@ Error.stackTraceLimit = 100;
 import { LogConfig } from '@basemaps/shared';
 import { run } from 'cmd-ts';
 
-import { vectorCli } from './index.js';
+import { VectorCli } from './index.js';
 
-run(vectorCli, process.argv.slice(2)).catch((err) => {
+run(VectorCli, process.argv.slice(2)).catch((err) => {
   const logger = LogConfig.get();
   logger.fatal({ err }, 'Command:Failed');
 
