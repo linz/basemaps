@@ -1,11 +1,12 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
 import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
+import { fsa, LogConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 
 import { renderPreview } from '../routes/preview.js';
+import { ConfigLoader } from '../util/config.loader.js';
 
 const target = fsa.toUrl(`/home/blacha/tmp/basemaps/bm-724/test-north-island_20230220_10m/`);
 const location = { lat: -39.0852555, lon: 177.3998405 };
@@ -17,7 +18,7 @@ let tileMatrix: TileMatrixSet | null = null;
 async function main(): Promise<void> {
   const log = LogConfig.get();
   const provider = new ConfigProviderMemory();
-  setDefaultConfig(provider);
+  ConfigLoader.setDefaultConfig(provider);
   const { tileSet, imagery } = await initConfigFromUrls(provider, [target]);
 
   if (tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + target.href);
