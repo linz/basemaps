@@ -181,6 +181,6 @@ export const AnalyseCommand = command({
 
     const template = readFileSync(args.template).toString();
     const output = Mustache.render(template, { data: analysisData });
-    await fsa.write(args.target, Buffer.from(output, 'utf8'));
+    await fsa.write(new URL('report.md', args.target), Buffer.from(output, 'utf8'));
   },
 });

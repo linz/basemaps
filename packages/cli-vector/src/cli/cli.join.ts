@@ -148,6 +148,8 @@ export const JoinCommand = command({
       await fsa.write(fsa.toUrl('/tmp/target'), JSON.stringify([target]));
       const mbTilesTarget = new URL(`topographic/${CliId}/${args.filename}.mbtiles`, bucketPath);
       await fsa.write(fsa.toUrl('/tmp/mbTilesTarget'), JSON.stringify(mbTilesTarget));
+      const analyseTarget = new URL(`topographic/${CliId}/`, bucketPath);
+      await fsa.write(fsa.toUrl('/tmp/analyseTarget'), JSON.stringify(analyseTarget));
     }
   },
 });
