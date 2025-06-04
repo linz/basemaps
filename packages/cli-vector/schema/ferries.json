@@ -1,6 +1,16 @@
 {
   "name": "ferries",
-  "metadata": { "attributes": ["kind", "name"] },
+  "metadata": {
+    "attributes": ["kind"],
+    "schema": [
+      {
+        "filter": ["all", ["==", "kind", "ferry"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 10, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50269",

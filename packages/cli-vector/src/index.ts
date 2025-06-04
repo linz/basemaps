@@ -1,7 +1,8 @@
-// eslint-disable-next-line simple-import-sort/imports
 import { subcommands } from 'cmd-ts';
-import { ExtractCommand } from './cli/cli.extract.js';
+
 import { CreateCommand } from './cli/cli.create.js';
+import { DocsCommand } from './cli/cli.docs.js';
+import { ExtractCommand } from './cli/cli.extract.js';
 import { JoinCommand } from './cli/cli.join.js';
 
 export const VectorCli = subcommands({
@@ -10,5 +11,6 @@ export const VectorCli = subcommands({
     extract: ExtractCommand,
     create: CreateCommand,
     join: JoinCommand,
+    docs: DocsCommand,
   },
 });

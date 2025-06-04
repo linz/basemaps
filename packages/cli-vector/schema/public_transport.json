@@ -1,6 +1,32 @@
 {
   "name": "public_transport",
-  "metadata": { "attributes": ["kind", "name"] },
+  "metadata": {
+    "attributes": ["kind", "name"],
+    "schema": [
+      {
+        "filter": ["all", ["==", "kind", "aerodrome"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Point",
+        "zoom_levels": { "min": 0, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "helipad"]],
+        "properties": {},
+        "geometry": "Point",
+        "zoom_levels": { "min": 10, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "station"]],
+        "properties": {
+          "name": { "guaranteed": true, "type": "string" }
+        },
+        "geometry": "Point",
+        "zoom_levels": { "min": 12, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50237",
