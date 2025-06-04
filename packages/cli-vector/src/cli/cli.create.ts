@@ -27,7 +27,7 @@ export const CreateArgs = {
     long: 'concurrency',
     defaultValue: () => 1,
     defaultValueIsSerializable: true,
-    description: 'Number of items to process concurrently when downloading source files or generating mbtiles.'
+    description: 'Number of items to process concurrently when downloading source files or generating mbtiles.',
   }),
   join: flag({
     long: 'join',
