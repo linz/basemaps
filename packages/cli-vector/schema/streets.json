@@ -19,6 +19,150 @@
       "use_2",
       "ref",
       "subclass"
+    ],
+    "schema": [
+      {
+        "filter": ["all", ["==", "kind", "aerodrome"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 5, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "motorway"]],
+        "properties": {
+          "hway_num": { "guaranteed": true, "type": "string" },
+          "lane_count": {
+            "guaranteed": true,
+            "type": "number",
+            "values": [1, 2, 3, 4, 5, 6, 7]
+          },
+          "name": { "guaranteed": false, "type": "string" },
+          "ref": { "guaranteed": true, "type": "string" },
+          "surface": { "guaranteed": true, "type": "string", "values": ["sealed", "metalled"] }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 8, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "primary"]],
+        "properties": {
+          "lane_count": { "guaranteed": true, "type": "number", "values": [4, 5, 6] },
+          "name": { "guaranteed": false, "type": "string" },
+          "status": { "guaranteed": false, "type": "string", "values": ["under construction"] },
+          "surface": { "guaranteed": true, "type": "string", "values": ["sealed", "unmetalled"] }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 8, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "raceway"]],
+
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" },
+          "track_type": { "guaranteed": false, "type": "string", "values": ["training"] },
+          "track_use": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["horse", "vehicle", "cycle", "dog"]
+          }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "rail"]],
+
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" },
+          "rway_use": { "guaranteed": false, "type": "string", "values": ["siding"] },
+          "status": { "guaranteed": false, "type": "string", "values": ["disused"] },
+          "track_type": {
+            "guaranteed": true,
+            "type": "string",
+            "values": ["single", "multiple"]
+          }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 0, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "runway"]],
+        "properties": {
+          "status": { "guaranteed": false, "type": "string", "values": ["disused"] },
+          "surface": { "guaranteed": false, "type": "string", "values": ["sealed"] }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "max": 15, "min": 10 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "secondary"]],
+        "geometry": "LineString, Point",
+        "properties": {
+          "bridge": { "guaranteed": false, "type": "boolean", "values": [true] },
+          "ford": { "guaranteed": false, "type": "boolean", "values": [true] },
+          "lane_count": { "guaranteed": false, "type": "number", "values": [1, 2, 3] },
+          "name": { "guaranteed": false, "type": "string" },
+          "status": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["under construction", "closed", "derelict", "disused", "historic"]
+          },
+          "surface": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["metalled", "unmetalled", "sealed"]
+          },
+          "tunnel": { "guaranteed": false, "type": "boolean", "values": [true] },
+          "use_1": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["vehicle", "foot traffic", "farm", "train", "cablecar"]
+          },
+          "use_2": { "guaranteed": false, "type": "string", "values": ["train"] }
+        },
+        "zoom_levels": { "min": 8, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "track"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" },
+          "status": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["closed", "unmaintained"]
+          },
+          "subclass": {
+            "guaranteed": false,
+            "type": "string",
+            "values": [
+              "foot",
+              "foot_route",
+              "foot_closed",
+              "vehicle",
+              "cycle only",
+              "vehicle_closed",
+              "foot_connector",
+              "foot_routeroute",
+              "foot_route_closed",
+              "vehicle_unmaintained"
+            ]
+          },
+          "track_type": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["route", "connector", "routeroute"]
+          },
+          "track_use": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["foot", "vehicle", "cycle only"]
+          }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      }
     ]
   },
   "layers": [

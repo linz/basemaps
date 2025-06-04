@@ -13,6 +13,300 @@
       "substance",
       "visibility",
       "status"
+    ],
+    "schema": [
+      {
+        "filter": ["all", ["==", "kind", "bare_rock"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 14, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "boatramp"]],
+        "properties": {
+          "name": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["boatramp", "Te Onepoto Boat Ramp", "Namukulu Boat Ramp"]
+          }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 10, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "cemetery"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 10, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "cliff"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "cutting"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "dredge_tailing"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "dry_dock"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "embankment"]],
+        "properties": {
+          "embkmt_use": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["stopbank", "causeway", "seawall"]
+          },
+          "name": { "guaranteed": false, "type": "string", "values": ["Tamehanas Dam"] }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "fence"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 13, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "forest"]],
+        "properties": {
+          "landuse": { "guaranteed": false, "type": "string", "values": ["forest", "wood"] },
+          "species": { "guaranteed": false, "type": "string", "values": ["non-coniferous"] },
+          "tree": { "guaranteed": true, "type": "string", "values": ["native", "exotic"] }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 0, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "golf_course"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 6, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "ice"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 2, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "ladder"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "landfill"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "mangrove"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "mine"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" },
+          "status": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["historic", "disused", "old"]
+          },
+          "substance": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["coal", "gold", "ironsand"]
+          },
+          "visibility": {
+            "guaranteed": true,
+            "type": "string",
+            "values": ["opencast"]
+          }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "moraine"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "moraine_wall"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "mud"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 1, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "orchard"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 10, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "pipeline"]],
+        "properties": {
+          "visibility": { "guaranteed": false, "type": "string", "values": ["underground"] }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "pond"]],
+        "properties": {
+          "name": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["Lake Crichton", "pond", "ponds"]
+          }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "max": 15, "min": 9 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "powerline"]],
+        "properties": {
+          "support_ty": { "guaranteed": false, "type": "string", "values": ["pole", "pylon"] }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 0, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "quarry"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" },
+          "status": { "guaranteed": false, "type": "string", "values": ["disused"] },
+          "substance": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["lime", "limestone", "silica sand", "stone", "clay", "gravel", "shingle", "metal", "zeolite"]
+          }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "residential"]],
+        "properties": {
+          "name": {
+            "guaranteed": false,
+            "type": "string"
+          }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 0, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "sand"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 8, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "scree"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "scrub"]],
+        "properties": {
+          "distribution": { "guaranteed": false, "type": "string", "values": ["scattered"] }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 0, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "shingle"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "siphon"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "slip"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "slipway"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "swamp"]],
+
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 2, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "telephone"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "tree_row"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 8, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "vineyard"]],
+        "properties": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "walkwire"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      }
     ]
   },
   "layers": [

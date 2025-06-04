@@ -1,6 +1,26 @@
 {
   "name": "street_polygons",
-  "metadata": { "attributes": ["kind", "surface", "name"] },
+  "metadata": {
+    "attributes": ["kind", "surface", "name"],
+    "schema": [
+      {
+        "filter": ["all", ["==", "kind", "aerodrome"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 5, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "runway"]],
+        "properties": {
+          "surface": { "guaranteed": false, "type": "string", "values": ["sealed"] }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 10, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50237",

@@ -1,6 +1,18 @@
 {
   "name": "boundaries",
-  "metadata": { "attributes": ["name"] },
+  "metadata": {
+    "attributes": ["name"],
+    "schema": [
+      {
+        "filter": ["all"],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 0, "max": 15 }
+      }
+    ]
+  },
   "simplify": [
     { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.1 },
     { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.09 },

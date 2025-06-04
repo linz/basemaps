@@ -1,6 +1,30 @@
 {
   "name": "aerialways",
-  "metadata": { "attributes": ["kind", "feature", "name"] },
+  "metadata": {
+    "attributes": ["kind", "feature"],
+    "schema": [
+      {
+        "filter": ["all", ["==", "kind", "cable_car"]],
+        "properties": {
+          "feature": { "guaranteed": true, "type": "string", "values": ["people", "industrial"] }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "ski_lift"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "ski_tow"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50248",

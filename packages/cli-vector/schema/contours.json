@@ -1,6 +1,41 @@
 {
   "name": "contours",
-  "metadata": { "attributes": ["designated", "type", "nat_form", "elevation", "kind", "name", "rank"] },
+  "metadata": {
+    "attributes": ["designated", "type", "nat_form", "elevation", "kind", "name", "rank"],
+    "schema": [
+      {
+        "filter": ["all", ["==", "kind", "contours"]],
+        "properties": {
+          "designated": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["supplementary"]
+          },
+          "elevation": {
+            "guaranteed": true,
+            "type": "number"
+          },
+          "nat_form": { "guaranteed": false, "type": "string", "values": ["depression"] },
+          "type": {
+            "guaranteed": ["all", ["modulo_100", "elevation", 0]],
+            "type": "string",
+            "values": ["index"]
+          }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 9, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "peak"]],
+        "properties": {
+          "elevation": { "guaranteed": false, "type": "number" },
+          "rank": { "guaranteed": false, "type": "number", "values": [5, 4, 3, 2, 1] }
+        },
+        "geometry": "Point",
+        "zoom_levels": { "min": 9, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50768",

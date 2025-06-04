@@ -1,6 +1,18 @@
 {
   "name": "parcel_boundaries",
-  "metadata": { "attributes": ["parcel_intent", "name", "id"] },
+  "metadata": {
+    "attributes": ["parcel_intent", "name", "id"],
+    "schema": [
+      {
+        "filter": ["all"],
+        "properties": {
+          "parcel_intent": { "guaranteed": true, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 14, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50772",

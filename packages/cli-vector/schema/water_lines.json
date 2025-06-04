@@ -1,6 +1,84 @@
 {
   "name": "water_lines",
-  "metadata": { "attributes": ["kind", "name", "feature", "species", "height"] },
+  "metadata": {
+    "attributes": ["kind", "name", "feature", "species", "height"],
+    "schema": [
+      {
+        "filter": ["all", ["==", "kind", "boom"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "drain"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 10, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "flume"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "marine_farm"]],
+        "properties": {
+          "geometry": "LineString",
+          "species": { "guaranteed": false, "type": "string", "values": ["salmon"] }
+        },
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "river"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 8, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "stream"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "water_race"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "waterfall"]],
+        "properties": {
+          "feature": { "guaranteed": false, "type": "string", "values": ["edge"] },
+          "height": { "guaranteed": true, "type": "number" },
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "wharf"]],
+        "properties": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 10, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "wharf_edge"]],
+        "properties": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 10, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "103632",
