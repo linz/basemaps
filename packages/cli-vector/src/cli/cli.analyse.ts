@@ -4,10 +4,11 @@ import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { VectorTile } from '@mapbox/vector-tile';
-import { command, option, restPositionals } from 'cmd-ts';
+import { command, option, positional } from 'cmd-ts';
 import { readFileSync } from 'fs';
 import Mustache from 'mustache';
 import sizeof from 'object-sizeof';
+import { basename } from 'path';
 import Protobuf from 'pbf';
 import { gunzip } from 'zlib';
 
@@ -57,7 +58,7 @@ function distribution(size: number): string {
 
 export const AnalyseArgs = {
   ...logArguments,
-  path: restPositionals({ type: Url, displayName: 'path', description: 'Path to mbtiles' }),
+  path: positional({ type: Url, displayName: 'path', description: 'Path to mbtiles' }),
   template: option({
     long: 'template',
     defaultValue: () => 'packages/cli-vector/analysis/template.md',
@@ -81,7 +82,17 @@ export const AnalyseCommand = command({
     logger.info('AnalyseMbTiles: Start');
 
     const analysisData: AnalysisData[] = [];
-    const db = new sq.DatabaseSync(args.path[0].pathname);
+
+    let mbtilesFile = args.path.pathname;
+    if (args.path.protocol !== 'file:') {
+      const fileName = basename(args.path.pathname);
+      const localFile = fsa.toUrl(`tmp/${fileName}`);
+      const stream = fsa.readStream(args.path);
+      await fsa.write(localFile, stream);
+      mbtilesFile = localFile.pathname;
+    }
+
+    const db = new sq.DatabaseSync(mbtilesFile);
     const MaxZoom = 15;
     for (let i = 0; i <= MaxZoom; i++) {
       const result = db
