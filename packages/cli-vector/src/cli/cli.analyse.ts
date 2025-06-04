@@ -87,6 +87,7 @@ export const AnalyseCommand = command({
     if (args.path.protocol !== 'file:') {
       const fileName = basename(args.path.pathname);
       const localFile = fsa.toUrl(`tmp/${fileName}`);
+      await fsa.head(args.path);
       const stream = fsa.readStream(args.path);
       await fsa.write(localFile, stream);
       mbtilesFile = localFile.pathname;
