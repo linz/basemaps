@@ -61,7 +61,7 @@ export const AnalyseArgs = {
   path: positional({ type: Url, displayName: 'path', description: 'Path to mbtiles' }),
   template: option({
     long: 'template',
-    defaultValue: () => 'packages/cli-vector/analysis/template.md',
+    defaultValue: () => 'analysis/template.md',
     defaultValueIsSerializable: true,
     description: 'Path of analysis template',
   }),
