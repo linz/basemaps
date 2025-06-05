@@ -85,12 +85,14 @@ export const AnalyseCommand = command({
 
     let mbtilesFile = args.path.pathname;
     if (args.path.protocol !== 'file:') {
+      logger.info('Download Start');
       const fileName = basename(args.path.pathname);
       const localFile = fsa.toUrl(`tmp/${fileName}`);
       await fsa.head(args.path);
       const stream = fsa.readStream(args.path);
       await fsa.write(localFile, stream);
       mbtilesFile = localFile.pathname;
+      logger.info({ mbtilesFile }, 'Download End');
     }
 
     const db = new sq.DatabaseSync(mbtilesFile);
