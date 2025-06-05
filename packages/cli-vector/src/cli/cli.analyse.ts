@@ -79,7 +79,7 @@ export const AnalyseCommand = command({
   args: AnalyseArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    logger.info('AnalyseMbTiles: Start');
+    logger.info({ path: args.path, target: args.target }, 'AnalyseMbTiles: Start');
 
     const analysisData: AnalysisData[] = [];
 
