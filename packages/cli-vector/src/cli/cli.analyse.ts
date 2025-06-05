@@ -81,6 +81,10 @@ export const AnalyseCommand = command({
     const logger = getLogger(this, args, 'cli-vector');
     logger.info({ path: args.path, target: args.target }, 'AnalyseMbTiles: Start');
 
+    if (1 === 1) {
+      throw new Error('ff');
+    }
+
     const analysisData: AnalysisData[] = [];
 
     let mbtilesFile = args.path.pathname;
@@ -182,6 +186,8 @@ export const AnalyseCommand = command({
       analysisData.push(data);
     }
     db.close();
+
+    logger.info({ analysisData, template: args.template, target: args.target }, 'Finished read mbtiles');
 
     const template = readFileSync(args.template).toString();
     const output = Mustache.render(template, { data: analysisData });
