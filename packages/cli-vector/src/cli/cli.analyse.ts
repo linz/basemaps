@@ -95,6 +95,8 @@ export const AnalyseCommand = command({
       logger.info({ mbtilesFile }, 'Download End');
     }
 
+    logger.info({ mbtilesFile }, 'Read mbtiles');
+
     const db = new sq.DatabaseSync(mbtilesFile);
     const MaxZoom = 15;
     for (let i = 0; i <= MaxZoom; i++) {
