@@ -81,10 +81,6 @@ export const AnalyseCommand = command({
     const logger = getLogger(this, args, 'cli-vector');
     logger.info({ path: args.path, target: args.target }, 'AnalyseMbTiles: Start');
 
-    if (1 === 1) {
-      throw new Error('ff');
-    }
-
     const analysisData: AnalysisData[] = [];
 
     let mbtilesFile = args.path.pathname;
