@@ -79,7 +79,7 @@ export const AnalyseCommand = command({
   args: AnalyseArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    logger.info({ path: args.path, target: args.target }, 'AnalyseMbTiles: Start');
+    logger.info('AnalyseMbTiles: Start');
 
     const analysisData: AnalysisData[] = [];
 
@@ -92,7 +92,7 @@ export const AnalyseCommand = command({
       const stream = fsa.readStream(args.path);
       await fsa.write(localFile, stream);
       mbtilesFile = localFile.pathname;
-      logger.info({ mbtilesFile }, 'Download End');
+      logger.info('Download End');
     }
 
     logger.info({ mbtilesFile }, 'Read mbtiles');
@@ -183,7 +183,7 @@ export const AnalyseCommand = command({
     }
     db.close();
 
-    logger.info({ analysisData, template: args.template, target: args.target }, 'Finished read mbtiles');
+    logger.info('Finished reading mbtiles');
 
     const template = readFileSync(args.template).toString();
     const output = Mustache.render(template, { data: analysisData });
