@@ -1,4 +1,5 @@
 import { sha256base58 } from '@basemaps/config';
+import { TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { z } from 'zod';
@@ -13,10 +14,12 @@ export class SchemaLoader {
   path: URL;
   logger: LogType;
   schemas: Schema[] = [];
+  tileMatrix: TileMatrixSet;
   cache?: URL;
-  constructor(path: URL, logger: LogType, cache?: URL) {
+  constructor(path: URL, tileMatrix: TileMatrixSet, logger: LogType, cache?: URL) {
     this.path = path;
     this.logger = logger;
+    this.tileMatrix = tileMatrix;
     this.cache = cache;
   }
 
@@ -80,7 +83,7 @@ export class SchemaLoader {
           const fileName = isLdsFile
             ? `${layer.id}_${layer.version}_${configHash}.mbtiles`
             : `${layer.id}_${configHash}.mbtiles`;
-          const path = new URL(`${layer.id}/${fileName}`, this.cache);
+          const path = new URL(`${this.tileMatrix.projection.code}/${layer.id}/${fileName}`, this.cache);
           const exists = await fsa.exists(path);
           const cache = {
             fileName,

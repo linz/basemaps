@@ -1,3 +1,4 @@
+import { TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { createWriteStream } from 'fs';
 import { Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
@@ -6,6 +7,7 @@ import readline from 'readline';
 import { modifyFeature } from '../modify/modify.js';
 import { Metrics, Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
+import { transformNdJson, transformZoom } from '../transform/nztm.js';
 import { VectorGeoFeature } from '../types/VectorGeoFeature.js';
 import { createReadStreamSafe } from '../util.js';
 import { Point, simplify } from './simplify.js';
@@ -18,6 +20,7 @@ import { Point, simplify } from './simplify.js';
 export async function generalize(
   input: URL,
   output: URL,
+  tileMatrix: TileMatrixSet,
   options: VectorCreationOptions,
   logger: LogType,
 ): Promise<Metrics> {
@@ -36,18 +39,19 @@ export async function generalize(
   let outputCount = 0;
   for await (const line of rl) {
     if (line === '') continue;
+    if (tileMatrix.identifier === 'NZTM2000Quad') transformNdJson(line);
     inputCount++;
     // For simplify, duplicate feature for each zoom level with different tolerance
     if (simplify != null) {
       for (const s of simplify) {
-        const feature = tag(options, line, s, logger);
+        const feature = tag(tileMatrix, options, line, s, logger);
         if (feature == null) continue;
 
         writeStream.write(JSON.stringify(feature) + '\n');
         outputCount++;
       }
     } else {
-      const feature = tag(options, line, null, logger);
+      const feature = tag(tileMatrix, options, line, null, logger);
       if (feature == null) continue;
 
       writeStream.write(JSON.stringify(feature) + '\n');
@@ -72,6 +76,7 @@ export async function generalize(
  * Tag feature for layer
  */
 function tag(
+  tileMatrix: TileMatrixSet,
   options: VectorCreationOptions,
   line: string,
   simplify: Simplify | null,
@@ -113,6 +118,10 @@ function tag(
       modifiedFeature.geometry = coordinates;
     }
   }
+
+  // Transform zoom level for NZTM2000Quad
+  modifiedFeature.tippecanoe.minzoom = transformZoom(modifiedFeature.tippecanoe.minzoom, tileMatrix);
+  modifiedFeature.tippecanoe.maxzoom = transformZoom(modifiedFeature.tippecanoe.maxzoom, tileMatrix);
 
   // Remove unused properties
   // REVIEW: this function just removes the special tags. something isn't right here

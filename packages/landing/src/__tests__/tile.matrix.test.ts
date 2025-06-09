@@ -1,9 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
-
-import { locationTransform } from '../tile.matrix.js';
+import { GoogleTms, locationTransform, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 
 describe('locationTransform', () => {
   const Precision = 10 ** 8;

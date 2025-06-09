@@ -3,6 +3,7 @@ import {
   EpsgCode,
   GoogleTms,
   ImageFormat,
+  locationTransform,
   LocationUrl,
   Nztm2000QuadTms,
   Nztm2000Tms,
@@ -14,7 +15,7 @@ import { LngLatBoundsLike } from 'maplibre-gl';
 
 import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
 import { Config } from './config.js';
-import { locationTransform, mapToBoundingBox } from './tile.matrix.js';
+import { mapToBoundingBox } from './tile.matrix.js';
 import { ensureBase58, MapLocation, MapOptionType, WindowUrl } from './url.js';
 
 /** Default center point if none provided */

@@ -1,11 +1,11 @@
 import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
-import { GoogleTms, LocationUrl } from '@basemaps/geo';
+import { GoogleTms, locationTransform, LocationUrl } from '@basemaps/geo';
 import maplibre from 'maplibre-gl';
 import { Component, ReactNode } from 'react';
 
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';
-import { getTileGridStyle, locationTransform } from '../tile.matrix.js';
+import { getTileGridStyle } from '../tile.matrix.js';
 import { Debug } from './debug.js';
 import { MapLabelControl } from './map.label.js';
 import { MapSwitcher } from './map.switcher.js';

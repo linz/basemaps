@@ -1,5 +1,5 @@
 import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
-import { GoogleTms } from '@basemaps/geo';
+import { GoogleTms, projectGeoJson } from '@basemaps/geo';
 import { BBoxFeature } from '@linzjs/geojson';
 import { BBoxFeatureCollection } from '@linzjs/geojson/build/types.js';
 import { StyleSpecification } from 'maplibre-gl';
@@ -7,7 +7,6 @@ import { FormEventHandler } from 'react';
 
 import { Config } from './config.js';
 import { ConfigData } from './config.layer.js';
-import { projectGeoJson } from './tile.matrix.js';
 import { MapOptionType, WindowUrl } from './url.js';
 
 export interface DebugType {
