@@ -1,3 +1,4 @@
+import { Feature, FeatureCollection } from 'geojson';
 import { Projection } from './proj/projection.js';
 import { TileMatrixSet } from './tile.matrix.set.js';
 import { GoogleTms } from './tms/google.js';
@@ -37,7 +38,7 @@ export function locationTransform(
  *
  * *Warning* This will overwrite the existing object
  */
-export function projectGeoJson(g: GeoJSON.FeatureCollection | GeoJSON.Feature, targetTileMatrix: TileMatrixSet): void {
+export function projectGeoJson(g: FeatureCollection | Feature, targetTileMatrix: TileMatrixSet): void {
   if (g.type === 'FeatureCollection') {
     for (const f of g.features) {
       projectFeature(f, targetTileMatrix);
@@ -47,7 +48,7 @@ export function projectGeoJson(g: GeoJSON.FeatureCollection | GeoJSON.Feature, t
   }
 }
 
-export function projectFeature(f: GeoJSON.Feature, targetTileMatrix: TileMatrixSet): void {
+export function projectFeature(f: Feature, targetTileMatrix: TileMatrixSet): void {
   if (f.geometry.type === 'Polygon') {
     for (const poly of f.geometry.coordinates) {
       for (const coord of poly) {

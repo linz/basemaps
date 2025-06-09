@@ -1,7 +1,7 @@
 import { TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { createWriteStream } from 'fs';
-import { Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
+import { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 import readline from 'readline';
 
 import { modifyFeature } from '../modify/modify.js';
@@ -39,22 +39,23 @@ export async function generalize(
   let outputCount = 0;
   for await (const line of rl) {
     if (line === '') continue;
-    if (tileMatrix.identifier === 'NZTM2000Quad') transformNdJson(line);
+    const feature = JSON.parse(line) as Feature;
+    if (tileMatrix.identifier === 'NZTM2000Quad') transformNdJson(feature);
     inputCount++;
     // For simplify, duplicate feature for each zoom level with different tolerance
     if (simplify != null) {
       for (const s of simplify) {
-        const feature = tag(tileMatrix, options, line, s, logger);
-        if (feature == null) continue;
+        const vectorGeofeature = tag(tileMatrix, options, feature, s, logger);
+        if (vectorGeofeature == null) continue;
 
-        writeStream.write(JSON.stringify(feature) + '\n');
+        writeStream.write(JSON.stringify(vectorGeofeature) + '\n');
         outputCount++;
       }
     } else {
-      const feature = tag(tileMatrix, options, line, null, logger);
-      if (feature == null) continue;
+      const vectorGeofeature = tag(tileMatrix, options, feature, null, logger);
+      if (vectorGeofeature == null) continue;
 
-      writeStream.write(JSON.stringify(feature) + '\n');
+      writeStream.write(JSON.stringify(vectorGeofeature) + '\n');
       outputCount++;
     }
   }
@@ -78,12 +79,12 @@ export async function generalize(
 function tag(
   tileMatrix: TileMatrixSet,
   options: VectorCreationOptions,
-  line: string,
+  feature: Feature,
   simplify: Simplify | null,
   logger: LogType,
 ): VectorGeoFeature | null {
-  const feature = {
-    ...JSON.parse(line),
+  const vectorGeofeature = {
+    ...feature,
     tippecanoe: {
       layer: options.name,
       minzoom: options.layer.style.minZoom,
@@ -92,10 +93,10 @@ function tag(
   } as VectorGeoFeature;
 
   // copy the stac json's tags to the feature (i.e. 'kind')
-  Object.entries(options.layer.tags).forEach(([key, value]) => (feature.properties[key] = value));
+  Object.entries(options.layer.tags).forEach(([key, value]) => (vectorGeofeature.properties[key] = value));
 
   // adjust the feature's metadata and properties
-  const modifiedFeature = modifyFeature(feature, options, logger);
+  const modifiedFeature = modifyFeature(vectorGeofeature, options, logger);
   if (modifiedFeature == null) {
     return null;
   }
