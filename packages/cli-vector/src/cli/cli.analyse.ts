@@ -4,7 +4,7 @@ import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { VectorTile } from '@mapbox/vector-tile';
-import { command, option, positional } from 'cmd-ts';
+import { command, option } from 'cmd-ts';
 import { readFileSync } from 'fs';
 import Mustache from 'mustache';
 import sizeof from 'object-sizeof';
@@ -58,7 +58,11 @@ function distribution(size: number): string {
 
 export const AnalyseArgs = {
   ...logArguments,
-  path: positional({ type: Url, displayName: 'path', description: 'Path to mbtiles' }),
+  path: option({
+    long: 'path',
+    type: Url,
+    description: 'Path to mbtiles',
+  }),
   template: option({
     long: 'template',
     defaultValue: () => 'analysis/template.md',
