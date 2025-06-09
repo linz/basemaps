@@ -76,6 +76,37 @@ export function projectFeature(f: Feature, targetTileMatrix: TileMatrixSet): voi
         }
       }
     }
+  } else if (f.geometry.type === 'Point') {
+    const coord = f.geometry.coordinates;
+    const output = locationTransform(
+      { lat: coord[1], lon: coord[0], zoom: targetTileMatrix.maxZoom },
+      targetTileMatrix,
+      GoogleTms,
+    );
+    coord[0] = output.lon;
+    coord[1] = output.lat;
+  } else if (f.geometry.type === 'MultiLineString') {
+    for (const line of f.geometry.coordinates) {
+      for (const coord of line) {
+        const output = locationTransform(
+          { lat: coord[1], lon: coord[0], zoom: targetTileMatrix.maxZoom },
+          targetTileMatrix,
+          GoogleTms,
+        );
+        coord[0] = output.lon;
+        coord[1] = output.lat;
+      }
+    }
+  } else if (f.geometry.type === 'LineString') {
+    for (const coord of f.geometry.coordinates) {
+      const output = locationTransform(
+        { lat: coord[1], lon: coord[0], zoom: targetTileMatrix.maxZoom },
+        targetTileMatrix,
+        GoogleTms,
+      );
+      coord[0] = output.lon;
+      coord[1] = output.lat;
+    }
   } else {
     throw new Error(`Geometry feature type: ${f.geometry.type} not supported`);
   }
