@@ -1,5 +1,5 @@
 import { TileMatrixSets } from '@basemaps/geo';
-import { fsa, isArgo, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
+import { fsa, isArgo, LogType, Url, UrlArrayJsonFile, urlToString } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, optional, string } from 'cmd-ts';
@@ -145,7 +145,7 @@ export const JoinCommand = command({
     // Write output target for argo tasks to create pull request
     if (isArgo()) {
       const target = new URL(`topographic/${CliId}/${args.filename}.tar.co`, bucketPath);
-      await fsa.write(fsa.toUrl('/tmp/target'), JSON.stringify(target));
+      await fsa.write(fsa.toUrl('/tmp/target'), urlToString(target));
     }
   },
 });
