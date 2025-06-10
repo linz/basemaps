@@ -95,29 +95,29 @@ function tag(
   // copy the stac json's tags to the feature (i.e. 'kind')
   Object.entries(options.layer.tags).forEach(([key, value]) => (vectorGeofeature.properties[key] = value));
 
-  // adjust the feature's metadata and properties
-  const modifiedFeature = modifyFeature(vectorGeofeature, options, logger);
-  if (modifiedFeature == null) {
-    return null;
-  }
-
   // Simplify geometry
   if (simplify != null) {
     // Update the simplified feature zoom level
-    modifiedFeature['tippecanoe'] = {
+    vectorGeofeature['tippecanoe'] = {
       layer: options.name,
       minzoom: simplify.style.minZoom,
       maxzoom: simplify.style.maxZoom,
     };
     if (simplify.tolerance != null) {
-      const geom = modifiedFeature.geometry;
+      const geom = vectorGeofeature.geometry;
       const type = geom.type;
       const coordinates = simplifyFeature(type, geom, simplify.tolerance);
       if (coordinates == null) {
         return null;
       }
-      modifiedFeature.geometry = coordinates;
+      vectorGeofeature.geometry = coordinates;
     }
+  }
+
+  // adjust the feature's metadata and properties
+  const modifiedFeature = modifyFeature(vectorGeofeature, options, logger);
+  if (modifiedFeature == null) {
+    return null;
   }
 
   // Transform zoom level for NZTM2000Quad
