@@ -125,7 +125,6 @@ function tag(
   modifiedFeature.tippecanoe.maxzoom = transformZoom(modifiedFeature.tippecanoe.maxzoom, tileMatrix);
 
   // Remove unused properties
-  // REVIEW: this function just removes the special tags. something isn't right here
   const cleanedFeature = removeAttributes(modifiedFeature, options);
   return cleanedFeature;
 }

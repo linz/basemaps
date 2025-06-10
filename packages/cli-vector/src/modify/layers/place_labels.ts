@@ -36,6 +36,7 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
   const zoomLevel = feature.properties['zoom_level'];
   if (typeof zoomLevel !== 'number') throw new Error('Zoom level is not a number');
 
+  //DATA PROBLEM: We need to store the first feature which have all the propertie values, the duplicate features will only have null values in the properties
   const storedFeature = PlaceLabelsFeatures.get(label);
   if (storedFeature == null) {
     const newFeature = createNewFeature(feature, label, zoomLevel, logger);
@@ -48,16 +49,9 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
   }
 
   // update the stored feature's 'minzoom' value
-  if (zoomLevel < storedFeature.tippecanoe.minzoom) {
-    storedFeature.tippecanoe.minzoom = zoomLevel;
-    PlaceLabelsFeatures.set(label, storedFeature);
-  }
-
+  storedFeature.tippecanoe.minzoom = zoomLevel;
   // update the stored feature's 'maxzoom' value
-  if (zoomLevel > storedFeature.tippecanoe.maxzoom) {
-    storedFeature.tippecanoe.maxzoom = zoomLevel;
-    PlaceLabelsFeatures.set(label, storedFeature);
-  }
+  storedFeature.tippecanoe.maxzoom = zoomLevel;
 
   logger.trace({}, 'HandlePlaceLabels:End');
   return storedFeature;

@@ -14,7 +14,7 @@ export const LargeLakeSize = 4_000_000;
  * @param logger - a logger instance
  * @returns the processed feature
  */
-export function handleLayerWaterPolygons(
+export function handleLayerWater(
   feature: VectorGeoFeature,
   options: VectorCreationOptions,
   logger: LogType,

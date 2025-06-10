@@ -15,6 +15,7 @@ export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): Vec
   feature = structuredClone(feature);
 
   // REVIEW: We don't have any use for this criteria as we don't include the following layers:
+  // TODO: Do we want to convert this building polygons to points? So we have only points in the pois layer.
   // 1. 50245-nz-building-points-topo-150k
   // 2. 50246-nz-building-polygons-topo-150k
   if (feature.properties['building'] === 'building') {

@@ -1,6 +1,6 @@
 {
   "name": "place_labels",
-  "metadata": { "attributes": ["water", "name", "natural", "place"] },
+  "metadata": { "attributes": ["kind", "water", "name", "natural", "place"] },
   "layers": [
     {
       "id": "51154",
