@@ -8,6 +8,6 @@ export function transformNdJson(feature: Feature): void {
 
 // Transform Zoom level to NZTM projection
 export function transformZoom(z: number, tileMatrix: TileMatrixSet): number {
-  if (tileMatrix.identifier !== Nztm2000QuadTms.identifier) return Math.max(0, z - 2);
+  if (tileMatrix.identifier === Nztm2000QuadTms.identifier) return Math.max(0, z - 2);
   else return z;
 }
