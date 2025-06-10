@@ -28,8 +28,6 @@ export async function tippecanoe(
 
   // Config detail
   if (layer.style != null) {
-    cmd.args.push(`-Z${transformZoom(layer.style.minZoom, tileMatrix)}`);
-    cmd.args.push(`-z${transformZoom(layer.style.maxZoom, tileMatrix)}`);
     if (layer.style.detail != null) cmd.args.push(`--full-detail=${layer.style.detail}`);
   } else {
     // Default to 0-15 for WebMercator and 0-13 for NZTM2000Quad
