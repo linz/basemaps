@@ -18,6 +18,7 @@ interface TileInfo {
   z: number;
   max: number;
   size?: string;
+  link?: string;
 }
 
 interface Distribution {
@@ -120,7 +121,14 @@ export const AnalyseCommand = command({
         });
         const tile = new VectorTile(new Protobuf(buffer));
 
-        if (buffer.length > maxTile.max) maxTile = { x: row.x, y: row.y, z: row.z, max: buffer.length };
+        if (buffer.length > maxTile.max)
+          maxTile = {
+            x: row.x,
+            y: row.y,
+            z: row.z,
+            max: buffer.length,
+            link: `https://basemaps.linz.govt.nz/v1/tiles/topographic/WebMercatorQuad/${row.z}/${row.z}/${row.y}.pbf`,
+          };
 
         // Prepare distribution
         const dis = distribution(buffer.length);

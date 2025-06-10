@@ -6,7 +6,7 @@
 
 | X             | Y             | Z             | Size             |
 | ------------- | ------------- | ------------- | ----------------: |
-| {{maxTile.x}} | {{maxTile.y}} | {{maxTile.z}} | {{maxTile.size}} |
+| {{maxTile.x}} | {{maxTile.y}} | {{maxTile.z}} | [{{maxTile.size}}]({{maxTile.link}}) |
 
 ## Distributions
 
