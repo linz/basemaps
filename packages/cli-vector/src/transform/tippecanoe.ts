@@ -1,16 +1,23 @@
-import { Epsg } from '@basemaps/geo';
+import { Epsg, TileMatrixSet } from '@basemaps/geo';
 import { LogType, urlToString } from '@basemaps/shared';
 import { Command } from '@linzjs/docker-command';
 import path, { dirname } from 'path';
 
 import { Layer } from '../schema-loader/schema.js';
+import { transformZoom } from './nztm.js';
 
 /**
  * tippecanoe usage, return cmd for tippecanoe
  *
  * @returns { cmd: string; args: string[] } cmd and arguments for tippecanoe docker command
  */
-export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: LogType): Promise<void> {
+export async function tippecanoe(
+  input: URL,
+  output: URL,
+  layer: Layer,
+  tileMatrix: TileMatrixSet,
+  logger: LogType,
+): Promise<void> {
   const cmd = Command.create('tippecanoe');
 
   // parallel processing for line-delimited geojson file.
@@ -21,12 +28,12 @@ export async function tippecanoe(input: URL, output: URL, layer: Layer, logger: 
 
   // Config detail
   if (layer.style != null) {
-    cmd.args.push(`-Z${layer.style.minZoom}`);
-    cmd.args.push(`-z${layer.style.maxZoom}`);
+    cmd.args.push(`-Z${transformZoom(layer.style.minZoom, tileMatrix)}`);
+    cmd.args.push(`-z${transformZoom(layer.style.maxZoom, tileMatrix)}`);
     if (layer.style.detail != null) cmd.args.push(`--full-detail=${layer.style.detail}`);
   } else {
-    // Default to 0-15
-    cmd.args.push(`-z15`);
+    // Default to 0-15 for WebMercator and 0-13 for NZTM2000Quad
+    cmd.args.push(`-z${transformZoom(15, tileMatrix)}`);
   }
 
   cmd.mount(dirname(input.pathname));

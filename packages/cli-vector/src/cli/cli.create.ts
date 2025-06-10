@@ -207,7 +207,7 @@ async function createMbtilesFile(
     '[3/5] Transform generalised ndjson into mbtiles: Start',
   );
   if (!(await fsa.exists(tmpPaths.mbtiles))) {
-    await tippecanoe(tmpPaths.genNdjson, tmpPaths.mbtiles, layer, logger);
+    await tippecanoe(tmpPaths.genNdjson, tmpPaths.mbtiles, layer, tileMatrix, logger);
   }
   logger.info(
     { destination: tmpPaths.mbtiles, dataset: layer.name },
