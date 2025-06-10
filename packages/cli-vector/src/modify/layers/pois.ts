@@ -28,7 +28,7 @@ export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): Vec
     feature.properties['building'] = bldgUse;
 
     // Covert the building polygon to a point for 50246-nz-building-polygons-topo-150k
-    if (feature.geometry.type === 'Polygon') {
+    if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
       const coordinates = getCoordinates(feature.geometry, logger);
       const inaccessibilityPole = polylabel(coordinates);
 
