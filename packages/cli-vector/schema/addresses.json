@@ -1,13 +1,26 @@
 {
   "name": "addresses",
-  "metadata": { "attributes": ["housenumber", "name", "id"] },
+  "description": "This layer contains address features represented as `Point` geometries. Each feature includes a `housenumber` property.",
+  "metadata": {
+    "attributes": ["housenumber"],
+    "report": [
+      {
+        "filter": ["all"],
+        "attributes": {
+          "housenumber": { "guaranteed": true, "type": "string" }
+        },
+        "geometry": "Point",
+        "zoom_levels": { "min": 15, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "105689",
       "name": "105689-nz-addresses-pilot",
       "source": "s3://linz-lds-cache/105689/",
       "tags": {},
-      "attributes": { "address_id": "id", "full_address_number": "housenumber" },
+      "attributes": { "full_address_number": "housenumber" },
       "style": { "minZoom": 15, "maxZoom": 15 }
     }
   ]

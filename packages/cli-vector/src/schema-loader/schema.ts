@@ -113,7 +113,6 @@ export interface Layer {
 
 /**
  * Schema metadata for vector layer
- *
  */
 export interface SchemaMetadata {
   /** All the attributes that is available for this layer, could be mapped from different attribute from source layer */
@@ -128,6 +127,12 @@ export interface Schema {
   /** Schema name */
   name: string;
 
+  /** Schema description */
+  description?: string;
+
+  /** True, if the Schema describes a non-default Shortbread layer */
+  custom?: boolean;
+
   /** Schema metadata */
   metadata: SchemaMetadata;
 
@@ -136,4 +141,67 @@ export interface Schema {
 
   /** All individual layers that combined for the Schema */
   layers: Layer[];
+}
+
+/**
+ * Interface describing a Report object as created and exported by the vector-cli 'reports' command.
+ */
+export interface Report {
+  /**
+   * Name of the Shortbread layer for which the report derives.
+   *
+   * @example "addresses"
+   * @example "boundaries"
+   * @example "contours"
+   */
+  name: string;
+
+  /**
+   * Entry object containing information from all features, regardless of `kind` attribute value.
+   */
+  all: ReportEntry;
+
+  /**
+   * Entry objects deriving information from all features with the same `kind` attribute value.
+   *
+   * @example { "contours": ReportEntry, "peaks": ReportEntry }
+   */
+  kinds?: Record<string, ReportEntry>;
+}
+
+export interface ReportEntry {
+  /**
+   * @example { "feature": { "guaranteed": true, "type": "string", "values": ["people", "industrial"] } }
+   */
+  attributes: Record<string, ReportAttribute>;
+
+  /**
+   * @example ["LineString"]
+   */
+  geometries: ('LineString' | 'Point' | 'Polygon' | 'Unknown')[];
+
+  /**
+   * @example { "min": 12, "max": 15 }
+   */
+  zoom_levels: number[];
+}
+
+export interface ReportAttribute {
+  /**
+   * `true`, if all features of the parent `ReportEntry` define this attribute. Otherwise, `false`.
+   */
+  guaranteed: boolean;
+
+  /**
+   * The number of unique values across all features of the parent `ReportEntry` that define this attribute.
+   */
+  num_unique_values: number;
+  /**
+   * @example ["boolean", "string"]
+   */
+  types: string[];
+  /**
+   * @example ["people", "industrial"]
+   */
+  values: unknown[];
 }

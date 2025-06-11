@@ -1,6 +1,58 @@
 {
   "name": "sites",
-  "metadata": { "attributes": ["kind", "species", "name", "type", "track_type", "track_use"] },
+  "metadata": {
+    "attributes": ["kind", "species", "name", "type", "track_type", "track_use"],
+    "report": [
+      {
+        "filter": ["all", ["==", "kind", "fish_farm"]],
+        "attributes": {
+          "species": { "guaranteed": false, "type": "string", "values": ["salmon"] }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "gravel_pit"]],
+        "attributes": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "pumice_pit"]],
+        "attributes": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "raceway"]],
+        "attributes": {
+          "name": { "guaranteed": false, "type": "string" },
+          "track_type": { "guaranteed": false, "type": "string", "values": ["training"] },
+          "track_use": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["horse", "vehicle"]
+          }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "showground"]],
+        "attributes": {},
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "sports_field"]],
+        "attributes": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 7, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50283",

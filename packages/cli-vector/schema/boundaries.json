@@ -1,6 +1,19 @@
 {
   "name": "boundaries",
-  "metadata": { "attributes": ["name"] },
+  "description": "This layer contains coastline features represented as `Polygon` geometries, indicating land-sea boundaries. Most features include a `name` property.",
+  "metadata": {
+    "attributes": ["name"],
+    "report": [
+      {
+        "filter": ["all"],
+        "attributes": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "Polygon",
+        "zoom_levels": { "min": 0, "max": 15 }
+      }
+    ]
+  },
   "simplify": [
     { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.1 },
     { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.09 },

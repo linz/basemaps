@@ -1,6 +1,43 @@
 {
   "name": "contours",
-  "metadata": { "attributes": ["designated", "type", "nat_form", "elevation", "kind", "name", "rank"] },
+  "description": "This layer contains contour line interval features represented as `LineString` geometries, and height peak features represents as 'Point' geometries.",
+  "custom": true,
+  "metadata": {
+    "attributes": ["designated", "type", "nat_form", "elevation", "kind", "name", "rank"],
+    "report": [
+      {
+        "filter": ["all", ["==", "kind", "contours"]],
+        "attributes": {
+          "designated": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["supplementary"]
+          },
+          "elevation": {
+            "guaranteed": true,
+            "type": "number"
+          },
+          "nat_form": { "guaranteed": false, "type": "string", "values": ["depression"] },
+          "type": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["index"]
+          }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 9, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "peak"]],
+        "attributes": {
+          "elevation": { "guaranteed": false, "type": "number" },
+          "rank": { "guaranteed": false, "type": "number", "values": [5, 4, 3, 2, 1] }
+        },
+        "geometry": "Point",
+        "zoom_levels": { "min": 9, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50768",

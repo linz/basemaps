@@ -1,6 +1,26 @@
 {
   "name": "dam_lines",
-  "metadata": { "attributes": ["kind", "name", "dam_status"] },
+  "metadata": {
+    "attributes": ["kind", "name", "dam_status"],
+    "report": [
+      {
+        "filter": ["all", ["==", "kind", "dam"]],
+        "attributes": {
+          "dam_status": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["old", "ruins", "disused"]
+          },
+          "name": {
+            "guaranteed": false,
+            "type": "string"
+          }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 4, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50075",

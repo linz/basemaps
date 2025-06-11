@@ -1,6 +1,16 @@
 {
   "name": "pier_lines",
-  "metadata": { "attributes": ["kind", "name"] },
+  "metadata": {
+    "attributes": ["kind", "name"],
+    "report": [
+      {
+        "filter": ["all", ["==", "kind", "breakwater"]],
+        "attributes": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "50243",

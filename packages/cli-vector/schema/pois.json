@@ -1,5 +1,6 @@
 {
   "name": "pois",
+  "description": "This layer contains features with `Point` geometries.",
   "metadata": {
     "attributes": [
       "leisure",
@@ -18,7 +19,6 @@
       "barrier",
       "historic",
       "ref",
-      "ladder",
       "fortification_type",
       "power",
       "farmyard",
@@ -32,6 +32,79 @@
       "orientation",
       "substance",
       "visibility"
+    ],
+    "report": [
+      {
+        "filter": ["all"],
+        "attributes": {
+          "building": { "guaranteed": false, "type": "string", "values": ["storage_tank"] },
+          "store_item": { "guaranteed": false, "type": "string", "values": ["water", "fuel"] },
+          "wetland": { "guaranteed": false, "type": "string", "values": ["swamp"] },
+          "natural": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["tree", "cave_entrance", "spring", "sinkhole", "rock", "fumarole"]
+          },
+          "power": { "guaranteed": false, "type": "string", "values": ["pole"] },
+          "name": { "guaranteed": false, "type": "string" },
+          "man_made": {
+            "guaranteed": false,
+            "type": "string",
+            "values": [
+              "kiln",
+              "beacon",
+              "mast",
+              "water_well",
+              "trig_point",
+              "tower",
+              "wind_turbine",
+              "chimney",
+              "dredge",
+              "radar_dome",
+              "mineshaft",
+              "telescope",
+              "flare",
+              "ladder",
+              "geo_bore"
+            ]
+          },
+          "historic": { "guaranteed": false, "type": "string", "values": ["wreck", "monument", "yes", "redoubt"] },
+          "temp": { "guaranteed": false, "type": "string", "values": ["cold", "hot"] },
+          "waterway": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["soakhole", "ford", "waterfall", "siphon", "sluice_gate"]
+          },
+          "type": { "guaranteed": false, "type": "string", "values": ["lighthouse"] },
+          "height": { "guaranteed": false, "type": "number" },
+          "barrier": { "guaranteed": false, "type": "string", "values": ["gate"] },
+          "farmyard": { "guaranteed": false, "type": "string", "values": ["stockyard"] },
+          "landuse": { "guaranteed": false, "type": "string", "values": ["cemetery", "mine"] },
+          "amenity": { "guaranteed": false, "type": "string", "values": ["grave_yard", "bivouac"] },
+          "direction": { "guaranteed": false, "type": "number" },
+          "elevation": { "guaranteed": false, "type": "number" },
+          "materials": { "guaranteed": false, "type": "string", "values": ["rock"] },
+          "status": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["disused", "old", "derelict", "dangerous", "historic", "closed", "remains"]
+          },
+          "visibility": { "guaranteed": false, "type": "string", "values": ["underground", "opencast"] },
+          "ref": { "guaranteed": false, "type": "string" },
+          "leisure": { "guaranteed": false, "type": "string", "values": ["shooting_ground"] },
+          "substance": {
+            "guaranteed": false,
+            "type": "string",
+            "values": ["scheelite", "gold", "quartz", "coal", "silver", "bentonite"]
+          },
+          "fortification_type": { "guaranteed": false, "type": "string", "values": ["pa"] },
+          "pipeline": { "guaranteed": false, "type": "string", "values": ["valve"] },
+          "seamark": { "guaranteed": false, "type": "string", "values": ["buoy"] },
+          "geological": { "guaranteed": false, "type": "string", "values": ["outcrop"] }
+        },
+        "geometry": "Point",
+        "zoom_levels": { "min": 0, "max": 15 }
+      }
     ]
   },
   "layers": [
@@ -580,7 +653,7 @@
       "id": "50291",
       "name": "50291-nz-ladder-points-topo-150k",
       "source": "s3://linz-lds-cache/50291/",
-      "tags": { "ladder": "yes" },
+      "tags": { "man_made": "ladder" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     },
     {
@@ -791,6 +864,20 @@
       "name": "103476-nz-trig-points-topo-150k",
       "source": "s3://linz-lds-cache/103476/",
       "tags": { "man_made": "trig_point" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50275",
+      "name": "50275-nz-ford-points-topo-150k",
+      "source": "s3://linz-lds-cache/50275/",
+      "tags": { "waterway": "ford" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50080",
+      "name": "50080-nz-chatham-island-ford-points-topo-150k",
+      "source": "s3://linz-lds-cache/50080/",
+      "tags": { "waterway": "ford" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     }
   ]

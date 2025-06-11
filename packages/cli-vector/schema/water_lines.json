@@ -1,6 +1,84 @@
 {
   "name": "water_lines",
-  "metadata": { "attributes": ["kind", "name", "feature", "species", "height"] },
+  "metadata": {
+    "attributes": ["kind", "name", "feature", "species", "height"],
+    "report": [
+      {
+        "filter": ["all", ["==", "kind", "boom"]],
+        "attributes": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "drain"]],
+        "attributes": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 10, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "flume"]],
+        "attributes": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "marine_farm"]],
+        "attributes": {
+          "species": { "guaranteed": false, "type": "string", "values": ["salmon"] }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "river"]],
+        "attributes": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 8, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "stream"]],
+        "attributes": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "water_race"]],
+        "attributes": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "waterfall"]],
+        "attributes": {
+          "feature": { "guaranteed": false, "type": "string", "values": ["edge"] },
+          "height": { "guaranteed": true, "type": "number" },
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 12, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "wharf"]],
+        "attributes": {
+          "name": { "guaranteed": false, "type": "string" }
+        },
+        "geometry": "LineString",
+        "zoom_levels": { "min": 10, "max": 15 }
+      },
+      {
+        "filter": ["all", ["==", "kind", "wharf_edge"]],
+        "attributes": {},
+        "geometry": "LineString",
+        "zoom_levels": { "min": 10, "max": 15 }
+      }
+    ]
+  },
   "layers": [
     {
       "id": "103632",
