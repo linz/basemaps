@@ -34,56 +34,64 @@
       "name": "50293-nz-lake-polygons-topo-150k",
       "source": "s3://linz-lds-cache/50293/",
       "tags": { "kind": "water", "water": "lake" },
-      "style": { "minZoom": 1, "maxZoom": 15 }
+      "style": { "minZoom": 1, "maxZoom": 15 },
+      "includeDerived": true
     },
     {
       "id": "50088",
       "name": "50088-nz-chatham-island-lake-polygons-topo-150k",
       "source": "s3://linz-lds-cache/50088/",
       "tags": { "kind": "water", "water": "lake" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "includeDerived": true
     },
     {
       "id": "50894",
       "name": "50894-nz-snares-island-tini-heke-lake-polygons-topo-125k",
       "source": "s3://linz-lds-cache/50894/",
       "tags": { "kind": "water", "water": "lake" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "includeDerived": true
     },
     {
       "id": "50909",
       "name": "50909-nz-kermadec-is-lake-polygons-topo-125k",
       "source": "s3://linz-lds-cache/50909/",
       "tags": { "kind": "water", "water": "lake" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "includeDerived": true
     },
     {
       "id": "50933",
       "name": "50933-nz-campbell-island-motu-ihupuku-lake-polygons-topo-150k",
       "source": "s3://linz-lds-cache/50933/",
       "tags": { "kind": "water", "water": "lake" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "includeDerived": true
     },
     {
       "id": "50960",
       "name": "50960-nz-auckland-island-lake-polygons-topo-150k",
       "source": "s3://linz-lds-cache/50960/",
       "tags": { "kind": "water", "water": "lake" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "includeDerived": true
     },
     {
       "id": "52253",
       "name": "52253-cook-islands-lake-polygons-topo-125k-zone4",
       "source": "s3://linz-lds-cache/52253/",
       "tags": { "kind": "water", "water": "lake" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "includeDerived": true
     },
     {
       "id": "52296",
       "name": "52296-cook-islands-lake-polygons-topo-125k-zone3",
       "source": "s3://linz-lds-cache/52296/",
       "tags": { "kind": "water", "water": "lake" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
+      "style": { "minZoom": 0, "maxZoom": 15 },
+      "includeDerived": true
     },
     {
       "id": "50298",

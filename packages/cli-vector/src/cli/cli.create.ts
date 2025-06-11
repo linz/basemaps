@@ -184,7 +184,7 @@ async function createMbtilesFile(
    */
   logger.info({ source: tmpPaths.source.path, dataset: layer.name }, '[1/5] Convert source file to ndjson: Start');
   if (!(await fsa.exists(tmpPaths.ndjson))) {
-    await ogr2ogrNDJson(tmpPaths.source.path, tmpPaths.ndjson, logger);
+    await ogr2ogrNDJson(tmpPaths.source.path, tmpPaths.ndjson, layer, logger);
   }
   logger.info({ destination: tmpPaths.ndjson, dataset: layer.name }, '[1/5] Convert source file to ndjson: End');
 

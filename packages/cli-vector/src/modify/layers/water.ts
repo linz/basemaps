@@ -1,5 +1,4 @@
 import { LogType } from '@basemaps/shared';
-import { Area, MultiPolygon, Polygon } from '@linzjs/geojson';
 
 import { VectorCreationOptions } from '../../stac.js';
 import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
@@ -64,17 +63,14 @@ function handleKindWater(feature: VectorGeoFeature, logger: LogType): VectorGeoF
   }
 
   // determine if the lake is large
-  let area = 0;
-  if (feature.geometry.type === 'MultiPolygon') {
-    area = Area.multiPolygon(feature.geometry.coordinates as MultiPolygon);
-  } else if (feature.geometry.type === 'Polygon') {
-    // for a single polygon, we can use the Area.polygon method directly
-    area = Area.polygon(feature.geometry.coordinates as Polygon);
+  if (feature.properties['water'] === 'lake') {
+    const aera = feature.properties['_derived_area'];
+    if (aera != null && Number(aera) >= LargeLakeSize) {
+      feature.tippecanoe.minzoom = 1;
+    } else {
+      feature.tippecanoe.minzoom = 9;
+    }
   }
-
-  const minzoom = area >= LargeLakeSize ? 1 : 9;
-  feature.tippecanoe.minzoom = minzoom;
-  logger.trace({ minzoom }, 'overidden styles');
 
   logger.trace({}, 'HandleKindWater:End');
   return feature;
