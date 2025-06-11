@@ -1,51 +1,149 @@
-{{#layers}}
+# {{name}}
 
-## Layer "{{name}}"
+{{#description}}
+{{{description}}}
+{{/description}}
 
-{{description}}
+{{^description}}
+_No description._
+{{/description}}
 
-### Properties
+{{#isCustom}}
+!!! example "Custom"
+
+    This is a custom Shortbread layer.
+
+{{/isCustom}}
+
+{{^isCustom}}
+!!! Default
+
+    This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-{{name}}) layer.
+
+{{/isCustom}}
+
+## all
+
+{{#all}}
+
+#### Filter
+
+`{{{filter}}}`
+
+#### Attributes
+
+{{#hasAttributes}}
 
 <table>
   <thead>
     <tr>
       <th>Name</th>
       <th>Type</th>
-      <th>Description</th>
+      <th>Value(s)</th>
     </tr>
   </thead>
   <tbody>
-    {{#properties}}
+    {{#attributes}}
     <tr>
       <td>{{name}}</td>
-      <td>{{type}}</td>
-      <td>{{description}}</td>
+      <td>{{types}}</td>
+      <td>{{{values}}}</td>
     </tr>
-    {{/properties}}
+    {{/attributes}}
   </tbody>
 </table>
+{{/hasAttributes}}
 
-### Features
+{{^hasAttributes}}
+
+_Features under this filter have no targetable attributes._
+
+{{/hasAttributes}}
+
+#### Properties
+
+<table>
+  <thead>
+    <tr>
+      <th>Geometries</th>
+      <th>Min Zoom</th>
+      <th>Max Zoom</th>
+    </tr>
+  </thead>
+    <tbody>
+    <tr>
+      <td>{{geometries}}</td>
+      <td>{{zoom_levels.min}}</td>
+      <td>{{zoom_levels.max}}</td>
+    </tr>
+    </tbody>
+</table>
+
+{{/all}}
+
+## kinds
+
+{{#kinds}}
+
+### {{name}}
+
+#### Filter
+
+`{{{filter}}}`
+
+#### Attributes
+
+{{#hasAttributes}}
 
 <table>
   <thead>
     <tr>
       <th>Name</th>
-      <th>`kind`</th>
-      <th>Geometry</th>
-      <th>Zoom</th>
+      <th>Type</th>
+      <th>Value(s)</th>
     </tr>
   </thead>
   <tbody>
-    {{#features}}
+    {{#attributes}}
     <tr>
       <td>{{name}}</td>
-      <td>{{kind}}</td>
-      <td>{{geometry}}</td>
-      <td>{{zoom}}</td>
+      <td>{{types}}</td>
+      <td>{{{values}}}</td>
     </tr>
-    {{/features}}
+    {{/attributes}}
   </tbody>
 </table>
+{{/hasAttributes}}
 
-{{/layers}}
+{{^hasAttributes}}
+
+_Features under this filter have no targetable attributes._
+
+{{/hasAttributes}}
+
+#### Properties
+
+<table>
+  <thead>
+    <tr>
+      <th>Geometries</th>
+      <th>Min Zoom</th>
+      <th>Max Zoom</th>
+    </tr>
+  </thead>
+    <tbody>
+    <tr>
+      <td>{{geometries}}</td>
+      <td>{{zoom_levels.min}}</td>
+      <td>{{zoom_levels.max}}</td>
+    </tr>
+    </tbody>
+</table>
+
+{{/kinds}}
+
+{{^kinds}}
+
+_This layer has no kinds._
+
+{{/kinds}}
