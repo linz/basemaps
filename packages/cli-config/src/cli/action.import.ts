@@ -280,7 +280,18 @@ async function outputChange(
   }
 
   if (styleUpdate.length > 0) md.push('# Vector Style Update', ...styleUpdate);
-  if (vectorUpdate.length > 0) md.push('# Vector Data Update', ...vectorUpdate);
+  if (vectorUpdate.length > 0) {
+    md.push('# Vector Data Update', ...vectorUpdate);
+
+    const layerPath = (await mem.TileSet.get('ts_topographic-v2'))?.layers?.[0]?.[3857];
+    if (layerPath) {
+      const reportPath = layerPath.substring(0, layerPath.lastIndexOf('/')) + '/report.md';
+      const reportFile = await fsa.read(fsa.toUrl(reportPath));
+      if (reportFile) {
+        md.push(reportFile.toString());
+      }
+    }
+  }
 
   if (md.length > 0) {
     await fsa.write(fsa.toUrl(output), md.join('\n'));

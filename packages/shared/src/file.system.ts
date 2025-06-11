@@ -79,6 +79,7 @@ fsa.register('https://', new FsHttp());
 fsa.register('s3://', s3Fs);
 fsa.register('s3://nz-imagery', s3FsPublic);
 fsa.register('s3://nz-elevation', s3FsPublic);
+fsa.register('s3://nz-coastal', s3FsPublic);
 
 export const Fsa = fsa;
 
