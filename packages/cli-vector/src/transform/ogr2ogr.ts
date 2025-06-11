@@ -1,6 +1,7 @@
 import { Epsg } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { Command } from '@linzjs/docker-command';
+
 import { Layer } from '../schema-loader/schema.js';
 
 /**
@@ -46,7 +47,7 @@ export async function getTableName(input: URL, logger: LogType): Promise<string>
     throw new Error('Gdal failed to run');
   }
 
-  const info = JSON.parse(res.stdout);
+  const info = JSON.parse(res.stdout) as { layers: { name: string }[] };
   if (info.layers == null || info.layers.length === 0) {
     throw new Error(`No layers found in ${input.pathname}`);
   }
