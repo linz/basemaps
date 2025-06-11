@@ -36,6 +36,8 @@ COPY ./basemaps-smoke*.tgz /app/
 COPY ./static/ /app/static/
 # Copy the Vector Schema into the image
 COPY ./schema/ /app/schema/
+# Copy the Vector Analysis into the image
+COPY ./analysis/ /app/analysis/
 
 RUN npm install  ./basemaps-smoke*.tgz
 
