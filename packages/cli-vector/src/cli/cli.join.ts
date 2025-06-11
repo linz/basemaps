@@ -145,7 +145,7 @@ export const JoinCommand = command({
     // Write output target for argo tasks to create pull request
     if (isArgo()) {
       const target = new URL(`topographic/${CliId}/${args.filename}.tar.co`, bucketPath);
-      await fsa.write(fsa.toUrl('/tmp/target'), JSON.stringify([target]));
+      await fsa.write(fsa.toUrl('/tmp/target'), urlToString(target));
       const mbTilesTarget = new URL(`topographic/${CliId}/${args.filename}.mbtiles`, bucketPath);
       await fsa.write(fsa.toUrl('/tmp/mbTilesTarget'), mbTilesTarget.toString());
       const analyseTarget = new URL(`topographic/${CliId}/`, bucketPath);
