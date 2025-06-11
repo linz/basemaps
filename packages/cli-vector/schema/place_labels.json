@@ -1,11 +1,11 @@
 {
   "name": "place_labels",
   "metadata": {
-    "attributes": ["water", "name", "natural", "place"],
-    "schema": [
+    "attributes": ["kind", "water", "name", "natural", "place"],
+    "report": [
       {
         "filter": ["all"],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": true, "type": "string" },
           "natural": {
             "guaranteed": true,

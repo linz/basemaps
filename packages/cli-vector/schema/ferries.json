@@ -2,10 +2,10 @@
   "name": "ferries",
   "metadata": {
     "attributes": ["kind"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "ferry"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "LineString",
         "zoom_levels": { "min": 10, "max": 15 }
       }

@@ -2,10 +2,10 @@
   "name": "sites",
   "metadata": {
     "attributes": ["kind", "species", "name", "type", "track_type", "track_use"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "fish_farm"]],
-        "properties": {
+        "attributes": {
           "species": { "guaranteed": false, "type": "string", "values": ["salmon"] }
         },
         "geometry": "Polygon",
@@ -13,19 +13,19 @@
       },
       {
         "filter": ["all", ["==", "kind", "gravel_pit"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "Polygon",
         "zoom_levels": { "min": 12, "max": 15 }
       },
       {
         "filter": ["all", ["==", "kind", "pumice_pit"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "Polygon",
         "zoom_levels": { "min": 12, "max": 15 }
       },
       {
         "filter": ["all", ["==", "kind", "raceway"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" },
           "track_type": { "guaranteed": false, "type": "string", "values": ["training"] },
           "track_use": {
@@ -39,13 +39,13 @@
       },
       {
         "filter": ["all", ["==", "kind", "showground"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "Polygon",
         "zoom_levels": { "min": 12, "max": 15 }
       },
       {
         "filter": ["all", ["==", "kind", "sports_field"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "Polygon",

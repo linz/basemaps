@@ -2,36 +2,36 @@
   "name": "water_lines",
   "metadata": {
     "attributes": ["kind", "name", "feature", "species", "height"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "boom"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "LineString",
         "zoom_levels": { "min": 12, "max": 15 }
       },
       {
         "filter": ["all", ["==", "kind", "drain"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "LineString",
         "zoom_levels": { "min": 10, "max": 15 }
       },
       {
         "filter": ["all", ["==", "kind", "flume"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "LineString",
         "zoom_levels": { "min": 12, "max": 15 }
       },
       {
         "filter": ["all", ["==", "kind", "marine_farm"]],
-        "properties": {
-          "geometry": "LineString",
+        "attributes": {
           "species": { "guaranteed": false, "type": "string", "values": ["salmon"] }
         },
+        "geometry": "LineString",
         "zoom_levels": { "min": 12, "max": 15 }
       },
       {
         "filter": ["all", ["==", "kind", "river"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "LineString",
@@ -39,7 +39,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "stream"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "LineString",
@@ -47,7 +47,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "water_race"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "LineString",
@@ -55,7 +55,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "waterfall"]],
-        "properties": {
+        "attributes": {
           "feature": { "guaranteed": false, "type": "string", "values": ["edge"] },
           "height": { "guaranteed": true, "type": "number" },
           "name": { "guaranteed": false, "type": "string" }
@@ -65,7 +65,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "wharf"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "LineString",
@@ -73,7 +73,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "wharf_edge"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "LineString",
         "zoom_levels": { "min": 10, "max": 15 }
       }

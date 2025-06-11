@@ -2,10 +2,10 @@
   "name": "water_polygons",
   "metadata": {
     "attributes": ["water", "kind", "name", "lid_type", "species", "height", "direction"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "marine_farm"]],
-        "properties": {
+        "attributes": {
           "species": { "guaranteed": false, "type": "string", "values": ["mussels"] }
         },
         "geometry": "Polygon",
@@ -13,7 +13,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "reef"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "Polygon",
@@ -21,7 +21,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "reservoir"]],
-        "properties": {
+        "attributes": {
           "lid_type": { "guaranteed": false, "type": "string", "values": ["covered"] }
         },
         "geometry": "Polygon",
@@ -29,7 +29,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "river"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "Polygon",
@@ -37,7 +37,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "shoal"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "Polygon",
@@ -45,7 +45,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "stream"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "Polygon",
@@ -53,7 +53,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "water"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" },
           "water": { "guaranteed": true, "type": "string", "values": ["lagoon", "lake"] }
         },
@@ -62,7 +62,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "waterfall"]],
-        "properties": {
+        "attributes": {
           "height": { "guaranteed": true, "type": "number", "values": [56] },
           "name": { "guaranteed": true, "type": "string", "values": ["Alice Falls"] }
         },

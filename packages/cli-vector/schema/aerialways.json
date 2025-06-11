@@ -1,11 +1,12 @@
 {
   "name": "aerialways",
+  "description": "This layer holds aerialways as `LineString` geometries.",
   "metadata": {
     "attributes": ["kind", "feature"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "cable_car"]],
-        "properties": {
+        "attributes": {
           "feature": { "guaranteed": true, "type": "string", "values": ["people", "industrial"] }
         },
         "geometry": "LineString",
@@ -13,13 +14,13 @@
       },
       {
         "filter": ["all", ["==", "kind", "ski_lift"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "LineString",
         "zoom_levels": { "min": 12, "max": 15 }
       },
       {
         "filter": ["all", ["==", "kind", "ski_tow"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "LineString",
         "zoom_levels": { "min": 12, "max": 15 }
       }

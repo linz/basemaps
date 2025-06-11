@@ -2,10 +2,10 @@
   "name": "buildings",
   "metadata": {
     "attributes": ["building", "store_item", "kind", "name", "use"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["!has", "kind"]],
-        "properties": {
+        "attributes": {
           "building": { "guaranteed": true, "type": "string", "values": ["storage_tank"] },
           "store_item": { "guaranteed": false, "type": "string", "values": ["fuel", "water"] }
         },
@@ -14,7 +14,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "building"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": true, "type": "string" },
           "use": {
             "guaranteed": true,

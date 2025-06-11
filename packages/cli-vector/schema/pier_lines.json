@@ -2,10 +2,10 @@
   "name": "pier_lines",
   "metadata": {
     "attributes": ["kind", "name"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "breakwater"]],
-        "properties": {},
+        "attributes": {},
         "geometry": "LineString",
         "zoom_levels": { "min": 12, "max": 15 }
       }

@@ -2,10 +2,10 @@
   "name": "street_labels",
   "metadata": {
     "attributes": ["kind", "ref", "name"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "motorway"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" },
           "ref": { "guaranteed": true, "type": "string" }
         },
@@ -14,7 +14,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "primary"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "LineString",
@@ -22,7 +22,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "secondary"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "LineString",

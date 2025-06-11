@@ -2,10 +2,10 @@
   "name": "parcel_boundaries",
   "metadata": {
     "attributes": ["parcel_intent", "name", "id"],
-    "schema": [
+    "report": [
       {
         "filter": ["all"],
-        "properties": {
+        "attributes": {
           "parcel_intent": { "guaranteed": true, "type": "string" }
         },
         "geometry": "Polygon",

@@ -2,10 +2,10 @@
   "name": "dam_lines",
   "metadata": {
     "attributes": ["kind", "name", "dam_status"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "dam"]],
-        "properties": {
+        "attributes": {
           "dam_status": {
             "guaranteed": false,
             "type": "string",

@@ -2,10 +2,10 @@
   "name": "street_polygons",
   "metadata": {
     "attributes": ["kind", "surface", "name"],
-    "schema": [
+    "report": [
       {
         "filter": ["all", ["==", "kind", "aerodrome"]],
-        "properties": {
+        "attributes": {
           "name": { "guaranteed": false, "type": "string" }
         },
         "geometry": "Polygon",
@@ -13,7 +13,7 @@
       },
       {
         "filter": ["all", ["==", "kind", "runway"]],
-        "properties": {
+        "attributes": {
           "surface": { "guaranteed": false, "type": "string", "values": ["sealed"] }
         },
         "geometry": "Polygon",
