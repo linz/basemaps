@@ -84,7 +84,7 @@ function tag(
   logger: LogType,
 ): VectorGeoFeature | null {
   const vectorGeofeature = {
-    ...feature,
+    ...structuredClone(feature),
     tippecanoe: {
       layer: options.name,
       minzoom: options.layer.style.minZoom,
@@ -106,11 +106,11 @@ function tag(
     if (simplify.tolerance != null) {
       const geom = vectorGeofeature.geometry;
       const type = geom.type;
-      const coordinates = simplifyFeature(type, geom, simplify.tolerance);
-      if (coordinates == null) {
+      const geometry = simplifyFeature(type, geom, simplify.tolerance);
+      if (geometry == null) {
         return null;
       }
-      vectorGeofeature.geometry = coordinates;
+      vectorGeofeature.geometry = geometry;
     }
   }
 
