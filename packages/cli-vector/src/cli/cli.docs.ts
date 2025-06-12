@@ -148,7 +148,7 @@ export const DocsCommand = command({
 
         kinds.push({
           name,
-          filter: `["all", ["==", "kind", ${name}]]`,
+          filter: `["all", ["==", "kind", "${name}"]]`,
           attributes,
           hasAttributes: attributes.length > 0,
           geometries: kind.geometries.join(', '),

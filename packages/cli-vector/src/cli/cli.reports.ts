@@ -19,8 +19,7 @@ export const ReportsArgs = {
   mbtiles: option({
     type: Url,
     long: 'mbtiles',
-    description:
-      'Path to the mbtiles or config containing path to mbtiles from which to generate reports. (based on file extension)',
+    description: 'Path to the mbtiles from which to generate reports.',
   }),
   target: option({
     type: UrlFolder,
