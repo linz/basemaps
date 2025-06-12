@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+
+### Features
+
+* **cli-vector:** analyse mbtiles BM-1270 ([#3444](https://github.com/linz/basemaps/issues/3444)) ([e721392](https://github.com/linz/basemaps/commit/e721392d52866ef0d31e110d32e718460ce3008b))
+
+
+
+
+
 # [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
 
 

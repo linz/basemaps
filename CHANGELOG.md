@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+
+### Bug Fixes
+
+* remove quoting from rimraf commands ([#3434](https://github.com/linz/basemaps/issues/3434)) ([58f31da](https://github.com/linz/basemaps/commit/58f31da0a56a654366881bfb39310f8adabcbd93))
+
+
+### Features
+
+* **cli-vector:** analyse mbtiles BM-1270 ([#3444](https://github.com/linz/basemaps/issues/3444)) ([e721392](https://github.com/linz/basemaps/commit/e721392d52866ef0d31e110d32e718460ce3008b))
+* **cli-vector:** New cli to create and join mbtiles for vector map. BM-1268 ([#3435](https://github.com/linz/basemaps/issues/3435)) ([8cbef0b](https://github.com/linz/basemaps/commit/8cbef0b0a9ef3db804d05b533b6858f55c9064c9))
+* **shared:** allow access to s3 nz-coastal public bucket ([#3453](https://github.com/linz/basemaps/issues/3453)) ([ab54746](https://github.com/linz/basemaps/commit/ab5474681084355b0168b85e89e5c22859177546))
+
+
+
+
+
 # [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
 
 
