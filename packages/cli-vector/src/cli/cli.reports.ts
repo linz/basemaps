@@ -9,7 +9,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import Protobuf from 'pbf';
 import { gunzipSync } from 'zlib';
 
-import { AttributeReport, FeaturesReport, LayerReport } from '../schema-loader/schema.js';
+import { AttributeReport, FeaturesReport, LayerReport } from '../types/report.js';
 
 export const MaxValues = 24;
 const MaxZoom = 15;

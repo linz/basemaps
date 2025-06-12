@@ -6,35 +6,11 @@ import { existsSync, mkdirSync, readFileSync } from 'fs';
 import Mustache from 'mustache';
 import { z } from 'zod';
 
-import { zLayerReport, zSchema } from '../schema-loader/parser.js';
-import { AttributeReport, LayerReport, Schema } from '../schema-loader/schema.js';
+import { zSchema } from '../schema-loader/parser.js';
+import { Schema } from '../schema-loader/schema.js';
+import { AttributeDoc, FeaturesDoc, LayerDoc } from '../types/doc.js';
+import { AttributeReport, LayerReport, zLayerReport } from '../types/report.js';
 import { MaxValues } from './cli.reports.js';
-
-interface Doc {
-  name: string;
-  description?: string;
-  isCustom: boolean;
-  all: DocEntry;
-  kinds?: DocEntry[];
-}
-
-interface DocEntry {
-  name: string;
-  filter: string;
-  attributes: DocAttribute[];
-  hasAttributes: boolean;
-  geometries: string;
-  zoom_levels: {
-    min: number;
-    max: number;
-  };
-}
-
-interface DocAttribute {
-  name: string;
-  types: string;
-  values: string;
-}
 
 export const DocsArgs = {
   ...logArguments,
@@ -112,7 +88,7 @@ export const DocsCommand = command({
       }
     }
 
-    const docs: Doc[] = [];
+    const docs: LayerDoc[] = [];
 
     for (const report of reports) {
       const schema = schemas.find((schema) => schema.name === report.name);
@@ -121,7 +97,7 @@ export const DocsCommand = command({
       const attributes = flattenAttributes(report.all.attributes);
       const zoom_levels = flattenZoomLevels(report.all.zoom_levels);
 
-      const all: DocEntry = {
+      const all: FeaturesDoc = {
         name: 'all',
         filter: '["all"]',
         attributes,
@@ -140,7 +116,7 @@ export const DocsCommand = command({
         continue;
       }
 
-      const kinds: DocEntry[] = [];
+      const kinds: FeaturesDoc[] = [];
 
       for (const [name, kind] of Object.entries(report.kinds)) {
         const attributes = flattenAttributes(kind.attributes);
@@ -179,7 +155,7 @@ export const DocsCommand = command({
   },
 });
 
-function flattenAttributes(attributes: Record<string, AttributeReport>): DocAttribute[] {
+function flattenAttributes(attributes: Record<string, AttributeReport>): AttributeDoc[] {
   return Object.entries(attributes)
     .map(([name, attribute]) => {
       // handle types

@@ -1,17 +1,6 @@
 import { z } from 'zod';
 
-import {
-  AttributeReport,
-  Attributes,
-  FeaturesReport,
-  Layer,
-  LayerReport,
-  Schema,
-  Simplify,
-  SpecialTag,
-  Styling,
-  Tags,
-} from './schema.js';
+import { Attributes, Layer, Schema, Simplify, SpecialTag, Styling, Tags } from './schema.js';
 
 export const zStyling = z.object({
   minZoom: z.number(),
@@ -58,24 +47,3 @@ export const zSchema = z.object({
 
 export type zTypeLayer = z.infer<typeof zLayer>;
 export type zTypeSchema = z.infer<typeof zSchema>;
-
-const zAttributeReport = z.object({
-  guaranteed: z.boolean(),
-  num_unique_values: z.number(),
-  types: z.array(z.string()),
-  values: z.array(z.union([z.boolean(), z.number(), z.string()])),
-}) satisfies z.ZodType<AttributeReport>;
-
-const zFeaturesReport = z.object({
-  attributes: z.record(z.string(), zAttributeReport),
-  geometries: z.array(
-    z.union([z.literal('LineString'), z.literal('Point'), z.literal('Polygon'), z.literal('Unknown')]),
-  ),
-  zoom_levels: z.array(z.number()),
-}) satisfies z.ZodType<FeaturesReport>;
-
-export const zLayerReport = z.object({
-  name: z.string(),
-  all: zFeaturesReport,
-  kinds: z.record(z.string(), zFeaturesReport).optional(),
-}) satisfies z.ZodType<LayerReport>;
