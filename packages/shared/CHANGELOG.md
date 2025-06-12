@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+
+### Features
+
+* **shared:** allow access to s3 nz-coastal public bucket ([#3453](https://github.com/linz/basemaps/issues/3453)) ([ab54746](https://github.com/linz/basemaps/commit/ab5474681084355b0168b85e89e5c22859177546))
+
+
+
+
+
 # [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
 
 **Note:** Version bump only for package @basemaps/shared
