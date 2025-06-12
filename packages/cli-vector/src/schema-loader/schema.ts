@@ -146,7 +146,7 @@ export interface Schema {
 /**
  * Interface describing a Report object as created and exported by the vector-cli 'reports' command.
  */
-export interface Report {
+export interface LayerReport {
   /**
    * Name of the Shortbread layer for which the report derives.
    *
@@ -159,21 +159,21 @@ export interface Report {
   /**
    * Entry object containing information from all features, regardless of `kind` attribute value.
    */
-  all: ReportEntry;
+  all: FeaturesReport;
 
   /**
    * Entry objects deriving information from all features with the same `kind` attribute value.
    *
    * @example { "contours": ReportEntry, "peaks": ReportEntry }
    */
-  kinds?: Record<string, ReportEntry>;
+  kinds?: Record<string, FeaturesReport>;
 }
 
-export interface ReportEntry {
+export interface FeaturesReport {
   /**
    * @example { "feature": { "guaranteed": true, "type": "string", "values": ["people", "industrial"] } }
    */
-  attributes: Record<string, ReportAttribute>;
+  attributes: Record<string, AttributeReport>;
 
   /**
    * @example ["LineString"]
@@ -186,7 +186,7 @@ export interface ReportEntry {
   zoom_levels: number[];
 }
 
-export interface ReportAttribute {
+export interface AttributeReport {
   /**
    * `true`, if all features of the parent `ReportEntry` define this attribute. Otherwise, `false`.
    */

@@ -9,7 +9,7 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import Protobuf from 'pbf';
 import { gunzipSync } from 'zlib';
 
-import { Report } from '../schema-loader/schema.js';
+import { AttributeReport, FeaturesReport, LayerReport } from '../schema-loader/schema.js';
 
 export const MaxValues = 24;
 const MaxZoom = 15;
@@ -26,6 +26,14 @@ export const ReportsArgs = {
     long: 'target',
     description: 'Target directory into which to save the generated reports.',
   }),
+  /**
+   * The `mode` argument can be useful, depending on what you want to check.
+   *
+   * For example, if you're generating reports to check an mbtiles file's contents,
+   * you can control how many values for each attribute to include in the generated
+   * reports. If you don't intend to check the values themselves, you can skip the
+   * 'value capturing' process entirely to speed up the command's execution time.
+   */
   mode: option({
     type: oneOf(['none', 'limited', 'full']),
     defaultValue: () => 'limited',
@@ -53,13 +61,16 @@ export const ReportsCommand = command({
     const targetExists = existsSync(args.target);
     if (!targetExists) mkdirSync(args.target, { recursive: true });
 
-    const layerReports: Record<string, Report> = {};
-
     const db = new DatabaseSync(args.mbtiles);
+    const layerReports: Record<string, LayerReport> = {};
+
+    /**
+     * for each zoom level
+     */
     for (let zoomLevel = 0; zoomLevel <= MaxZoom; zoomLevel++) {
       logger.info({ zoomLevel }, 'Start');
 
-      const rows = db
+      const tiles = db
         .prepare(
           'SELECT tile_column AS x, tile_row AS y, zoom_level AS z, tile_data AS data ' +
             'FROM tiles ' +
@@ -67,31 +78,40 @@ export const ReportsCommand = command({
         )
         .all(zoomLevel) as { x: number; y: number; z: number; data: Buffer }[];
 
-      for (const row of rows) {
-        logger.info({ x: row.x, y: row.y, z: row.z }, 'Start');
+      /**
+       * for each of the zoom level's tiles
+       */
+      for (const { x, y, z, data } of tiles) {
+        logger.info({ x, y, z }, 'Start');
 
-        const buffer = gunzipSync(row.data);
+        const buffer = gunzipSync(data);
         const tile = new VectorTile(new Protobuf(buffer));
 
-        // Prepare layer information
+        /**
+         * for each of the tile's layers
+         */
         for (const [name, layer] of Object.entries(tile.layers)) {
           if (layerReports[name] == null) {
+            // init a report for the current layer
             layerReports[name] = {
               name,
               all: { attributes: {}, geometries: [], zoom_levels: [] },
-            };
+            } as LayerReport;
           }
 
           const layerReport = layerReports[name];
 
-          // for each the layer's features
+          /**
+           * for each of the layer's features
+           */
           for (let i = 0; i < layer.length; i++) {
             const feature = layer.feature(i);
             const properties = feature.properties;
             const geometry = VectorTileFeature.types[feature.type];
             const kind = properties['kind'];
 
-            const reports = [layerReport.all];
+            // the list of reports for which to capture the current feature's details
+            const featureReports: FeaturesReport[] = [layerReport.all];
 
             if (typeof kind === 'string') {
               if (layerReport.kinds == null) {
@@ -99,38 +119,42 @@ export const ReportsCommand = command({
               }
 
               if (layerReport.kinds[kind] == null) {
-                layerReport.kinds[kind] = { attributes: {}, geometries: [], zoom_levels: [] };
+                // init a report for the current kind
+                layerReport.kinds[kind] = { attributes: {}, geometries: [], zoom_levels: [] } as FeaturesReport;
               }
 
-              reports.push(layerReport.kinds[kind]);
+              // we also want to capture the feature's details against the corresponding 'kind' report
+              featureReports.push(layerReport.kinds[kind]);
             }
 
-            for (const report of reports) {
-              // append attribute
+            for (const featureReport of featureReports) {
+              /**
+               * for each of the feature's attributes  (a.k.a. properties)
+               */
               for (const [name, value] of Object.entries(properties)) {
-                if (report.attributes[name] == null) {
-                  report.attributes[name] = {
+                if (featureReport.attributes[name] == null) {
+                  // init a report for the current attribute
+                  featureReport.attributes[name] = {
                     guaranteed: true,
                     num_unique_values: 0,
                     values: [],
                     types: [],
-                  };
+                  } as AttributeReport;
                 }
 
-                const attributeReport = report.attributes[name];
+                const attributeReport = featureReport.attributes[name];
 
-                // append type
+                // capture the feature's type
                 const type = typeof value;
 
                 if (!attributeReport.types.includes(type)) {
                   attributeReport.types.push(type);
                 }
 
-                // handle value
+                // capture the feature's value
                 if (!attributeReport.values.includes(value)) {
                   attributeReport.num_unique_values++;
 
-                  // append value based on the mode
                   if (args.mode === 'limited') {
                     if (attributeReport.num_unique_values < MaxValues) {
                       attributeReport.values.push(value);
@@ -140,19 +164,20 @@ export const ReportsCommand = command({
                   }
                 }
 
-                // append geometry
-                if (!report.geometries.includes(geometry)) {
-                  report.geometries.push(geometry);
+                // capture the feature's geometry
+                if (!featureReport.geometries.includes(geometry)) {
+                  featureReport.geometries.push(geometry);
                 }
 
-                // append zoom level
-                if (!report.zoom_levels.includes(row.z)) {
-                  report.zoom_levels.push(row.z);
+                // capture the feature's zoom level
+                if (!featureReport.zoom_levels.includes(z)) {
+                  featureReport.zoom_levels.push(z);
                 }
               }
 
-              // check the current feature's properties against the already captured attributes
-              for (const [name, attribute] of Object.entries(report.attributes)) {
+              // check the current feature's properties against the attributes already captured in the current report.
+              // an attribute is only 'guaranteed' if all features describe it
+              for (const [name, attribute] of Object.entries(featureReport.attributes)) {
                 if (attribute.guaranteed === true) {
                   if (properties[name] == null) {
                     attribute.guaranteed = false;
@@ -169,6 +194,7 @@ export const ReportsCommand = command({
 
     db.close();
 
+    // write each report to the target directory
     for (const [name, report] of Object.entries(layerReports)) {
       writeFileSync(new URL(`${name}.json`, args.target), JSON.stringify(report, null, 2));
     }

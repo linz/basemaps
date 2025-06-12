@@ -6,8 +6,8 @@ import { existsSync, mkdirSync, readFileSync } from 'fs';
 import Mustache from 'mustache';
 import { z } from 'zod';
 
-import { zReport, zSchema } from '../schema-loader/parser.js';
-import { Report, ReportAttribute, Schema } from '../schema-loader/schema.js';
+import { zLayerReport, zSchema } from '../schema-loader/parser.js';
+import { AttributeReport, LayerReport, Schema } from '../schema-loader/schema.js';
 import { MaxValues } from './cli.reports.js';
 
 interface Doc {
@@ -94,7 +94,7 @@ export const DocsCommand = command({
     }
 
     // parse report files
-    const reports: Report[] = [];
+    const reports: LayerReport[] = [];
     const reportFiles = await fsa.toArray(fsa.list(args.reports));
 
     for (const file of reportFiles) {
@@ -102,7 +102,7 @@ export const DocsCommand = command({
         const json = await fsa.readJson(file);
         // Validate the json
         try {
-          const parsed = zReport.parse(json);
+          const parsed = zLayerReport.parse(json);
           reports.push(parsed);
         } catch (e) {
           if (e instanceof z.ZodError) {
@@ -179,7 +179,7 @@ export const DocsCommand = command({
   },
 });
 
-function flattenAttributes(attributes: Record<string, ReportAttribute>): DocAttribute[] {
+function flattenAttributes(attributes: Record<string, AttributeReport>): DocAttribute[] {
   return Object.entries(attributes)
     .map(([name, attribute]) => {
       // handle types

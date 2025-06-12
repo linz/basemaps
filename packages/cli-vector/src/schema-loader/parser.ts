@@ -1,11 +1,11 @@
 import { z } from 'zod';
 
 import {
+  AttributeReport,
   Attributes,
+  FeaturesReport,
   Layer,
-  Report,
-  ReportAttribute,
-  ReportEntry,
+  LayerReport,
   Schema,
   Simplify,
   SpecialTag,
@@ -59,23 +59,23 @@ export const zSchema = z.object({
 export type zTypeLayer = z.infer<typeof zLayer>;
 export type zTypeSchema = z.infer<typeof zSchema>;
 
-const zReportAttribute = z.object({
+const zAttributeReport = z.object({
   guaranteed: z.boolean(),
   num_unique_values: z.number(),
   types: z.array(z.string()),
   values: z.array(z.union([z.boolean(), z.number(), z.string()])),
-}) satisfies z.ZodType<ReportAttribute>;
+}) satisfies z.ZodType<AttributeReport>;
 
-const zEntry = z.object({
-  attributes: z.record(z.string(), zReportAttribute),
+const zFeaturesReport = z.object({
+  attributes: z.record(z.string(), zAttributeReport),
   geometries: z.array(
     z.union([z.literal('LineString'), z.literal('Point'), z.literal('Polygon'), z.literal('Unknown')]),
   ),
   zoom_levels: z.array(z.number()),
-}) satisfies z.ZodType<ReportEntry>;
+}) satisfies z.ZodType<FeaturesReport>;
 
-export const zReport = z.object({
+export const zLayerReport = z.object({
   name: z.string(),
-  all: zEntry,
-  kinds: z.record(z.string(), zEntry).optional(),
-}) satisfies z.ZodType<Report>;
+  all: zFeaturesReport,
+  kinds: z.record(z.string(), zFeaturesReport).optional(),
+}) satisfies z.ZodType<LayerReport>;
