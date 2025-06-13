@@ -150,3 +150,13 @@ export function nameImageryTitle(title: string): string {
     })
     .replace(/[^\w-_]/gi, '');
 }
+
+/**
+ * Get vector tileset versions
+ * @example
+ *  'topographic-v2' => 'v2' or 'topographic' => undefined
+ */
+export function getVectorVersion(tilesetName: string): string | undefined {
+  const match = tilesetName.match(/-(v\d+)$/);
+  return match ? match[1] : undefined;
+}
