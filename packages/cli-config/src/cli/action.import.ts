@@ -294,7 +294,12 @@ async function outputChange(
       if (await fsa.exists(fsa.toUrl(reportPath))) {
         const reportFile = await fsa.read(fsa.toUrl(reportPath));
         if (reportFile) {
-          md.push(reportFile.toString());
+          md.push(
+            '## Tile SIZE Analyse Report',
+            '<details><summary>🟩 WebMercator🟩</summary>',
+            reportFile.toString(),
+            '</details>',
+          );
         }
       }
     }
