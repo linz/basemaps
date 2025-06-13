@@ -103,7 +103,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
   }
 
   get isVector(): boolean {
-    return this.layerId === 'topographic';
+    return this.layerId.startsWith('topographic');
   }
 
   /** Key to reference the combined layer & style  */
@@ -151,7 +151,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
       this.labels = labels !== 'false';
     }
 
-    if (this.layerId === 'topographic' && this.style == null) this.style = 'topographic';
+    if (this.layerId.startsWith('topographic') && this.style == null) this.style = this.layerId;
     this.emit('tileMatrix', this.tileMatrix);
     this.emit('layer', this.layerId, this.style, this.pipeline, this.imageFormat);
     if (previousUrl !== MapConfig.toUrl(this)) this.emit('change');
