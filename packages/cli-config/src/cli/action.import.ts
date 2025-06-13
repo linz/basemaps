@@ -24,13 +24,13 @@ import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, flag, option, optional, string } from 'cmd-ts';
 import fetch from 'node-fetch';
 
-import { invalidateCache } from '../util.js';
+import { getVectorVersion, invalidateCache } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { Q, Updater } from './config.update.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
-const VectorStyles = ['topographic', 'topolite', 'aerialhybrid']; // Vector styles that we want to review if vector data changes.
+const VectorStyles = ['topographic', 'topolite']; // Vector styles that we want to review if vector data changes.
 
 export const ImportCommand = command({
   name: 'import',
@@ -264,8 +264,10 @@ async function outputChange(
     if (mem.TileSet.is(change) && change.type === TileSetType.Vector) {
       vectorUpdate.push(`## Vector data updates for ${change.id}`);
       const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
+      const version = getVectorVersion(id);
       for (const style of VectorStyles) {
-        vectorUpdate.push(`* [${style} - ${id}](${PublicUrlBase}?config=${configPath}&i=${id}&s=${style}&debug)\n`);
+        const styleId = version ? `${style}-${version}` : style;
+        vectorUpdate.push(`* [${style} - ${id}](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&debug)\n`);
       }
       const existingTileSet = await cfg.TileSet.get(change.id);
       const featureChanges = await diffVectorUpdate(change, existingTileSet);
@@ -273,9 +275,12 @@ async function outputChange(
       vectorUpdate.push(...featureChanges);
     }
     if (mem.Style.is(change)) {
+      const id = ConfigId.unprefix(ConfigPrefix.Style, change.id);
+      const version = getVectorVersion(id);
+      const tileSetId = version ? `topographic-${version}` : 'topographic';
       styleUpdate.push(`## Vector Style updated for ${change.id}`);
       const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
-      styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${configPath}&i=topographic&s=${style}&debug)\n`);
+      styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${configPath}&i=${tileSetId}&s=${style}&debug)\n`);
     }
   }
 
@@ -286,9 +291,11 @@ async function outputChange(
     const layerPath = (await mem.TileSet.get('ts_topographic-v2'))?.layers?.[0]?.[3857];
     if (layerPath) {
       const reportPath = layerPath.substring(0, layerPath.lastIndexOf('/')) + '/report.md';
-      const reportFile = await fsa.read(fsa.toUrl(reportPath));
-      if (reportFile) {
-        md.push(reportFile.toString());
+      if (await fsa.exists(fsa.toUrl(reportPath))) {
+        const reportFile = await fsa.read(fsa.toUrl(reportPath));
+        if (reportFile) {
+          md.push(reportFile.toString());
+        }
       }
     }
   }
