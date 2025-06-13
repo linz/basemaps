@@ -51,7 +51,7 @@ export const ExtractCommand = command({
 
     // Find all lds layers that need to be process
     logger.info({ schema: args.schema }, 'Extract: Start');
-    const schemaLoader = new SchemaLoader(args.schema, logger, cache);
+    const schemaLoader = new SchemaLoader(args.schema, tileMatrix, logger, cache);
     const schemas = await schemaLoader.load();
     const smallLayers = [];
     const largeLayers = [];

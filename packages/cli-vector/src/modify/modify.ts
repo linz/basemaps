@@ -8,7 +8,7 @@ import { handleLayerPois } from './layers/pois.js';
 import { handleLayerPublicTransport } from './layers/public_transport.js';
 import { handleLayerStreetLabels } from './layers/street_labels.js';
 import { handleLayerStreets } from './layers/streets.js';
-import { handleLayerWaterPolygons } from './layers/water_polygons.js';
+import { handleLayerWater } from './layers/water.js';
 
 /**
  * special tag function to check if the name to decide whether to do special tags
@@ -48,7 +48,8 @@ export function modifyFeature(
       modifiedFeature = handleLayerStreets(feature, options, logger);
       break;
     case 'water_polygons':
-      modifiedFeature = handleLayerWaterPolygons(feature, options, logger);
+    case 'water_lines':
+      modifiedFeature = handleLayerWater(feature, options, logger);
       break;
     default:
       modifiedFeature = structuredClone(feature);

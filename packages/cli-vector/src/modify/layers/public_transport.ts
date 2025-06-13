@@ -1,11 +1,9 @@
 import { LogType } from '@basemaps/shared';
-import { Geometry, Point, Position } from 'geojson';
-import * as poly from 'polylabel';
+import { Point } from 'geojson';
 
 import { VectorCreationOptions } from '../../stac.js';
 import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
-
-const polylabel = poly.default as unknown as (polygon: number[][][], precision?: number, debug?: boolean) => number[];
+import { getCoordinates, polylabel } from '../shared.js';
 
 /**
  * Processes a 'public_transport' layer feature.
@@ -55,17 +53,4 @@ function handleKindAerodrome(feature: VectorGeoFeature, logger: LogType): Vector
 
   logger.trace({}, 'HandleKindAerodrome:End');
   return feature;
-}
-
-function getCoordinates(geometry: Geometry, logger: LogType): Position[][] {
-  switch (geometry.type) {
-    case 'MultiPolygon':
-      // TODO: Worth to try create a point for each polygon and see how it looks line.
-      return geometry.coordinates[0];
-    case 'Polygon':
-      return geometry.coordinates;
-  }
-
-  logger.error({ type: geometry.type }, 'Unsupported geometry type');
-  throw new Error('Unsupported geometry type');
 }
