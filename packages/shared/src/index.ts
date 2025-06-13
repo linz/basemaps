@@ -4,7 +4,6 @@ export * from './api.js';
 export { isArgo } from './cli/argo.js';
 export { getLogger, logArguments } from './cli/log.js';
 export { RgbaType, Url, UrlArrayJsonFile, UrlFolder } from './cli/parsers.js';
-export { getDefaultConfig, setDefaultConfig } from './config.js';
 export { Const, Env } from './const.js';
 export { ConfigDynamoBase } from './dynamo/dynamo.config.base.js';
 export { ConfigProviderDynamo } from './dynamo/dynamo.config.js';
