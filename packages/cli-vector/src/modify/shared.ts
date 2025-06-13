@@ -21,7 +21,7 @@ export function handleRoadFeature(
   feature = structuredClone(feature);
 
   const highwayNum = feature.properties['hway_num'];
-  if (typeof highwayNum === 'string') {
+  if (highwayNum != null && typeof highwayNum === 'string') {
     // append/override tags
     const kind = 'motorway';
     feature.properties['kind'] = kind;
