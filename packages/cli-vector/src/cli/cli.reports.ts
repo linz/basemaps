@@ -4,14 +4,14 @@ import { Url, UrlFolder } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { VectorTile, VectorTileFeature } from '@mapbox/vector-tile';
-import { command, oneOf, option } from 'cmd-ts';
+import { command, option } from 'cmd-ts';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import Protobuf from 'pbf';
 import { gunzipSync } from 'zlib';
 
 import { AttributeReport, FeaturesReport, LayerReport } from '../types/report.js';
 
-export const MaxValues = 24;
+export const MaxUniqueValues = 20;
 const MaxZoom = 15;
 
 export const ReportsArgs = {
@@ -26,25 +26,6 @@ export const ReportsArgs = {
     long: 'target',
     description: 'Target directory into which to save the generated reports.',
   }),
-  /**
-   * The `mode` argument can be useful, depending on what you want to check.
-   *
-   * For example, if you're generating reports to check an mbtiles file's contents,
-   * you can control how many values for each attribute to include in the generated
-   * reports. If you don't intend to check the values themselves, you can skip the
-   * 'value capturing' process entirely to speed up the command's execution time.
-   */
-  mode: option({
-    type: oneOf(['none', 'limited', 'full']),
-    defaultValue: () => 'limited',
-    defaultValueIsSerializable: true,
-    long: 'mode',
-    description:
-      'For each attribute: ' +
-      'none - do not output any values (fast). ' +
-      `limited - only output the first ${MaxValues} unique values. ` +
-      'full - output all unique values (slow).',
-  }),
 };
 
 export const ReportsCommand = command({
@@ -56,7 +37,7 @@ export const ReportsCommand = command({
   args: ReportsArgs,
   handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    logger.info('Reports: Start');
+    logger.info('Generate JSON Reports: Start');
 
     const targetExists = existsSync(args.target);
     if (!targetExists) mkdirSync(args.target, { recursive: true });
@@ -136,9 +117,9 @@ export const ReportsCommand = command({
                   // init a report for the current attribute
                   featureReport.attributes[name] = {
                     guaranteed: true,
-                    num_unique_values: 0,
-                    values: [],
                     types: [],
+                    values: [],
+                    has_more_values: false,
                   } as AttributeReport;
                 }
 
@@ -151,16 +132,14 @@ export const ReportsCommand = command({
                   attributeReport.types.push(type);
                 }
 
-                // capture the feature's value
-                if (!attributeReport.values.includes(value)) {
-                  attributeReport.num_unique_values++;
-
-                  if (args.mode === 'limited') {
-                    if (attributeReport.num_unique_values < MaxValues) {
+                // capture the feature's first 20 unique values
+                if (attributeReport.has_more_values === false) {
+                  if (!attributeReport.values.includes(value)) {
+                    if (attributeReport.values.length < MaxUniqueValues) {
                       attributeReport.values.push(value);
+                    } else {
+                      attributeReport.has_more_values = true;
                     }
-                  } else if (args.mode === 'full') {
-                    attributeReport.values.push(value);
                   }
                 }
 
@@ -196,8 +175,11 @@ export const ReportsCommand = command({
 
     // write each report to the target directory
     for (const [name, report] of Object.entries(layerReports)) {
-      writeFileSync(new URL(`${name}.json`, args.target), JSON.stringify(report, null, 2));
+      const url = new URL(`${name}.json`, args.target);
+
+      writeFileSync(url, JSON.stringify(report, null, 2));
+      logger.info({ url }, 'File created');
     }
-    logger.info('Reports: Done');
+    logger.info('Generate JSON Reports: Done');
   },
 });

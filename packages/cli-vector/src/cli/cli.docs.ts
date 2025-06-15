@@ -10,7 +10,6 @@ import { zSchema } from '../schema-loader/parser.js';
 import { Schema } from '../schema-loader/schema.js';
 import { AttributeDoc, FeaturesDoc, LayerDoc } from '../types/doc.js';
 import { AttributeReport, LayerReport, zLayerReport } from '../types/report.js';
-import { MaxValues } from './cli.reports.js';
 
 export const DocsArgs = {
   ...logArguments,
@@ -31,7 +30,7 @@ export const DocsArgs = {
     description: 'Path to the Mustache template markdown file.',
   }),
   target: option({
-    type: Url,
+    type: UrlFolder,
     long: 'target',
     description: 'Target directory into which to save the generated markdown documentation.',
   }),
@@ -143,41 +142,45 @@ export const DocsCommand = command({
       });
     }
 
-    const layersDir = new URL('layers/', args.target);
     const template = readFileSync(args.template).toString();
 
     for (const layer of docs) {
       const markdown = Mustache.render(template, layer);
-      await fsa.write(new URL(`${layer.name}.md`, layersDir), markdown);
+      const url = new URL(`${layer.name}.md`, args.target);
+
+      await fsa.write(url, markdown);
+      logger.info({ url }, 'File created');
     }
 
-    logger.info('GenerateMarkdownDocs: End');
+    logger.info('Generate Markdown Docs: End');
   },
 });
 
 function flattenAttributes(attributes: Record<string, AttributeReport>): AttributeDoc[] {
-  return Object.entries(attributes)
-    .map(([name, attribute]) => {
-      // handle types
-      const types = attribute.types.join(', ');
+  const attributeDocs: AttributeDoc[] = [];
 
-      // handle values
-      let values: string;
+  for (const [name, attribute] of Object.entries(attributes)) {
+    // flatten types
+    const types = attribute.types.join(', ');
 
-      if (attribute.num_unique_values > MaxValues) {
-        values = `<i>${attribute.num_unique_values} unique values</i>`;
-      } else {
-        values = attribute.values.sort().map(String).join(', ');
-      }
+    // flatten values
+    const values: string[] = [];
 
-      if (!attribute.guaranteed) {
-        values = ['<code>{empty}</code>', values].join(', ');
-      }
+    if (!attribute.guaranteed) {
+      values.push('<code>{empty}</code>');
+    }
 
-      // return attribute
-      return { name, types, values };
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
+    if (attribute.has_more_values === true) {
+      values.push(`<i>Too many values to list</i>`);
+    } else {
+      values.push(...attribute.values.sort().map(String));
+    }
+
+    // push attribute
+    attributeDocs.push({ name, types, values: values.join(', ') });
+  }
+
+  return attributeDocs.toSorted((a, b) => a.name.localeCompare(b.name));
 }
 
 function flattenZoomLevels(zoom_levels: number[]): { min: number; max: number } {

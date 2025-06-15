@@ -50,24 +50,26 @@ export interface AttributeReport {
   guaranteed: boolean;
 
   /**
-   * The number of unique values across all features of the parent `FeaturesReport` that define this attribute.
-   */
-  num_unique_values: number;
-  /**
    * @example ["boolean", "string"]
    */
   types: string[];
+
   /**
    * @example ["people", "industrial"]
    */
   values: unknown[];
+
+  /**
+   * A flag of whether has this attribute has more than `MaxValues` (i.e. 20) unique values.
+   */
+  has_more_values: boolean;
 }
 
 const zAttributeReport = z.object({
   guaranteed: z.boolean(),
-  num_unique_values: z.number(),
   types: z.array(z.string()),
   values: z.array(z.union([z.boolean(), z.number(), z.string()])),
+  has_more_values: z.boolean(),
 }) satisfies z.ZodType<AttributeReport>;
 
 const zFeaturesReport = z.object({
