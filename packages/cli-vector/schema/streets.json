@@ -27,10 +27,8 @@
       "name": "50329-nz-road-centrelines-topo-150k",
       "source": "s3://linz-lds-cache/50329/",
       "tags": { "kind": "road" },
-      "style": { "minZoom": 8, "maxZoom": 15 },
+      "style": { "minZoom": 2, "maxZoom": 15 },
       "simplify": [
-        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.1 },
-        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.01 },
         { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.01 },
         { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.03 },
         { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.008 },

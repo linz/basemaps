@@ -1,6 +1,7 @@
 export { BoundingBox, Bounds, NamedBounds, Point, Size } from './bounds.js';
 export { Epsg, EpsgCode } from './epsg.js';
 export { ImageFormat, OutputFormat, VectorFormat } from './formats.js';
+export { locationTransform, projectFeature, projectGeoJson } from './location.transform.js';
 export * from './proj/projection.js';
 export { ProjectionLoader } from './proj/projection.loader.js';
 export { TileSetName, TileSetNameValues } from './proj/tile.set.name.js';
