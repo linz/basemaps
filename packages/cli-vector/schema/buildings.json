@@ -1,32 +1,6 @@
 {
   "name": "buildings",
-  "metadata": {
-    "attributes": ["building", "store_item", "kind", "name", "use"],
-    "report": [
-      {
-        "filter": ["all", ["!has", "kind"]],
-        "attributes": {
-          "building": { "guaranteed": true, "type": "string", "values": ["storage_tank"] },
-          "store_item": { "guaranteed": false, "type": "string", "values": ["fuel", "water"] }
-        },
-        "geometry": "Polygon",
-        "zoom_levels": { "min": 9, "max": 15 }
-      },
-      {
-        "filter": ["all", ["==", "kind", "building"]],
-        "attributes": {
-          "name": { "guaranteed": true, "type": "string" },
-          "use": {
-            "guaranteed": true,
-            "type": "string",
-            "values": ["Unknown", "Supermarket", "School", "Hospital", "Hut", "Shelter"]
-          }
-        },
-        "geometry": "Polygon",
-        "zoom_levels": { "min": 14, "max": 15 }
-      }
-    ]
-  },
+  "metadata": { "attributes": ["building", "store_item", "kind", "name", "use"] },
   "layers": [
     {
       "id": "101290",

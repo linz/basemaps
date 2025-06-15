@@ -1,35 +1,6 @@
 {
   "name": "street_labels",
-  "metadata": {
-    "attributes": ["kind", "ref", "name"],
-    "report": [
-      {
-        "filter": ["all", ["==", "kind", "motorway"]],
-        "attributes": {
-          "name": { "guaranteed": false, "type": "string" },
-          "ref": { "guaranteed": true, "type": "string" }
-        },
-        "geometry": "LineString",
-        "zoom_levels": { "min": 8, "max": 15 }
-      },
-      {
-        "filter": ["all", ["==", "kind", "primary"]],
-        "attributes": {
-          "name": { "guaranteed": false, "type": "string" }
-        },
-        "geometry": "LineString",
-        "zoom_levels": { "min": 8, "max": 15 }
-      },
-      {
-        "filter": ["all", ["==", "kind", "secondary"]],
-        "attributes": {
-          "name": { "guaranteed": false, "type": "string" }
-        },
-        "geometry": "LineString",
-        "zoom_levels": { "min": 8, "max": 15 }
-      }
-    ]
-  },
+  "metadata": { "attributes": ["kind", "ref", "name"] },
   "layers": [
     {
       "id": "50329",

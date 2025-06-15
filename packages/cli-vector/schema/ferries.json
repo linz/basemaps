@@ -1,16 +1,6 @@
 {
   "name": "ferries",
-  "metadata": {
-    "attributes": ["kind"],
-    "report": [
-      {
-        "filter": ["all", ["==", "kind", "ferry"]],
-        "attributes": {},
-        "geometry": "LineString",
-        "zoom_levels": { "min": 10, "max": 15 }
-      }
-    ]
-  },
+  "metadata": { "attributes": ["kind"] },
   "layers": [
     {
       "id": "50269",

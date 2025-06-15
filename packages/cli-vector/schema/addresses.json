@@ -1,19 +1,7 @@
 {
   "name": "addresses",
   "description": "This layer contains address features represented as `Point` geometries. Each feature includes a `housenumber` property.",
-  "metadata": {
-    "attributes": ["housenumber"],
-    "report": [
-      {
-        "filter": ["all"],
-        "attributes": {
-          "housenumber": { "guaranteed": true, "type": "string" }
-        },
-        "geometry": "Point",
-        "zoom_levels": { "min": 15, "max": 15 }
-      }
-    ]
-  },
+  "metadata": { "attributes": ["housenumber"] },
   "layers": [
     {
       "id": "105689",

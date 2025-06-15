@@ -1,33 +1,6 @@
 {
   "name": "place_labels",
-  "metadata": {
-    "attributes": ["kind", "water", "name", "natural", "place"],
-    "report": [
-      {
-        "filter": ["all"],
-        "attributes": {
-          "name": { "guaranteed": true, "type": "string" },
-          "natural": {
-            "guaranteed": true,
-            "type": "string",
-            "values": ["0", "cape", "peninsula", "peak"]
-          },
-          "place": {
-            "guaranteed": true,
-            "type": "string",
-            "values": ["0", "island", "archipelago", "city", "town", "lake", "village", "suburb", "Island"]
-          },
-          "water": {
-            "guaranteed": true,
-            "type": "string",
-            "values": ["sea", "0", "ocean", "searidge", "seachannel", "seamount", "seacanyon", "bay", "lagoon"]
-          }
-        },
-        "geometry": "Point",
-        "zoom_levels": { "min": 3, "max": 14 }
-      }
-    ]
-  },
+  "metadata": { "attributes": ["kind", "water", "name", "natural", "place"] },
   "layers": [
     {
       "id": "51154",
