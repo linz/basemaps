@@ -29,10 +29,12 @@ export function handleRoadFeature(
     feature.properties['ref'] = ref;
     logger.trace({ kind, ref }, 'new/overidden tags');
 
-    // override styles
-    const minzoom = MajorHighWays.has(highwayNum) ? 2 : 8;
-    feature.tippecanoe.minzoom = minzoom;
-    logger.trace({ minzoom }, 'overidden styles');
+    // override styles for first simplify zoom level 8
+    if (feature.tippecanoe.minzoom === 8) {
+      const minzoom = MajorHighWays.has(highwayNum) ? 2 : 8;
+      feature.tippecanoe.minzoom = minzoom;
+      logger.trace({ minzoom }, 'overidden styles');
+    }
 
     // return feature
     logger.trace({}, 'HandleRoadFeature:End');
