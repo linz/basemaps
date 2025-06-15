@@ -60,7 +60,8 @@ export interface AttributeReport {
   values: unknown[];
 
   /**
-   * A flag of whether has this attribute has more than `MaxValues` (i.e. 20) unique values.
+   * `true`, if all features of the parent `FeaturesReport` define this attribute with more than `MaxValues` (i.e. 20) unique values. Otherwise, `false`.
+   * Capturing all unique values at runtime demands too much memory. Useful for determining if an attribute is likely to describe a limited set of options (i.e an Enum).
    */
   has_more_values: boolean;
 }

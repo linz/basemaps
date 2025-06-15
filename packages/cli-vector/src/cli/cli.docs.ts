@@ -44,7 +44,7 @@ export const DocsCommand = command({
   args: DocsArgs,
   async handler(args) {
     const logger = getLogger(this, args, 'cli-vector');
-    logger.info('Docs: Start');
+    logger.info('Generate Markdown Docs: Start');
 
     const targetExists = existsSync(args.target);
     if (!targetExists) mkdirSync(args.target, { recursive: true });
