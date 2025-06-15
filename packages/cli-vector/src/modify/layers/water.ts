@@ -90,7 +90,7 @@ function handleKindRiver(feature: VectorGeoFeature, options: VectorCreationOptio
   if (options.layer.style.minZoom < 11) {
     const name = feature.properties['name'];
 
-    if (name === '') {
+    if (name === '' && feature.tippecanoe.minzoom < 11) {
       const minzoom = 11;
       feature.tippecanoe.minzoom = minzoom;
       logger.trace({ minzoom }, 'overidden styles');
