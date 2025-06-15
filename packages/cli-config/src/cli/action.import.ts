@@ -296,7 +296,7 @@ async function outputChange(
         if (reportFile) {
           md.push(
             '## Tile SIZE Analyse Report',
-            '<details><summary>🟩 WebMercator🟩</summary>',
+            '<details><summary>🟩WebMercator🟩</summary>',
             reportFile.toString(),
             '</details>',
           );
