@@ -60,7 +60,7 @@ export class LambdaTiler extends Construct {
 
     this.lambdaNoVpc = new lambda.Function(this, 'TilerNoVpc', {
       runtime: lambda.Runtime.NODEJS_20_X,
-      memorySize: 2048,
+      memorySize: 3072,
       timeout: Duration.seconds(60),
       handler: 'index.handler',
       code,
