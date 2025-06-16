@@ -17,7 +17,7 @@ export async function ogr2ogrNDJson(input: URL, output: URL, layer: Layer, logge
   cmd.args.push('-t_srs', Epsg.Wgs84.toEpsgString());
 
   // Calculate area for lake polygons
-  if (layer.includeDerived) {
+  if (layer.includeDerivedArea) {
     const table = await getTableName(input, logger);
     cmd.args.push('-dialect', 'SQLite');
     cmd.args.push('-sql', `SELECT *, ST_Area(geom) AS _derived_area FROM "${table}"`);

@@ -111,7 +111,7 @@ export interface Layer {
   largeLayer?: boolean;
 
   /** Include the aera size as square meters in the property _derived_area via ogr*/
-  includeDerived?: boolean;
+  includeDerivedArea?: boolean;
 }
 
 /**

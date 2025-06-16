@@ -30,7 +30,7 @@ export const zLayer = z.object({
   style: zStyling,
   simplify: z.array(zSimplify).optional(),
   tippecanoe: z.array(z.string()).optional(),
-  includeDerived: z.boolean().optional(),
+  includeDerivedArea: z.boolean().optional(),
 });
 
 export const zSchema = z.object({

@@ -6,7 +6,7 @@ import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 export const LargeLakeSize = 4_000_000;
 
 /**
- * Processes a 'water_polygons' layer feature.
+ * Processes a 'water_lines' or 'water_polygons' layer feature.
  *
  * @param feature - the feature to process
  * @param options - the layer's options

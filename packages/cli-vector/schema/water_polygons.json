@@ -35,7 +35,7 @@
       "source": "s3://linz-lds-cache/50293/",
       "tags": { "kind": "water", "water": "lake" },
       "style": { "minZoom": 1, "maxZoom": 15 },
-      "includeDerived": true
+      "includeDerivedArea": true
     },
     {
       "id": "50088",
@@ -43,7 +43,7 @@
       "source": "s3://linz-lds-cache/50088/",
       "tags": { "kind": "water", "water": "lake" },
       "style": { "minZoom": 0, "maxZoom": 15 },
-      "includeDerived": true
+      "includeDerivedArea": true
     },
     {
       "id": "50894",
@@ -51,7 +51,7 @@
       "source": "s3://linz-lds-cache/50894/",
       "tags": { "kind": "water", "water": "lake" },
       "style": { "minZoom": 0, "maxZoom": 15 },
-      "includeDerived": true
+      "includeDerivedArea": true
     },
     {
       "id": "50909",
@@ -59,7 +59,7 @@
       "source": "s3://linz-lds-cache/50909/",
       "tags": { "kind": "water", "water": "lake" },
       "style": { "minZoom": 0, "maxZoom": 15 },
-      "includeDerived": true
+      "includeDerivedArea": true
     },
     {
       "id": "50933",
@@ -67,7 +67,7 @@
       "source": "s3://linz-lds-cache/50933/",
       "tags": { "kind": "water", "water": "lake" },
       "style": { "minZoom": 0, "maxZoom": 15 },
-      "includeDerived": true
+      "includeDerivedArea": true
     },
     {
       "id": "50960",
@@ -75,7 +75,7 @@
       "source": "s3://linz-lds-cache/50960/",
       "tags": { "kind": "water", "water": "lake" },
       "style": { "minZoom": 0, "maxZoom": 15 },
-      "includeDerived": true
+      "includeDerivedArea": true
     },
     {
       "id": "52253",
@@ -83,7 +83,7 @@
       "source": "s3://linz-lds-cache/52253/",
       "tags": { "kind": "water", "water": "lake" },
       "style": { "minZoom": 0, "maxZoom": 15 },
-      "includeDerived": true
+      "includeDerivedArea": true
     },
     {
       "id": "52296",
@@ -91,7 +91,7 @@
       "source": "s3://linz-lds-cache/52296/",
       "tags": { "kind": "water", "water": "lake" },
       "style": { "minZoom": 0, "maxZoom": 15 },
-      "includeDerived": true
+      "includeDerivedArea": true
     },
     {
       "id": "50298",
