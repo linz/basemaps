@@ -193,13 +193,6 @@ Your Service/App URL:
             value={Config.map.toTileUrl(MapOptionType.Style, Nztm2000QuadTms)}
           />,
         );
-        children.push(
-          <Copyable
-            key="XYZ-NZTM2000Quad"
-            header="XYZ : NZTM2000Quad"
-            value={Config.map.toTileUrl(MapOptionType.TileVectorXyz, Nztm2000QuadTms)}
-          />,
-        );
       } else {
         children.push(
           <Copyable
@@ -218,13 +211,6 @@ Your Service/App URL:
             key="StyleJSON-WebMercatorQuad"
             header="StyleJSON: WebMercatorQuad"
             value={Config.map.toTileUrl(MapOptionType.Style)}
-          />,
-        );
-        children.push(
-          <Copyable
-            key="XYZ-WebMercatorQuad"
-            header="XYZ : WebMercatorQuad"
-            value={Config.map.toTileUrl(MapOptionType.TileVectorXyz)}
           />,
         );
       } else {
