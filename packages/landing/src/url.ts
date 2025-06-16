@@ -50,7 +50,6 @@ export const enum MapOptionType {
   TileRaster = 'raster',
   Style = 'style',
   TileVectorXyz = 'vector-xyz',
-  TileVectorJson = 'vector-tile-json',
   TileWmts = 'tile-wmts',
   Wmts = 'wmts',
   Attribution = 'attribution',
@@ -130,7 +129,6 @@ export const WindowUrl = {
 
     if (params.urlType === MapOptionType.TileRaster) return `${baseTileUrl}/{z}/{x}/{y}.${imageFormat}${q}`;
     if (params.urlType === MapOptionType.TileVectorXyz) return `${baseTileUrl}/{z}/{x}/{y}.pbf${q}`;
-    if (params.urlType === MapOptionType.TileVectorJson) return `${baseTileUrl}/tile.json${q}`;
     if (params.urlType === MapOptionType.Style)
       return `${this.baseUrl()}/v1/styles/${params.style ?? params.layerId}.json${q}`;
     if (params.urlType === MapOptionType.Wmts) return `${baseTileUrl}/WMTSCapabilities.xml${q}`;

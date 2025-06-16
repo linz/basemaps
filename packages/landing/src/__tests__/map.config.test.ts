@@ -153,10 +153,6 @@ describe('WindowUrl', () => {
       `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/{z}/{x}/{y}.pbf?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M`,
     );
     assert.equal(
-      mc.toTileUrl(MapOptionType.TileVectorJson),
-      `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/tile.json?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M`,
-    );
-    assert.equal(
       mc.toTileUrl(MapOptionType.Attribution),
       `https://foo.bar.com/v1/tiles/aerial/WebMercatorQuad/attribution.json?api=${apiKey}&config=Q5pC4UjWdtFLU1CYtLcRSmB49RekgDgMa5EGJnB2M`,
     );
