@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "8.2.0",
+  "version": "8.3.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -28,12 +28,12 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@basemaps/attribution": "^8.0.0",
-    "@basemaps/cli-config": "^8.2.0",
-    "@basemaps/config": "^8.1.0",
-    "@basemaps/geo": "^8.0.0",
-    "@basemaps/infra": "^8.2.0",
-    "@basemaps/shared": "^8.2.0",
+    "@basemaps/attribution": "^8.3.0",
+    "@basemaps/cli-config": "^8.3.0",
+    "@basemaps/config": "^8.3.0",
+    "@basemaps/geo": "^8.3.0",
+    "@basemaps/infra": "^8.3.0",
+    "@basemaps/shared": "^8.3.0",
     "@linzjs/geojson": "^8.0.0",
     "@linzjs/lui": "^21.46.0",
     "@servie/events": "^3.0.0",
