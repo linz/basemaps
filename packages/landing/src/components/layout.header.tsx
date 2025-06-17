@@ -1,4 +1,4 @@
-import { EpsgCode, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { EpsgCode, Nztm2000QuadTms } from '@basemaps/geo';
 import { clsx } from 'clsx';
 import { Component, Fragment, ReactNode } from 'react';
 
@@ -174,46 +174,55 @@ Your Service/App URL:
   _validProjections = new Set<EpsgCode>([EpsgCode.Google, EpsgCode.Nztm2000]);
   validProjections(): Set<EpsgCode> {
     if (this.state?.layers == null) return this._validProjections;
-    return this.state.layers.get(Config.map.layerId)?.projections ?? this._validProjections;
+    if (Config.map.isVector) {
+      return this.state.layers.get(`${Config.map.layerId}::${Config.map.style}`)?.projections ?? this._validProjections;
+    } else {
+      return this.state.layers.get(Config.map.layerId)?.projections ?? this._validProjections;
+    }
   }
 
   renderLinksTiles(): ReactNode {
-    if (Config.map.isVector) {
-      return (
-        <Fragment>
-          <Copyable key="StyleJSON" header="StyleJSON" value={Config.map.toTileUrl(MapOptionType.Style)} />
-          <Copyable key="XYZ" header="XYZ" value={Config.map.toTileUrl(MapOptionType.TileVectorXyz)} />
-        </Fragment>
-      );
-    }
-
     const projections = this.validProjections();
-
     const children: ReactNode[] = [];
     if (projections.has(EpsgCode.Nztm2000)) {
-      const nztmTileUrl = Config.map.toTileUrl(
-        MapOptionType.Wmts,
-        Nztm2000QuadTms,
-        undefined,
-        undefined,
-        undefined,
-        Config.map.filter.date,
-      );
-      children.push(<Copyable key="NZTM2000Quad" header="WMTS: NZTM2000Quad" value={nztmTileUrl} />);
+      if (Config.map.isVector) {
+        children.push(
+          <Copyable
+            key="StyleJSON-NZTM2000Quad"
+            header="StyleJSON: NZTM2000Quad"
+            value={Config.map.toTileUrl(MapOptionType.Style, Nztm2000QuadTms)}
+          />,
+        );
+      } else {
+        children.push(
+          <Copyable
+            key="NZTM2000Quad"
+            header="WMTS: NZTM2000Quad"
+            value={Config.map.toTileUrl(MapOptionType.Wmts, Nztm2000QuadTms)}
+          />,
+        );
+      }
     }
 
     if (projections.has(EpsgCode.Google)) {
-      const googleTileUrl = Config.map.toTileUrl(
-        MapOptionType.Wmts,
-        GoogleTms,
-        undefined,
-        undefined,
-        undefined,
-        Config.map.filter.date,
-      );
-      const googleXyzTileUrl = Config.map.toTileUrl(MapOptionType.TileRaster, GoogleTms);
-      children.push(<Copyable key="WebMercatorQuad" header="WMTS: WebMercatorQuad" value={googleTileUrl} />);
-      children.push(<Copyable key="XYZ" header="XYZ" value={googleXyzTileUrl} />);
+      if (Config.map.isVector) {
+        children.push(
+          <Copyable
+            key="StyleJSON-WebMercatorQuad"
+            header="StyleJSON: WebMercatorQuad"
+            value={Config.map.toTileUrl(MapOptionType.Style)}
+          />,
+        );
+      } else {
+        children.push(
+          <Copyable
+            key="WebMercatorQuad"
+            header="WMTS: WebMercatorQuad"
+            value={Config.map.toTileUrl(MapOptionType.Wmts)}
+          />,
+        );
+        children.push(<Copyable key="XYZ" header="XYZ" value={Config.map.toTileUrl(MapOptionType.TileRaster)} />);
+      }
     }
 
     return <Fragment>{children}</Fragment>;
