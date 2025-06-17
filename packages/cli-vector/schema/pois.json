@@ -18,7 +18,6 @@
       "barrier",
       "historic",
       "ref",
-      "ladder",
       "fortification_type",
       "power",
       "farmyard",
@@ -580,7 +579,7 @@
       "id": "50291",
       "name": "50291-nz-ladder-points-topo-150k",
       "source": "s3://linz-lds-cache/50291/",
-      "tags": { "ladder": "yes" },
+      "tags": { "man_made": "ladder" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     },
     {
@@ -811,14 +810,14 @@
       "id": "50275",
       "name": "50275-nz-ford-points-topo-150k",
       "source": "s3://linz-lds-cache/50275/",
-      "tags": { "kind": "secondary", "ford": "true" },
+      "tags": { "kind": "secondary", "waterway": "ford" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     },
     {
       "id": "50080",
       "name": "50080-nz-chatham-island-ford-points-topo-150k",
       "source": "s3://linz-lds-cache/50080/",
-      "tags": { "kind": "secondary", "ford": "true" },
+      "tags": { "kind": "secondary", "waterway": "ford" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     }
   ]
