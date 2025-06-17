@@ -3,6 +3,26 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+
+### Bug Fixes
+
+* **cli-vector:** collapse large analysis report in pr comment ([#3457](https://github.com/linz/basemaps/issues/3457)) ([19a4d85](https://github.com/linz/basemaps/commit/19a4d85bb90058694c0a5cd3cd2530cd9e60b9a1))
+* **infra:** increase lambda tiler memory to 3072MB ([#3459](https://github.com/linz/basemaps/issues/3459)) ([786bb54](https://github.com/linz/basemaps/commit/786bb5406823fb7438cb1205e1c345c407406bc5))
+* **landing:** Fix debug page automatically hide topographic-v2. BM-1302 ([#3456](https://github.com/linz/basemaps/issues/3456)) ([53134c0](https://github.com/linz/basemaps/commit/53134c0782cdea7fb683170eda30fb675d60923a))
+
+
+### Features
+
+* **cli-config:** Generate topographic previews with the v2 in the url. BM-1203 ([#3455](https://github.com/linz/basemaps/issues/3455)) ([1a2f220](https://github.com/linz/basemaps/commit/1a2f220b42689d433e07183557cd42b69e5e22d3))
+* **cli-vector:** Support NZTM mbtiles creation.BM-1300 ([#3452](https://github.com/linz/basemaps/issues/3452)) ([f601a73](https://github.com/linz/basemaps/commit/f601a73185aad7f22f6e0e5551d41ba49588c932))
+* **landing:** Support NZTM vector Links in the menu page. BM-1301 ([#3458](https://github.com/linz/basemaps/issues/3458)) ([a57059e](https://github.com/linz/basemaps/commit/a57059e2fa81b3be228ce46807b610c09379a4ee))
+
+
+
+
+
 # [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
 
 

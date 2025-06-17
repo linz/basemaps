@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli-config",
-  "version": "8.2.0",
+  "version": "8.3.0",
   "private": false,
   "repository": {
     "type": "git",
@@ -24,10 +24,10 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@basemaps/config": "^8.1.0",
-    "@basemaps/config-loader": "^8.2.0",
-    "@basemaps/geo": "^8.0.0",
-    "@basemaps/shared": "^8.2.0",
+    "@basemaps/config": "^8.3.0",
+    "@basemaps/config-loader": "^8.3.0",
+    "@basemaps/geo": "^8.3.0",
+    "@basemaps/shared": "^8.3.0",
     "@cotar/builder": "^6.0.1",
     "@cotar/core": "^6.0.1",
     "@cotar/tar": "^6.0.1",

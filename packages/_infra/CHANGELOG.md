@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+
+### Bug Fixes
+
+* **infra:** increase lambda tiler memory to 3072MB ([#3459](https://github.com/linz/basemaps/issues/3459)) ([786bb54](https://github.com/linz/basemaps/commit/786bb5406823fb7438cb1205e1c345c407406bc5))
+
+
+
+
+
 # [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
 
 **Note:** Version bump only for package @basemaps/infra

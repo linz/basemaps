@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+
+### Bug Fixes
+
+* **cli-vector:** collapse large analysis report in pr comment ([#3457](https://github.com/linz/basemaps/issues/3457)) ([19a4d85](https://github.com/linz/basemaps/commit/19a4d85bb90058694c0a5cd3cd2530cd9e60b9a1))
+
+
+### Features
+
+* **cli-config:** Generate topographic previews with the v2 in the url. BM-1203 ([#3455](https://github.com/linz/basemaps/issues/3455)) ([1a2f220](https://github.com/linz/basemaps/commit/1a2f220b42689d433e07183557cd42b69e5e22d3))
+
+
+
+
+
 # [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
 
 
