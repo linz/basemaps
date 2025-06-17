@@ -4,32 +4,29 @@ export const zPlaceLabelsProperties = z.object({
   /** @example "Kaitaia" */
   label: z.string(),
 
+  /** @example 8 */
+  zoom_level: z.number(),
+
   /** @example "TWN1" */
   style: z.string(),
 
+  /** @example "cape" */
+  natural: z
+    .string()
+    .transform((value) => (value === '0' ? undefined : value))
+    .optional(),
+
   /** @example "city" */
-  place: z.string(),
+  place: z
+    .string()
+    .transform((value) => (value === '0' ? undefined : value))
+    .optional(),
 
-  /** @example 7 */
-  adminlevel: z.number(),
-
-  /** @example "0" */
-  natural: z.string(),
-
-  /** @example "0" */
-  water: z.string(),
-});
-
-export const zPlaceLabelsTippecanoe = z.object({
-  /** @example "place_labels" */
-  layer: z.string(),
-
-  /** @example 8 */
-  minzoom: z.number(),
-
-  /** @example 8 */
-  maxzoom: z.number(),
+  /** @example "bay" */
+  water: z
+    .string()
+    .transform((value) => (value === '0' ? undefined : value))
+    .optional(),
 });
 
 export type zTypePlaceLabelsProperties = z.infer<typeof zPlaceLabelsProperties>;
-export type zTypePlaceLabelsTippecanoe = z.infer<typeof zPlaceLabelsTippecanoe>;

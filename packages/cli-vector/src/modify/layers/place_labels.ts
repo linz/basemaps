@@ -2,12 +2,7 @@ import { LogType } from '@basemaps/shared';
 import { z } from 'zod';
 
 import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
-import {
-  zPlaceLabelsProperties,
-  zPlaceLabelsTippecanoe,
-  zTypePlaceLabelsProperties,
-  zTypePlaceLabelsTippecanoe,
-} from '../parser.js';
+import { zPlaceLabelsProperties } from '../parser.js';
 import { VectorGeoPlaceLabelsFeature } from '../schema.js';
 
 export const PlaceLabelsFeatures = new Map<string, VectorGeoPlaceLabelsFeature>();
@@ -27,34 +22,31 @@ export const PlaceLabelsFeatures = new Map<string, VectorGeoPlaceLabelsFeature>(
  */
 export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature | null {
   logger.trace({}, 'HandlePlaceLabels:Start');
-  feature = structuredClone(feature);
 
-  // read the 'label' and 'zoom_level' properties (required)
-  const label = feature.properties['label'];
-  if (typeof label !== 'string') throw new Error('Label property is not a string');
+  const newFeature = createNewFeature(feature, logger);
+  if (newFeature == null) return null;
 
-  const zoomLevel = feature.properties['zoom_level'];
-  if (typeof zoomLevel !== 'number') throw new Error('Zoom level is not a number');
+  const name = newFeature.properties.name;
 
-  //DATA PROBLEM: We need to store the first feature which have all the propertie values, the duplicate features will only have null values in the properties
-  const storedFeature = PlaceLabelsFeatures.get(label);
+  // DATA PROBLEM: Multiple features will have the same `label` value. However, only the first feature will
+  // contain all of the expected properties. All other features with the same `label` value will have null
+  // values for the expected properties. So, as we encounter each of the 'other' features, we need to copy
+  // the expected properties from the first feature to it, before returning it.
+  const storedFeature = PlaceLabelsFeatures.get(name);
   if (storedFeature == null) {
-    const newFeature = createNewFeature(feature, label, zoomLevel, logger);
-    if (newFeature == null) return null;
-
-    PlaceLabelsFeatures.set(label, newFeature);
+    PlaceLabelsFeatures.set(name, newFeature);
 
     logger.trace({}, 'HandlePlaceLabels:End');
     return newFeature;
   }
 
   // update the stored feature's 'minzoom' value
-  storedFeature.tippecanoe.minzoom = zoomLevel;
+  storedFeature.tippecanoe.minzoom = newFeature.tippecanoe.minzoom;
   // update the stored feature's 'maxzoom' value
-  storedFeature.tippecanoe.maxzoom = zoomLevel;
+  storedFeature.tippecanoe.maxzoom = newFeature.tippecanoe.minzoom;
 
   logger.trace({}, 'HandlePlaceLabels:End');
-  return storedFeature;
+  return structuredClone(storedFeature);
 }
 
 /**
@@ -66,54 +58,45 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
  * @param logger - a logger instance
  * @returns a VectorGeoPlaceLabelsFeature object
  */
-function createNewFeature(
-  feature: VectorGeoFeature,
-  label: string,
-  zoomLevel: number,
-  logger: LogType,
-): VectorGeoPlaceLabelsFeature | null {
-  let properties: zTypePlaceLabelsProperties;
-  let tippecanoe: zTypePlaceLabelsTippecanoe;
-
+function createNewFeature(feature: VectorGeoFeature, logger: LogType): VectorGeoPlaceLabelsFeature | null {
   try {
-    properties = zPlaceLabelsProperties.parse({
-      label,
+    const properties = zPlaceLabelsProperties.parse({
+      label: feature.properties['label'],
+      zoom_level: feature.properties['zoom_level'],
       style: feature.properties['style'],
-      place: feature.properties['place'],
-      adminlevel: feature.properties['adminlevel'],
       natural: feature.properties['natural'],
+      place: feature.properties['place'],
       water: feature.properties['water'],
     });
 
-    tippecanoe = zPlaceLabelsTippecanoe.parse({
+    const tippecanoe = {
       layer: 'place_labels',
-      minzoom: zoomLevel,
-      maxzoom: zoomLevel,
-    });
+      minzoom: properties.zoom_level,
+      maxzoom: properties.zoom_level,
+    };
+
+    const newFeature = {
+      type: feature.type,
+      properties: {
+        name: properties.label,
+        kind: convertStyleToKind(properties.style, tippecanoe.minzoom),
+        natural: properties.natural,
+        place: properties.place,
+        water: properties.water,
+      },
+      geometry: feature.geometry,
+      tippecanoe,
+    };
+
+    return newFeature;
   } catch (e) {
     if (e instanceof z.ZodError) {
-      logger.trace({ label }, 'Failed to parse expected properties. Discarding feature.');
+      logger.trace({ properties: feature.properties }, 'Failed to parse expected properties. Discarding feature.');
       return null;
     } else {
       throw new Error('An unexpected error occurred.');
     }
   }
-
-  const newFeature = {
-    type: feature.type,
-    properties: {
-      name: properties.label,
-      kind: convertStyleToKind(properties.style, tippecanoe.minzoom),
-      place: properties.place,
-      adminlevel: properties.adminlevel,
-      natural: properties.natural,
-      water: properties.water,
-    },
-    geometry: feature.geometry,
-    tippecanoe,
-  };
-
-  return newFeature;
 }
 
 /**
