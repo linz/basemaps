@@ -564,7 +564,7 @@
       "id": "50286",
       "name": "50286-nz-historic-site-points-topo-150k",
       "source": "s3://linz-lds-cache/50286/",
-      "tags": { "historic": "yes" },
+      "tags": { "historic": "site" },
       "attributes": { "descriptn": "ref" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     },
