@@ -230,12 +230,16 @@ async function outputChange(
     } else await outputNewLayers(mem, layer, inserts, configPath, true);
   }
 
-  if (inserts.length > 0) md.push('# Aerial Imagery Inserts', ...inserts);
-  if (updates.length > 0) md.push('# Aerial Imagery Updates', ...updates);
+  if (inserts.length > 0) md.push('# 🟩🟩 Aerial Imagery Inserts 🟩🟩', ...inserts);
+  if (updates.length > 0) md.push('# 🟡🟡 Aerial Imagery Updates 🟡🟡', ...updates);
 
   // Some layers were not removed from the old config so they no longer exist in the new config
   if (oldData.layers.length > 0) {
-    md.push('# Aerial Imagery Deletes', ...oldData.layers.map((m) => `- ${m.title}`));
+    md.push(
+      '# 🚨🚨 Aerial Imagery Deletes 🚨🚨',
+      ' Basemaps layers will be removed for the following layers: ',
+      ...oldData.layers.map((m) => `- ${m.title}`),
+    );
   }
 
   // Output for individual tileset config changes or inserts
@@ -296,7 +300,7 @@ async function outputChange(
         if (reportFile) {
           md.push(
             '## Tile SIZE Analyse Report',
-            '<details><summary>🟩WebMercator🟩</summary>',
+            '<details><summary>🟩 WebMercator 🟩</summary>',
             reportFile.toString(),
             '</details>',
           );
