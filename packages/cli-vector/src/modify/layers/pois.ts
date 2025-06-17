@@ -1,8 +1,7 @@
 import { LogType } from '@basemaps/shared';
-import { Point } from 'geojson';
 
 import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
-import { getCoordinates, polylabel } from '../shared.js';
+import { getInaccessibilityPole } from '../shared.js';
 
 /**
  * Processes a 'pois' layer feature.
@@ -27,16 +26,31 @@ export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): Vec
 
     feature.properties['building'] = bldgUse;
 
-    // Covert the building polygon to a point for 50246-nz-building-polygons-topo-150k
+    // Convert the building polygon to a point for 50246-nz-building-polygons-topo-150k
     if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
-      const coordinates = getCoordinates(feature.geometry, logger);
-      const inaccessibilityPole = polylabel(coordinates);
-
-      const point: Point = { type: 'Point', coordinates: inaccessibilityPole };
-      feature.geometry = point;
+      feature.geometry = getInaccessibilityPole(feature.geometry, logger);
     }
+  } else if (feature.properties['leisure'] === 'shooting_ground') {
+    feature = handleLeisureShootingGround(feature, logger);
   }
 
   logger.trace({}, 'HandlePois:End');
+  return feature;
+}
+
+/**
+ * Processes a 'pois' layer feature with a 'leisure' value of 'shooting_ground'.
+ *
+ * @param feature - the feature to process
+ * @param logger - a logger instance
+ * @returns the processed feature
+ */
+function handleLeisureShootingGround(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
+  logger.trace({}, 'HandleLeisureShootingGround:Start');
+  feature = structuredClone(feature);
+
+  feature.geometry = getInaccessibilityPole(feature.geometry, logger);
+
+  logger.trace({}, 'HandleLeisureShootingGround:End');
   return feature;
 }

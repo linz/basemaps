@@ -1,9 +1,8 @@
 import { LogType } from '@basemaps/shared';
-import { Point } from 'geojson';
 
 import { VectorCreationOptions } from '../../stac.js';
 import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
-import { getCoordinates, polylabel } from '../shared.js';
+import { getInaccessibilityPole } from '../shared.js';
 
 /**
  * Processes a 'public_transport' layer feature.
@@ -42,14 +41,7 @@ function handleKindAerodrome(feature: VectorGeoFeature, logger: LogType): Vector
   logger.trace({}, 'HandleKindAerodrome:Start');
   feature = structuredClone(feature);
 
-  const coordinates = getCoordinates(feature.geometry, logger);
-  // REVIEW: the following resource suggests using a precision value of 0.000001 for geo-coords:
-  // https://github.com/mapbox/polylabel?tab=readme-ov-file#javascript-usage
-  // currently, we use the default value of 1.0
-  const inaccessibilityPole = polylabel(coordinates);
-
-  const point: Point = { type: 'Point', coordinates: inaccessibilityPole };
-  feature.geometry = point;
+  feature.geometry = getInaccessibilityPole(feature.geometry, logger);
 
   logger.trace({}, 'HandleKindAerodrome:End');
   return feature;
