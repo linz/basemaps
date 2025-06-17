@@ -49,6 +49,13 @@ export const Env = {
    */
   BlockedApiKeys: 'BASEMAPS_API_KEY_BLOCKS',
 
+  /**
+   * Location of the default configuration for basemaps
+   *
+   * @example "s3://linz-basemaps/config/config-1234.json.gz"
+   */
+  ConfigLocation: 'BASEMAPS_CONFIG_LOCATION',
+
   Gdal: {
     /** Should the gdal docker container be used? */
     UseDocker: 'GDAL_DOCKER',
