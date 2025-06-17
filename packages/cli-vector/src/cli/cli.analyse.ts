@@ -127,7 +127,7 @@ export const AnalyseCommand = command({
             y: row.y,
             z: row.z,
             max: buffer.length,
-            link: `https://basemaps.linz.govt.nz/v1/tiles/topographic/WebMercatorQuad/${row.z}/${row.z}/${row.y}.pbf`,
+            link: `https://basemaps.linz.govt.nz/v1/tiles/topographic/WebMercatorQuad/${row.z}/${row.x}/${row.y}.pbf`,
           };
 
         // Prepare distribution
