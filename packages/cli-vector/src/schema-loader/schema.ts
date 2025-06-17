@@ -109,6 +109,9 @@ export interface Layer {
 
   /** true for layer over 2GB, which will require separated node to process */
   largeLayer?: boolean;
+
+  /** Include the aera size as square meters in the property _derived_area via ogr*/
+  includeDerivedArea?: boolean;
 }
 
 /**

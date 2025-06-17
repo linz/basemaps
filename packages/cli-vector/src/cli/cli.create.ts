@@ -1,3 +1,4 @@
+import { TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
@@ -173,6 +174,8 @@ async function createMbtilesFile(
 
   const layer = options.layer;
   const shortbreadLayer = options.name;
+  const tileMatrix = TileMatrixSets.find(options.tileMatrix);
+  if (tileMatrix == null) throw new Error(`Tile matrix ${options.tileMatrix} is not supported`);
 
   logger.info({ shortbreadLayer, dataset: layer.name }, 'CreateMbtilesFile: Start');
 
@@ -181,7 +184,7 @@ async function createMbtilesFile(
    */
   logger.info({ source: tmpPaths.source.path, dataset: layer.name }, '[1/5] Convert source file to ndjson: Start');
   if (!(await fsa.exists(tmpPaths.ndjson))) {
-    await ogr2ogrNDJson(tmpPaths.source.path, tmpPaths.ndjson, logger);
+    await ogr2ogrNDJson(tmpPaths.source.path, tmpPaths.ndjson, layer, logger);
   }
   logger.info({ destination: tmpPaths.ndjson, dataset: layer.name }, '[1/5] Convert source file to ndjson: End');
 
@@ -191,7 +194,7 @@ async function createMbtilesFile(
   logger.info({ source: tmpPaths.ndjson, dataset: layer.name }, '[2/5] Generalise ndjson features: Start');
   let metrics: Metrics | null = null;
   if (!(await fsa.exists(tmpPaths.genNdjson))) {
-    metrics = await generalize(tmpPaths.ndjson, tmpPaths.genNdjson, options, logger);
+    metrics = await generalize(tmpPaths.ndjson, tmpPaths.genNdjson, tileMatrix, options, logger);
     if (metrics.output === 0) throw new Error(`Failed to generalize ndjson file ${tmpPaths.ndjson.href}`);
   }
   logger.info({ destination: tmpPaths.genNdjson, dataset: layer.name }, '[2/5] Generalise ndjson features: End');
@@ -204,7 +207,7 @@ async function createMbtilesFile(
     '[3/5] Transform generalised ndjson into mbtiles: Start',
   );
   if (!(await fsa.exists(tmpPaths.mbtiles))) {
-    await tippecanoe(tmpPaths.genNdjson, tmpPaths.mbtiles, layer, logger);
+    await tippecanoe(tmpPaths.genNdjson, tmpPaths.mbtiles, layer, tileMatrix, logger);
   }
   logger.info(
     { destination: tmpPaths.mbtiles, dataset: layer.name },

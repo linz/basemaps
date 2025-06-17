@@ -1,9 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
-
-import { projectGeoJson } from '../tile.matrix.js';
+import { GoogleTms, Nztm2000QuadTms, projectGeoJson, Projection } from '@basemaps/geo';
 
 /** This feature is located in tile x:237, y:278, z:9 of NZTM2000Quad see ./NZTMTileLocation.png for a reference picture  */
 const feature = {

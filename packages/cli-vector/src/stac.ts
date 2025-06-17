@@ -102,7 +102,7 @@ export class VectorStac {
       stac_version: '1.0.0',
       stac_extensions: [],
       geometry: null,
-      bbox: [-180, -90, 180, 90],
+      bbox: tileMatrix.extent.toBbox(),
       links: [
         { href: `./${filename}.json`, rel: 'self' },
         { href: './collection.json', rel: 'collection' },
