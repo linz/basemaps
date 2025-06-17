@@ -175,83 +175,6 @@
       ]
     },
     {
-      "id": "50237",
-      "name": "50237-nz-airport-polygons-topo-150k",
-      "source": "s3://linz-lds-cache/50237/",
-      "tags": { "kind": "aerodrome" },
-      "style": { "minZoom": 10, "maxZoom": 15 }
-    },
-    {
-      "id": "50063",
-      "name": "50063-nz-chatham-island-airport-polygons-topo-150k",
-      "source": "s3://linz-lds-cache/50063/",
-      "tags": { "kind": "aerodrome" },
-      "style": { "minZoom": 10, "maxZoom": 15 }
-    },
-    {
-      "id": "52231",
-      "name": "52231-cook-islands-airport-polygons-topo-125k-zone4",
-      "source": "s3://linz-lds-cache/52231/",
-      "tags": { "kind": "aerodrome" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
-    },
-    {
-      "id": "52168",
-      "name": "52168-niue-airport-polygons-topo-150k",
-      "source": "s3://linz-lds-cache/52168/",
-      "tags": { "kind": "aerodrome" },
-      "style": { "minZoom": 0, "maxZoom": 15 }
-    },
-    {
-      "id": "50333",
-      "name": "50333-nz-runway-polygons-topo-150k",
-      "source": "s3://linz-lds-cache/50333/",
-      "tags": { "kind": "runway" },
-      "style": { "minZoom": 10, "maxZoom": 15 }
-    },
-    {
-      "id": "50914",
-      "name": "50914-nz-kermadec-is-runway-polygons-topo-125k",
-      "source": "s3://linz-lds-cache/50914/",
-      "tags": { "kind": "runway" },
-      "style": { "minZoom": 12, "maxZoom": 15 }
-    },
-    {
-      "id": "52302",
-      "name": "52302-cook-islands-runway-polygons-topo-125k-zone3",
-      "source": "s3://linz-lds-cache/52302/",
-      "tags": { "kind": "runway" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
-    },
-    {
-      "id": "52268",
-      "name": "52268-cook-islands-runway-polygons-topo-125k-zone4",
-      "source": "s3://linz-lds-cache/52268/",
-      "tags": { "kind": "runway" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
-    },
-    {
-      "id": "52211",
-      "name": "52211-cook-islands-runway-polygons-topo-150k-zone4",
-      "source": "s3://linz-lds-cache/52211/",
-      "tags": { "kind": "runway" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
-    },
-    {
-      "id": "52190",
-      "name": "52190-niue-runway-polygons-topo-150k",
-      "source": "s3://linz-lds-cache/52190/",
-      "tags": { "kind": "runway" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
-    },
-    {
-      "id": "50103",
-      "name": "50103-nz-chatham-island-runway-polygons-topo-150k",
-      "source": "s3://linz-lds-cache/50103/",
-      "tags": { "kind": "runway" },
-      "style": { "minZoom": 10, "maxZoom": 15 }
-    },
-    {
       "id": "50244",
       "name": "50244-nz-bridge-centrelines-topo-150k",
       "source": "s3://linz-lds-cache/50244/",
@@ -278,20 +201,6 @@
       "source": "s3://linz-lds-cache/52235/",
       "tags": { "kind": "secondary", "bridge": "true" },
       "style": { "minZoom": 10, "maxZoom": 15 }
-    },
-    {
-      "id": "50275",
-      "name": "50275-nz-ford-points-topo-150k",
-      "source": "s3://linz-lds-cache/50275/",
-      "tags": { "kind": "secondary", "ford": "true" },
-      "style": { "minZoom": 12, "maxZoom": 15 }
-    },
-    {
-      "id": "50080",
-      "name": "50080-nz-chatham-island-ford-points-topo-150k",
-      "source": "s3://linz-lds-cache/50080/",
-      "tags": { "kind": "secondary", "ford": "true" },
-      "style": { "minZoom": 12, "maxZoom": 15 }
     },
     {
       "id": "50366",

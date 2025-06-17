@@ -806,6 +806,20 @@
       "source": "s3://linz-lds-cache/50246/",
       "tags": { "building": "building" },
       "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50275",
+      "name": "50275-nz-ford-points-topo-150k",
+      "source": "s3://linz-lds-cache/50275/",
+      "tags": { "kind": "secondary", "ford": "true" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50080",
+      "name": "50080-nz-chatham-island-ford-points-topo-150k",
+      "source": "s3://linz-lds-cache/50080/",
+      "tags": { "kind": "secondary", "ford": "true" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
     }
   ]
 }
