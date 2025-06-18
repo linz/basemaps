@@ -269,10 +269,23 @@ async function outputChange(
       vectorUpdate.push(`## Vector data updates for ${change.id}`);
       const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
       const version = getVectorVersion(id);
-      for (const style of VectorStyles) {
-        const styleId = version ? `${style}-${version}` : style;
-        vectorUpdate.push(`* [${style} - ${id}](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&debug)\n`);
+      if (change.layers[0][2193]) {
+        for (const style of VectorStyles) {
+          const styleId = version ? `${style}-${version}` : style;
+          vectorUpdate.push(
+            `* [${style} - NZTM2000Quad](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&p=NZTM2000Quad&debug)\n`,
+          );
+        }
       }
+      if (change.layers[0][3857]) {
+        for (const style of VectorStyles) {
+          const styleId = version ? `${style}-${version}` : style;
+          vectorUpdate.push(
+            `* [${style} - WebMercatorQuad](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&p=WebMercatorQuad&debug)\n`,
+          );
+        }
+      }
+
       const existingTileSet = await cfg.TileSet.get(change.id);
       const featureChanges = await diffVectorUpdate(change, existingTileSet);
       vectorUpdate.push(`## Feature updates for ${change.id}`);
@@ -292,18 +305,24 @@ async function outputChange(
   if (vectorUpdate.length > 0) {
     md.push('# Vector Data Update', ...vectorUpdate);
 
-    const layerPath = (await mem.TileSet.get('ts_topographic-v2'))?.layers?.[0]?.[3857];
-    if (layerPath) {
-      const reportPath = layerPath.substring(0, layerPath.lastIndexOf('/')) + '/report.md';
-      if (await fsa.exists(fsa.toUrl(reportPath))) {
-        const reportFile = await fsa.read(fsa.toUrl(reportPath));
-        if (reportFile) {
-          md.push(
-            '## Tile SIZE Analyse Report',
-            '<details><summary>🟩 WebMercator 🟩</summary>',
-            reportFile.toString(),
-            '</details>',
-          );
+    const shortbreadTileSet = await mem.TileSet.get('ts_topographic-v2');
+    if (shortbreadTileSet && shortbreadTileSet.layers.length > 0) {
+      const layer = shortbreadTileSet.layers[0];
+      for (const tms of [GoogleTms, Nztm2000QuadTms]) {
+        const layerPath = layer[tms.projection.code];
+        if (layerPath) {
+          const reportPath = layerPath.substring(0, layerPath.lastIndexOf('/')) + '/report.md';
+          if (await fsa.exists(fsa.toUrl(reportPath))) {
+            const reportFile = await fsa.read(fsa.toUrl(reportPath));
+            if (reportFile) {
+              md.push(
+                `## Vector Tile Anaylse Report for ${tms.identifier}`,
+                `<details><summary>🟩 ${tms.identifier}(Click to Expend) 🟩</summary>`,
+                reportFile.toString(),
+                '</details>\n',
+              );
+            }
+          }
         }
       }
     }
