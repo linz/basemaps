@@ -2,7 +2,6 @@
   "name": "pois",
   "metadata": {
     "attributes": [
-      "leisure",
       "building",
       "store_item",
       "man_made",
@@ -685,13 +684,6 @@
       "name": "50322-nz-redoubt-points-topo-150k",
       "source": "s3://linz-lds-cache/50322/",
       "tags": { "historic": "redoubt" },
-      "style": { "minZoom": 12, "maxZoom": 15 }
-    },
-    {
-      "id": "50326",
-      "name": "50326-nz-rifle-range-polygons-topo-150k",
-      "source": "s3://linz-lds-cache/50326/",
-      "tags": { "leisure": "shooting_ground" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     },
     {

@@ -30,27 +30,8 @@ export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): Vec
     if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
       feature.geometry = getInaccessibilityPole(feature.geometry, logger);
     }
-  } else if (feature.properties['leisure'] === 'shooting_ground') {
-    feature = handleLeisureShootingGround(feature, logger);
   }
 
   logger.trace({}, 'HandlePois:End');
-  return feature;
-}
-
-/**
- * Processes a 'pois' layer feature with a 'leisure' value of 'shooting_ground'.
- *
- * @param feature - the feature to process
- * @param logger - a logger instance
- * @returns the processed feature
- */
-function handleLeisureShootingGround(feature: VectorGeoFeature, logger: LogType): VectorGeoFeature {
-  logger.trace({}, 'HandleLeisureShootingGround:Start');
-  feature = structuredClone(feature);
-
-  feature.geometry = getInaccessibilityPole(feature.geometry, logger);
-
-  logger.trace({}, 'HandleLeisureShootingGround:End');
   return feature;
 }
