@@ -317,7 +317,7 @@ async function outputChange(
             if (reportFile) {
               md.push(
                 `## Vector Tile Anaylse Report for ${tms.identifier}`,
-                `<details><summary>🟩 ${tms.identifier}(Click to Expend) 🟩</summary>`,
+                `<details><summary>🟩 ${tms.identifier}(Click to Expand) 🟩</summary>`,
                 reportFile.toString(),
                 '</details>\n',
               );
