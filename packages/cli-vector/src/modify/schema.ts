@@ -8,13 +8,13 @@ export interface VectorGeoPlaceLabelsFeature extends VectorGeoFeature {
     /** @example "ant" */
     kind: string;
 
-    /** @example "0" */
+    /** @example "cape" */
     natural?: string;
 
     /** @example "city" */
     place?: string;
 
-    /** @example "0" */
+    /** @example "bay" */
     water?: string;
   };
 }
