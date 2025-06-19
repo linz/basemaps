@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+const optionalString = z.preprocess((value) => {
+  if (value === '0' || value === null) {
+    return undefined;
+  } else {
+    return value;
+  }
+}, z.string().optional());
+
 export const zPlaceLabelsProperties = z.object({
   /** @example "Kaitaia" */
   label: z.string(),
@@ -11,22 +19,13 @@ export const zPlaceLabelsProperties = z.object({
   style: z.string(),
 
   /** @example "cape" */
-  natural: z
-    .string()
-    .transform((value) => (value === '0' ? undefined : value))
-    .optional(),
+  natural: optionalString,
 
   /** @example "city" */
-  place: z
-    .string()
-    .transform((value) => (value === '0' ? undefined : value))
-    .optional(),
+  place: optionalString,
 
   /** @example "bay" */
-  water: z
-    .string()
-    .transform((value) => (value === '0' ? undefined : value))
-    .optional(),
+  water: optionalString,
 });
 
 export type zTypePlaceLabelsProperties = z.infer<typeof zPlaceLabelsProperties>;

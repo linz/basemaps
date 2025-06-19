@@ -8,12 +8,13 @@ import { VectorGeoPlaceLabelsFeature } from '../schema.js';
 export const PlaceLabelsFeatures = new Map<string, VectorGeoPlaceLabelsFeature>();
 
 /**
- *  Processes a 'place_labels' layer feature. Specifically, features of the gazatteer dataset.
+ *  Processes a 'place_labels' layer feature of the gazatteer dataset.
  *
  *  The gazatteer dataset contains multiple features that technically describe the same feature, such that:
- * - 1. One feature will contain all of the expected properties.
- * - 2. The other features will have 'null' values for all expected properties, except `label` and `zoom_level`.
- * - 3. All of the features describing the same feature will have the same `label` value, but different `zoom_level` values.
+ * - 1. Many features have the same `label` value.
+ *    - a. The 1st feature always contains the properties.
+ *    - b. The 2nd, 3rd, ... features always define the `label`, `zoom_level` and `style` properties. But, all others properties will be `null`.
+ * - 2. All features with the same `label` value have different `zoom_level` values.
  *
  * @param feature - the feature to process
  * @param options - the layer's options
@@ -24,8 +25,6 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
   logger.trace({}, 'HandlePlaceLabels:Start');
 
   const newFeature = createNewFeature(feature, logger);
-  if (newFeature == null) return null;
-
   const name = newFeature.properties.name;
 
   // DATA PROBLEM: Multiple features will have the same `label` value. However, only the first feature will
@@ -58,7 +57,7 @@ export function handleLayerPlaceLabels(feature: VectorGeoFeature, logger: LogTyp
  * @param logger - a logger instance
  * @returns a VectorGeoPlaceLabelsFeature object
  */
-function createNewFeature(feature: VectorGeoFeature, logger: LogType): VectorGeoPlaceLabelsFeature | null {
+function createNewFeature(feature: VectorGeoFeature, logger: LogType): VectorGeoPlaceLabelsFeature {
   try {
     const properties = zPlaceLabelsProperties.parse({
       label: feature.properties['label'],
@@ -91,11 +90,10 @@ function createNewFeature(feature: VectorGeoFeature, logger: LogType): VectorGeo
     return newFeature;
   } catch (e) {
     if (e instanceof z.ZodError) {
-      logger.trace({ properties: feature.properties }, 'Failed to parse expected properties. Discarding feature.');
-      return null;
-    } else {
-      throw new Error('An unexpected error occurred.');
+      logger.trace({ properties: feature.properties }, 'Failed to parse required properties.');
     }
+
+    throw e;
   }
 }
 
