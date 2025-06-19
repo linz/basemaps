@@ -7,6 +7,7 @@ import {
   ConfigLayer,
   ConfigPrefix,
   ConfigProviderMemory,
+  ConfigTileSetVector,
   TileSetType,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
@@ -205,7 +206,7 @@ async function outputChange(
   cfg: BasemapsConfigProvider,
   configPath: string,
 ): Promise<void> {
-  const md: string[] = [];
+  const outputMarkdown: string[] = [];
   // Output for aerial config changes
   const inserts: string[] = [];
   const updates: string[] = [];
@@ -230,12 +231,12 @@ async function outputChange(
     } else await outputNewLayers(mem, layer, inserts, configPath, true);
   }
 
-  if (inserts.length > 0) md.push('# 🟩🟩 Aerial Imagery Inserts 🟩🟩', ...inserts);
-  if (updates.length > 0) md.push('# 🟡🟡 Aerial Imagery Updates 🟡🟡', ...updates);
+  if (inserts.length > 0) outputMarkdown.push('# 🟩🟩 Aerial Imagery Inserts 🟩🟩', ...inserts);
+  if (updates.length > 0) outputMarkdown.push('# 🟡🟡 Aerial Imagery Updates 🟡🟡', ...updates);
 
   // Some layers were not removed from the old config so they no longer exist in the new config
   if (oldData.layers.length > 0) {
-    md.push(
+    outputMarkdown.push(
       '# 🚨🚨 Aerial Imagery Deletes 🚨🚨',
       ' Basemaps layers will be removed for the following layers: ',
       ...oldData.layers.map((m) => `- ${m.title}`),
@@ -258,8 +259,8 @@ async function outputChange(
     else await outputNewLayers(mem, layer, individualInserts, configPath);
   }
 
-  if (individualInserts.length > 0) md.push('# Individual Inserts', ...individualInserts);
-  if (individualUpdates.length > 0) md.push('# Individual Updates', ...individualUpdates);
+  if (individualInserts.length > 0) outputMarkdown.push('# Individual Inserts', ...individualInserts);
+  if (individualUpdates.length > 0) outputMarkdown.push('# Individual Updates', ...individualUpdates);
 
   // Output for vector config changes
   const vectorUpdate = [];
@@ -269,14 +270,29 @@ async function outputChange(
       vectorUpdate.push(`## Vector data updates for ${change.id}`);
       const id = ConfigId.unprefix(ConfigPrefix.TileSet, change.id);
       const version = getVectorVersion(id);
-      for (const style of VectorStyles) {
-        const styleId = version ? `${style}-${version}` : style;
-        vectorUpdate.push(`* [${style} - ${id}](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&debug)\n`);
+      if (change.layers[0][2193]) {
+        for (const style of VectorStyles) {
+          const styleId = version ? `${style}-${version}` : style;
+          vectorUpdate.push(
+            `* [${style} - NZTM2000Quad](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&p=NZTM2000Quad&debug)\n`,
+          );
+        }
       }
+      if (change.layers[0][3857]) {
+        for (const style of VectorStyles) {
+          const styleId = version ? `${style}-${version}` : style;
+          vectorUpdate.push(
+            `* [${style} - WebMercatorQuad](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&p=WebMercatorQuad&debug)\n`,
+          );
+        }
+      }
+
       const existingTileSet = await cfg.TileSet.get(change.id);
       const featureChanges = await diffVectorUpdate(change, existingTileSet);
       vectorUpdate.push(`## Feature updates for ${change.id}`);
       vectorUpdate.push(...featureChanges);
+      const reportMarkdown = await outputAnalyseReports(change);
+      if (reportMarkdown.length > 0) vectorUpdate.push(...reportMarkdown);
     }
     if (mem.Style.is(change)) {
       const id = ConfigId.unprefix(ConfigPrefix.Style, change.id);
@@ -288,29 +304,11 @@ async function outputChange(
     }
   }
 
-  if (styleUpdate.length > 0) md.push('# Vector Style Update', ...styleUpdate);
-  if (vectorUpdate.length > 0) {
-    md.push('# Vector Data Update', ...vectorUpdate);
+  if (styleUpdate.length > 0) outputMarkdown.push('# Vector Style Update', ...styleUpdate);
+  if (vectorUpdate.length > 0) outputMarkdown.push('# Vector Data Update', ...vectorUpdate);
 
-    const layerPath = (await mem.TileSet.get('ts_topographic-v2'))?.layers?.[0]?.[3857];
-    if (layerPath) {
-      const reportPath = layerPath.substring(0, layerPath.lastIndexOf('/')) + '/report.md';
-      if (await fsa.exists(fsa.toUrl(reportPath))) {
-        const reportFile = await fsa.read(fsa.toUrl(reportPath));
-        if (reportFile) {
-          md.push(
-            '## Tile SIZE Analyse Report',
-            '<details><summary>🟩 WebMercator 🟩</summary>',
-            reportFile.toString(),
-            '</details>',
-          );
-        }
-      }
-    }
-  }
-
-  if (md.length > 0) {
-    await fsa.write(fsa.toUrl(output), md.join('\n'));
+  if (outputMarkdown.length > 0) {
+    await fsa.write(fsa.toUrl(output), outputMarkdown.join('\n'));
   }
 
   return;
@@ -416,4 +414,32 @@ async function prepareUrl(
     tag: `${PublicUrlBase}?config=${configPath}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
   };
   return urls;
+}
+
+/**
+ * This function prepare for the vector tile analyse reports for markdown output
+ * @param mem new config data read from config bundle file
+ * @param layer new config tileset layer
+ * @param inserts string array to save all the lines for markdown output
+ * @param configPath path of config json
+ * @param aerial output preview link for aerial map
+ */
+async function outputAnalyseReports(change: ConfigTileSetVector): Promise<string[]> {
+  const reportMarkdown: string[] = [];
+  const layer = change.layers[0];
+  for (const tms of [GoogleTms, Nztm2000QuadTms]) {
+    const layerPath = layer[tms.projection.code];
+    if (layerPath == null) continue;
+    const reportPath = layerPath.substring(0, layerPath.lastIndexOf('/')) + '/report.md';
+    if (await fsa.exists(fsa.toUrl(reportPath))) {
+      const reportFile = await fsa.read(fsa.toUrl(reportPath));
+      reportMarkdown.push(
+        `## Vector Tile Anaylse Report for ${tms.identifier}`,
+        `<details><summary>🟩 ${tms.identifier}(Click to Expand) 🟩</summary>`,
+        reportFile.toString(),
+        '</details>\n',
+      );
+    }
+  }
+  return reportMarkdown;
 }
