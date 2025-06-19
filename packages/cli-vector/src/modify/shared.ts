@@ -1,5 +1,5 @@
 import { LogType } from '@basemaps/shared';
-import { Geometry, Position } from 'geojson';
+import { Geometry, Point, Position } from 'geojson';
 import * as poly from 'polylabel';
 
 import { VectorCreationOptions } from '../stac.js';
@@ -59,6 +59,13 @@ export function handleRoadFeature(
   // return feature
   logger.trace({}, 'HandleRoadFeature:End');
   return feature;
+}
+
+export function getInaccessibilityPole(geometry: Geometry, logger: LogType): Point {
+  const coordinates = getCoordinates(geometry, logger);
+  const inaccessibilityPole = polylabel(coordinates);
+
+  return { type: 'Point', coordinates: inaccessibilityPole };
 }
 
 export function getCoordinates(geometry: Geometry, logger: LogType): Position[][] {

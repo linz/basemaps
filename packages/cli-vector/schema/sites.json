@@ -50,6 +50,13 @@
       "source": "s3://linz-lds-cache/52276/",
       "tags": { "kind": "sports_field" },
       "style": { "minZoom": 0, "maxZoom": 15 }
+    },
+    {
+      "id": "50326",
+      "name": "50326-nz-rifle-range-polygons-topo-150k",
+      "source": "s3://linz-lds-cache/50326/",
+      "tags": { "kind": "rifle_range" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
     }
   ]
 }

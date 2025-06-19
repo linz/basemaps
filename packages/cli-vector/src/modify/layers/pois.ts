@@ -1,8 +1,7 @@
 import { LogType } from '@basemaps/shared';
-import { Point } from 'geojson';
 
 import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
-import { getCoordinates, polylabel } from '../shared.js';
+import { getInaccessibilityPole } from '../shared.js';
 
 /**
  * Processes a 'pois' layer feature.
@@ -27,13 +26,9 @@ export function handleLayerPois(feature: VectorGeoFeature, logger: LogType): Vec
 
     feature.properties['building'] = bldgUse;
 
-    // Covert the building polygon to a point for 50246-nz-building-polygons-topo-150k
+    // Convert the building polygon to a point for 50246-nz-building-polygons-topo-150k
     if (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon') {
-      const coordinates = getCoordinates(feature.geometry, logger);
-      const inaccessibilityPole = polylabel(coordinates);
-
-      const point: Point = { type: 'Point', coordinates: inaccessibilityPole };
-      feature.geometry = point;
+      feature.geometry = getInaccessibilityPole(feature.geometry, logger);
     }
   }
 
