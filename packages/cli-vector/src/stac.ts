@@ -110,6 +110,7 @@ export class VectorStac {
         ...layers,
       ],
       properties: {
+        datetime: CliDate,
         'proj:epsg': tileMatrix.projection.code,
         'linz_basemaps:generated': {
           package: CliInfo.package,
