@@ -55,7 +55,7 @@ async function upload(file: URL, bucketPath: URL, logger: LogType): Promise<URL>
   let path = new URL(`topographic/${CliId}/${filename}`, bucketPath);
   logger.info({ file: file, path: path }, 'Load:Path');
   if (path.protocol === 'file:') await mkdir(dirname(path.pathname), { recursive: true });
-  if (filename.endsWith('catalog.json')) path = new URL(filename, bucketPath); // Upload catalog to root directory
+  if (filename.endsWith('catalog.json')) path = new URL(`topographic/${filename}`, bucketPath); // Upload catalog to root directory
   await fsa.write(path, stream);
   logger.info({ file: file, path: path }, 'Load:Finish');
   return path;
