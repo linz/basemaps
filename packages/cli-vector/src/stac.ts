@@ -110,6 +110,7 @@ export class VectorStac {
         ...layers,
       ],
       properties: {
+        datetime: CliDate,
         'proj:epsg': tileMatrix.projection.code,
         'linz_basemaps:generated': {
           package: CliInfo.package,
@@ -214,7 +215,7 @@ export async function createStacFiles(
 
   // Create stac catalog
   let stacCatalog = vectorStac.createStacCatalog();
-  const catalogPath = new URL('catalog.json', targetPath);
+  const catalogPath = new URL('topographic/catalog.json', targetPath);
   if (await fsa.exists(catalogPath)) stacCatalog = await fsa.readJson<StacCatalog>(catalogPath);
   // Add link for new collection
   stacCatalog.links.push({
