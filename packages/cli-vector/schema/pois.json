@@ -2,7 +2,6 @@
   "name": "pois",
   "metadata": {
     "attributes": [
-      "leisure",
       "building",
       "store_item",
       "man_made",
@@ -18,7 +17,6 @@
       "barrier",
       "historic",
       "ref",
-      "ladder",
       "fortification_type",
       "power",
       "farmyard",
@@ -565,7 +563,7 @@
       "id": "50286",
       "name": "50286-nz-historic-site-points-topo-150k",
       "source": "s3://linz-lds-cache/50286/",
-      "tags": { "historic": "yes" },
+      "tags": { "historic": "site" },
       "attributes": { "descriptn": "ref" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     },
@@ -580,7 +578,7 @@
       "id": "50291",
       "name": "50291-nz-ladder-points-topo-150k",
       "source": "s3://linz-lds-cache/50291/",
-      "tags": { "ladder": "yes" },
+      "tags": { "man_made": "ladder" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     },
     {
@@ -686,13 +684,6 @@
       "name": "50322-nz-redoubt-points-topo-150k",
       "source": "s3://linz-lds-cache/50322/",
       "tags": { "historic": "redoubt" },
-      "style": { "minZoom": 12, "maxZoom": 15 }
-    },
-    {
-      "id": "50326",
-      "name": "50326-nz-rifle-range-polygons-topo-150k",
-      "source": "s3://linz-lds-cache/50326/",
-      "tags": { "leisure": "shooting_ground" },
       "style": { "minZoom": 12, "maxZoom": 15 }
     },
     {
@@ -806,6 +797,20 @@
       "source": "s3://linz-lds-cache/50246/",
       "tags": { "building": "building" },
       "style": { "minZoom": 14, "maxZoom": 15 }
+    },
+    {
+      "id": "50275",
+      "name": "50275-nz-ford-points-topo-150k",
+      "source": "s3://linz-lds-cache/50275/",
+      "tags": { "waterway": "ford" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
+    },
+    {
+      "id": "50080",
+      "name": "50080-nz-chatham-island-ford-points-topo-150k",
+      "source": "s3://linz-lds-cache/50080/",
+      "tags": { "waterway": "ford" },
+      "style": { "minZoom": 12, "maxZoom": 15 }
     }
   ]
 }
