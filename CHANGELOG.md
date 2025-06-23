@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-23)
+
+
+### Bug Fixes
+
+* **cli-vector:** Fix the stac item format missing datetime in properties. BM-1317 ([#3464](https://github.com/linz/basemaps/issues/3464)) ([6c7719f](https://github.com/linz/basemaps/commit/6c7719f7514160158b6ad14b680fe1bdd10fd1e3))
+
+
+### Features
+
+* **cli-vector:** adjust the layers assigned to each schema layer BM-1299 ([#3462](https://github.com/linz/basemaps/issues/3462)) ([0770163](https://github.com/linz/basemaps/commit/0770163665557390feab74f865132139fa9c3560))
+
+
+
+
+
 # [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
 
 

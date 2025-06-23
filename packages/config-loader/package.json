@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/config-loader",
-  "version": "8.3.0",
+  "version": "8.4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -28,8 +28,8 @@
     "build/"
   ],
   "dependencies": {
-    "@basemaps/config": "^8.3.0",
-    "@basemaps/geo": "^8.3.0",
-    "@basemaps/shared": "^8.3.0"
+    "@basemaps/config": "^8.4.0",
+    "@basemaps/geo": "^8.4.0",
+    "@basemaps/shared": "^8.4.0"
   }
 }
