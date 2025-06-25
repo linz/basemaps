@@ -11,18 +11,9 @@ import {
   TileSetType,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
-import {
-  Env,
-  fsa,
-  getDefaultConfig,
-  getLogger,
-  getPreviewUrl,
-  logArguments,
-  LogType,
-  setDefaultConfig,
-} from '@basemaps/shared';
+import { Env, fsa, getLogger, getPreviewUrl, logArguments, LogType } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, flag, option, optional, string } from 'cmd-ts';
+import { command, flag, option, string } from 'cmd-ts';
 import fetch from 'node-fetch';
 
 import { getVectorVersion, invalidateCache } from '../util.js';
@@ -50,7 +41,7 @@ export const ImportCommand = command({
       description: 'Output a markdown file with the config changes',
     }),
     target: option({
-      type: optional(string),
+      type: string,
       long: 'target',
       description: 'Target config file to compare',
     }),
@@ -145,17 +136,13 @@ export const ImportCommand = command({
   },
 });
 
-async function getConfig(logger: LogType, target?: string): Promise<BasemapsConfigProvider> {
-  if (target) {
-    logger.info({ config: target }, 'Import:Target:Load');
-    const configJson = await fsa.readJson<ConfigBundled>(fsa.toUrl(target));
-    const mem = ConfigProviderMemory.fromJson(configJson);
-    mem.createVirtualTileSets();
+async function getConfig(logger: LogType, target: string): Promise<BasemapsConfigProvider> {
+  logger.info({ config: target }, 'Import:Target:Load');
+  const configJson = await fsa.readJson<ConfigBundled>(fsa.toUrl(target));
+  const mem = ConfigProviderMemory.fromJson(configJson);
+  mem.createVirtualTileSets();
 
-    setDefaultConfig(mem);
-    return mem;
-  }
-  return getDefaultConfig();
+  return mem;
 }
 
 const promises: Promise<boolean>[] = [];

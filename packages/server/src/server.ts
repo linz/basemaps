@@ -1,7 +1,9 @@
 // Fastfiy uses a lot of floating promises
 /* eslint-disable @typescript-eslint/no-floating-promises */
+import { BasemapsConfigProvider } from '@basemaps/config';
 import { handler } from '@basemaps/lambda-tiler';
-import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
+import { ConfigLoader } from '@basemaps/lambda-tiler/src/util/config.loader.js';
+import { Env, fsa, LogType } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
 import { LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
@@ -35,13 +37,13 @@ export async function createServer(opts: ServerOptions, logger: LogType): Promis
   BasemapsServer.register(formBodyPlugin.default);
 
   const cfg = await loadConfig(opts, logger);
-  setDefaultConfig(cfg);
+  ConfigLoader.getDefaultConfig = (): Promise<BasemapsConfigProvider> => Promise.resolve(cfg);
 
   if (opts.assets) {
     const isExists = await fsa.exists(fsa.toUrl(opts.assets));
     if (!isExists) throw new Error(`--assets path "${opts.assets}" does not exist`);
     logger.info({ path: opts.assets }, 'Config:Assets');
-    getDefaultConfig().assets = opts.assets;
+    cfg.assets = opts.assets;
   }
 
   const landingLocation = getLandingLocation();

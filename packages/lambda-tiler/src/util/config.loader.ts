@@ -1,7 +1,6 @@
 import { base58, BasemapsConfigProvider, isBase58 } from '@basemaps/config';
-import { fsa, getDefaultConfig } from '@basemaps/shared';
-import { LambdaHttpResponse } from '@linzjs/lambda';
-import { LambdaHttpRequest } from '@linzjs/lambda';
+import { Env, fsa } from '@basemaps/shared';
+import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { CachedConfig } from './config.cache.js';
 
@@ -17,20 +16,22 @@ const SafeBuckets = new Set([
 const SafeProtocols = new Set([new URL('s3://foo').protocol, new URL('memory://foo.json').protocol]);
 
 export class ConfigLoader {
+  static _defaultConfig: BasemapsConfigProvider | undefined;
+  static setDefaultConfig(config: BasemapsConfigProvider): void {
+    this._defaultConfig = config;
+  }
   /** Exposed for testing */
   static async getDefaultConfig(req?: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
-    const config = getDefaultConfig();
+    if (ConfigLoader._defaultConfig) return ConfigLoader._defaultConfig;
 
-    // Look up the latest config bundle out of dynamodb, then load the config from the provided path
-    const cb = await config.ConfigBundle.get('cb_latest');
-    if (cb == null) return config;
+    const configLocation = Env.get(Env.ConfigLocation);
+    if (configLocation == null) throw new Error(`Missing configuration: $${Env.ConfigLocation}`);
 
     req?.timer.start('config:load');
 
-    return CachedConfig.get(fsa.toUrl(cb.path)).then((cfg) => {
+    return CachedConfig.get(fsa.toUrl(configLocation)).then((cfg) => {
       req?.timer.end('config:load');
       if (cfg == null) throw new LambdaHttpResponse(500, 'Unable to find latest configuration');
-      if (cfg.assets == null) cfg.assets = cb.assets;
       return cfg;
     });
   }

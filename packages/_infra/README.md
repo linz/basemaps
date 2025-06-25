@@ -29,6 +29,10 @@ CDK_DEFAULT_ACCOUNT;
 
 // Due to the convoluted way that TLS certificates are made inside LINZ a hard coded TLS ARN is needed for the Cloudfront
 CLOUDFRONT_CERTIFICATE_ARN;
+
+// Configuration is stored as JSON files, a configuration file is required generally stored in s3
+// eg: s3://linz-basemaps/config/config-:someConfigHash.json.gz
+BASEMAPS_CONFIG_LOCATION;
 ```
 
 For first usage you will need to bootstrap the account, this will create a s3 bucket to store CDK assets in
