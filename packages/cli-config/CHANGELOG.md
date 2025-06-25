@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
+
+
+### Features
+
+* **cli-config:** Support vector preview links and reports for NZTM. BM-1253 ([#3463](https://github.com/linz/basemaps/issues/3463)) ([5ab6a5b](https://github.com/linz/basemaps/commit/5ab6a5bdd19885f8a461bece0d2736c7ed7269d9))
+
+
+
+
+
 # [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
 
 
