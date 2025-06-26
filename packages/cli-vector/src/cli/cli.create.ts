@@ -9,7 +9,7 @@ import { createGunzip } from 'zlib';
 import { generalize } from '../generalization/generalization.js';
 import { Metrics } from '../schema-loader/schema.js';
 import { VectorStacItem } from '../stac.js';
-import { ogr2ogrNDJson } from '../transform/ogr2ogr.js';
+import { ogr2ogrfgb } from '../transform/ogr2ogr.js';
 import { tileJoin, tippecanoe } from '../transform/tippecanoe.js';
 import { ContentType, prepareTmpPaths, TmpPaths } from '../util.js';
 
@@ -34,6 +34,11 @@ export const CreateArgs = {
     long: 'join',
     description:
       'TODO: new parameter to join multiple mbtiles for local test only, because tile-join is not access to aws',
+    defaultValue: () => false,
+    defaultValueIsSerializable: true,
+  }),
+  force: flag({
+    long: 'force',
     defaultValue: () => false,
     defaultValueIsSerializable: true,
   }),
@@ -62,7 +67,7 @@ export const CreateCommand = command({
 
     // generate ndjsons and mbtiles
     logger.info({ items: items.length }, 'Create Mbtiles Files: Start');
-    await Promise.all(items.map((item) => q(() => createMbtilesFile(item, logger))));
+    await Promise.all(items.map((item) => q(() => createMbtilesFile(item, args.force, logger))));
     logger.info({ items: items.length }, 'Create Mbtiles Files: End');
 
     // if applicable, combine all mbtiles files into a single mbtiles file
@@ -167,6 +172,7 @@ async function downloadSourceFile(
  */
 async function createMbtilesFile(
   { stac, tmpPaths }: { stac: VectorStacItem; tmpPaths: TmpPaths },
+  force: boolean,
   logger: LogType,
 ): Promise<void> {
   const options = stac.properties['linz_basemaps:options'];
@@ -180,34 +186,34 @@ async function createMbtilesFile(
   logger.info({ shortbreadLayer, dataset: layer.name }, 'CreateMbtilesFile: Start');
 
   /**
-   * Convert the source file into an ndjson
+   * Convert the source file into a flatgeobuf
    */
   logger.info({ source: tmpPaths.source.path, dataset: layer.name }, '[1/5] Convert source file to ndjson: Start');
-  if (!(await fsa.exists(tmpPaths.ndjson))) {
-    await ogr2ogrNDJson(tmpPaths.source.path, tmpPaths.ndjson, layer, logger);
+  if (!(await fsa.exists(tmpPaths.fgb))) {
+    await ogr2ogrfgb(tmpPaths.source.path, tmpPaths.fgb, logger);
   }
-  logger.info({ destination: tmpPaths.ndjson, dataset: layer.name }, '[1/5] Convert source file to ndjson: End');
+  logger.info({ destination: tmpPaths.fgb, dataset: layer.name }, '[1/5] Convert source file to ndjson: End');
 
   /**
    * Parse the ndjson file and apply the generalization options
    */
-  logger.info({ source: tmpPaths.ndjson, dataset: layer.name }, '[2/5] Generalise ndjson features: Start');
+  logger.info({ source: tmpPaths.fgb, dataset: layer.name }, '[2/5] Generalise ndjson features: Start');
   let metrics: Metrics | null = null;
-  if (!(await fsa.exists(tmpPaths.genNdjson))) {
-    metrics = await generalize(tmpPaths.ndjson, tmpPaths.genNdjson, tileMatrix, options, logger);
-    if (metrics.output === 0) throw new Error(`Failed to generalize ndjson file ${tmpPaths.ndjson.href}`);
+  if (force || !(await fsa.exists(tmpPaths.ndjson))) {
+    metrics = await generalize(tmpPaths.fgb, tmpPaths.ndjson, options, logger);
+    if (metrics.output === 0) throw new Error(`Failed to generalize ndjson file ${tmpPaths.fgb.href}`);
   }
-  logger.info({ destination: tmpPaths.genNdjson, dataset: layer.name }, '[2/5] Generalise ndjson features: End');
+  logger.info({ destination: tmpPaths.ndjson, dataset: layer.name }, '[2/5] Generalise ndjson features: End');
 
   /**
    * Transform the generalized ndjson file to an mbtiles file
    */
   logger.info(
-    { source: tmpPaths.genNdjson, dataset: layer.name },
+    { source: tmpPaths.ndjson, dataset: layer.name },
     '[3/5] Transform generalised ndjson into mbtiles: Start',
   );
-  if (!(await fsa.exists(tmpPaths.mbtiles))) {
-    await tippecanoe(tmpPaths.genNdjson, tmpPaths.mbtiles, layer, tileMatrix, logger);
+  if (force || !(await fsa.exists(tmpPaths.mbtiles))) {
+    await tippecanoe(tmpPaths.ndjson, tmpPaths.mbtiles, layer, logger);
   }
   logger.info(
     { destination: tmpPaths.mbtiles, dataset: layer.name },
