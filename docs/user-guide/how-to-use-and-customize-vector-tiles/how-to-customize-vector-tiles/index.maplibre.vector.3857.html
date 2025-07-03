@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #map {
+        height: 100vh;
+        width: 100vw;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="map"></div>
+    <script>
+      const map = new maplibregl.Map({
+        container: 'map',
+
+        style: {
+          version: 8,
+          sources: {
+            'LINZ Basemaps': {
+              attribution: '© 2022 Toitū Te Whenua - CC BY 4.0',
+              type: 'vector',
+              tiles: [
+                'https://basemaps.linz.govt.nz/v1/tiles/topographic-v2/WebMercatorQuad/{z}/{x}/{y}.pbf?api=c01jwykec5weqkbr50vc30xwzgs',
+              ],
+              tilejson: '3.0.0',
+              maxzoom: 15,
+            },
+          },
+          layers: [
+            {
+              id: 'background',
+              type: 'background',
+              paint: {
+                'background-color': '#87CEEB', // Sky blue for ocean
+              },
+            },
+            {
+              id: 'coastline',
+              paint: {
+                'fill-color': '#f5f5dc', // Beige for land
+              },
+              source: 'LINZ Basemaps',
+              'source-layer': 'boundaries',
+              type: 'fill',
+            },
+            {
+              id: 'roads',
+              type: 'line',
+              source: 'LINZ Basemaps',
+              'source-layer': 'streets',
+              filter: ['all', ['==', 'kind', 'motorway']],
+              paint: {
+                'line-color': '#e89218',
+                'line-width': {
+                  base: 1.4,
+                  stops: [
+                    [8, 2],
+                    [12, 4],
+                    [16, 8],
+                    [20, 16],
+                  ],
+                },
+              },
+            },
+          ],
+          center: [174.7633, -36.8485],
+          zoom: 10,
+        },
+      });
+    </script>
+  </body>
+</html>
