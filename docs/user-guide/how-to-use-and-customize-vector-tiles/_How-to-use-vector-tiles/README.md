@@ -43,12 +43,11 @@ MapLibre is the recommended library for web applications using vector tiles.
 
 ### Basic Implementation
 
-<iframe src="index.maplibre.vector.3857.html" height="500px" width="100%" scrolling="no"></iframe>
-
-
 ```html
 --8<-- "user-guide/how-to-use-and-customize-vector-tiles/_How-to-use-vector-tiles/index.maplibre.vector.3857.html"
 ```
+
+<iframe src="index.maplibre.vector.3857.html" height="500px" width="100%" scrolling="no"></iframe>
 
 ## ESRI Products
 
