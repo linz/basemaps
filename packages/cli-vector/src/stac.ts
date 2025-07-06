@@ -101,7 +101,10 @@ export class VectorStac {
       collection: CliId,
       stac_version: '1.0.0',
       stac_extensions: [],
-      geometry: null,
+      geometry: {
+        type: 'Polygon',
+        coordinates: tileMatrix.extent.toPolygon(),
+      },
       bbox: tileMatrix.extent.toBbox(),
       links: [
         { href: `./${filename}.json`, rel: 'self' },

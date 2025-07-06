@@ -3,7 +3,7 @@ import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, oneOf, option, string } from 'cmd-ts';
-import { StacCatalog, StacCollection, StacLink } from 'stac-ts';
+import { StacCatalog, StacCollection, StacItem, StacLink } from 'stac-ts';
 
 import { SchemaLoader } from '../schema-loader/schema.loader.js';
 import { VectorCreationOptions, VectorStac } from '../stac.js';
@@ -83,12 +83,17 @@ export const ExtractCommand = command({
         };
 
         // Create the STAC item for the layer
-        const stacItem = vectorStac.createStacItem([stacLink], layer.cache.fileName, tileMatrix, options);
+        const itemfileName = layer.cache.fileName.replace(/\.mbtiles$/, '');
+        const stacItem = vectorStac.createStacItem([stacLink], itemfileName, tileMatrix, options);
+        const ldsStacItem = await fsa.readJson<StacItem>(new URL(layer.source.replace(/\.gpkg$/, '.json')));
+        if (ldsStacItem != null) {
+          stacItem.bbox = ldsStacItem.bbox;
+          stacItem.geometry = ldsStacItem.geometry;
+        }
         await fsa.write(stacItemFile, JSON.stringify(stacItem, null, 2));
 
         // Create STAC collection
         const stacCollectionFile = new URL(layer.cache.path.href.replace(layer.cache.fileName, 'collection.json'));
-        const itemfileName = layer.cache.fileName.replace(/\.mbtiles$/, '');
         if (await fsa.exists(stacCollectionFile)) {
           const collection = await fsa.readJson<StacCollection>(stacCollectionFile);
 
