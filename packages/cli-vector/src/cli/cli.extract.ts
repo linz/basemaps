@@ -90,7 +90,10 @@ export const ExtractCommand = command({
         const stacCollectionFile = new URL(layer.cache.path.href.replace(layer.cache.fileName, 'collection.json'));
         if (await fsa.exists(stacCollectionFile)) {
           const collection = await fsa.readJson<StacCollection>(stacCollectionFile);
-          collection.links.push({ rel: 'item', href: `./${layer.cache.fileName.replace(/\.mbtiles$/, '.json')}` });
+          const itemPath = `./${layer.cache.fileName.replace(/\.mbtiles$/, '.json')}`;
+          if (collection.links.find((l) => l.href === itemPath) == null) {
+            collection.links.push({ rel: 'item', href: itemPath });
+          }
           await fsa.write(stacCollectionFile, JSON.stringify(collection, null, 2));
         } else {
           const title = `Mbtiles cache for ${layer.name}`;
