@@ -3,10 +3,10 @@ import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, oneOf, option, string } from 'cmd-ts';
+import { StacCatalog, StacCollection, StacLink } from 'stac-ts';
 
 import { SchemaLoader } from '../schema-loader/schema.loader.js';
 import { VectorCreationOptions, VectorStac } from '../stac.js';
-import { StacCatalog, StacCollection, StacLink } from 'stac-ts';
 
 function pathToURLFolder(path: string): URL {
   const url = fsa.toUrl(path);
