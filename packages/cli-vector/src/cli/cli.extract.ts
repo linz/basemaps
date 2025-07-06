@@ -6,6 +6,7 @@ import { command, oneOf, option, string } from 'cmd-ts';
 
 import { SchemaLoader } from '../schema-loader/schema.loader.js';
 import { VectorCreationOptions, VectorStac } from '../stac.js';
+import { StacCatalog, StacCollection, StacLink } from 'stac-ts';
 
 function pathToURLFolder(path: string): URL {
   const url = fsa.toUrl(path);
@@ -55,6 +56,7 @@ export const ExtractCommand = command({
     const schemas = await schemaLoader.load();
     const smallLayers = [];
     const largeLayers = [];
+    const collectionLinks: StacLink[] = [];
     let total = 0;
     const allFiles = [];
     const vectorStac = new VectorStac(logger);
@@ -71,7 +73,7 @@ export const ExtractCommand = command({
 
         // Create stac file for the cache mbtiles
         logger.info({ layer: schema.name, id: layer.id }, 'Extract: StacItem');
-        const stacFile = new URL(layer.cache.path.href.replace(/\.mbtiles$/, '.json'));
+        const stacItemFile = new URL(layer.cache.path.href.replace(/\.mbtiles$/, '.json'));
         const stacLink = await vectorStac.createStacLink(schema.name, layer);
         const options: VectorCreationOptions = {
           name: schema.name,
@@ -79,20 +81,58 @@ export const ExtractCommand = command({
           tileMatrix: tileMatrix.identifier,
           layer,
         };
+
+        // Create the STAC item for the layer
         const stacItem = vectorStac.createStacItem([stacLink], layer.cache.fileName, tileMatrix, options);
-        await fsa.write(stacFile, JSON.stringify(stacItem, null, 2));
+        await fsa.write(stacItemFile, JSON.stringify(stacItem, null, 2));
+
+        // Create STAC collection
+        const stacCollectionFile = new URL(layer.cache.path.href.replace(layer.cache.fileName, 'collection.json'));
+        if (await fsa.exists(stacCollectionFile)) {
+          const collection = await fsa.readJson<StacCollection>(stacCollectionFile);
+          collection.links.push({ rel: 'item', href: `./${layer.cache.fileName.replace(/\.mbtiles$/, '.json')}` });
+          await fsa.write(stacCollectionFile, JSON.stringify(collection, null, 2));
+        } else {
+          const title = `Mbtiles cache for ${layer.name}`;
+          const collection = vectorStac.createStacCollection(stacItem.bbox!, [], layer.cache.fileName, title);
+          await fsa.write(stacCollectionFile, JSON.stringify(collection, null, 2));
+        }
+
+        // Prepare Stac collection links for catalog
+        collectionLinks.push({
+          href: `./${layer.id}/collection.json`,
+          title: layer.name,
+          type: 'application/json',
+          rel: 'child',
+        });
 
         // Prepare task to process
         logger.info({ layer: schema.name, id: layer.id }, 'Extract: ToProcess');
 
         // Separate large layer as individual task
         if (layer.largeLayer) {
-          largeLayers.push({ path: stacFile.href });
+          largeLayers.push({ path: stacItemFile.href });
         } else {
-          smallLayers.push({ path: stacFile.href });
+          smallLayers.push({ path: stacItemFile.href });
         }
         total++;
       }
+    }
+
+    // Create STAC catalog
+    const stacCatalogFile = new URL(`${tileMatrix.projection.code}/catalog.json`, cache);
+    if (await fsa.exists(stacCatalogFile)) {
+      const catalog = await fsa.readJson<StacCatalog>(stacCatalogFile);
+      for (const link of collectionLinks) {
+        if (catalog.links.find((l) => l.href === link.href) == null) {
+          catalog.links.push(link);
+        }
+      }
+      await fsa.write(stacCatalogFile, JSON.stringify(catalog, null, 2));
+    } else {
+      const catalog = vectorStac.createStacCatalog();
+      catalog.links.push(...collectionLinks);
+      await fsa.write(stacCatalogFile, JSON.stringify(catalog, null, 2));
     }
 
     logger.info({ ToProcess: total }, 'CheckUpdate: Finish');
