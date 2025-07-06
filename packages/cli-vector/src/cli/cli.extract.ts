@@ -88,16 +88,17 @@ export const ExtractCommand = command({
 
         // Create STAC collection
         const stacCollectionFile = new URL(layer.cache.path.href.replace(layer.cache.fileName, 'collection.json'));
+        const itemfileName = layer.cache.fileName.replace(/\.mbtiles$/, '');
         if (await fsa.exists(stacCollectionFile)) {
           const collection = await fsa.readJson<StacCollection>(stacCollectionFile);
-          const itemPath = `./${layer.cache.fileName.replace(/\.mbtiles$/, '.json')}`;
-          if (collection.links.find((l) => l.href === itemPath) == null) {
-            collection.links.push({ rel: 'item', href: itemPath });
+
+          if (collection.links.find((l) => l.href === `./${itemfileName}.json`) == null) {
+            collection.links.push({ rel: 'item', href: `./${itemfileName}.json` });
           }
           await fsa.write(stacCollectionFile, JSON.stringify(collection, null, 2));
         } else {
           const title = `Mbtiles cache for ${layer.name}`;
-          const collection = vectorStac.createStacCollection(stacItem.bbox!, [], layer.cache.fileName, title);
+          const collection = vectorStac.createStacCollection(stacItem.bbox!, [], itemfileName, title);
           await fsa.write(stacCollectionFile, JSON.stringify(collection, null, 2));
         }
 
