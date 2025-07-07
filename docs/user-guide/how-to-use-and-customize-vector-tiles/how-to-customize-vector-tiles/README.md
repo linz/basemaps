@@ -1,6 +1,7 @@
 # How to customize vector tiles
 
-LINZ vector tile styles provided follow the Mapbox GL Style Specification. These JSON files define how vector tiles should be rendered, including colors, fonts, and feature visibility `https://basemaps.linz.govt.nz/v1/styles/topographic.json?api=YOUR_API_KEY`
+LINZ vector tiles can be styled using the [Mapbox GL Style Specification]. This JSON-based specification defines how vector tiles should be rendered, including colors, fonts, and feature visibility. You can view an example of a complete style specification at `https://basemaps.linz.govt.nz/v1/styles/topographic.json?api=YOUR_API_KEY`.
+[Mapbox GL Style Specification]: https://docs.mapbox.com/style-spec/guides/
 
 ## Understanding the Shortbread Schema
 
@@ -30,16 +31,13 @@ Maputnik is a free, open-source visual editor for creating and modifying map sty
 #### Getting Started with Maputnik
 
 1. **Access Maputnik**
-   - Online version: https://maplibre.org/maputnik/
-   - Or download for local use
+   - Online version: [https://maplibre.org/maputnik](https://maplibre.org/maputnik)
+   - Or download for local use [https://github.com/maplibre/maputnik?tab=readme-ov-file#usage](https://github.com/maplibre/maputnik?tab=readme-ov-file#usage)
 
 2. **Connect to LINZ Vector Tiles**
    - Click "Open" 
    - Load from URL: `https://basemaps.linz.govt.nz/v1/styles/topographic.json?api=YOUR_API_KEY`
-
-3. **Load or Create a Style**
-   - Start with an existing Shortbread-compatible style
-   - Or begin from scratch
+   - Open the Style settings and switch the Style Renderer from MapLibreGL JS to Open Layers (experimental)
 
 #### Example Tutorial: Customizing Contour Lines
 

@@ -3,11 +3,14 @@
 ## Accessing LINZ Vector Tiles
 
 ### API Endpoints
-LINZ vector tiles are available through:
+LINZ vector styles are available through:
 `https://basemaps.linz.govt.nz/v1/styles/{tileset_name}.json?api=YOUR_API_KEY`
 
-Individual tiles can be accessed through:
-`https://basemaps.linz.govt.nz/v1/tiles/{tileset_name}/{crs}/{z}/{x}/{y}.pbf?api=YOUR_API_KEY`
+LINZ vector tiles are available through as source of style json:
+`https://basemaps.linz.govt.nz/v1/tiles/{tileset_name}/WebMercatorQuad/tile.json?api=YOUR_API_KEY`
+
+For example:
+`https://basemaps.linz.govt.nz/v1/tiles/topographic-v2/WebMercatorQuad/tile.json?api=c01jz1s16qac4b6fwv9h77ezfez`
 
 ### Supported coordinate systems:
 
