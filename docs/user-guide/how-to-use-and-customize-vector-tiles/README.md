@@ -7,7 +7,7 @@ Vector tiles are a modern approach to delivering map data that offers significan
 - **Scalability**: Vector tiles scale infinitely without pixelation, making them perfect for high-resolution displays
 - **Customization**: Style your maps on-the-fly - change colors, fonts, and feature visibility
 - **Performance**: Smaller file sizes compared to raster tiles at equivalent quality
-- **Flexibility**: Rotate maps, switch between light/dark modes, and apply custom styles without server requests
+- **Flexibility**: Rotate maps and apply custom styles without server requests
 
 ## Which LINZ Basemaps Maps Use Vector Tiles?
 - [Topographic](https://basemaps.linz.govt.nz/?style=topographic-v2)
