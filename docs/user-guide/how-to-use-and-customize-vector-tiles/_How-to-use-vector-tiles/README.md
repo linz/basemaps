@@ -52,4 +52,4 @@ MapLibre is the recommended library for web applications using vector tiles.
 
 ## ESRI Products
 
-**Important Note**: ESRI products (ArcGIS Pro, ArcGIS Online) currently do not support the vector tile format used by LINZ Basemaps. For ESRI users, you'll need to use LINZ's raster tile services or WMS/WMTS endpoints instead.
+**Important Note**: ESRI products (ArcGIS Pro, ArcGIS Online) currently do not support the vector tile format used by LINZ Basemaps. For ESRI users, you'll need to use LINZ's raster tile services or XYZ/WMTS endpoints instead.
