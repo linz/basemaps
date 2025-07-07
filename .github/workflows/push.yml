@@ -73,9 +73,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
 
-      - name: Benchmark
-        uses: blacha/hyperfine-action@v1
-
   deploy-dev:
     runs-on: ubuntu-latest
     concurrency: deploy-dev-${{ github.ref }}
