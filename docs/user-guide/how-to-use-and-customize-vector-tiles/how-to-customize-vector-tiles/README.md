@@ -46,27 +46,17 @@ Let's walk through changing the color and thickness of contour lines:
 1. **Identify the Layer**
    - Click on a contour line on the map
    - Maputnik will show all layers at that location
+   ![Contours Layer](static/contours.webp)
 
 2. **Modify Paint Properties**
    - In the layer panel, find "Paint properties"
-   - Change `line-color`: Click the color swatch and select your desired color (e.g., #8B4513 for brown)
-   - Adjust `line-width`: Set the thickness (e.g., 1.5 for thicker lines)
-   - Set zoom-dependent styling:
-   ```json
-   "line-width": {
-     "stops": [
-       [10, 0.5],
-       [14, 1],
-       [18, 2]
-     ]
-   }
-   ```
+   - Change line color: Click the color swatch and select your desired color (e.g., #8B4513 for brown)
+   - Adjust line width : Set the thickness (e.g., 1.5 for thicker lines)
+   ![Modify Paint](static/modify-paint.webp)
 
 3. **Add Filters** (optional)
    - Show only major contours (e.g., every 100m):
-   ```json
-   "filter": ["all", ["==", "type", "index"]]
-   ```
+   ![Add Filter](static/add-filter.webp)
 
 4. **Export Your Style**
    - Click "Export" → "Download Style"
