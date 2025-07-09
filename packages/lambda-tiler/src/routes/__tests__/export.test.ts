@@ -39,7 +39,7 @@ describe('tileset.export', () => {
     assert.equal(res.headers.get('location'), 'https://fake-s3-url.com/tileset.mbtiles');
   });
 
-  it('should should fail if mbtiles do not exist', async (t) => {
+  it('should fail if mbtiles do not exist', async (t) => {
     t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
     t.mock.method(s3Config, 'getSignedUrl', () => Promise.resolve('https://fake-s3-url.com/tileset.mbtiles'));
 
