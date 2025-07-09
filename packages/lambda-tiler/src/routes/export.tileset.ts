@@ -14,12 +14,12 @@ export interface TileSetExportGet {
 }
 
 /**
- * Serve a tile
+ * Export an MBTiles file
  *
- * /v1/export/:tileSet/:tileMatrixSet.:tileType
+ * /v1/export/:tileSet/:tileMatrixSet
  *
  * @example
- *  Vector Tile `/v1/tiles/topographic/WebMercatorQuad.mbtiles`
+ *  Vector Tileset `/v1/export/topographic/WebMercatorQuad.mbtiles`
  *
  */
 export async function exportTileSetGet(req: LambdaHttpRequest<TileSetExportGet>): Promise<LambdaHttpResponse> {
