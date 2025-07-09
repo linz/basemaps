@@ -18,7 +18,6 @@ import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
 import { NotFound } from './util/response.js';
-import { Validate } from './util/validate.js';
 
 export const handler = lf.http(LogConfig.get());
 

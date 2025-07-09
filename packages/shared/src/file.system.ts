@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl, S3RequestPresigner } from '@aws-sdk/s3-request-presigner';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { sha256base58 } from '@basemaps/config';
 import { fsa, FsHttp } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
@@ -22,12 +22,33 @@ const s3Client = new S3Client({
   followRegionRedirects: true,
 });
 
+/** Exported for testing */
+export const s3Config = {
+  client: s3Client,
+  getSignedUrl,
+};
+
 export const s3Fs = new FsAwsS3(s3Client);
 
-export function presignUrl(target: URL): URL {
+// For public URLS use --no-sign-request
+export const s3FsPublic = new FsAwsS3(
+  new S3Client({
+    followRegionRedirects: true,
+    signer: {
+      sign: (req) => Promise.resolve(req),
+    } as RequestSigner,
+  }),
+);
+
+/**
+ * Sign a GET request to S3 for one hour
+ * @param target s3 location to presign
+ * @returns
+ */
+export async function signS3Get(target: URL): Promise<string> {
   if (target.protocol !== 's3:') throw new Error(`Presigning only works for S3 URLs, got ${target.href}`);
-  const command = new GetObjectCommandObjectCommand({ Bucket: target.host, Key: target.pathname.slice(1) });
-  return getSignedUrl(s3Client, command, { expiresIn: 3600 });
+  const command = new GetObjectCommand({ Bucket: target.host, Key: target.pathname.slice(1) });
+  return await s3Config.getSignedUrl(s3Client, command, { expiresIn: 3600 });
 }
 
 // For public URLS use --no-sign-request
