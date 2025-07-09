@@ -15,9 +15,9 @@ import { LogConfig } from './log.js';
 
 const s3Client = new S3Client({
   /**
-   * We buckets in multiple regions we do not know ahead of time which bucket is in what region
+   * We have buckets in multiple regions. We don’t know ahead of time which region each bucket is in
    *
-   * So the S3 Client will have to follow the endpoints, this adds a bit of extra latency as requests have to be retried
+   * So, the S3 Client will have to follow the endpoints. This adds a bit of extra latency as requests have to be retried
    */
   followRegionRedirects: true,
 });
