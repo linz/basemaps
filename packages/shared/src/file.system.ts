@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
-import { S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { getSignedUrl, S3RequestPresigner } from '@aws-sdk/s3-request-presigner';
 import { sha256base58 } from '@basemaps/config';
 import { fsa, FsHttp } from '@chunkd/fs';
 import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
@@ -12,27 +13,24 @@ import { Env } from './const.js';
 import { Fqdn } from './file.system.middleware.js';
 import { LogConfig } from './log.js';
 
-export const s3Fs = new FsAwsS3(
-  new S3Client({
-    /**
-     * We buckets in multiple regions we do not know ahead of time which bucket is in what region
-     *
-     * So the S3 Client will have to follow the endpoints, this adds a bit of extra latency as requests have to be retried
-     */
-    followRegionRedirects: true,
-  }),
-);
+const s3Client = new S3Client({
+  /**
+   * We buckets in multiple regions we do not know ahead of time which bucket is in what region
+   *
+   * So the S3 Client will have to follow the endpoints, this adds a bit of extra latency as requests have to be retried
+   */
+  followRegionRedirects: true,
+});
+
+export const s3Fs = new FsAwsS3(s3Client);
+
+export function presignUrl(target: URL): URL {
+  if (target.protocol !== 's3:') throw new Error(`Presigning only works for S3 URLs, got ${target.href}`);
+  const command = new GetObjectCommandObjectCommand({ Bucket: target.host, Key: target.pathname.slice(1) });
+  return getSignedUrl(s3Client, command, { expiresIn: 3600 });
+}
 
 // For public URLS use --no-sign-request
-export const s3FsPublic = new FsAwsS3(
-  new S3Client({
-    followRegionRedirects: true,
-    signer: {
-      sign: (req) => Promise.resolve(req),
-    } as RequestSigner,
-  }),
-);
-
 /** Ensure middleware are added to all s3 clients that are created */
 function applyS3MiddleWare(fs: FsAwsS3): void {
   if (fs.s3 == null) return;
