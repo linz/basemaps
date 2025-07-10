@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.470.0",
+    "@aws-sdk/s3-request-presigner": "^3.472.0",
     "@aws-sdk/client-s3": "^3.472.0",
     "@aws-sdk/util-dynamodb": "^3.470.0",
     "@basemaps/config": "^8.3.0",
