@@ -1,0 +1,47 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of previous release to rollback to'
+        required: true
+
+jobs:
+  Rollback:
+    runs-on: ubuntu-latest
+
+    environment:
+      name: nonprod
+      url: https://dev.basemaps.linz.govt.nz
+
+    permissions:
+      id-token: write
+      contents: write
+
+    steps:
+      - uses: linz/action-typescript@v3
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+           ref: ${{ github.event.inputs.tag }}
+           fetch-depth: 0
+
+      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
+
+      - name: (Dev) Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: ap-southeast-2
+          mask-aws-account-id: true
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+      - name: (Dev) Deploy
+        run: |
+          npx lerna run bundle --stream
+          npx lerna run deploy:deploy --stream
+        env:
+          BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
+          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
+          NODE_ENV: 'dev'
