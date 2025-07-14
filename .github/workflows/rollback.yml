@@ -6,6 +6,10 @@ on:
       tag:
         description: 'Tag of previous release to rollback to'
         required: true
+  
+  push:
+    branches:
+      - feat/rollback-workflow
 
 jobs:
   Rollback:
