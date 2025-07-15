@@ -116,7 +116,7 @@ For web developers, MapLibre provides programmatic control over styling.
 #### Basic Style Customization
 
 ```html
---8<-- "User-Guide/working-with-vector-tiles/styling/index.maplibre.vector.3857.html"
+--8<-- "user-guide/working-with-vector-tiles/styling/index.maplibre.vector.3857.html"
 ```
 
 <iframe src="index.maplibre.vector.3857.html" height="500px" width="100%" scrolling="no"></iframe>

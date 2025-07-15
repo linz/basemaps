@@ -38,6 +38,26 @@
       https://basemaps.linz.govt.nz/v1/tiles/topographic-v2/3857/10/1009/641.pbf?api=
       ```
 
+**MBTiles can be downloaded through:**
+
+=== "Pattern"
+
+      ```
+      https://basemaps.linz.govt.nz/v1/export/{tileset}/{crs}.mbtiles?api={api_key}
+      ```
+
+=== "Example (2193)"
+
+      ```
+      https://basemaps.linz.govt.nz/v1/export/topographic-v2/2193.mbtiles?api=
+      ```
+
+=== "Example (3857)"
+
+      ```
+      https://basemaps.linz.govt.nz/v1/export/topographic-v2/3857.mbtiles?api=
+      ```
+
 ### Supported coordinate systems:
 
 - 2193 (NZTM2000) - Best for New Zealand-specific applications
@@ -56,7 +76,7 @@ QGIS 3.14+ has native support for vector tiles, making it straightforward to add
    - Click "New Generic Connection"
    - Fill in:
      - Name: "LINZ Topographic"
-     - URL: `https://basemaps.linz.govt.nz/v1/styles/topographic-v2.json?api=YOUR_API_KEY`
+     - URL: `https://basemaps.linz.govt.nz/v1/styles/topographic-v2.json?api={api_key}`
 
 2. **Via Browser Panel**
 
@@ -75,7 +95,7 @@ MapLibre is the recommended library for web applications using vector tiles.
 ### Basic Implementation
 
 ```html
---8<-- "User-Guide/working-with-vector-tiles/usage/index.maplibre.vector.3857.html"
+--8<-- "user-guide/working-with-vector-tiles/usage/index.maplibre.vector.3857.html"
 ```
 
 <iframe src="index.maplibre.vector.3857.html" height="500px" width="100%" scrolling="no"></iframe>
