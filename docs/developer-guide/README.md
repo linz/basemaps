@@ -16,7 +16,8 @@ To start the container in a local dev mode which creates a server on [http://loc
 docker run --rm \
     -v $PWD:/docs \
     -p 8000:8000 \
-    squidfunk/mkdocs-material:9.4 serve -a 0.0.0.0:8000
+    ghcr.io/linz/basemaps-mkdocs:v1 serve \
+    -a 0.0.0.0:8000
 ```
 
 As it is run inside of a container the additional `-a` to allow external connections to access it.
