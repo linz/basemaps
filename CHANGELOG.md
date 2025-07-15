@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+
+### Features
+
+* **cli-vector:** Add stac collection and stac catalog for the extract command. BM-1307 ([#3472](https://github.com/linz/basemaps/issues/3472)) ([b357022](https://github.com/linz/basemaps/commit/b3570226f61ab035b5c6449dd0077cac5a6320db))
+* **lambda-tiler:** add export URL for mbtiles ([#3474](https://github.com/linz/basemaps/issues/3474)) ([e15c811](https://github.com/linz/basemaps/commit/e15c8117cf19d6021a0e7a275fccf72a5449c4b2))
+
+
+
+
+
 # [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
 
 

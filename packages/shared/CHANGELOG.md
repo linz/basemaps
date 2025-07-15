@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+
+### Features
+
+* **lambda-tiler:** add export URL for mbtiles ([#3474](https://github.com/linz/basemaps/issues/3474)) ([e15c811](https://github.com/linz/basemaps/commit/e15c8117cf19d6021a0e7a275fccf72a5449c4b2))
+
+
+
+
+
 # [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
 
 **Note:** Version bump only for package @basemaps/shared
