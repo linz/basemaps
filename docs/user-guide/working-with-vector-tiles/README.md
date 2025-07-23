@@ -22,7 +22,10 @@ Vector tiles are a modern approach to delivering map data that offers significan
 
 ## Which LINZ Basemaps' use Vector Tiles?
 
-We have three vector basemaps. All three use the same tileset, but have different styles that change the way they look:
+We have two sets of vector tiles, each defined by a different tile matrix: one in [NZTM2000Quad], and one in [WebMercatorQuad]. For each set, we have three vector basemaps based on the same underlying data, but styled differently using separate stylesheets:
+
+[NZTM2000Quad]: https://epsg.io/2193
+[WebMercatorQuad]: https://epsg.io/3857
 
 |        [Labels]        |        [Topolite]        |        [Topographic]        |
 | :--------------------: | :----------------------: | :-------------------------: |
