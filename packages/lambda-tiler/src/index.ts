@@ -3,6 +3,7 @@ import { LambdaHttpRequest, LambdaHttpResponse, lf } from '@linzjs/lambda';
 
 import { tileAttributionGet } from './routes/attribution.js';
 import { configImageryGet, configTileSetGet } from './routes/config.js';
+import { exportTileSetGet } from './routes/export.tileset.js';
 import { fontGet, fontList } from './routes/fonts.js';
 import { healthGet } from './routes/health.js';
 import { imageryGet } from './routes/imagery.js';
@@ -116,3 +117,5 @@ handler.router.get('/v1/attribution/:tileSet/:tileMatrix/summary.json', tileAttr
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 handler.router.get('/v1/tiles/:tileSet/WMTSCapabilities.xml', wmtsCapabilitiesGet);
 handler.router.get('/v1/tiles/WMTSCapabilities.xml', wmtsCapabilitiesGet);
+
+handler.router.get('/v1/export/:tileSet/:tileMatrix.:extension', exportTileSetGet);
