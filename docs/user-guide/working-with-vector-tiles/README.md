@@ -34,9 +34,9 @@ We have three vector basemaps. All three use the same tileset, but have differen
 
 We have three guides for working with vector tiles:
 
-- [How we **Create** our Vector Tiles][1]
-- [How to **Style** our Vector Tiles][2]
 - [How to **Use** our Vector Tiles][3]
+- [How to **Style** our Vector Tiles][2]
+- [How we **Create** our Vector Tiles][1]
 
 [1]: creation/README.md
 [2]: styling/README.md

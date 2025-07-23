@@ -16,7 +16,7 @@ The following sections provide details about the **inputs** required, **process*
 
 === "Extract"
 
-    Validates [`JSON` schema files][2], generates [`JSON` STAC items][3], and prepare processing tasks for the create command.
+    Validates [`JSON` schema files][2], generates `JSON` STAC items, and prepare processing tasks for the create command.
 
     **Input**
 
@@ -31,15 +31,15 @@ The following sections provide details about the **inputs** required, **process*
 
     **Output**
 
-    [`JSON` STAC items][3] listing layers to process, cache status, and STAC metadata
+    `JSON` STAC items listing layers to process, cache status, and STAC metadata
 
 === "Create"
 
-    Parses [`JSON` STAC items][3], downloads the vector datasets, transforms each dataset's features, and combines them into individual `MBTiles` files.
+    Parses `JSON` STAC items, downloads the vector datasets, transforms each dataset's features, and combines them into individual `MBTiles` files.
 
     **Input**
 
-      [`JSON` STAC items][3] describing individual datasets by layer
+      `JSON` STAC items describing individual datasets by layer
 
     **Process**
 
@@ -95,5 +95,4 @@ The following sections provide details about the **inputs** required, **process*
 <!-- external links -->
 
 [1]: https://github.com/mapbox/mbtiles-spec
-[2]: inputs-and-outputs/json-schema-file.md
-[3]: inputs-and-outputs/json-stac-item.md
+[2]: inputs/json-schema-file.md

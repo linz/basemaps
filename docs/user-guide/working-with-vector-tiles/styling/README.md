@@ -1,6 +1,11 @@
 # How to Style our Vector Tiles
 
-LINZ vector tiles can be styled using the [Mapbox GL Style Specification]. This JSON-based specification defines how vector tiles should be rendered, including colors, fonts, and feature visibility. You can view an example of a complete style specification at `https://basemaps.linz.govt.nz/v1/styles/topographic.json?api=YOUR_API_KEY`.
+LINZ vector tiles can be styled using the [Mapbox GL Style Specification]. This JSON-based specification defines how vector tiles should be rendered, including colors, fonts, and feature visibility. You can view an example of a complete style specification at:
+
+```
+https://basemaps.linz.govt.nz/v1/styles/topographic.json?api=YOUR_API_KEY
+```
+
 [Mapbox GL Style Specification]: https://docs.mapbox.com/style-spec/guides/
 
 ## Understanding the Shortbread Schema
@@ -15,6 +20,10 @@ The Shortbread vector tile schema is a lean, general-purpose schema designed for
 - **buildings**: Building footprints
 - **place_labels**: City, town, and place names
 - **pois**: Points of interest
+
+We publish the [Shortbread Vector Tile Schema] for each layer of our vector tiles. Most layers group features by `kind`. For each group, we describe the attributes, properties, and the zoom levels at which those features appear.
+
+[Shortbread Vector Tile Schema]: ../schema/addresses.md
 
 ## LINZ-Specific Considerations
 
@@ -34,12 +43,18 @@ Maputnik is a free, open-source visual editor for creating and modifying map sty
 
 1. **Access Maputnik**
 
-   - Online version: [https://maplibre.org/maputnik](https://maplibre.org/maputnik)
-   - Or download for local use [https://github.com/maplibre/maputnik?tab=readme-ov-file#usage](https://github.com/maplibre/maputnik?tab=readme-ov-file#usage)
+   - [Online version](https://maplibre.org/maputnik), or
+   - [Download for local use](https://github.com/maplibre/maputnik?tab=readme-ov-file#usage)
 
 2. **Connect to LINZ Vector Tiles**
+
    - Click "Open"
-   - Load from URL: `https://basemaps.linz.govt.nz/v1/styles/topographic.json?api=YOUR_API_KEY`
+   - Load from URL:
+
+     ```
+     https://basemaps.linz.govt.nz/v1/styles/topographic.json?api=YOUR_API_KEY
+     ```
+
    - Open the Style settings and switch the Style Renderer from MapLibreGL JS to Open Layers (experimental)
 
 #### Example Tutorial: Customizing Contour Lines

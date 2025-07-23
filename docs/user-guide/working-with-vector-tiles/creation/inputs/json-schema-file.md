@@ -1,6 +1,6 @@
 # `JSON` Schema File
 
-This document provides the template and an example of a `JSON` Schema file as required by the **Extract** step of our **Vector Tile Pipeline**.
+This document provides a template and example of a `JSON` Schema file as required by the **Extract** step of our **Vector Tile Pipeline**.
 
 === "Template"
 
