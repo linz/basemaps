@@ -1,23 +1,18 @@
 # street_polygons
 
-
-_No description._
-
+This layer contains street-adjacent features represented as `Polygon` geometries.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-street_polygons) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -46,7 +41,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -66,9 +60,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### aerodrome
 
@@ -77,7 +69,6 @@ _No description._
 `["all", ["==", "kind", "aerodrome"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -101,7 +92,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -121,7 +111,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### runway
 
 #### Filter
@@ -129,7 +118,6 @@ _No description._
 `["all", ["==", "kind", "runway"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -153,7 +141,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -172,5 +159,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-

@@ -1,23 +1,18 @@
 # street_labels
 
-
-_No description._
-
+This layer contains street label features represented as `LineString` geometries. Most features include a `name` property.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-street_labels) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -46,7 +41,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -66,9 +60,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### motorway
 
@@ -77,7 +69,6 @@ _No description._
 `["all", ["==", "kind", "motorway"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -106,7 +97,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -126,7 +116,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### primary
 
 #### Filter
@@ -134,7 +123,6 @@ _No description._
 `["all", ["==", "kind", "primary"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -158,7 +146,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -178,7 +165,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### secondary
 
 #### Filter
@@ -186,7 +172,6 @@ _No description._
 `["all", ["==", "kind", "secondary"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -210,7 +195,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -229,5 +213,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-

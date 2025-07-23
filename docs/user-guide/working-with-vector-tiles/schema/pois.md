@@ -1,23 +1,18 @@
 # pois
 
-This layer contains features with `Point` geometries.
-
-
+This layer contains point of interest features with `Point` geometries.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-pois) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -166,7 +161,6 @@ This layer contains features with `Point` geometries.
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -186,10 +180,6 @@ This layer contains features with `Point` geometries.
     </tbody>
 </table>
 
-
 ## kinds
 
-
-
 _This layer has no kinds._
-

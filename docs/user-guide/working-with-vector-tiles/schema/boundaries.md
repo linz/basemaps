@@ -2,22 +2,17 @@
 
 This layer contains coastline features represented as `Polygon` geometries, indicating land-sea boundaries. Most features include a `name` property.
 
-
-
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-boundaries) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -35,7 +30,6 @@ This layer contains coastline features represented as `Polygon` geometries, indi
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -56,10 +50,6 @@ This layer contains coastline features represented as `Polygon` geometries, indi
     </tbody>
 </table>
 
-
 ## kinds
 
-
-
 _This layer has no kinds._
-

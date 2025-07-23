@@ -1,23 +1,18 @@
 # land
 
-This layer contains various land-related features represented as `LineString` and `Polygon` geometries. `Polygon` features represent areas, such as forests or mangroves, while `LineString` features delineate vectors such as cliffs or embankments.
-
-
+This layer contains land-related features represented as `LineString` and `Polygon` geometries. `Polygon` features represent areas, such as forests or mangroves, while `LineString` features delineate vectors such as cliffs or embankments.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-land) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -86,7 +81,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -106,9 +100,7 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### bare_rock
 
@@ -117,7 +109,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "bare_rock"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -141,7 +132,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -161,7 +151,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### boatramp
 
 #### Filter
@@ -169,7 +158,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "boatramp"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -193,7 +181,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -213,7 +200,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### cemetery
 
 #### Filter
@@ -221,7 +207,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "cemetery"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -245,7 +230,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -265,7 +249,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### cliff
 
 #### Filter
@@ -273,7 +256,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "cliff"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -292,7 +274,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -312,7 +293,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### cutting
 
 #### Filter
@@ -320,7 +300,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "cutting"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -339,7 +318,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -359,7 +337,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### dredge_tailing
 
 #### Filter
@@ -367,7 +344,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "dredge_tailing"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -386,7 +362,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -406,7 +381,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### dry_dock
 
 #### Filter
@@ -414,7 +388,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "dry_dock"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -432,7 +405,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -453,7 +425,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### embankment
 
 #### Filter
@@ -461,7 +432,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "embankment"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -490,7 +460,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -510,7 +479,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### fence
 
 #### Filter
@@ -518,7 +486,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "fence"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -536,7 +503,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -557,7 +523,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### forest
 
 #### Filter
@@ -565,7 +530,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "forest"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -599,7 +563,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -619,7 +582,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### golf_course
 
 #### Filter
@@ -627,7 +589,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "golf_course"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -651,7 +612,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -671,7 +631,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### ice
 
 #### Filter
@@ -679,7 +638,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "ice"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -697,7 +655,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -718,7 +675,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### ladder
 
 #### Filter
@@ -726,7 +682,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "ladder"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -744,7 +699,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -765,7 +719,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### landfill
 
 #### Filter
@@ -773,7 +726,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "landfill"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -797,7 +749,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -817,7 +768,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### mangrove
 
 #### Filter
@@ -825,7 +775,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "mangrove"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -844,7 +793,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -864,7 +812,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### mine
 
 #### Filter
@@ -872,7 +819,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "mine"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -911,7 +857,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -931,7 +876,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### moraine
 
 #### Filter
@@ -939,7 +883,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "moraine"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -958,7 +901,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -978,7 +920,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### moraine_wall
 
 #### Filter
@@ -986,7 +927,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "moraine_wall"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1005,7 +945,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1025,7 +964,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### mud
 
 #### Filter
@@ -1033,7 +971,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "mud"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1051,7 +988,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -1072,7 +1008,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### orchard
 
 #### Filter
@@ -1080,7 +1015,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "orchard"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1098,7 +1032,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -1119,7 +1052,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### pipeline
 
 #### Filter
@@ -1127,7 +1059,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "pipeline"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1151,7 +1082,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1171,7 +1101,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### pond
 
 #### Filter
@@ -1179,7 +1108,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "pond"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1203,7 +1131,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1223,7 +1150,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### powerline
 
 #### Filter
@@ -1231,7 +1157,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "powerline"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1255,7 +1180,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1275,7 +1199,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### quarry
 
 #### Filter
@@ -1283,7 +1206,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "quarry"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1317,7 +1239,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1337,7 +1258,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### residential
 
 #### Filter
@@ -1345,7 +1265,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "residential"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1369,7 +1288,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1389,7 +1307,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### sand
 
 #### Filter
@@ -1397,7 +1314,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "sand"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1415,7 +1331,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -1436,7 +1351,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### scree
 
 #### Filter
@@ -1444,7 +1358,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "scree"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1462,7 +1375,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -1483,7 +1395,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### scrub
 
 #### Filter
@@ -1491,7 +1402,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "scrub"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1515,7 +1425,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1535,7 +1444,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### shingle
 
 #### Filter
@@ -1543,7 +1451,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "shingle"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1562,7 +1469,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1582,7 +1488,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### siphon
 
 #### Filter
@@ -1590,7 +1495,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "siphon"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1609,7 +1513,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1629,7 +1532,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### slip
 
 #### Filter
@@ -1637,7 +1539,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "slip"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1656,7 +1557,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1676,7 +1576,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### slipway
 
 #### Filter
@@ -1684,7 +1583,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "slipway"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1703,7 +1601,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1723,7 +1620,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### swamp
 
 #### Filter
@@ -1731,7 +1627,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "swamp"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1755,7 +1650,6 @@ This layer contains various land-related features represented as `LineString` an
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -1775,7 +1669,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### telephone
 
 #### Filter
@@ -1783,7 +1676,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "telephone"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1801,7 +1693,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -1822,7 +1713,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### tree_row
 
 #### Filter
@@ -1830,7 +1720,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "tree_row"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1848,7 +1737,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -1869,7 +1757,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### vineyard
 
 #### Filter
@@ -1877,7 +1764,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "vineyard"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1895,7 +1781,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -1916,7 +1801,6 @@ This layer contains various land-related features represented as `LineString` an
     </tbody>
 </table>
 
-
 ### walkwire
 
 #### Filter
@@ -1924,7 +1808,6 @@ This layer contains various land-related features represented as `LineString` an
 `["all", ["==", "kind", "walkwire"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -1942,7 +1825,6 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -1962,5 +1844,3 @@ This layer contains various land-related features represented as `LineString` an
     </tr>
     </tbody>
 </table>
-
-

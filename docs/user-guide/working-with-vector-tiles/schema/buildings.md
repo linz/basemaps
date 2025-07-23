@@ -1,23 +1,18 @@
 # buildings
 
-
-_No description._
-
+This layer contains building features represented as `Polygon` geometries.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-buildings) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -56,7 +51,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -76,9 +70,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### building
 
@@ -87,7 +79,6 @@ _No description._
 `["all", ["==", "kind", "building"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -116,7 +107,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -135,5 +125,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-

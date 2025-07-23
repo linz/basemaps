@@ -1,23 +1,18 @@
 # streets
 
-
-_No description._
-
+This layer contains road network features represented as `LineString` geometries. Most features include a `name` property.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-streets) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -106,7 +101,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -126,9 +120,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### motorway
 
@@ -137,7 +129,6 @@ _No description._
 `["all", ["==", "kind", "motorway"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -181,7 +172,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -201,7 +191,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### primary
 
 #### Filter
@@ -209,7 +198,6 @@ _No description._
 `["all", ["==", "kind", "primary"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -248,7 +236,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -268,7 +255,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### raceway
 
 #### Filter
@@ -276,7 +262,6 @@ _No description._
 `["all", ["==", "kind", "raceway"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -310,7 +295,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -330,7 +314,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### rail
 
 #### Filter
@@ -338,7 +321,6 @@ _No description._
 `["all", ["==", "kind", "rail"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -377,7 +359,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -397,7 +378,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### secondary
 
 #### Filter
@@ -405,7 +385,6 @@ _No description._
 `["all", ["==", "kind", "secondary"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -464,7 +443,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -484,7 +462,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### track
 
 #### Filter
@@ -492,7 +469,6 @@ _No description._
 `["all", ["==", "kind", "track"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -536,7 +512,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -555,5 +530,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-

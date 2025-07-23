@@ -1,23 +1,18 @@
 # aerialways
 
-This layer holds aerialways as `LineString` geometries.
-
-
+This layer contains aerialway features represented as `LineString` geometries.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-aerialways) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -41,7 +36,6 @@ This layer holds aerialways as `LineString` geometries.
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -61,9 +55,7 @@ This layer holds aerialways as `LineString` geometries.
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### cable_car
 
@@ -72,7 +64,6 @@ This layer holds aerialways as `LineString` geometries.
 `["all", ["==", "kind", "cable_car"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -96,7 +87,6 @@ This layer holds aerialways as `LineString` geometries.
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -116,7 +106,6 @@ This layer holds aerialways as `LineString` geometries.
     </tbody>
 </table>
 
-
 ### ski_lift
 
 #### Filter
@@ -124,7 +113,6 @@ This layer holds aerialways as `LineString` geometries.
 `["all", ["==", "kind", "ski_lift"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -143,7 +131,6 @@ This layer holds aerialways as `LineString` geometries.
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -163,7 +150,6 @@ This layer holds aerialways as `LineString` geometries.
     </tbody>
 </table>
 
-
 ### ski_tow
 
 #### Filter
@@ -171,7 +157,6 @@ This layer holds aerialways as `LineString` geometries.
 `["all", ["==", "kind", "ski_tow"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -190,7 +175,6 @@ This layer holds aerialways as `LineString` geometries.
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -209,5 +193,3 @@ This layer holds aerialways as `LineString` geometries.
     </tr>
     </tbody>
 </table>
-
-

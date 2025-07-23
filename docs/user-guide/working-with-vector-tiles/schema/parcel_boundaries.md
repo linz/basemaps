@@ -1,23 +1,18 @@
 # parcel_boundaries
 
+This layer contains parcel features represented as `Polygon` geometries. All features include a `parcel_intent` property.
 
-_No description._
+!!! example "Custom"
 
-
-!!! Default
-
-    This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-parcel_boundaries) layer.
-
+    This is a custom Shortbread layer.
 
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -35,7 +30,6 @@ _No description._
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -56,10 +50,6 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
 
-
-
 _This layer has no kinds._
-

@@ -1,23 +1,18 @@
 # public_transport
 
-
-_No description._
-
+This layer contains aerodrome, helipad, and rail station features represented as `Point` geometries. Most aerodrome and rail station features include a `name` property.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-public_transport) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -41,7 +36,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -61,9 +55,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### aerodrome
 
@@ -72,7 +64,6 @@ _No description._
 `["all", ["==", "kind", "aerodrome"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -96,7 +87,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -116,7 +106,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### helipad
 
 #### Filter
@@ -124,7 +113,6 @@ _No description._
 `["all", ["==", "kind", "helipad"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -142,7 +130,6 @@ _No description._
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -163,7 +150,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### station
 
 #### Filter
@@ -171,7 +157,6 @@ _No description._
 `["all", ["==", "kind", "station"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -195,7 +180,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -214,5 +198,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-

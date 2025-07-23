@@ -1,23 +1,18 @@
 # sites
 
-
-_No description._
-
+This layer contains site features represented as `Polygon` geometries. Such sites include rifle ranges, showgrounds, and sports fields.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-sites) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -56,7 +51,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -76,9 +70,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### fish_farm
 
@@ -87,7 +79,6 @@ _No description._
 `["all", ["==", "kind", "fish_farm"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -111,7 +102,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -131,7 +121,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### gravel_pit
 
 #### Filter
@@ -139,7 +128,6 @@ _No description._
 `["all", ["==", "kind", "gravel_pit"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -158,7 +146,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -178,7 +165,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### pumice_pit
 
 #### Filter
@@ -186,7 +172,6 @@ _No description._
 `["all", ["==", "kind", "pumice_pit"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -205,7 +190,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -225,7 +209,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### raceway
 
 #### Filter
@@ -233,7 +216,6 @@ _No description._
 `["all", ["==", "kind", "raceway"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -267,7 +249,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -287,7 +268,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### rifle_range
 
 #### Filter
@@ -295,7 +275,6 @@ _No description._
 `["all", ["==", "kind", "rifle_range"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -314,7 +293,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -334,7 +312,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### showground
 
 #### Filter
@@ -342,7 +319,6 @@ _No description._
 `["all", ["==", "kind", "showground"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -361,7 +337,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -381,7 +356,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### sports_field
 
 #### Filter
@@ -389,7 +363,6 @@ _No description._
 `["all", ["==", "kind", "sports_field"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -413,7 +386,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -432,5 +404,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-

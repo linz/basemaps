@@ -1,23 +1,18 @@
 # ferries
 
-
-_No description._
-
+This layer contains ferry route features represented as `LineString` geometries.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-ferries) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -35,7 +30,6 @@ _No description._
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -56,9 +50,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### ferry
 
@@ -68,7 +60,6 @@ _No description._
 
 #### Attributes
 
-
 <table>
   <thead>
     <tr>
@@ -85,7 +76,6 @@ _No description._
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -105,5 +95,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-

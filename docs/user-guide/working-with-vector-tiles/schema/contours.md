@@ -1,23 +1,18 @@
 # contours
 
-This layer contains contour line interval features represented as `LineString` geometries, and height peak features represents as `Point` geometries.
-
+This layer contains contour line features represented as `LineString` geometries, and height peak features represents as `Point` geometries.
 
 !!! example "Custom"
 
     This is a custom Shortbread layer.
 
-
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -61,7 +56,6 @@ This layer contains contour line interval features represented as `LineString` g
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -81,9 +75,7 @@ This layer contains contour line interval features represented as `LineString` g
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### contours
 
@@ -92,7 +84,6 @@ This layer contains contour line interval features represented as `LineString` g
 `["all", ["==", "kind", "contours"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -131,7 +122,6 @@ This layer contains contour line interval features represented as `LineString` g
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -151,7 +141,6 @@ This layer contains contour line interval features represented as `LineString` g
     </tbody>
 </table>
 
-
 ### peak
 
 #### Filter
@@ -159,7 +148,6 @@ This layer contains contour line interval features represented as `LineString` g
 `["all", ["==", "kind", "peak"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -188,7 +176,6 @@ This layer contains contour line interval features represented as `LineString` g
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -207,5 +194,3 @@ This layer contains contour line interval features represented as `LineString` g
     </tr>
     </tbody>
 </table>
-
-

@@ -1,23 +1,18 @@
 # dam_lines
 
-
-_No description._
-
+This layer contains dam features represented as `LineString` geometries. Most features include a `name` property.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-dam_lines) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -46,7 +41,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -66,9 +60,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### dam
 
@@ -78,7 +70,6 @@ _No description._
 
 #### Attributes
 
-
 <table>
   <thead>
     <tr>
@@ -106,7 +97,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -125,5 +115,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-

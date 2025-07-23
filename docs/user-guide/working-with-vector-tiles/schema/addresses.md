@@ -2,22 +2,17 @@
 
 This layer contains address features represented as `Point` geometries. Each feature includes a `housenumber` property.
 
-
-
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-addresses) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -35,7 +30,6 @@ This layer contains address features represented as `Point` geometries. Each fea
     </tr>
   </tbody>
 </table>
-
 
 #### Properties
 
@@ -56,10 +50,6 @@ This layer contains address features represented as `Point` geometries. Each fea
     </tbody>
 </table>
 
-
 ## kinds
 
-
-
 _This layer has no kinds._
-

@@ -1,23 +1,18 @@
 # water_polygons
 
-
-_No description._
-
+This layer contains water-related features represented as `Polygon` geometries. Such features include reefs, reservoirs, and shoals.
 
 !!! Default
 
     This is a default [Shortbread](https://shortbread-tiles.org/schema/1.0/#layer-water_polygons) layer.
 
-
 ## all
-
 
 #### Filter
 
 `["all"]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -61,7 +56,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -81,9 +75,7 @@ _No description._
     </tbody>
 </table>
 
-
 ## kinds
-
 
 ### marine_farm
 
@@ -92,7 +84,6 @@ _No description._
 `["all", ["==", "kind", "marine_farm"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -116,7 +107,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -136,7 +126,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### reef
 
 #### Filter
@@ -144,7 +133,6 @@ _No description._
 `["all", ["==", "kind", "reef"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -168,7 +156,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -188,7 +175,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### reservoir
 
 #### Filter
@@ -196,7 +182,6 @@ _No description._
 `["all", ["==", "kind", "reservoir"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -220,7 +205,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -240,7 +224,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### river
 
 #### Filter
@@ -248,7 +231,6 @@ _No description._
 `["all", ["==", "kind", "river"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -272,7 +254,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -292,7 +273,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### shoal
 
 #### Filter
@@ -300,7 +280,6 @@ _No description._
 `["all", ["==", "kind", "shoal"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -324,7 +303,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -344,7 +322,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### stream
 
 #### Filter
@@ -352,7 +329,6 @@ _No description._
 `["all", ["==", "kind", "stream"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -376,7 +352,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -396,7 +371,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### water
 
 #### Filter
@@ -404,7 +378,6 @@ _No description._
 `["all", ["==", "kind", "water"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -433,7 +406,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -453,7 +425,6 @@ _No description._
     </tbody>
 </table>
 
-
 ### waterfall
 
 #### Filter
@@ -461,7 +432,6 @@ _No description._
 `["all", ["==", "kind", "waterfall"]]`
 
 #### Attributes
-
 
 <table>
   <thead>
@@ -490,7 +460,6 @@ _No description._
   </tbody>
 </table>
 
-
 #### Properties
 
 <table>
@@ -509,5 +478,3 @@ _No description._
     </tr>
     </tbody>
 </table>
-
-
