@@ -8,9 +8,9 @@ import { Point } from '../bounds.js';
 import { Epsg } from '../epsg.js';
 import { QuadKey } from '../quad.key.js';
 import { TileMatrixSet } from '../tile.matrix.set.js';
-import { GoogleTms } from '../tms/google.js';
+import { GoogleTms } from '../tms/global/google.js';
 import { TileMatrixSets } from '../tms/index.js';
-import { Nztm2000QuadTms, Nztm2000Tms } from '../tms/nztm2000.js';
+import { Nztm2000QuadTms, Nztm2000Tms } from '../tms/new-zealand/nztm2000.js';
 
 const TileSize = 256;
 
