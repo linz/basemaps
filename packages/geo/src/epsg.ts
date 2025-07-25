@@ -41,6 +41,7 @@ export enum EpsgCode {
 }
 
 const EPSGTextMap: Record<string, EpsgCode> = {
+  // Global
   google: EpsgCode.Google,
   epsg3857: EpsgCode.Google,
   [EpsgCode.Google]: EpsgCode.Google,
@@ -50,6 +51,10 @@ const EPSGTextMap: Record<string, EpsgCode> = {
   epsg4326: EpsgCode.Wgs84,
   [EpsgCode.Wgs84]: EpsgCode.Wgs84,
 
+  // Antarctic
+  [EpsgCode.Mslc2000]: EpsgCode.Mslc2000,
+
+  // New Zealand
   nztm: EpsgCode.Nztm2000,
   epsg2193: EpsgCode.Nztm2000,
   [EpsgCode.Nztm2000]: EpsgCode.Nztm2000,
@@ -59,6 +64,17 @@ const EPSGTextMap: Record<string, EpsgCode> = {
   epsg3793: EpsgCode.Citm2000,
   [EpsgCode.Citm2000]: EpsgCode.Citm2000,
   citm2000: EpsgCode.Citm2000,
+
+  // New Zealand Offshore Islands
+  [EpsgCode.Aktm2000]: EpsgCode.Aktm2000,
+  [EpsgCode.Catm2000]: EpsgCode.Catm2000,
+  [EpsgCode.Aitm2000]: EpsgCode.Aitm2000,
+  [EpsgCode.Ritm2000]: EpsgCode.Ritm2000,
+
+  // Pacific Islands
+  [EpsgCode.Utm2s]: EpsgCode.Utm2s,
+  [EpsgCode.Utm3s]: EpsgCode.Utm3s,
+  [EpsgCode.Utm4s]: EpsgCode.Utm4s,
 };
 
 export class Epsg {
@@ -66,8 +82,16 @@ export class Epsg {
 
   static Google = new Epsg(EpsgCode.Google);
   static Wgs84 = new Epsg(EpsgCode.Wgs84);
+  static Mslc2000 = new Epsg(EpsgCode.Mslc2000);
   static Nztm2000 = new Epsg(EpsgCode.Nztm2000);
   static Citm2000 = new Epsg(EpsgCode.Citm2000);
+  static Aktm2000 = new Epsg(EpsgCode.Aktm2000);
+  static Catm2000 = new Epsg(EpsgCode.Catm2000);
+  static Aitm2000 = new Epsg(EpsgCode.Aitm2000);
+  static Ritm2000 = new Epsg(EpsgCode.Ritm2000);
+  static Utm2s = new Epsg(EpsgCode.Utm2s);
+  static Utm3s = new Epsg(EpsgCode.Utm3s);
+  static Utm4s = new Epsg(EpsgCode.Utm4s);
 
   code: EpsgCode;
   constructor(code: EpsgCode) {
