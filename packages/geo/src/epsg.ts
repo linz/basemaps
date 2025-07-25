@@ -1,12 +1,43 @@
 /** EPSG codes for commonly used projections */
 export enum EpsgCode {
-  /** Pseudo WebMercator */
+  // Global
+
+  /** Pseudo-Mercator */
   Google = 3857,
+  /** World Geodetic System 1984 */
   Wgs84 = 4326,
-  /** New Zealand transverse mercator */
+
+  // Antarctic
+
+  /** McMurdo Sound Lambert Conformal */
+  Mslc2000 = 5479,
+
+  // New Zealand
+
+  /** New Zealand Transverse Mercator */
   Nztm2000 = 2193,
-  /** Chatham Islands transverse mercator */
+  /** Chatham Islands Transverse Mercator */
   Citm2000 = 3793,
+
+  // New Zealand Offshore Islands
+
+  /** Auckland Islands Transverse Mercator */
+  Aktm2000 = 3788,
+  /** Campbell Island Transverse Mercator */
+  Catm2000 = 3789,
+  /** Antipodes Islands Transverse Mercator */
+  Aitm2000 = 3790,
+  /** Raoul Island Transverse Mercator */
+  Ritm2000 = 3791,
+
+  // Pacific Islands
+
+  /** Universal Transverse Mercator Zone 2s */
+  Utm2s = 32702,
+  /** Universal Transverse Mercator Zone 3s */
+  Utm3s = 32703,
+  /** Universal Transverse Mercator Zone 4s */
+  Utm4s = 32704,
 }
 
 const EPSGTextMap: Record<string, EpsgCode> = {

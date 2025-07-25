@@ -2,7 +2,7 @@ import { Feature, FeatureCollection } from 'geojson';
 
 import { Projection } from './proj/projection.js';
 import { TileMatrixSet } from './tile.matrix.set.js';
-import { GoogleTms } from './tms/google.js';
+import { GoogleTms } from './tms/global/google.js';
 
 function isGoogle(tms: TileMatrixSet): boolean {
   return tms.identifier === GoogleTms.identifier;

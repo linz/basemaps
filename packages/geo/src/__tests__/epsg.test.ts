@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { Epsg, EpsgCode } from '../epsg.js';
-import { Nztm2000Tms } from '../tms/nztm2000.js';
+import { Nztm2000Tms } from '../tms/new-zealand/nztm2000.js';
 
 describe('Epsg', () => {
   it('should error on invalid epsg', () => {
