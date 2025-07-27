@@ -5,7 +5,7 @@ import { Epsg, EpsgCode } from './epsg.js';
  * - [EPSG:3793](https://www.opengis.net/def/crs/EPSG/0/3793) (CITM) is defined in [y, x]
  * specified by the coordinate system [cs:4500](https://www.opengis.net/def/cs/EPSG/0/4500)
  */
-const yxOrderedCodes = [
+const yxOrderedCodes = new Set([
   // antarctic
   EpsgCode.Mslc2000,
   // new zealand
@@ -16,7 +16,7 @@ const yxOrderedCodes = [
   EpsgCode.Catm2000,
   EpsgCode.Aitm2000,
   EpsgCode.Ritm2000,
-];
+]);
 
 /**
  * Order of X & Y coordinates when defined as a array
@@ -32,7 +32,7 @@ export type XyOrder = 'xy' | 'yx';
 export function getXyOrder(epsg: Epsg | EpsgCode): XyOrder {
   const code = typeof epsg === 'number' ? epsg : epsg.code;
 
-  if (yxOrderedCodes.includes(code)) return 'yx';
+  if (yxOrderedCodes.has(code)) return 'yx';
 
   // TODO there are other projections that are YX,
   // TileMatrixSet v2 specification includes Xy ordering, https://docs.ogc.org/is/17-083r4/21-066r1.html#_adding_optional_orderedaxes_to_highlight_crs_axis_ordering
