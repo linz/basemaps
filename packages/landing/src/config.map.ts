@@ -424,13 +424,13 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
       id: 'hillshade',
       title: 'Hillshade Standard DEM',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
-      category: 'Basemaps - Hillshade',
+      category: 'Elevation',
     },
     {
       id: 'hillshade-dsm',
       title: 'Hillshade Standard DSM',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
-      category: 'Basemaps - Hillshade',
+      category: 'Elevation',
     },
     {
       id: 'elevation',
