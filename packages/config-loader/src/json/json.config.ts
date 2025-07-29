@@ -23,7 +23,7 @@ import { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
 import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
-import { initImageryFromTiffUrl } from './tiff.config.js';
+import { ConfigImageryTiff, initImageryFromTiffUrl } from './tiff.config.js';
 
 export function matchUri(a: string, b: string): boolean {
   const UrlA = new URL(a.endsWith('/') ? a : a + '/');
@@ -267,13 +267,18 @@ export class ConfigJson {
     return existing;
   }
 
+  /** Exposed for testing */
+  initImageryFromTiffUrl(url: URL): Promise<ConfigImageryTiff> {
+    return initImageryFromTiffUrl(url, this.Q, this.imageryConfigCache, this.logger);
+  }
+
   async _loadImagery(url: URL, name: string, title: string): Promise<ConfigImagery> {
     // TODO is there a better way of guessing the imagery id & tile matrix?
     const imageId = guessIdFromUri(url.href) ?? sha256base58(url.href);
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
     this.logger.trace({ url: url.href, imageId: id }, 'Imagery:Fetch');
 
-    const img = await initImageryFromTiffUrl(url, this.Q, this.imageryConfigCache, this.logger);
+    const img = await this.initImageryFromTiffUrl(url);
     img.id = id; // TODO could we use img.collection.id for this?
 
     // TODO should we be overwriting the name and title when it is loaded from the STAC metadata?

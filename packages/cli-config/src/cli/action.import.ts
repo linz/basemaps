@@ -90,6 +90,35 @@ export const ImportCommand = command({
     const mem = ConfigProviderMemory.fromJson(configJson);
     mem.createVirtualTileSets();
 
+    const promises: Promise<boolean>[] = [];
+    /** List of paths to invalidate at the end of the request */
+    const invalidations: string[] = [];
+
+    /** List of changed config */
+    const changes: BaseConfig[] = [];
+
+    /** List of paths to invalidate at the end of the request */
+    const backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
+
+    function update(config: BaseConfig, oldConfig: BasemapsConfigProvider, commit: boolean): void {
+      const promise = Q(async (): Promise<boolean> => {
+        const updater = new Updater(config, oldConfig, commit);
+
+        const hasChanges = await updater.reconcile();
+        if (hasChanges) {
+          changes.push(config);
+          invalidations.push(updater.invalidatePath());
+          const oldData = await updater.getOldData();
+          if (oldData != null) backupConfig.put(oldData); // No need to backup anything if there is new insert
+        } else {
+          backupConfig.put(config);
+        }
+        return true;
+      });
+
+      promises.push(promise);
+    }
+
     logger.info({ config }, 'Import:Start');
     const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
     for (const config of mem.objects.values()) {
@@ -139,7 +168,12 @@ export const ImportCommand = command({
     }
 
     const output = args.output;
-    if (output != null) await outputChange(output, mem, cfg, config);
+    if (output != null) {
+      const doc = await outputChange(mem, cfg, config, changes);
+      if (doc.length > 0) {
+        await fsa.write(fsa.toUrl(output), doc);
+      }
+    }
 
     if (commit !== true) logger.info('DryRun:Done');
   },
@@ -158,35 +192,6 @@ async function getConfig(logger: LogType, target?: string): Promise<BasemapsConf
   return getDefaultConfig();
 }
 
-const promises: Promise<boolean>[] = [];
-/** List of paths to invalidate at the end of the request */
-const invalidations: string[] = [];
-
-/** List of changed config */
-const changes: BaseConfig[] = [];
-
-/** List of paths to invalidate at the end of the request */
-const backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
-
-function update(config: BaseConfig, oldConfig: BasemapsConfigProvider, commit: boolean): void {
-  const promise = Q(async (): Promise<boolean> => {
-    const updater = new Updater(config, oldConfig, commit);
-
-    const hasChanges = await updater.reconcile();
-    if (hasChanges) {
-      changes.push(config);
-      invalidations.push(updater.invalidatePath());
-      const oldData = await updater.getOldData();
-      if (oldData != null) backupConfig.put(oldData); // No need to backup anything if there is new insert
-    } else {
-      backupConfig.put(config);
-    }
-    return true;
-  });
-
-  promises.push(promise);
-}
-
 /**
  * This function compared new config with existing and output a markdown document to highlight the inserts and changes
  * Changes includes
@@ -200,12 +205,12 @@ function update(config: BaseConfig, oldConfig: BasemapsConfigProvider, commit: b
  * @param cfg existing config data
  * @param configPath path of config json
  */
-async function outputChange(
-  output: string,
+export async function outputChange(
   mem: ConfigProviderMemory,
   cfg: BasemapsConfigProvider,
   configPath: string,
-): Promise<void> {
+  changes: BaseConfig[],
+): Promise<string> {
   const outputMarkdown: string[] = [];
   // Output for aerial config changes
   const inserts: string[] = [];
@@ -307,11 +312,7 @@ async function outputChange(
   if (styleUpdate.length > 0) outputMarkdown.push('# Vector Style Update', ...styleUpdate);
   if (vectorUpdate.length > 0) outputMarkdown.push('# Vector Data Update', ...vectorUpdate);
 
-  if (outputMarkdown.length > 0) {
-    await fsa.write(fsa.toUrl(output), outputMarkdown.join('\n'));
-  }
-
-  return;
+  return outputMarkdown.join('\n');
 }
 
 /**
