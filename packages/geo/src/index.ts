@@ -13,10 +13,10 @@ export { AttributionCollection, AttributionItem, AttributionStac } from './stac/
 export { TileId } from './tile.js';
 export { TileJson, TileJsonV3, TileJsonVectorLayer } from './tile.json/tile.json.js';
 export { Tile, TileMatrixSet } from './tile.matrix.set.js';
-export { Citm2000Tms } from './tms/citm2000.js';
-export { GoogleTms } from './tms/google.js';
+export { GoogleTms } from './tms/global/google.js';
 export { TileMatrixSets } from './tms/index.js';
-export { Nztm2000QuadTms, Nztm2000Tms } from './tms/nztm2000.js';
+export { Citm2000Tms } from './tms/new-zealand/citm2000.js';
+export { Nztm2000QuadTms, Nztm2000Tms } from './tms/new-zealand/nztm2000.js';
 export { WmtsProvider } from './wmts/wmts.js';
 export { getXyOrder } from './xy.order.js';
 export { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';

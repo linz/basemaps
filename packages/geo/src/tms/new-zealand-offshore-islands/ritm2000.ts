@@ -1,30 +1,29 @@
 import { TileMatrixSetType } from '@linzjs/tile-matrix-set';
 
-import { TileMatrixSet } from '../tile.matrix.set.js';
+import { TileMatrixSet } from '../../tile.matrix.set.js';
 
 /**
- * **Warning** this is not a standard tile matrix it is used for debugging purposes only
+ * **Warning** This is a non-standard tile matrix for `EPSG:3791`.
  *
- * Created using ./scripts/debug.tile.matrix.ts
+ * Created using `packages/shared/src/scripts/debug.tile.matrix.ts`
  */
-const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown } = {
+const Ritm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown } = {
   type: 'TileMatrixSetType',
-  title: 'Debug tile matrix for EPSG:3793',
-  abstract: '',
-  identifier: 'CITM2000Quad',
-  supportedCRS: 'https://www.opengis.net/def/crs/EPSG/0/3793',
+  title: 'Debug tile matrix for EPSG:3791',
+  identifier: 'RITM2000Quad',
   boundingBox: {
     type: 'BoundingBoxType',
-    crs: 'https://www.opengis.net/def/crs/EPSG/0/3793',
-    lowerCorner: [5051234.111622438, 3430154.3757978342],
-    upperCorner: [5207777.145550478, 3586697.4097258747],
+    crs: 'https://www.opengis.net/def/crs/EPSG/0/3791',
+    lowerCorner: [6490590.956737888, 3310267.995026125],
+    upperCorner: [6803677.024593969, 3623354.062882207],
   },
+  supportedCRS: 'https://www.opengis.net/def/crs/EPSG/0/3791',
   tileMatrix: [
     {
       type: 'TileMatrixType',
       identifier: '0',
-      scaleDenominator: 2183915.09386217,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 4367830.18772435,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 1,
@@ -33,8 +32,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '1',
-      scaleDenominator: 1091957.54693108,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 2183915.09386217,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 2,
@@ -43,8 +42,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '2',
-      scaleDenominator: 545978.773465544,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 1091957.54693108,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 4,
@@ -53,8 +52,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '3',
-      scaleDenominator: 272989.386732772,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 545978.773465544,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 8,
@@ -63,8 +62,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '4',
-      scaleDenominator: 136494.693366386,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 272989.386732772,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 16,
@@ -73,8 +72,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '5',
-      scaleDenominator: 68247.346683193,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 136494.693366386,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 32,
@@ -83,8 +82,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '6',
-      scaleDenominator: 34123.6733415964,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 68247.346683193,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 64,
@@ -93,8 +92,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '7',
-      scaleDenominator: 17061.8366707982,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 34123.6733415964,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 128,
@@ -103,8 +102,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '8',
-      scaleDenominator: 8530.91833539913,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 17061.8366707982,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 256,
@@ -113,8 +112,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '9',
-      scaleDenominator: 4265.45916769956,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 8530.91833539913,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 512,
@@ -123,8 +122,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '10',
-      scaleDenominator: 2132.72958384978,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 4265.45916769956,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 1024,
@@ -133,8 +132,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '11',
-      scaleDenominator: 1066.36479192489,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 2132.72958384978,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 2048,
@@ -143,8 +142,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '12',
-      scaleDenominator: 533.182395962445,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 1066.36479192489,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 4096,
@@ -153,8 +152,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '13',
-      scaleDenominator: 266.591197981222,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 533.182395962445,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 8192,
@@ -163,8 +162,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '14',
-      scaleDenominator: 133.295598990611,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 266.591197981222,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 16384,
@@ -173,8 +172,8 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '15',
-      scaleDenominator: 66.6477994953056,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 133.295598990611,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 32768,
@@ -183,23 +182,33 @@ const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown
     {
       type: 'TileMatrixType',
       identifier: '16',
-      scaleDenominator: 33.3238997476528,
-      topLeftCorner: [5207777.145550478, 3430154.3757978342],
+      scaleDenominator: 66.6477994953056,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
       tileWidth: 256,
       tileHeight: 256,
       matrixWidth: 65536,
       matrixHeight: 65536,
     },
+    {
+      type: 'TileMatrixType',
+      identifier: '17',
+      scaleDenominator: 33.3238997476528,
+      topLeftCorner: [6803677.024593969, 3310267.995026125],
+      tileWidth: 256,
+      tileHeight: 256,
+      matrixWidth: 131072,
+      matrixHeight: 131072,
+    },
   ],
   $generated: {
     package: '@basemaps/cli',
-    version: 'v7.14.0-4-g2766010d',
-    hash: '2766010d8d2bb8b673f6bcbef2fe2636f2e0f4ea',
-    createdAt: '2025-02-10T20:34:46.643Z',
+    version: 'v8.5.0-1-g6a9eedeb',
+    hash: '6a9eedeb345037036481d1d1022c399b1db7a4c1',
+    createdAt: '2025-07-24T22:40:56.468Z',
   },
   $options: {
     sourceTileMatrix: 'WebMercatorQuad',
-    zoomOffset: 8,
+    zoomOffset: 7,
   },
 };
-export const Citm2000Tms = new TileMatrixSet(Citm2000Tmst);
+export const Ritm2000Tms = new TileMatrixSet(Ritm2000Tmst);
