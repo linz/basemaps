@@ -1,15 +1,15 @@
 import { TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
-import { createWriteStream } from 'fs';
-import { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
-import readline from 'readline';
+import { IGeoJsonFeature } from 'flatgeobuf';
+import { geojson } from 'flatgeobuf';
+import { createWriteStream, readFileSync } from 'fs';
+import { Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 
 import { modifyFeature } from '../modify/modify.js';
 import { Metrics, Simplify } from '../schema-loader/schema.js';
 import { VectorCreationOptions } from '../stac.js';
 import { transformNdJson, transformZoom } from '../transform/nztm.js';
 import { VectorGeoFeature } from '../types/VectorGeoFeature.js';
-import { createReadStreamSafe } from '../util.js';
 import { Point, simplify } from './simplify.js';
 
 /**
@@ -25,35 +25,28 @@ export async function generalize(
   logger: LogType,
 ): Promise<Metrics> {
   logger.info({}, 'Generalize:Start');
-  const fileStream = await createReadStreamSafe(input.pathname);
+  const buffer = readFileSync(input);
+  const featureStream = geojson.deserialize(buffer);
   const simplify = options.layer.simplify;
-
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity,
-  });
 
   const writeStream = createWriteStream(output);
 
   let inputCount = 0;
   let outputCount = 0;
-  for await (const line of rl) {
-    if (line === '') continue;
-    const feature = JSON.parse(line) as Feature;
-    if (tileMatrix.identifier === 'NZTM2000Quad') transformNdJson(feature);
+  for await (const feature of featureStream) {
     inputCount++;
     // For simplify, duplicate feature for each zoom level with different tolerance
     if (simplify != null) {
       for (const s of simplify) {
-        const vectorGeofeature = tag(tileMatrix, options, feature, s, logger);
-        if (vectorGeofeature == null) continue;
+        const result = tag(options, feature, s, logger);
+        if (result == null) continue;
 
-        writeStream.write(JSON.stringify(vectorGeofeature) + '\n');
+        writeStream.write(JSON.stringify(result) + '\n');
         outputCount++;
       }
     } else {
-      const vectorGeofeature = tag(tileMatrix, options, feature, null, logger);
-      if (vectorGeofeature == null) continue;
+      const result = tag(options, feature, null, logger);
+      if (result == null) continue;
 
       writeStream.write(JSON.stringify(vectorGeofeature) + '\n');
       outputCount++;
@@ -79,12 +72,14 @@ export async function generalize(
 function tag(
   tileMatrix: TileMatrixSet,
   options: VectorCreationOptions,
-  feature: Feature,
+  iFeature: IGeoJsonFeature,
   simplify: Simplify | null,
   logger: LogType,
 ): VectorGeoFeature | null {
-  const vectorGeofeature = {
-    ...structuredClone(feature),
+  const feature = {
+    id: iFeature.id,
+    geometry: iFeature.geometry,
+    properties: iFeature.properties,
     tippecanoe: {
       layer: options.name,
       minzoom: options.layer.style.minZoom,
