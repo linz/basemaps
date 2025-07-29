@@ -135,11 +135,11 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   }
 
   /** Find all imagery inside this configuration and create a virtual tile set for it */
-  createVirtualTileSets(): void {
+  createVirtualTileSets(createById = true): void {
     const allLayers: ConfigLayer[] = [];
     for (const obj of this.objects.values()) {
       if (isConfigImagery(obj)) {
-        this.put(ConfigProviderMemory.imageryToTileSet(obj));
+        if (createById) this.put(ConfigProviderMemory.imageryToTileSet(obj));
         const tileSet = this.imageryToTileSetByName(obj);
         allLayers.push(tileSet.layers[0]);
       }
