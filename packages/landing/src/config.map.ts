@@ -410,15 +410,27 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
     },
     {
       id: 'hillshade-igor',
-      title: 'Hillshade Igor',
+      title: 'Hillshade Igor DEM',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Basemaps - Hillshade',
+    },
+    {
+      id: 'hillshade-igor-dsm',
+      title: 'Hillshade Igor DSM',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Basemaps - Hillshade',
     },
     {
       id: 'hillshade',
-      title: 'Hillshade Standard',
+      title: 'Hillshade Standard DEM',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
-      category: 'Basemaps - Hillshade',
+      category: 'Elevation',
+    },
+    {
+      id: 'hillshade-dsm',
+      title: 'Hillshade Standard DSM',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Elevation',
     },
     {
       id: 'elevation',
