@@ -60,6 +60,9 @@ export interface ConfigTileSetBase extends ConfigBase {
 
   /** Maximum zoom level for this tileSet @default 30 */
   maxZoom?: number;
+
+  /** Array containing any tileSet aliases */
+  alias?: string[];
 }
 
 export interface ConfigTileSetRaster extends ConfigTileSetBase {

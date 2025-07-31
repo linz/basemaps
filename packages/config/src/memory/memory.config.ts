@@ -143,6 +143,16 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
         const tileSet = this.imageryToTileSetByName(obj);
         allLayers.push(tileSet.layers[0]);
       }
+
+      // add any tileset aliases
+      if (ConfigId.getPrefix(obj.id) === ConfigPrefix.TileSet) {
+        const ts = obj as ConfigTileSet;
+        if (ts.alias) {
+          for (const newId of ts.alias) {
+            this.put({ ...ts, id: ConfigId.prefix(ConfigPrefix.TileSet, newId) });
+          }
+        }
+      }
     }
     // Create an all tileset contains all raster layers
     if (allLayers.length) this.createVirtualAllTileSet(allLayers);
