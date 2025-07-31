@@ -1,7 +1,7 @@
 import { ConfigLayer, ConfigProviderMemory, ConfigTileSetRaster, ConfigTileSetVector } from '@basemaps/config';
 import diff from 'deep-diff';
 
-import { IgnoredProperties } from '../cli/config.diff.js';
+import { IgnoredProperties } from '../config.diff.js';
 
 function getAllTileSets(cfg: ConfigProviderMemory): Map<string, ConfigTileSetRaster> {
   const tileSets: Map<string, ConfigTileSetRaster> = new Map();
@@ -26,14 +26,14 @@ function tileSetDiffRasterLayers(before: ConfigTileSetRaster, after: ConfigTileS
     if (index > -1) {
       const [el] = beforeLayers.splice(index, 1);
       const layerDiff = diff.diff(el, layer);
-      if (layerDiff) layerChanges.push({ type: 'changed', before: el, after: layer, changes: layerDiff });
+      if (layerDiff) layerChanges.push({ type: 'updated', id: el.name, before: el, after: layer, changes: layerDiff });
     } else {
-      layerChanges.push({ type: 'new', after: layer });
+      layerChanges.push({ type: 'new', id: layer.name, after: layer });
     }
   }
 
   for (const beforeLayer of beforeLayers) {
-    layerChanges.push({ type: 'removed', before: beforeLayer });
+    layerChanges.push({ type: 'removed', id: beforeLayer.name, before: beforeLayer });
   }
 
   return layerChanges.length > 0 ? layerChanges : null;
@@ -41,8 +41,8 @@ function tileSetDiffRasterLayers(before: ConfigTileSetRaster, after: ConfigTileS
 
 function tileSetDiffRaster(before?: ConfigTileSetRaster, after?: ConfigTileSetRaster): DiffTileSetRaster | null {
   if (before == null && after == null) return null;
-  if (before == null) return { type: 'new', after: after as ConfigTileSetRaster };
-  if (after == null) return { type: 'removed', before };
+  if (before == null) return { type: 'new', id: after?.id as string, after: after as ConfigTileSetRaster };
+  if (after == null) return { type: 'removed', id: before.id, before };
 
   // Layers are diffed further down so ignore them from a top level diff
   const topLevelChanges = diff.diff(
@@ -54,7 +54,8 @@ function tileSetDiffRaster(before?: ConfigTileSetRaster, after?: ConfigTileSetRa
   const layerChanges = tileSetDiffRasterLayers(before, after);
   if (topLevelChanges == null && layerChanges == null) return null;
   return {
-    type: 'changed',
+    type: 'updated',
+    id: before.id,
     before,
     after,
     changes: topLevelChanges as diff.Diff<ConfigTileSetRaster>[],
@@ -62,17 +63,22 @@ function tileSetDiffRaster(before?: ConfigTileSetRaster, after?: ConfigTileSetRa
   };
 }
 
-export type DiffTileSetRasterChanged = DiffChanged<ConfigTileSetRaster> & { layers: Diff<ConfigLayer>[] };
+export type DiffTileSetRasterUpdated = DiffUpdated<ConfigTileSetRaster> & { layers: Diff<ConfigLayer>[] };
 export type DiffTileSetRaster =
   | DiffNew<ConfigTileSetRaster>
   | DiffRemoved<ConfigTileSetRaster>
-  | DiffTileSetRasterChanged;
+  | DiffTileSetRasterUpdated;
 
-interface DiffTileSet {
+export interface DiffTileSet {
   /** List of raster layers that have changed */
   raster: DiffTileSetRaster[];
   /** List of vector layers that have changed */
   vector: Diff<ConfigTileSetVector>[];
+
+  /** Old Configuration that was used for the comparison */
+  before: ConfigProviderMemory;
+  /** New configuration that was used for the comparison */
+  after: ConfigProviderMemory;
 }
 
 /**
@@ -102,10 +108,10 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
     if (diff) diffs.push(diff);
   }
 
-  return { raster: diffs, vector: [] };
+  return { raster: diffs, vector: [], before, after };
 }
 
-export type DiffNew<T> = { type: 'new'; after: T };
-export type DiffRemoved<T> = { type: 'removed'; before: T };
-export type DiffChanged<T> = { type: 'changed'; before: T; after: T; changes: diff.Diff<T>[] };
-export type Diff<T> = DiffNew<T> | DiffRemoved<T> | DiffChanged<T>;
+export type DiffNew<T> = { type: 'new'; id: string; after: T };
+export type DiffRemoved<T> = { type: 'removed'; id: string; before: T };
+export type DiffUpdated<T> = { type: 'updated'; id: string; before: T; after: T; changes: diff.Diff<T>[] };
+export type Diff<T> = DiffNew<T> | DiffRemoved<T> | DiffUpdated<T>;

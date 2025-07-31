@@ -123,9 +123,7 @@ export const ImportCommand = command({
     const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
     for (const config of mem.objects.values()) {
       const objectType = ConfigId.getPrefix(config.id);
-      if (objectType) {
-        objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
-      }
+      if (objectType) objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
       update(config, cfg, commit);
     }
     await Promise.all(promises);
@@ -405,7 +403,7 @@ async function prepareUrl(
   mem: BasemapsConfigProvider,
   tileMatrix: TileMatrixSet,
   configPath: string,
-): Promise<{ layer: string; tag: string }> {
+): Promise<{ layers: string; tag: string }> {
   const configImagery = await mem.Imagery.get(id);
   if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
 
