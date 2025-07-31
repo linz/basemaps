@@ -255,6 +255,8 @@ export class ConfigJson {
       tileSet.format = ts.type === TileSetType.Vector ? 'pbf' : 'webp';
     }
 
+    tileSet.alias = ts.alias;
+
     return tileSet as ConfigTileSet;
   }
 
