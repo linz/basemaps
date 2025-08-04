@@ -62,7 +62,7 @@ export interface ConfigTileSetBase extends ConfigBase {
   maxZoom?: number;
 
   /** Array containing any tileSet aliases */
-  alias?: string[];
+  aliases?: string[];
 }
 
 export interface ConfigTileSetRaster extends ConfigTileSetBase {

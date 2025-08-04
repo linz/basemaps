@@ -69,7 +69,7 @@ export const zTileSetConfig = z.object({
   maxZoom: zZoom.optional(),
   format: z.string().optional(),
   outputs: z.array(ConfigTileSetOutputParser).optional(),
-  alias: z.array(z.string()).optional(),
+  aliases: z.array(z.string()).optional(),
 });
 
 export type TileSetConfigSchemaLayer = z.infer<typeof zLayerConfig>;

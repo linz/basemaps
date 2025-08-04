@@ -145,11 +145,13 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       }
 
       // add any tileset aliases
-      if (ConfigId.getPrefix(obj.id) === ConfigPrefix.TileSet) {
-        const ts = obj as ConfigTileSet;
-        if (ts.alias) {
-          for (const newId of ts.alias) {
-            this.put({ ...ts, id: ConfigId.prefix(ConfigPrefix.TileSet, newId) });
+      if (this.TileSet.is(obj)) {
+        if (obj.aliases) {
+          for (const alias of obj.aliases) {
+            const aliasTs = structuredClone(obj);
+            aliasTs.id = ConfigId.prefix(ConfigPrefix.TileSet, alias);
+            aliasTs.virtual = 'tileset-alias';
+            this.put(aliasTs);
           }
         }
       }
@@ -172,7 +174,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
     const allTileset: ConfigTileSet = {
       type: TileSetType.Raster,
-      virtual: true,
+      virtual: 'tileset-all',
       id: 'ts_all',
       name: 'all',
       title: 'All Imagery',
@@ -190,7 +192,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (existing == null) {
       existing = {
         type: TileSetType.Raster,
-        virtual: true,
+        virtual: 'imagery-name',
         id: targetId,
         title: i.title,
         category: i.category,
@@ -226,7 +228,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
     const ts: ConfigTileSetRaster = {
       type: TileSetType.Raster,
-      virtual: true,
+      virtual: 'imagery-id',
       id: ConfigId.prefix(ConfigPrefix.TileSet, ConfigId.unprefix(ConfigPrefix.Imagery, i.id)),
       name: i.name,
       title: i.title,

@@ -41,9 +41,9 @@ export const ConfigBase = z.object({
   /**
    * Was this configuration object generated from another object
    *
-   * @default undefined / false
+   * @default undefined
    */
-  virtual: z.boolean().optional(),
+  virtual: z.string().optional(),
 });
 
 export type ConfigBase = z.infer<typeof ConfigBase>;
