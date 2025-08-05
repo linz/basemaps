@@ -97,7 +97,8 @@ export const ChartsCreationCommand = command({
         if (stats == null) throw new Error(`File does not exist: ${file.href}`);
         const tiff = await new Tiff(fsa.source(file)).init();
         const image = tiff.images[0];
-        const targetPath = new URL(`${tileMatrix.projection.code}/${chartCode}/${CliId}/`, args.target);
+        const outputPath = `${tileMatrix.projection.code}/${chartCode}/${CliId}/`;
+        const targetPath = new URL(outputPath, tmpFolder);
         outputs.add(urlToString(targetPath));
         await mkdir(targetPath, { recursive: true });
 
@@ -121,7 +122,7 @@ export const ChartsCreationCommand = command({
         ).run(logger);
 
         // Create stac item
-        const itemPath = new URL(`${chartCode}.json`, targetPath);
+        const itemPath = new URL(`${outputPath}${chartCode}.json`, targetPath);
         logger.info({ item: itemPath.href, chartCode }, 'Charts:CreateStacItem');
         const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
         const item: StacItem = {
@@ -168,7 +169,7 @@ export const ChartsCreationCommand = command({
         await fsa.write(itemPath, JSON.stringify(item, null, 2));
 
         // Create stac collection
-        const collectionUrl = new URL(`collection.json`, targetPath);
+        const collectionUrl = new URL(`${outputPath}collection.json`, targetPath);
         logger.info({ collection: collectionUrl.href, chartCode }, 'Charts:CreateStacCollection');
         const exists = await fsa.head(collectionUrl);
         if (exists == null) {
@@ -210,6 +211,10 @@ export const ChartsCreationCommand = command({
         logger.info({ file: file.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:GdalBuildCharts');
         const target = new URL(filename, targetPath);
         await new GdalRunner(gdalBuildChartsCommand(target, file, bufferedCutline, tileMatrix)).run(logger);
+
+        // write the outputs to target
+        const targetTiff = new URL(`${outputPath}${filename}`, args.target);
+        await fsa.write(targetTiff, fsa.readStream(target));
       }),
     );
 
