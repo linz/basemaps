@@ -100,12 +100,24 @@ export const ChartsCreationCommand = command({
         const sourceTiff = new URL(`${filename}`, tmpFolder);
         await fsa.write(sourceTiff, fsa.readStream(file));
         const cutline = new URL(`${args.cutline.href}${chartCode}.shp`);
+        const cutlineFile = new URL(`${chartCode}.shp`, tmpFolder);
         if ((await fsa.head(cutline)) == null) {
           logger.warn({ cutline: cutline.href }, 'Cutline does not exist');
           return;
         }
-        const cutlineFile = new URL(`${chartCode}.shp`, tmpFolder);
         await fsa.write(cutlineFile, fsa.readStream(cutline));
+        await fsa.write(
+          new URL(`${chartCode}.shx`, tmpFolder),
+          fsa.readStream(new URL(`${args.cutline.href}${chartCode}.shx`)),
+        );
+        await fsa.write(
+          new URL(`${chartCode}.dbf`, tmpFolder),
+          fsa.readStream(new URL(`${args.cutline.href}${chartCode}.dbf`)),
+        );
+        await fsa.write(
+          new URL(`${chartCode}.prj`, tmpFolder),
+          fsa.readStream(new URL(`${args.cutline.href}${chartCode}.prj`)),
+        );
 
         logger.info({ file: file.href, tileMatrix: tileMatrix.identifier, chartCode }, 'Charts:Processing');
 
