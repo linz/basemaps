@@ -1,17 +1,8 @@
-/* eslint-disable no-console */
 import { getXyOrder, GoogleTms, Projection, ProjectionLoader, TileMatrixSet, TileMatrixSetType } from '../index.js';
 
 /**
- * Attempt to create a debug tile matrix given a projection code.
- *
- * General flow of the creation
- * - Lookup the projection information from spatial reference
- * - Attempt to find the bounds of the projection
- * - Using the bounds attempt to find a tile matrix zoom level that would cover the entire bounds
- * - Create a basic debugging tile matrix from the information
+ * Minimal typings of PROJJSON
  */
-
-/** Minimal typings of PROJJSON */
 interface ProjJsonAxis {
   name: string;
   abbreviation: 'x' | 'y' | 'e' | 'n';
@@ -33,9 +24,9 @@ interface ProjJson {
   };
 }
 /**
- * Find a zoom level that has approximatly the same bounds as the bounds of the source projection,
- * because the WebMercatorQuad covers the entire world most other projections do not work well, outside
- * their own bounds try and find a zoom level that does not overflow the bounds too much
+ * Find a zoom level that has approximately the same bounds as those of the source projection.
+ * The WebMercatorQuad projection covers the entire world. So, most other projections do not work well outside
+ * their own bounds. Therefore, we want to find a zoom level that does not overflow the bounds too much.
  *
  * @param minSize
  * @returns one zoom level bigger than the minimum zoom level
@@ -70,52 +61,80 @@ function axisName(ax: ProjJsonAxis): 'x' | 'y' {
 }
 
 export class TmsLoader {
-  static async load(TargetProjection: number): Promise<TileMatrixSet> {
-    const epsg = await ProjectionLoader.load(TargetProjection);
+  /**
+   * Attempts to generate a runtime Tile Matrix Set for the given target projection.
+   *
+   * - Lookup the projection information from spatial reference
+   * - Attempt to find the bounds of the projection
+   * - Using the bounds, attempt to find a tile matrix zoom level that would cover the entire bounds
+   * - Generate a runtime tile matrix definition
+   *
+   * @param epsgCode - An Epsg code expressing the target projection (e.g. 3788, 5479, or 32702)
+   * @returns the generated tile matrix definition
+   */
+  static async load(epsgCode: number): Promise<TileMatrixSet> {
+    // load the epsg code's projection definition
+    const epsg = await ProjectionLoader.load(epsgCode);
     const proj = Projection.get(epsg);
 
-    // Load the projection JSON from spatialreference and look for a bounding box of the projection
+    // fetch projection metadata from the spatialreference.org API,
+    // this givens us valid axis information and geographic bounding box
     const projJson = (await fetch(`https://spatialreference.org/ref/epsg/${epsg.code}/projjson.json`).then((f) =>
       f.json(),
     )) as ProjJson;
 
+    // transform the bounding box to projected coordinates
+    // convert from lat/lon (wgs84) to the target projection's coordinate system
     const upperLeft = proj.fromWgs84([projJson.bbox.west_longitude, projJson.bbox.north_latitude]);
     const lowerRight = proj.fromWgs84([projJson.bbox.east_longitude, projJson.bbox.south_latitude]);
 
-    const minSize = Math.max(Math.abs(upperLeft[0] - lowerRight[0]), Math.abs(upperLeft[1] - lowerRight[1]));
-    const zOffset = findZoomOffset(minSize);
+    // calculate the larger dimension of the target projection's bounding box
+    // find the larger dimension (width or height) to determine appropriate zoom level
+    const width = Math.abs(upperLeft[0] - lowerRight[0]);
+    const height = Math.abs(upperLeft[1] - lowerRight[1]);
+    const largestDimension = Math.max(width, height);
+    const zOffset = findZoomOffset(largestDimension);
 
+    // find the center point of the target projection's bounds
     const centerLon = (projJson.bbox.west_longitude + projJson.bbox.east_longitude) / 2;
     const centerLat = (projJson.bbox.north_latitude + projJson.bbox.south_latitude) / 2;
 
+    // calculate tile dimensions for the starting zoom level
     const tileZeroWidth = GoogleTms.pixelScale(zOffset) * 256;
     const halfTileZeroWidth = tileZeroWidth / 2;
 
+    // transform center point to projected coordinates
     const centerProjected = proj.fromWgs84([centerLon, centerLat]);
 
+    // clone Google's tile matrix so we can use it as a template,
+    // this gives us a structure for which we can modify the details
     const tileMatrix = structuredClone(GoogleTms.def) as TileMatrixSetType & { $generated: unknown; $options: unknown };
 
+    // some projections use x-y order whereas others use y-x
     const xyOrder = getXyOrder(epsg);
-
     const xy = xyOrder === 'xy' ? { x: 0, y: 1 } : { x: 1, y: 0 };
 
+    // ensure the axis order matches the x-y order
     const axisOrder = projJson.coordinate_system.axis.map(axisName).join('');
     if (xyOrder !== axisOrder) {
       throw new Error(`getXyOrder: ${axisOrder} is not the same as expected ordering from proj json`);
     }
 
-    tileMatrix.title = 'Debug tile matrix for EPSG:' + TargetProjection;
+    // set the bounding box - a square centered on the projection center
     tileMatrix.boundingBox.lowerCorner = [
-      centerProjected[xy.x] - halfTileZeroWidth,
-      centerProjected[xy.y] - halfTileZeroWidth,
+      centerProjected[xy.x] - halfTileZeroWidth, // left edge
+      centerProjected[xy.y] - halfTileZeroWidth, // bottom edge
     ];
     tileMatrix.boundingBox.upperCorner = [
-      centerProjected[xy.x] + halfTileZeroWidth,
-      centerProjected[xy.y] + halfTileZeroWidth,
+      centerProjected[xy.x] + halfTileZeroWidth, // right edge
+      centerProjected[xy.y] + halfTileZeroWidth, // top edge
     ];
 
+    // remove the google-specific scale set reference since we're creating our own
     delete tileMatrix.wellKnownScaleSet;
 
+    // rebuild the zoom level definitions
+    // create a standard pyramid starting from the calculated zoom offset
     tileMatrix.tileMatrix = tileMatrix.tileMatrix.slice(zOffset).map((x, i) => {
       x.identifier = String(i);
       x.matrixWidth = 2 ** i;
@@ -123,11 +142,14 @@ export class TmsLoader {
       x.topLeftCorner = [tileMatrix.boundingBox.upperCorner[0], tileMatrix.boundingBox.lowerCorner[1]];
       return x;
     });
-    tileMatrix.identifier = `Debug_` + projJson.name.replace(/ /g, '').replace(/\//g, '_');
-    tileMatrix.supportedCRS = `https://www.opengis.net/def/crs/EPSG/0/${TargetProjection}`;
+
+    // update tile matrix metadata
+    tileMatrix.title = 'Auto-generated tile matrix for EPSG:' + epsgCode;
+    tileMatrix.identifier = projJson.name.replace(/ /g, '').replace(/\//g, '_');
+    tileMatrix.supportedCRS = `https://www.opengis.net/def/crs/EPSG/0/${epsgCode}`;
     tileMatrix.boundingBox.crs = tileMatrix.supportedCRS;
 
-    // Log how the tile matrix was generated
+    // capture tile matrix generation metadata
     tileMatrix['$generated'] = { createdAt: new Date().toISOString() };
     tileMatrix['$options'] = { sourceTileMatrix: GoogleTms.identifier, zoomOffset: zOffset };
 
