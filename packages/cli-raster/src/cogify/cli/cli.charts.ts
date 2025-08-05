@@ -95,6 +95,8 @@ export const ChartsCreationCommand = command({
 
         logger.info({ file: file.href, tileMatrix: tileMatrix.identifier, chartCode }, 'Charts:Processing');
         try {
+          const stats = await fsa.head(file);
+          if (stats == null) throw new Error(`File does not exist: ${file.href}`);
           const tiff = await new Tiff(fsa.source(file)).init();
           const image = tiff.images[0];
           const targetPath = new URL(`${tileMatrix.projection.code}/${ChartSeries}/${CliId}/`, args.target);
