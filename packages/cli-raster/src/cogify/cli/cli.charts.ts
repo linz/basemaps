@@ -92,10 +92,24 @@ export const ChartsCreationCommand = command({
           return;
         }
 
+        logger.info({ file: file.href, chartCode }, 'Charts:Download');
+        if ((await fsa.head(file)) == null) {
+          logger.warn({ file: file.href }, 'File does not exist');
+          return;
+        }
+        const sourceTiff = new URL(`${filename}`, tmpFolder);
+        await fsa.write(sourceTiff, fsa.readStream(file));
+        const cutline = new URL(`${args.cutline.href}${chartCode}.shp`);
+        if ((await fsa.head(cutline)) == null) {
+          logger.warn({ cutline: cutline.href }, 'Cutline does not exist');
+          return;
+        }
+        const cutlineFile = new URL(`${chartCode}.shp`, tmpFolder);
+        await fsa.write(cutlineFile, fsa.readStream(cutline));
+
         logger.info({ file: file.href, tileMatrix: tileMatrix.identifier, chartCode }, 'Charts:Processing');
-        const stats = await fsa.head(file);
-        if (stats == null) throw new Error(`File does not exist: ${file.href}`);
-        const tiff = await new Tiff(fsa.source(file)).init();
+
+        const tiff = await new Tiff(fsa.source(sourceTiff)).init();
         const image = tiff.images[0];
         const outputPath = `${tileMatrix.projection.code}/${chartCode}/${CliId}/`;
         const targetPath = new URL(outputPath, tmpFolder);
@@ -103,10 +117,10 @@ export const ChartsCreationCommand = command({
         await mkdir(targetPath, { recursive: true });
 
         // Wrap the cutline to multipolygon if it crosses the Prime Meridian
-        const cutline = new URL(`${args.cutline.href}${chartCode}.shp`);
+
         logger.info({ cutline: cutline.href, chartCode }, 'Charts:WrapCutline');
         const wrappedCutline = new URL(`${chartCode}-wrapped.shp`, tmpFolder);
-        await new GdalRunner(wrapCutline(wrappedCutline, cutline)).run(logger);
+        await new GdalRunner(wrapCutline(wrappedCutline, cutlineFile)).run(logger);
 
         // Reproject the cutline to the target tile matrix
         logger.info({ cutline: cutline.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:ReprojectCutline');
@@ -122,7 +136,7 @@ export const ChartsCreationCommand = command({
         ).run(logger);
 
         // Create stac item
-        const itemPath = new URL(`${outputPath}${chartCode}.json`, targetPath);
+        const itemPath = new URL(`${outputPath}${chartCode}.json`, args.target);
         logger.info({ item: itemPath.href, chartCode }, 'Charts:CreateStacItem');
         const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
         const item: StacItem = {
@@ -169,7 +183,7 @@ export const ChartsCreationCommand = command({
         await fsa.write(itemPath, JSON.stringify(item, null, 2));
 
         // Create stac collection
-        const collectionUrl = new URL(`${outputPath}collection.json`, targetPath);
+        const collectionUrl = new URL(`${outputPath}collection.json`, args.target);
         logger.info({ collection: collectionUrl.href, chartCode }, 'Charts:CreateStacCollection');
         const exists = await fsa.head(collectionUrl);
         if (exists == null) {
@@ -210,7 +224,7 @@ export const ChartsCreationCommand = command({
         // Reproject the chart map to target tile matrix with cutline
         logger.info({ file: file.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:GdalBuildCharts');
         const target = new URL(filename, targetPath);
-        await new GdalRunner(gdalBuildChartsCommand(target, file, bufferedCutline, tileMatrix)).run(logger);
+        await new GdalRunner(gdalBuildChartsCommand(target, sourceTiff, bufferedCutline, tileMatrix)).run(logger);
 
         // write the outputs to target
         const targetTiff = new URL(`${outputPath}${filename}`, args.target);
