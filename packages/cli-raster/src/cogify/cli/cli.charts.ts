@@ -76,7 +76,7 @@ export const ChartsCreationCommand = command({
     await mkdir(tmpFolder, { recursive: true });
 
     // Process and standardize charts maps tiffs
-    const outputs = new Set<{ path: string }>();
+    const outputs = new Set<string>();
     const toProcess = files.map((file) =>
       Q(async () => {
         if (!file.href.endsWith('.tif')) return;
@@ -98,7 +98,7 @@ export const ChartsCreationCommand = command({
           const tiff = await new Tiff(fsa.source(file)).init();
           const image = tiff.images[0];
           const targetPath = new URL(`${tileMatrix.projection.code}/${ChartSeries}/${CliId}/`, args.target);
-          outputs.add({ path: urlToString(targetPath) });
+          outputs.add(urlToString(targetPath));
           await mkdir(targetPath, { recursive: true });
 
           // Wrap the cutline to multipolygon if it crosses the Prime Meridian
