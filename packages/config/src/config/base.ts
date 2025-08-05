@@ -41,6 +41,11 @@ export const ConfigBase = z.object({
   /**
    * Was this configuration object generated from another object
    *
+   * tileset-all: All tileset contains all raster layers
+   * tileset-alias: Alias that points to another tileset
+   * imagery-name: Tileset that is identified by its imagery name
+   * imagery-id: Tileset that is identified by its imagery id
+   *
    * @default undefined
    */
   virtual: z.enum(['tileset-all', 'tileset-alias', 'imagery-name', 'imagery-id']).optional(),
