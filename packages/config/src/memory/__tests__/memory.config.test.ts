@@ -198,6 +198,6 @@ describe('MemoryConfig', () => {
   it('virtual tileset aliases', async () => {
     config.put({ ...baseTs, aliases: ['someAlias'] } as ConfigTileSetRaster);
     const ts = await config.TileSet.get('someAlias');
-    assert.equal(ts?.id, 'someAlias');
+    assert.equal(ts?.id, tsId);
   });
 });

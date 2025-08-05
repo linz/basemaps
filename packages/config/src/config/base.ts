@@ -43,7 +43,7 @@ export const ConfigBase = z.object({
    *
    * @default undefined
    */
-  virtual: z.string().optional(),
+  virtual: z.enum(['tileset-all', 'tileset-alias', 'imagery-name', 'imagery-id']).optional(),
 });
 
 export type ConfigBase = z.infer<typeof ConfigBase>;
