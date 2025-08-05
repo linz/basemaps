@@ -91,133 +91,125 @@ export const ChartsCreationCommand = command({
           logger.warn({ file }, 'Chart code not found or invalid');
           return;
         }
-        const ChartSeries = chartCode.split('-')[0];
 
         logger.info({ file: file.href, tileMatrix: tileMatrix.identifier, chartCode }, 'Charts:Processing');
-        try {
-          const stats = await fsa.head(file);
-          if (stats == null) throw new Error(`File does not exist: ${file.href}`);
-          const tiff = await new Tiff(fsa.source(file)).init();
-          const image = tiff.images[0];
-          const targetPath = new URL(`${tileMatrix.projection.code}/${ChartSeries}/${CliId}/`, args.target);
-          outputs.add(urlToString(targetPath));
-          await mkdir(targetPath, { recursive: true });
+        const stats = await fsa.head(file);
+        if (stats == null) throw new Error(`File does not exist: ${file.href}`);
+        const tiff = await new Tiff(fsa.source(file)).init();
+        const image = tiff.images[0];
+        const targetPath = new URL(`${tileMatrix.projection.code}/${chartCode}/${CliId}/`, args.target);
+        outputs.add(urlToString(targetPath));
+        await mkdir(targetPath, { recursive: true });
 
-          // Wrap the cutline to multipolygon if it crosses the Prime Meridian
-          const cutline = new URL(`${args.cutline.href}${chartCode}.shp`);
-          logger.info({ cutline: cutline.href, chartCode }, 'Charts:WrapCutline');
-          const wrappedCutline = new URL(`${chartCode}-wrapped.shp`, tmpFolder);
-          await new GdalRunner(wrapCutline(wrappedCutline, cutline)).run(logger);
+        // Wrap the cutline to multipolygon if it crosses the Prime Meridian
+        const cutline = new URL(`${args.cutline.href}${chartCode}.shp`);
+        logger.info({ cutline: cutline.href, chartCode }, 'Charts:WrapCutline');
+        const wrappedCutline = new URL(`${chartCode}-wrapped.shp`, tmpFolder);
+        await new GdalRunner(wrapCutline(wrappedCutline, cutline)).run(logger);
 
-          // Reproject the cutline to the target tile matrix
-          logger.info(
-            { cutline: cutline.href, chartCode, tileMatrix: tileMatrix.identifier },
-            'Charts:ReprojectCutline',
-          );
-          const reprojectedCutline = new URL(`${chartCode}-${tileMatrix.identifier}.shp`, tmpFolder);
-          await new GdalRunner(reprojectCutline(reprojectedCutline, wrappedCutline, tileMatrix)).run(logger);
+        // Reproject the cutline to the target tile matrix
+        logger.info({ cutline: cutline.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:ReprojectCutline');
+        const reprojectedCutline = new URL(`${chartCode}-${tileMatrix.identifier}.shp`, tmpFolder);
+        await new GdalRunner(reprojectCutline(reprojectedCutline, wrappedCutline, tileMatrix)).run(logger);
 
-          // Buffer the cutline
-          const gsd = image.resolution[0];
-          logger.info({ cutline: cutline.href, chartCode, gsd }, 'Charts:BufferCutline');
-          const bufferedCutline = new URL(`${chartCode}-buffered.geojson`, tmpFolder);
-          await new GdalRunner(
-            bufferCutline(bufferedCutline, reprojectedCutline, `${chartCode}-${tileMatrix.identifier}`, gsd),
-          ).run(logger);
+        // Buffer the cutline
+        const gsd = image.resolution[0];
+        logger.info({ cutline: cutline.href, chartCode, gsd }, 'Charts:BufferCutline');
+        const bufferedCutline = new URL(`${chartCode}-buffered.geojson`, tmpFolder);
+        await new GdalRunner(
+          bufferCutline(bufferedCutline, reprojectedCutline, `${chartCode}-${tileMatrix.identifier}`, gsd),
+        ).run(logger);
 
-          // Create stac item
-          const itemPath = new URL(`${chartCode}.json`, targetPath);
-          logger.info({ item: itemPath.href, chartCode }, 'Charts:CreateStacItem');
-          const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
-          const item: StacItem = {
-            id: `${CliId}/${chartCode}`,
-            type: 'Feature',
-            collection: CliId,
-            stac_version: '1.0.0-beta.2',
+        // Create stac item
+        const itemPath = new URL(`${chartCode}.json`, targetPath);
+        logger.info({ item: itemPath.href, chartCode }, 'Charts:CreateStacItem');
+        const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
+        const item: StacItem = {
+          id: `${CliId}/${chartCode}`,
+          type: 'Feature',
+          collection: CliId,
+          stac_version: '1.0.0-beta.2',
+          stac_extensions: [],
+          geometry: geojson.features[0].geometry,
+          bbox: image.bbox,
+          links: [
+            { href: `./${chartCode}.json`, rel: 'self' },
+            { href: './collection.json', rel: 'collection' },
+            { href: './collection.json', rel: 'parent' },
+            {
+              href: urlToString(tiff.source.url),
+              rel: 'linz_basemaps:source',
+              type: 'image/tiff; application=geotiff;',
+              'linz_basemaps:source_height': image.size.height,
+              'linz_basemaps:source_width': image.size.width,
+              'linz_basemaps:source_gsd': image.resolution[0],
+            },
+            {
+              href: urlToString(cutline),
+              rel: 'linz_basemaps:cutline',
+            },
+          ],
+          properties: {
+            datetime: CliDate,
+            'proj:epsg': tileMatrix.projection.code,
+            'linz_basemaps:options': {
+              tileMatrix: tileMatrix.identifier,
+              sourceEpsg: image.epsg ?? image.valueGeo(TiffTagGeo.GeodeticCRSGeoKey),
+            },
+            'linz_basemaps:generated': {
+              package: CliInfo.package,
+              hash: CliInfo.hash,
+              version: CliInfo.version,
+              datetime: CliDate,
+            },
+          },
+          assets: {},
+        };
+        await fsa.write(itemPath, JSON.stringify(item, null, 2));
+
+        // Create stac collection
+        const collectionUrl = new URL(`collection.json`, targetPath);
+        logger.info({ collection: collectionUrl.href, chartCode }, 'Charts:CreateStacCollection');
+        const exists = await fsa.head(collectionUrl);
+        if (exists == null) {
+          const collection = {
+            id: CliId,
+            type: 'Collection',
+            stac_version: '1.0.0',
             stac_extensions: [],
-            geometry: geojson.features[0].geometry,
-            bbox: image.bbox,
+            license: 'CC-BY-4.0',
+            title: `New Zealand Charts Mapsheets - ${tileMatrix.projection.code}`,
+            description: `New Zealand Charts Mapsheets - ${tileMatrix.projection.code} - ${tileMatrix.identifier}`,
+            extent: {
+              spatial: { bbox: [item.bbox] },
+
+              temporal: { interval: [[CliDate, null]] },
+            },
             links: [
-              { href: `./${chartCode}.json`, rel: 'self' },
-              { href: './collection.json', rel: 'collection' },
-              { href: './collection.json', rel: 'parent' },
+              { rel: 'self', href: './collection.json', type: 'application/json' },
               {
-                href: urlToString(tiff.source.url),
-                rel: 'linz_basemaps:source',
-                type: 'image/tiff; application=geotiff;',
-                'linz_basemaps:source_height': image.size.height,
-                'linz_basemaps:source_width': image.size.width,
-                'linz_basemaps:source_gsd': image.resolution[0],
-              },
-              {
-                href: urlToString(cutline),
-                rel: 'linz_basemaps:cutline',
+                href: `./${item.id}.json`,
+                rel: 'item',
+                type: 'application/json',
               },
             ],
-            properties: {
-              datetime: CliDate,
-              'proj:epsg': tileMatrix.projection.code,
-              'linz_basemaps:options': {
-                tileMatrix: tileMatrix.identifier,
-                sourceEpsg: image.epsg ?? image.valueGeo(TiffTagGeo.GeodeticCRSGeoKey),
-              },
-              'linz_basemaps:generated': {
-                package: CliInfo.package,
-                hash: CliInfo.hash,
-                version: CliInfo.version,
-                datetime: CliDate,
-              },
-            },
-            assets: {},
           };
-          await fsa.write(itemPath, JSON.stringify(item, null, 2));
-
-          // Create stac collection
-          const collectionUrl = new URL(`collection.json`, targetPath);
-          logger.info({ collection: collectionUrl.href, chartCode }, 'Charts:CreateStacCollection');
-          const exists = await fsa.head(collectionUrl);
-          if (exists == null) {
-            const collection = {
-              id: CliId,
-              type: 'Collection',
-              stac_version: '1.0.0',
-              stac_extensions: [],
-              license: 'CC-BY-4.0',
-              title: `New Zealand Charts Mapsheets - ${tileMatrix.projection.code}`,
-              description: `New Zealand Charts Mapsheets - ${tileMatrix.projection.code} - ${tileMatrix.identifier}`,
-              extent: {
-                spatial: { bbox: [item.bbox] },
-
-                temporal: { interval: [[CliDate, null]] },
-              },
-              links: [
-                { rel: 'self', href: './collection.json', type: 'application/json' },
-                {
-                  href: `./${item.id}.json`,
-                  rel: 'item',
-                  type: 'application/json',
-                },
-              ],
-            };
-            await fsa.write(collectionUrl, JSON.stringify(collection, null, 2));
-          } else {
-            const collection = await fsa.readJson<StacCollection>(collectionUrl);
-            // Merge with existing collection
-            collection.links.push({
-              href: `./${item.id}.json`,
-              rel: 'item',
-              type: 'application/json',
-            });
-            await fsa.write(collectionUrl, JSON.stringify(collection, null, 2));
-          }
-
-          // Reproject the chart map to target tile matrix with cutline
-          logger.info({ file: file.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:GdalBuildCharts');
-          const target = new URL(filename, targetPath);
-          await new GdalRunner(gdalBuildChartsCommand(target, file, bufferedCutline, tileMatrix)).run(logger);
-        } catch (e) {
-          logger.error({ file, error: e }, 'Error processing file');
+          await fsa.write(collectionUrl, JSON.stringify(collection, null, 2));
+        } else {
+          const collection = await fsa.readJson<StacCollection>(collectionUrl);
+          // Merge with existing collection
+          collection.links.push({
+            href: `./${item.id}.json`,
+            rel: 'item',
+            type: 'application/json',
+          });
+          await fsa.write(collectionUrl, JSON.stringify(collection, null, 2));
         }
+
+        // Reproject the chart map to target tile matrix with cutline
+        logger.info({ file: file.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:GdalBuildCharts');
+        const target = new URL(filename, targetPath);
+        await new GdalRunner(gdalBuildChartsCommand(target, file, bufferedCutline, tileMatrix)).run(logger);
       }),
     );
 
