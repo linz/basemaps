@@ -1,4 +1,4 @@
-import { Bounds, Epsg, Size, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, Epsg, ProjectionLoader, Size, TileMatrixSet, TileMatrixSets, TmsLoader } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { RasterTypeKey, Tiff, TiffTagGeo } from '@cogeotiff/core';
 import path from 'path';
@@ -40,10 +40,27 @@ export function extractBoundsFromTiff(tiff: Tiff, logger?: LogType): Bounds | nu
   }
 }
 
-const projections: Record<string, Epsg> = {
-  'Universal Transverse Mercator Zone': Epsg.Wgs84,
-  'Chatham Islands Transverse Mercator 2000': Epsg.Citm2000,
-  'New Zealand Transverse Mercator 2000': Epsg.Nztm2000,
+const GeotagToEpsgCode: Record<string, number> = {
+  // global
+  'Universal Transverse Mercator Zone': 4326,
+
+  // antarctic
+  'McMurdo Sound Lambert Conformal 2000': 5479,
+
+  // new zealand
+  'Chatham Islands Transverse Mercator 2000': 2193,
+  'New Zealand Transverse Mercator 2000': 3793,
+
+  // new zealand offshore islands
+  'Auckland Islands Transverse Mercator': 3788,
+  'Campbell Island Transverse Mercator': 3789,
+  'Antipodes Islands Transverse Mercator': 3790,
+  'Raoul Island Transverse Mercator': 3791,
+
+  // pacific region
+  'Universal Transverse Mercator Zone 2s': 32702,
+  'Universal Transverse Mercator Zone 3s': 32703,
+  'Universal Transverse Mercator Zone 4s': 32704,
 };
 
 /**
@@ -53,7 +70,7 @@ const projections: Record<string, Epsg> = {
  *
  * @returns an Epsg instance, on success. Otherwise, null.
  */
-export function extractEpsgFromTiff(tiff: Tiff, logger?: LogType): Epsg | null {
+export async function extractEpsgFromTiff(tiff: Tiff, logger?: LogType): Promise<Epsg | null> {
   const img = tiff.images[0];
   if (img == null) {
     logger?.error({ source: tiff.source.url.href }, 'extractEpsgFromTiff(): No images found in Tiff file');
@@ -61,26 +78,55 @@ export function extractEpsgFromTiff(tiff: Tiff, logger?: LogType): Epsg | null {
   }
 
   // try to extract the epsg directly from the tiff
-  const epsg = img.epsg;
+  const epsgCode = img.epsg;
 
-  if (epsg != null) {
-    const code = Epsg.tryGet(epsg);
+  if (epsgCode != null) {
+    const epsg = await ProjectionLoader.load(epsgCode);
 
-    if (code != null) {
-      logger?.info({ found: true, method: 'direct', source: tiff.source.url.href }, 'extractEpsgFromTiff()');
-      return code;
+    if (epsg != null) {
+      logger?.info(
+        { found: true, method: 'direct', code: epsg.code, source: tiff.source.url.href },
+        'extractEpsgFromTiff()',
+      );
+      return epsg;
     }
   }
 
-  // try to extract the epsg from the tiff's projected citation geotag
+  // try to extract the epsg code from the tiff's projected citation geotag
   const tag = img.valueGeo(TiffTagGeo.ProjectedCitationGeoKey);
 
   if (typeof tag === 'string') {
-    for (const [citation, epsg] of Object.entries(projections)) {
+    // some tags such as 'Universal Transverse Mercator Zone 2s' will match
+    // with citations like 'Universal Transverse Mercator Zone' first, which
+    // isn't what we want. So, we compare a tag against each and every
+    // citation to find the best match instead of short-circuiting early.
+    let bestMatch = null as { citation: string; epsgCode: number } | null;
+
+    for (const [citation, epsgCode] of Object.entries(GeotagToEpsgCode)) {
       if (tag.startsWith(citation)) {
-        logger?.info({ found: true, method: 'geotag', source: tiff.source.url.href }, 'extractEpsgFromTiff()');
-        return epsg;
+        // if the tag matches more of the current citation, set it as the best match
+        if (bestMatch == null || citation.length > bestMatch.citation.length) {
+          bestMatch = { citation, epsgCode };
+        }
       }
+    }
+
+    if (bestMatch != null) {
+      const { citation, epsgCode } = bestMatch;
+      const epsg = await ProjectionLoader.load(epsgCode);
+
+      logger?.info(
+        {
+          found: true,
+          method: 'geotag',
+          tag,
+          citation,
+          code: epsg.code,
+          source: tiff.source.url.href,
+        },
+        'extractEpsgFromTiff()',
+      );
+      return epsg;
     }
   }
 
@@ -157,7 +203,7 @@ export interface TiffItem {
  *
  * @returns a Map of TiffItem arrays by Epsg.
  */
-export function extractTiffItemsByEpsg(tiffs: Tiff[], logger: LogType): Map<Epsg, TiffItem[]> {
+export async function extractTiffItemsByEpsg(tiffs: Tiff[], logger: LogType): Promise<Map<Epsg, TiffItem[]>> {
   const tiffItemsByEpsg = new Map<Epsg, TiffItem[]>();
 
   // create TiffItem objects for each tiff and store them by epsg
@@ -166,28 +212,27 @@ export function extractTiffItemsByEpsg(tiffs: Tiff[], logger: LogType): Map<Epsg
     const { mapCode, version } = extractMapCodeAndVersion(source, logger);
 
     const bounds = extractBoundsFromTiff(tiff, logger);
-    const epsg = extractEpsgFromTiff(tiff, logger);
-    const size = extractSizeFromTiff(tiff, logger);
-    const tileMatrix = TileMatrixSets.tryGet(epsg);
-
     if (bounds == null) {
       brokenTiffs.noBounds.push(`${mapCode}_${version}`);
       logger.warn({ mapCode, version }, 'Could not extract bounds from tiff');
       continue;
     }
 
+    const epsg = await extractEpsgFromTiff(tiff, logger);
     if (epsg == null) {
       brokenTiffs.noEpsg.push(`${mapCode}_${version}`);
       logger.warn({ mapCode, version }, 'Could not extract epsg from tiff');
       continue;
     }
 
+    const size = extractSizeFromTiff(tiff, logger);
     if (size == null) {
       brokenTiffs.noSize.push(`${mapCode}_${version}`);
       logger.warn({ mapCode, version }, 'Could not extract width or height from tiff');
       continue;
     }
 
+    const tileMatrix = TileMatrixSets.tryGet(epsg) ?? (await TmsLoader.load(epsg.code));
     if (tileMatrix == null) {
       brokenTiffs.noTileMatrix.push(`${mapCode}_${version}`);
       if (epsg != null) {
