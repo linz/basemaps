@@ -7,15 +7,17 @@ import { Epsg, EpsgCode } from './epsg.js';
  */
 const yxOrderedCodes = new Set([
   // antarctic
-  EpsgCode.Mslc2000,
+  5479,
+
   // new zealand
   EpsgCode.Nztm2000,
   EpsgCode.Citm2000,
+
   // new zealand offshore islands
-  EpsgCode.Aktm2000,
-  EpsgCode.Catm2000,
-  EpsgCode.Aitm2000,
-  EpsgCode.Ritm2000,
+  3788,
+  3789,
+  3790,
+  3791,
 ]);
 
 /**
