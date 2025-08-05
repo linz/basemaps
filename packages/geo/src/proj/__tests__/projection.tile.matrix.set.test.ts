@@ -7,8 +7,8 @@ import { BBox } from '@linzjs/geojson';
 
 import { Bounds } from '../../bounds.js';
 import { QuadKey } from '../../quad.key.js';
-import { GoogleTms } from '../../tms/global/google.js';
-import { Nztm2000QuadTms, Nztm2000Tms } from '../../tms/new-zealand/nztm2000.js';
+import { GoogleTms } from '../../tms/google.js';
+import { Nztm2000QuadTms, Nztm2000Tms } from '../../tms/nztm2000.js';
 import { LatLon, Projection } from '../projection.js';
 
 const TileSize = 256;
