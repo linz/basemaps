@@ -11,7 +11,7 @@ export enum EpsgCode {
   Citm2000 = 3793,
 }
 
-const EPSGTextMap: Record<string, EpsgCode> = {
+const EpsgText: Record<string, EpsgCode> = {
   google: EpsgCode.Google,
   epsg3857: EpsgCode.Google,
   [EpsgCode.Google]: EpsgCode.Google,
@@ -45,7 +45,7 @@ export class Epsg {
     this.code = code;
     if (Epsg.Codes.has(code)) throw new Error(`Duplicate EPSG code created: ${code}`);
     Epsg.Codes.set(this.code, this);
-    EPSGTextMap[code] = code;
+    EpsgText[code] = code;
   }
 
   /**  */
@@ -98,9 +98,9 @@ export class Epsg {
 
   /** parse a string returning the raw EpsgCode **/
   public static parseCode(text: string): EpsgCode | null {
-    if (text.startsWith('urn:')) return EPSGTextMap[text.slice(text.lastIndexOf(':') + 1)];
-    if (text.startsWith('https://')) return EPSGTextMap[text.slice(text.lastIndexOf('/') + 1)];
-    return EPSGTextMap[text.replace(/[\W_]/g, '').toLowerCase()] ?? null;
+    if (text.startsWith('urn:')) return EpsgText[text.slice(text.lastIndexOf(':') + 1)];
+    if (text.startsWith('https://')) return EpsgText[text.slice(text.lastIndexOf('/') + 1)];
+    return EpsgText[text.replace(/[\W_]/g, '').toLowerCase()] ?? null;
   }
 
   public static parse(text: string): Epsg | null {
