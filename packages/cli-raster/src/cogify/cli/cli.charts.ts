@@ -125,7 +125,6 @@ export const ChartsCreationCommand = command({
         const image = tiff.images[0];
         const outputPath = `${tileMatrix.projection.code}/${chartCode}/${CliId}/`;
         const targetPath = new URL(outputPath, tmpFolder);
-        outputs.add(urlToString(targetPath));
         await mkdir(targetPath, { recursive: true });
 
         // Wrap the cutline to multipolygon if it crosses the Prime Meridian
@@ -241,6 +240,7 @@ export const ChartsCreationCommand = command({
         // write the outputs to target
         const targetTiff = new URL(`${outputPath}${filename}`, args.target);
         await fsa.write(targetTiff, fsa.readStream(target));
+        outputs.add(urlToString(new URL(`${outputPath}`, args.target)));
       }),
     );
 
