@@ -123,7 +123,7 @@ export const ChartsCreationCommand = command({
 
         const tiff = await new Tiff(fsa.source(sourceTiff)).init();
         const image = tiff.images[0];
-        const outputPath = `${tileMatrix.projection.code}/${chartCode}/${CliId}/`;
+        const outputPath = `${tileMatrix.projection.code}/${chartCode}/`;
         const targetPath = new URL(outputPath, tmpFolder);
         await mkdir(targetPath, { recursive: true });
 
@@ -204,8 +204,8 @@ export const ChartsCreationCommand = command({
             stac_version: '1.0.0',
             stac_extensions: [],
             license: 'CC-BY-4.0',
-            title: `New Zealand Charts Mapsheets - ${tileMatrix.projection.code}`,
-            description: `New Zealand Charts Mapsheets - ${tileMatrix.projection.code} - ${tileMatrix.identifier}`,
+            title: `New Zealand Charts Mapsheets - ${chartCode}`,
+            description: `New Zealand Charts Mapsheets - ${chartCode} - ${tileMatrix.identifier}`,
             extent: {
               spatial: { bbox: [item.bbox] },
 
