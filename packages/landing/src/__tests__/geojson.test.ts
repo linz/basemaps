@@ -41,7 +41,7 @@ describe('GeoJSONTransform', () => {
     const proj = Projection.get(GoogleTms).fromWgs84(firstPoint);
     const pixels = GoogleTms.sourceToPixels(proj[0], proj[1], 9);
 
-    const tile = { x: pixels.x / GoogleTms.tileSize, y: pixels.y / GoogleTms.tileSize };
+    const tile = { x: pixels.x / GoogleTms.tileWidth, y: pixels.y / GoogleTms.tileHeight };
 
     assert.equal(tile.x.toFixed(2), '237.11');
     assert.equal(tile.y.toFixed(2), '278.69');
