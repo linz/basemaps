@@ -49,7 +49,7 @@ export class Tiler {
     let layers: Composition[] = [];
     /** Raster pixels of the output tile */
     const screenPx = this.tms.tileToPixels(x, y);
-    const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, this.tms.tileSize, this.tms.tileSize);
+    const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, this.tms.tileWidth, this.tms.tileHeight);
 
     for (const asset of assets) {
       if (isCotar(asset)) {
