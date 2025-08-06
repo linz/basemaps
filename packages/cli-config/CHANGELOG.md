@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* create unit tests for import config diffing ([#3481](https://github.com/linz/basemaps/issues/3481)) ([99f20b5](https://github.com/linz/basemaps/commit/99f20b5a06af5b7585140e415854da4ed6cd65d1))
+
+
+
+
+
 # [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
 
 **Note:** Version bump only for package @basemaps/cli-config
