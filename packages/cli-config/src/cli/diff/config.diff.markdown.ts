@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigLayer, ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigImagery, ConfigLayer, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
 import { EpsgCode, TileMatrixSets } from '@basemaps/geo';
 import { getPreviewUrl } from '@basemaps/shared';
 import type { Diff } from 'deep-diff';
@@ -98,23 +98,23 @@ function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUp
   return lines;
 }
 
+/** Find all the projections from a tileset */
+function tileSetProjections(t: ConfigTileSet): EpsgCode[] {
+  const projections = new Set<EpsgCode>();
+  for (const l of t.layers) {
+    if (l['3857']) projections.add(EpsgCode.Google);
+    if (l['2193']) projections.add(EpsgCode.Nztm2000);
+  }
+  return Array.from(projections);
+}
+
 function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): string[] {
   const lines: string[] = [];
+  const projections = raster.type === 'removed' ? tileSetProjections(raster.before) : tileSetProjections(raster.after);
   if (raster.type === 'removed') {
-    const projections = new Set<EpsgCode>();
-    for (const l of raster.before.layers) {
-      if (l['3857']) projections.add(EpsgCode.Google);
-      if (l['2193']) projections.add(EpsgCode.Nztm2000);
-    }
     const links = [...projections].map((m) => `~~${markdownProjectionText(m)}~~`);
-
     lines.push(`🗑️ ${raster.before.title} (\`${raster.id}\`) ` + links.join(' '));
   } else {
-    const projections = new Set<EpsgCode>();
-    for (const l of raster.after.layers) {
-      if (l['3857']) projections.add(EpsgCode.Google);
-      if (l['2193']) projections.add(EpsgCode.Nztm2000);
-    }
     const links = [...projections].map((m) => markdownProjectionLink(m, 'FIXME'));
     if (raster.type === 'new') {
       lines.push(`➕ ${raster.after.title} (\`${raster.id}\`)` + links.join(' '));
@@ -172,11 +172,7 @@ export function diffToMarkdown(diff: DiffTileSet): string {
     if (changes.length > 0) lines.push(`#### ${e} ${changeType.slice(0, 1).toUpperCase()}${changeType.slice(1)} \n`);
     for (const raster of changes) {
       const changed = markdownDiffRaster(diff, raster);
-      for (const line of changed) {
-        if (line.trim() === '') continue;
-        if (line.trim().startsWith('- ')) lines.push(' ' + line);
-        else lines.push(` - ` + line);
-      }
+      lines.push(...changed);
     }
   }
   if (lines.length > 0) {
