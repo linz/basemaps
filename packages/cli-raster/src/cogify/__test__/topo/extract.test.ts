@@ -1,10 +1,14 @@
 import { strictEqual, throws } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { extractMapCodeAndVersion } from '../topo/extract.js';
+import { extractMapCodeAndVersion } from '../../topo/extract.js';
 
 describe('extractMapCodeAndVersion', () => {
   const FakeDomain = 's3://topographic/fake-domain';
+
+  /**
+   * valid tests
+   */
   const validFiles = [
     { input: `${FakeDomain}/MB07_GeoTifv1-00.tif`, expected: { mapCode: 'MB07', version: 'v1-00' } },
     { input: `${FakeDomain}/MB07_GRIDLESS_GeoTifv1-00.tif`, expected: { mapCode: 'MB07', version: 'v1-00' } },
@@ -19,8 +23,6 @@ describe('extractMapCodeAndVersion', () => {
       expected: { mapCode: 'AZ36ptsAZ35BA35BA36', version: 'v1-00' },
     },
   ];
-  const invalidFiles = [`${FakeDomain}/MB07_GeoTif1-00.tif`, `${FakeDomain}/MB07_TIFF_600v1.tif`];
-
   it('should parse the correct MapSheet Names', () => {
     for (const file of validFiles) {
       const output = extractMapCodeAndVersion(new URL(file.input));
@@ -28,6 +30,11 @@ describe('extractMapCodeAndVersion', () => {
       strictEqual(output.version, file.expected.version, 'Version does not match');
     }
   });
+
+  /**
+   * invalid tests
+   */
+  const invalidFiles = [`${FakeDomain}/MB07_GeoTif1-00.tif`, `${FakeDomain}/MB07_TIFF_600v1.tif`];
 
   it('should not able to parse a version from file', () => {
     for (const file of invalidFiles) {
