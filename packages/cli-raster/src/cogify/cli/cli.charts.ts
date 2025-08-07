@@ -24,7 +24,6 @@ const chartCodeRegex = /^[A-Z]{2}\d+-\d+$/;
 
 // Prepare a temporary folder to store the gdal processed cutlines and tiffs
 const tmpFolder = stringToUrlFolder(path.join(tmpdir(), CliId));
-await mkdir(tmpFolder, { recursive: true });
 
 /**
  * Process and standardize charts maps tiffs, and creating STAC collections and items.
@@ -83,6 +82,7 @@ export const ChartsCreationCommand = command({
     if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
 
     // Process and standardize charts maps tiffs
+    await mkdir(tmpFolder, { recursive: true });
     const outputs = new Set<string>();
     const toProcess = files.map((file) =>
       Q(async () => {
