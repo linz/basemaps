@@ -1,4 +1,12 @@
-import { getXyOrder, GoogleTms, Projection, ProjectionLoader, TileMatrixSet, TileMatrixSetType } from '../index.js';
+import {
+  Epsg,
+  getXyOrder,
+  GoogleTms,
+  Projection,
+  ProjectionLoader,
+  TileMatrixSet,
+  TileMatrixSetType,
+} from '../index.js';
 
 /**
  * Minimal typings of PROJJSON
@@ -62,6 +70,16 @@ function axisName(ax: ProjJsonAxis): 'x' | 'y' {
 
 export class TmsLoader {
   /**
+   * Stores fetched spatialreference.org API ProjJson objects in memory by Epsg
+   */
+  private static readonly FetchedProjJsons = new Map<Epsg, ProjJson>();
+
+  /**
+   * Stores generated TileMatrixSets objects in memory by Epsg
+   */
+  private static readonly GeneratedTileMatrices = new Map<Epsg, TileMatrixSet>();
+
+  /**
    * Attempts to generate a runtime Tile Matrix Set for the given target projection.
    *
    * - Lookup the projection information from spatial reference
@@ -77,11 +95,13 @@ export class TmsLoader {
     const epsg = await ProjectionLoader.load(epsgCode);
     const proj = Projection.get(epsg);
 
+    // check if a TileMatrixSet object has already been generated for the Epsg
+    const existing = TmsLoader.GeneratedTileMatrices.get(epsg);
+    if (existing != null) return existing;
+
     // fetch projection metadata from the spatialreference.org API,
     // this givens us valid axis information and geographic bounding box
-    const projJson = (await fetch(`https://spatialreference.org/ref/epsg/${epsg.code}/projjson.json`).then((f) =>
-      f.json(),
-    )) as ProjJson;
+    const projJson = await TmsLoader.fetchProjJson(epsg);
 
     // transform the bounding box to projected coordinates
     // convert from lat/lon (wgs84) to the target projection's coordinate system
@@ -153,6 +173,23 @@ export class TmsLoader {
     tileMatrix['$generated'] = { createdAt: new Date().toISOString() };
     tileMatrix['$options'] = { sourceTileMatrix: GoogleTms.identifier, zoomOffset: zOffset };
 
-    return new TileMatrixSet(tileMatrix);
+    const tileMatrixSet = new TileMatrixSet(tileMatrix);
+
+    // store the generated TileMatrixSet object by Epsg
+    TmsLoader.GeneratedTileMatrices.set(epsg, tileMatrixSet);
+    return tileMatrixSet;
+  }
+
+  private static async fetchProjJson(epsg: Epsg): Promise<ProjJson> {
+    const existing = TmsLoader.FetchedProjJsons.get(epsg);
+    if (existing != null) return existing;
+
+    const projJson = (await fetch(`https://spatialreference.org/ref/epsg/${epsg.code}/projjson.json`).then((f) =>
+      f.json(),
+    )) as ProjJson;
+
+    // store the fetched spatialreference.org API ProjJson object by Epsg
+    TmsLoader.FetchedProjJsons.set(epsg, projJson);
+    return projJson;
   }
 }
