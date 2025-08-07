@@ -135,7 +135,7 @@ export const ChartsCreationCommand = command({
         const targetPath = new URL(`${tileMatrix.projection.code}/${chartCode}/`, args.target);
         logger.info({ file: file.href, target: targetPath.href }, 'Charts:Uploading');
         if (targetPath.protocol === 'file:') await mkdir(targetPath, { recursive: true });
-        const targetTiff = new URL(`${filename}`, targetPath);
+        const targetTiff = new URL(filename, targetPath);
         await fsa.write(targetTiff, fsa.readStream(cogFile));
 
         // Write the item and collection to the target path
