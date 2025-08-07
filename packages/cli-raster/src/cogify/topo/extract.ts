@@ -40,6 +40,16 @@ export function extractBoundsFromTiff(tiff: Tiff, logger?: LogType): Bounds | nu
   }
 }
 
+/**
+ * Most (if not all) GeoTIFF files within a Map Series collection specify their imagery's
+ * projection using the 'Projection Coordinate System' Citation GeoKey TIFF tag. To interpret
+ * this, we map the tag's citation value to an EPSG code.
+ *
+ * @link http://geotiff.maptools.org/spec/geotiff2.7.html
+ *
+ * We map to the EPSG code number rather than an EPSG object because some EPSG definitions
+ * are not supported natively and must be initialised dynamically at runtime.
+ */
 const GeotagToEpsgCode: Record<string, number> = {
   // global
   'Universal Transverse Mercator Zone': 4326,
