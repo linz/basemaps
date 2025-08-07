@@ -62,6 +62,20 @@ For LINZ's implementation of this configuration see [linz/basemaps-config](https
 }
 ```
 
+### Tileset Aliases
+
+Tilesets can have multiple aliases, allowing them to be linked by different names:
+
+```json
+{
+  "type": "raster",
+  "id": "ts_auckland-2010-2012-0.5m",
+  "title": "Auckland 0.5m Rural Aerial Photos (2010-2012)",
+  "name": "auckland-2017-0.075m",
+  "aliases": ["auckland-urban-2017-0.075m"]
+}
+```
+
 ## Style Example
 
 [ConfigVectorStyle](./src/config/vector.style.ts)
