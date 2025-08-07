@@ -1,9 +1,9 @@
-import { GoogleTms, Nztm2000QuadTms, StacItem, TileMatrixSets } from '@basemaps/geo';
-import { fsa, stringToUrlFolder, Tiff, urlToString } from '@basemaps/shared';
+import { GoogleTms, Nztm2000QuadTms, StacItem, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { fsa, LogType, stringToUrlFolder, Tiff, urlToString } from '@basemaps/shared';
 import { getLogger, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { TiffTagGeo } from '@cogeotiff/core';
-import { command, oneOf, option, optional, restPositionals } from 'cmd-ts';
+import { command, number, oneOf, option, optional, restPositionals } from 'cmd-ts';
 import { mkdir, rm } from 'fs/promises';
 import { FeatureCollection } from 'geojson';
 import { tmpdir } from 'os';
@@ -21,6 +21,10 @@ const Q = pLimit(10);
 
 // ChartCode regex
 const chartCodeRegex = /^[A-Z]{2}\d+-\d+$/;
+
+// Prepare a temporary folder to store the gdal processed cutlines and tiffs
+const tmpFolder = stringToUrlFolder(path.join(tmpdir(), CliId));
+await mkdir(tmpFolder, { recursive: true });
 
 /**
  * Process and standardize charts maps tiffs, and creating STAC collections and items.
@@ -59,6 +63,12 @@ export const ChartsCreationCommand = command({
       defaultValue: () => new URL('s3://linz-hydrographic-upload/charts/RNCPANEL/'),
       description: 'Location of the cutlines to cut tiffs, save the shp files for the cutlines.',
     }),
+    bufferPixels: option({
+      type: number,
+      long: 'buffer-pixels',
+      defaultValue: () => 10,
+      description: 'Number of pixels to buffer the cutlines.',
+    }),
     paths: restPositionals({
       type: Url,
       description: 'Source paths for the charts tiffs',
@@ -71,9 +81,6 @@ export const ChartsCreationCommand = command({
 
     const tileMatrix = TileMatrixSets.find(args.tileMatrix);
     if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
-
-    const tmpFolder = stringToUrlFolder(path.join(tmpdir(), CliId));
-    await mkdir(tmpFolder, { recursive: true });
 
     // Process and standardize charts maps tiffs
     const outputs = new Set<string>();
@@ -92,155 +99,53 @@ export const ChartsCreationCommand = command({
           return;
         }
 
-        logger.info({ file: file.href, chartCode }, 'Charts:Download');
-        if ((await fsa.head(file)) == null) {
-          logger.warn({ file: file.href }, 'File does not exist');
-          return;
-        }
-        const sourceTiff = new URL(`${filename}`, tmpFolder);
-        await fsa.write(sourceTiff, fsa.readStream(file));
-        const cutline = new URL(`${args.cutline.href}${chartCode}.shp`);
-        const cutlineFile = new URL(`${chartCode}.shp`, tmpFolder);
-        if ((await fsa.head(cutline)) == null) {
-          logger.warn({ cutline: cutline.href }, 'Cutline does not exist');
-          return;
-        }
-        await fsa.write(cutlineFile, fsa.readStream(cutline));
-        await fsa.write(
-          new URL(`${chartCode}.shx`, tmpFolder),
-          fsa.readStream(new URL(`${args.cutline.href}${chartCode}.shx`)),
-        );
-        await fsa.write(
-          new URL(`${chartCode}.dbf`, tmpFolder),
-          fsa.readStream(new URL(`${args.cutline.href}${chartCode}.dbf`)),
-        );
-        await fsa.write(
-          new URL(`${chartCode}.prj`, tmpFolder),
-          fsa.readStream(new URL(`${args.cutline.href}${chartCode}.prj`)),
-        );
+        // Download the source tiff file and cutline files
+        const sourceTiff = await downloadCharts(file, filename, logger);
+        const cutline = await downloadCutlines(new URL(args.cutline.href), chartCode, logger);
 
         logger.info({ file: file.href, tileMatrix: tileMatrix.identifier, chartCode }, 'Charts:Processing');
-
         const tiff = await new Tiff(fsa.source(sourceTiff)).init();
-        const image = tiff.images[0];
-        const outputPath = `${tileMatrix.projection.code}/${chartCode}/`;
-        const targetPath = new URL(outputPath, tmpFolder);
-        await mkdir(targetPath, { recursive: true });
 
-        // Wrap the cutline to multipolygon if it crosses the Prime Meridian
+        // Prepare buffered cutline
+        const bufferedCutline = await prepareCutline(
+          cutline,
+          chartCode,
+          tileMatrix,
+          tiff.images[0].resolution[0],
+          args.bufferPixels,
+          logger,
+        );
 
-        logger.info({ cutline: cutline.href, chartCode }, 'Charts:WrapCutline');
-        const wrappedCutline = new URL(`${chartCode}-wrapped.shp`, tmpFolder);
-        await new GdalRunner(wrapCutline(wrappedCutline, cutlineFile)).run(logger);
+        // Create a STAC files for the chart map
+        const { item, collection } = await createStacFiles(
+          chartCode,
+          tileMatrix,
+          tiff,
+          cutline,
+          bufferedCutline,
+          logger,
+        );
 
-        // Reproject the cutline to the target tile matrix
-        logger.info({ cutline: cutline.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:ReprojectCutline');
-        const reprojectedCutline = new URL(`${chartCode}-${tileMatrix.identifier}.shp`, tmpFolder);
-        await new GdalRunner(reprojectCutline(reprojectedCutline, wrappedCutline, tileMatrix)).run(logger);
-
-        // Buffer the cutline
-        const gsd = image.resolution[0];
-        logger.info({ cutline: cutline.href, chartCode, gsd }, 'Charts:BufferCutline');
-        const bufferedCutline = new URL(`${chartCode}-buffered.geojson`, tmpFolder);
-        await new GdalRunner(
-          bufferCutline(bufferedCutline, reprojectedCutline, `${chartCode}-${tileMatrix.identifier}`, gsd),
-        ).run(logger);
-
-        // Create stac item
-        const itemPath = new URL(`${outputPath}${chartCode}.json`, args.target);
-        logger.info({ item: itemPath.href, chartCode }, 'Charts:CreateStacItem');
-        const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
-        const item: StacItem = {
-          id: `${CliId}/${chartCode}`,
-          type: 'Feature',
-          collection: CliId,
-          stac_version: '1.0.0-beta.2',
-          stac_extensions: [],
-          geometry: geojson.features[0].geometry,
-          bbox: image.bbox,
-          links: [
-            { href: `./${chartCode}.json`, rel: 'self' },
-            { href: './collection.json', rel: 'collection' },
-            { href: './collection.json', rel: 'parent' },
-            {
-              href: urlToString(tiff.source.url),
-              rel: 'linz_basemaps:source',
-              type: 'image/tiff; application=geotiff;',
-              'linz_basemaps:source_height': image.size.height,
-              'linz_basemaps:source_width': image.size.width,
-              'linz_basemaps:source_gsd': image.resolution[0],
-            },
-            {
-              href: urlToString(cutline),
-              rel: 'linz_basemaps:cutline',
-            },
-          ],
-          properties: {
-            datetime: CliDate,
-            'proj:epsg': tileMatrix.projection.code,
-            'linz_basemaps:options': {
-              tileMatrix: tileMatrix.identifier,
-              sourceEpsg: image.epsg ?? image.valueGeo(TiffTagGeo.GeodeticCRSGeoKey),
-            },
-            'linz_basemaps:generated': {
-              package: CliInfo.package,
-              hash: CliInfo.hash,
-              version: CliInfo.version,
-              datetime: CliDate,
-            },
-          },
-          assets: {},
-        };
-        await fsa.write(itemPath, JSON.stringify(item, null, 2));
-
-        // Create stac collection
-        const collectionUrl = new URL(`${outputPath}collection.json`, args.target);
-        logger.info({ collection: collectionUrl.href, chartCode }, 'Charts:CreateStacCollection');
-        const exists = await fsa.head(collectionUrl);
-        if (exists == null) {
-          const collection = {
-            id: CliId,
-            type: 'Collection',
-            stac_version: '1.0.0',
-            stac_extensions: [],
-            license: 'CC-BY-4.0',
-            title: `New Zealand Charts Mapsheets - ${chartCode}`,
-            description: `New Zealand Charts Mapsheets - ${chartCode} - ${tileMatrix.identifier}`,
-            extent: {
-              spatial: { bbox: [item.bbox] },
-
-              temporal: { interval: [[CliDate, null]] },
-            },
-            links: [
-              { rel: 'self', href: './collection.json', type: 'application/json' },
-              {
-                href: `./${item.id}.json`,
-                rel: 'item',
-                type: 'application/json',
-              },
-            ],
-          };
-          await fsa.write(collectionUrl, JSON.stringify(collection, null, 2));
-        } else {
-          const collection = await fsa.readJson<StacCollection>(collectionUrl);
-          // Merge with existing collection
-          collection.links.push({
-            href: `./${item.id}.json`,
-            rel: 'item',
-            type: 'application/json',
-          });
-          await fsa.write(collectionUrl, JSON.stringify(collection, null, 2));
-        }
-
-        // Reproject the chart map to target tile matrix with cutline
+        // Create Cog for the chart map
         logger.info({ file: file.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:GdalBuildCharts');
-        const target = new URL(filename, targetPath);
-        await new GdalRunner(gdalBuildChartsCommand(target, sourceTiff, bufferedCutline, tileMatrix)).run(logger);
+        const cogFile = new URL(`${chartCode}-${tileMatrix.identifier}.tif`, tmpFolder);
+        await new GdalRunner(gdalBuildChartsCommand(cogFile, sourceTiff, bufferedCutline, tileMatrix)).run(logger);
 
-        // write the outputs to target
-        const targetTiff = new URL(`${outputPath}${filename}`, args.target);
-        await fsa.write(targetTiff, fsa.readStream(target));
-        outputs.add(urlToString(new URL(`${outputPath}`, args.target)));
+        // write the cog file to the target path
+        const targetPath = new URL(`${tileMatrix.projection.code}/${chartCode}/`, args.target);
+        logger.info({ file: file.href, target: targetPath.href }, 'Charts:Uploading');
+        if (targetPath.protocol === 'file:') await mkdir(targetPath, { recursive: true });
+        const targetTiff = new URL(`${filename}`, targetPath);
+        await fsa.write(targetTiff, fsa.readStream(cogFile));
+
+        // Write the item and collection to the target path
+        const targetItem = new URL(`${chartCode}.json`, targetPath);
+        await fsa.write(targetItem, JSON.stringify(item, null, 2));
+        const targetCollection = new URL('collection.json', targetPath);
+        await fsa.write(targetCollection, JSON.stringify(collection, null, 2));
+
+        // Add the target files to the outputs
+        outputs.add(urlToString(new URL(`${targetPath}`, args.target)));
       }),
     );
 
@@ -250,3 +155,140 @@ export const ChartsCreationCommand = command({
     await rm(tmpFolder, { recursive: true, force: true });
   },
 });
+
+// Download Charts Tiff files into local folder for dgal to process
+async function downloadCharts(file: URL, filename: string, logger: LogType): Promise<URL> {
+  logger.info({ file: file.href, filename }, 'Charts:DownloadTiff');
+  if ((await fsa.head(file)) == null) throw new Error(`File does not exist: ${file.href}`);
+  const sourceTiff = new URL(filename, tmpFolder);
+  await fsa.write(sourceTiff, fsa.readStream(file));
+  return sourceTiff;
+}
+
+// Download Charts Cutlines into local folder for gdal to process
+async function downloadCutlines(cutline: URL, chartCode: string, logger: LogType): Promise<URL> {
+  logger.info({ cutline: cutline.href, chartCode }, 'Charts:DownloadCutline');
+  const formats = ['shp', 'shx', 'dbf', 'prj'];
+  for (const format of formats) {
+    const cutlineFile = new URL(`${chartCode}.${format}`, tmpFolder);
+    const cutlineUrl = new URL(`${cutline.href}${chartCode}.${format}`);
+    if ((await fsa.head(cutlineUrl)) == null) {
+      logger.warn({ cutline: cutlineUrl.href }, 'Charts:Cutline does not exist');
+      continue;
+    }
+    await fsa.write(cutlineFile, fsa.readStream(cutlineUrl));
+  }
+  return new URL(`${chartCode}.shp`, tmpFolder);
+}
+
+/**
+ * Prepare the cutline for charts mapsheets by wrapping, reprojecting, and buffering it to remove edge artifacts.
+ */
+async function prepareCutline(
+  cutline: URL,
+  chartCode: string,
+  tileMatrix: TileMatrixSet,
+  gsd: number,
+  bufferPixels: number,
+  logger: LogType,
+): Promise<URL> {
+  // Wrap the cutline to multipolygon if it crosses the Prime Meridian
+  logger.info({ cutline: cutline.href, chartCode }, 'Charts:WrapCutline');
+  const wrappedCutline = new URL(`${chartCode}-wrapped.shp`, tmpFolder);
+  await new GdalRunner(wrapCutline(wrappedCutline, cutline)).run(logger);
+
+  // Reproject the cutline to the target tile matrix
+  logger.info({ cutline: cutline.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:ReprojectCutline');
+  const reprojectedCutline = new URL(`${chartCode}-${tileMatrix.identifier}.shp`, tmpFolder);
+  await new GdalRunner(reprojectCutline(reprojectedCutline, wrappedCutline, tileMatrix)).run(logger);
+
+  // Buffer the cutline
+  logger.info({ cutline: cutline.href, chartCode, gsd, bufferPixels }, 'Charts:BufferCutline');
+  const bufferedCutline = new URL(`${chartCode}-buffered.geojson`, tmpFolder);
+  await new GdalRunner(
+    bufferCutline(bufferedCutline, reprojectedCutline, `${chartCode}-${tileMatrix.identifier}`, gsd, bufferPixels),
+  ).run(logger);
+
+  return bufferedCutline;
+}
+
+async function createStacFiles(
+  chartCode: string,
+  tileMatrix: TileMatrixSet,
+  tiff: Tiff,
+  sourceCutline: URL,
+  bufferedCutline: URL,
+  logger: LogType,
+): Promise<{ item: StacItem; collection: StacCollection }> {
+  const image = tiff.images[0];
+  // Create stac item
+  logger.info({ chartCode }, 'Charts:CreateStacItem');
+  const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
+  const item: StacItem = {
+    id: `${CliId}/${chartCode}`,
+    type: 'Feature',
+    collection: CliId,
+    stac_version: '1.0.0-beta.2',
+    stac_extensions: [],
+    geometry: geojson.features[0].geometry,
+    bbox: image.bbox,
+    links: [
+      { href: `./${chartCode}.json`, rel: 'self' },
+      { href: './collection.json', rel: 'collection' },
+      { href: './collection.json', rel: 'parent' },
+      {
+        href: urlToString(tiff.source.url),
+        rel: 'linz_basemaps:source',
+        type: 'image/tiff; application=geotiff;',
+        'linz_basemaps:source_height': image.size.height,
+        'linz_basemaps:source_width': image.size.width,
+        'linz_basemaps:source_gsd': image.resolution[0],
+      },
+      {
+        href: urlToString(sourceCutline),
+        rel: 'linz_basemaps:cutline',
+      },
+    ],
+    properties: {
+      datetime: CliDate,
+      'proj:epsg': tileMatrix.projection.code,
+      'linz_basemaps:options': {
+        tileMatrix: tileMatrix.identifier,
+        sourceEpsg: image.epsg ?? image.valueGeo(TiffTagGeo.GeodeticCRSGeoKey),
+      },
+      'linz_basemaps:generated': {
+        package: CliInfo.package,
+        hash: CliInfo.hash,
+        version: CliInfo.version,
+        datetime: CliDate,
+      },
+    },
+    assets: {},
+  };
+
+  // Create stac collection
+  logger.info({ chartCode }, 'Charts:CreateStacCollection');
+  const collection: StacCollection = {
+    id: CliId,
+    type: 'Collection',
+    stac_version: '1.0.0',
+    stac_extensions: [],
+    license: 'CC-BY-4.0',
+    title: `New Zealand Charts Mapsheets - ${chartCode}`,
+    description: `New Zealand Charts Mapsheets - ${chartCode} - ${tileMatrix.identifier}`,
+    extent: {
+      spatial: { bbox: [item.bbox] },
+
+      temporal: { interval: [[CliDate, null]] },
+    },
+    links: [
+      { rel: 'self', href: './collection.json', type: 'application/json' },
+      {
+        href: `./${item.id}.json`,
+        rel: 'item',
+        type: 'application/json',
+      },
+    ],
+  };
+  return { item, collection };
+}

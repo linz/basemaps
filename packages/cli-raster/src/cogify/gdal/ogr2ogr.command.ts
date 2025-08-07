@@ -40,9 +40,14 @@ export function reprojectCutline(target: URL, source: URL, tileMatrix: TileMatri
  *
  * This is specific configuration to LINZ's charts mapsheets
  */
-export function bufferCutline(target: URL, source: URL, chartCode: string, resolution: number): GdalCommand {
-  const trimPixel = 10; // Trim 10 pixels from each edge
-  const trimMeters = trimPixel * resolution; // Convert pixels to meters
+export function bufferCutline(
+  target: URL,
+  source: URL,
+  chartCode: string,
+  gsd: number,
+  bufferPixels: number,
+): GdalCommand {
+  const trimMeters = bufferPixels * gsd; // Convert pixels to meters
   return {
     output: target,
     command: 'ogr2ogr',
