@@ -145,7 +145,7 @@ export const ChartsCreationCommand = command({
         await fsa.write(targetCollection, JSON.stringify(collection, null, 2));
 
         // Add the target files to the outputs
-        outputs.add(urlToString(new URL(`${targetPath}`, args.target)));
+        outputs.add(urlToString(targetPath));
       }),
     );
 
