@@ -1,5 +1,5 @@
 import { Rgba } from '@basemaps/config';
-import { Epsg, EpsgCode, TileMatrixSets } from '@basemaps/geo';
+import { Epsg, EpsgCode, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
 import { Presets } from '../../preset.js';
@@ -200,4 +200,32 @@ export function gdalBuildTopoRasterCommands(
   };
 
   return command;
+}
+
+/**
+ * Standardized gdalwarp command for charts mapsheets
+ *
+ * Reproject the charts tif with the cutline applied.
+ */
+export function gdalBuildChartsCommand(target: URL, source: URL, cutline: URL, tileMatrix: TileMatrixSet): GdalCommand {
+  return {
+    output: target,
+    command: 'gdalwarp',
+    args: [
+      ['-of', 'COG'],
+      '-multi',
+      ['-wo', 'NUM_THREADS=ALL_CPUS'],
+      ['-t_srs', tileMatrix.projection.toEpsgString()],
+      '-dstalpha',
+      ['-cutline', urlToString(cutline)],
+      ['-crop_to_cutline'],
+      ['-co', 'BIGTIFF=NO'],
+      ['-r', 'bilinear'],
+      urlToString(source),
+      urlToString(target),
+    ]
+      .filter((f) => f != null)
+      .flat()
+      .map(String),
+  };
 }
