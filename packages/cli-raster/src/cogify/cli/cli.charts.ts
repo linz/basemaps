@@ -146,6 +146,7 @@ export const ChartsCreationCommand = command({
 
         // Add the target files to the outputs
         outputs.add(urlToString(targetPath));
+        await tiff.source.close?.();
       }),
     );
 
