@@ -1,30 +1,21 @@
 import { z } from 'zod';
 
-const optionalString = z.preprocess((value) => {
-  if (value === '0' || value === null) {
-    return undefined;
-  } else {
-    return value;
-  }
-}, z.string().optional());
+const optionalString = z.preprocess((value) => (value == null ? undefined : value), z.string().optional());
 
 export const zPlaceLabelsProperties = z.object({
   /** @example "Kaitaia" */
   label: z.string(),
 
-  /** @example 8 */
-  zoom_level: z.number(),
+  /** @example 7 */
+  admin_level: z.number(),
 
-  /** @example "TWN1" */
-  style: z.string(),
-
-  /** @example "cape" */
+  /** @example "peak" */
   natural: optionalString,
 
   /** @example "city" */
   place: optionalString,
 
-  /** @example "bay" */
+  /** @example "sea" */
   water: optionalString,
 });
 
