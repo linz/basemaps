@@ -1,4 +1,4 @@
-import { GoogleTms, Nztm2000QuadTms, StacItem, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, GoogleTms, Nztm2000QuadTms, StacItem, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff, urlToString } from '@basemaps/shared';
 import { getLogger, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
@@ -255,7 +255,7 @@ async function createStacFiles(
       'proj:epsg': tileMatrix.projection.code,
       'linz_basemaps:options': {
         tileMatrix: tileMatrix.identifier,
-        sourceEpsg: image.epsg ?? image.valueGeo(TiffTagGeo.GeodeticCRSGeoKey),
+        sourceEpsg: image.epsg ?? image.valueGeo(TiffTagGeo.GeodeticCRSGeoKey) ?? EpsgCode.Wgs84,
       },
       'linz_basemaps:generated': {
         package: CliInfo.package,
