@@ -9,7 +9,7 @@ import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { getPreviewUrl, V } from '@basemaps/shared';
 
 export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<string> {
-  const allLayers = await Promise.all([mem.TileSet.get('ts_all'), mem.TileSet.get('ts_elevation')]);
+  const allLayers = await Promise.all([mem.TileSet.get('ts_aerial'), mem.TileSet.get('ts_elevation')]);
 
   const allSourceLayers = allLayers.flatMap((m) => m?.layers).filter(Boolean) as ConfigLayer[];
   if (allSourceLayers == null) return 'No layers found.';
@@ -19,48 +19,50 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
   const cards = [];
 
   const layers = [...allImagery.values()].sort((a, b) => a.title.localeCompare(b.title));
-
   const showPreview = allImagery.size < 10;
   for (const img of layers) {
     let tileMatrix = TileMatrixSets.find(img.tileMatrix);
     if (tileMatrix == null) tileMatrix = GoogleTms;
 
     const ts = ConfigProviderMemory.imageryToTileSet(img) as ConfigTileSetRaster;
-    const output = ts.outputs?.find((f) => f.format == null || f.format.includes('webp'));
 
-    const ret = getPreviewUrl({ imagery: img, pipeline: output?.name });
+    for (const o of ts.outputs ?? []) {
+      const ret = getPreviewUrl({ imagery: img, pipeline: o.name });
 
-    const els = [
-      V('div', { class: `layer-header`, style: 'display:flex; justify-content: space-around;' }, [
-        V('div', { class: 'layer-title' }, img.title),
-        V('div', { class: 'layer-tile-matrix' }, `TileMatrix: ${img.tileMatrix}`),
-        V('div', { class: 'layer-tile-epsg' }, tileMatrix.projection.toEpsgString()),
-      ]),
-    ];
+      const els = [
+        V('div', { class: `layer-header`, style: 'display:flex; justify-content: space-around;' }, [
+          V('div', { class: 'layer-title' }, img.title),
+          V('div', { class: 'layer-tile-matrix' }, `TileMatrix: ${img.tileMatrix}`),
+          V('div', { class: 'layer-tile-epsg' }, tileMatrix.projection.toEpsgString()),
+        ]),
+      ];
 
-    if (showPreview) els.push(V('img', { width: '600px', height: '315px', src: ret.url }));
-    cards.push(
-      V(
-        'a',
-        {
-          class: `layer layer-${img.id}`,
-          href: `/${ret.slug}?tileMatrix=${tileMatrix.identifier}&style=${ret.name}`,
-        },
-        els,
-      ),
-    );
+      if (showPreview) els.push(V('img', { width: '600px', height: '315px', src: ret.url }));
+      cards.push(
+        V(
+          'a',
+          {
+            class: `layer layer-${img.id}`,
+            href: `/${ret.slug}?tileMatrix=${tileMatrix.identifier}&style=${ret.name}&pipeline=${o.name}`,
+          },
+          els,
+        ),
+      );
+    }
   }
 
   const style = `
 body {
     font-family: 'Fira Sans', 'Open Sans';
 }
+.layer-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem;
+}
 .layer {
-    margin: auto;
-    margin-top: 32px;
     width: 600px;
-    display: flex;
-    flex-direction: column;
     padding: 16px;
     box-shadow: 0px 2px 3px 0px rgba(0,0,0,.2509803922), 0px 0px 3px 0px rgba(0,0,0,.1490196078);
 }
@@ -73,14 +75,14 @@ body {
     padding-bottom: 16px;
     display: flex;
     flex-direction: column;
-    line-height: 1.5em;
+    line-height: 1.5rem;
 }
 .layer-title {
     font-weight: bold;
 }
 `;
 
-  return V('html', [V('head', [V('style', '__STYLE_TEXT__')]), V('body', cards)])
+  return V('html', [V('head', [V('style', '__STYLE_TEXT__')]), V('body', [V('div', { class: 'layer-grid' }, cards)])])
     .toString()
     .replace('__STYLE_TEXT__', style); // CSS gets escaped be escaped
 }

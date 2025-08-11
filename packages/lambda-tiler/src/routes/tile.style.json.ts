@@ -238,11 +238,23 @@ export function tileSetOutputToStyle(
     }
   }
 
-  // Add first raster source as default layer
-  for (const source of Object.keys(sources)) {
-    if (sources[source].type === 'raster') {
-      layers.push({ id: styleId, type: 'raster', source });
-      break;
+  const [tileFormat] = Validate.getRequestedFormats(req) ?? ['webp'];
+  if (tileFormat == null) throw new LambdaHttpResponse(400, 'Invalid image format');
+
+  const pipeline = Validate.pipeline(tileSet, tileFormat, req.query.get('pipeline'));
+  const pipelineName = pipeline?.name === 'rgba' ? undefined : pipeline?.name;
+
+  if (pipelineName != null) {
+    const sourceId = `${styleId}-${pipelineName}`;
+    if (sources[sourceId] == null) throw new LambdaHttpResponse(404, 'Pipeline not found');
+    layers.push({ id: styleId, type: 'raster', source: `${styleId}-${pipelineName}` });
+  } else {
+    // Add first raster source as default layer
+    for (const source of Object.keys(sources)) {
+      if (sources[source].type === 'raster') {
+        layers.push({ id: styleId, type: 'raster', source });
+        break;
+      }
     }
   }
 

@@ -8,15 +8,47 @@ export const ConfigImageFormatParser = z.union([
 ]);
 export const ConfigResizeKernelParser = z.union([z.literal('nearest'), z.literal('lanczos3'), z.literal('lanczos2')]);
 
-export const ConfigTileSetPipelineParser = z.object({
-  /**
-   * type of pipeline function
-   *
-   * @example "terrain-rgb"
-   */
-  type: z.string(),
-  // TODO allow custom arguments
+const ColorParser = z.object({
+  r: z.number(),
+  g: z.number(),
+  b: z.number(),
+  alpha: z.number(),
 });
+
+export const PipelineTerrainRgbParser = z.object({ type: z.literal('terrain-rgb') });
+export const PipelineColorRampParser = z.object({ type: z.literal('color-ramp') });
+export const PipelineNdviParser = z.object({
+  type: z.literal('ndvi'),
+  nir: z.number(),
+  r: z.number(),
+  alpha: z.number(),
+  scale: z
+    .object({
+      nir: z.number(),
+      r: z.number(),
+      alpha: z.number(),
+    })
+    .optional(),
+});
+
+export const PipelineExtractParser = z.object({
+  type: z.literal('extract'),
+  r: z.number(),
+  g: z.number(),
+  b: z.number(),
+  alpha: z.number(),
+  scale: ColorParser.optional(),
+});
+
+export type PipelineNdviArgs = z.infer<typeof PipelineNdviParser>;
+export type PipelineExtractArgs = z.infer<typeof PipelineExtractParser>;
+
+export const ConfigTileSetPipelineParser = z.discriminatedUnion('type', [
+  PipelineExtractParser,
+  PipelineTerrainRgbParser,
+  PipelineColorRampParser,
+  PipelineNdviParser,
+]);
 
 export const ConfigRgbaParser = z.object({ r: z.number(), g: z.number(), b: z.number(), alpha: z.number() });
 

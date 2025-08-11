@@ -235,19 +235,22 @@ interface GdalMetadataSummary {
 const MetadataSetter: Record<string, (val: string, meta: ImageryBandType) => void> = {
   COLORINTERP: (val: string, meta: ImageryBandType) => (meta.color = val.toLowerCase()),
   STATISTICS_MEAN: (val: string, meta: ImageryBandType) => {
-    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN };
+    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN, stddev: NaN };
     meta.stats.mean = Number(val);
   },
   STATISTICS_MAXIMUM: (val: string, meta: ImageryBandType) => {
-    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN };
+    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN, stddev: NaN };
     meta.stats.max = Number(val);
   },
   STATISTICS_MINIMUM: (val: string, meta: ImageryBandType) => {
-    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN };
+    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN, stddev: NaN };
     meta.stats.min = Number(val);
   },
   // Ignored
-  STATISTICS_STDDEV: () => {},
+  STATISTICS_STDDEV: (val: string, meta: ImageryBandType) => {
+    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN, stddev: NaN };
+    meta.stats.stddev = Number(val);
+  },
   STATISTICS_VALIDPERCENT: () => {},
 };
 
@@ -535,6 +538,23 @@ export async function initConfigFromUrls(
     category: 'Basemaps',
     type: TileSetType.Raster,
     layers: [],
+    outputs: [
+      {
+        name: 'rgb',
+        title: 'RGB',
+        pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 4, scale: { r: 1024, g: 1024, b: 1024, alpha: 32768 } }],
+      },
+      {
+        name: 'false-color',
+        title: 'False Color',
+        pipeline: [{ type: 'extract', r: 3, g: 0, b: 1, alpha: 4, scale: { r: 4000, g: 1024, b: 1024, alpha: 32768 } }],
+      },
+      {
+        name: 'ndvi',
+        title: 'NDVI',
+        pipeline: [{ type: 'ndvi', r: 0, nir: 3, alpha: 4, scale: { r: 1024, nir: 4096, alpha: 32768 } }],
+      },
+    ],
   };
 
   const elevationTileSet: ConfigTileSetRaster = {
@@ -570,6 +590,13 @@ export async function initConfigFromUrls(
         provider.put(elevationTileSet);
         tileSets.push(elevationTileSet);
       }
+    } else {
+      let existingLayer = aerialTileSet.layers.find((l) => l.title === cfg.title);
+      if (existingLayer == null) {
+        existingLayer = { name: cfg.name, title: cfg.title };
+        aerialTileSet.layers.push(existingLayer);
+      }
+      existingLayer[cfg.projection] = cfg.id;
     }
   }
   // FIXME: tileSet should be removed now that we are returning all tilesets

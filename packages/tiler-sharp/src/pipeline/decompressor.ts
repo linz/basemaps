@@ -39,15 +39,17 @@ export type DecompressedInterleaved =
   | DecompressedInterleavedUint16
   | DecompressedInterleavedUint32;
 
+export type TiffTileId = { imageId: number; x: number; y: number };
 export interface Decompressor {
-  type: 'image/webp' | 'application/lerc';
-  bytes(source: Tiff, tile: ArrayBuffer): Promise<DecompressedInterleaved>;
+  type: 'image/webp' | 'application/lerc' | 'application/zstd';
+  bytes(source: Tiff, tile: TiffTileId, bytes: ArrayBuffer): Promise<DecompressedInterleaved>;
 }
 
-export interface Pipeline {
+export interface Pipeline<T = undefined> {
   type: string;
   process(
     source: CompositionTiff,
     bytes: DecompressedInterleaved,
+    ctx?: T,
   ): Promise<DecompressedInterleaved> | DecompressedInterleaved;
 }

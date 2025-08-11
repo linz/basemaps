@@ -37,6 +37,7 @@ export const ConfigImageryBandParser = z.object({
       min: z.number(),
       max: z.number(),
       mean: z.number(),
+      stddev: z.number(),
     })
     .optional(),
 });

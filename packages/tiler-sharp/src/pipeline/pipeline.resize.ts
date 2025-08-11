@@ -8,11 +8,13 @@ import { DecompressedInterleaved } from './decompressor.js';
  * Pipeline to apply the crop/resizing to datasets
  */
 export function cropResize(
-  tiff: Tiff,
+  _tiff: Tiff,
   data: DecompressedInterleaved,
   comp: CompositionTiff,
   mode: ResizeKernelType | 'bilinear',
 ): DecompressedInterleaved {
+  // console.log('cropResize', { comp });
+
   if (comp.extract == null && comp.resize == null) {
     const cropVal = comp.crop;
     // Nothing to do
@@ -21,9 +23,6 @@ export function cropResize(
     // since there is no resize we can just copy input buffers into output buffers
     return applyCrop(data, cropVal);
   }
-
-  // Currently very limited supported input parameters
-  if (data.channels !== 1) throw new Error('Unable to crop-resize more than one channel got:' + data.channels);
 
   // Area of the source data that needs to be resampled
   const source = { x: 0, y: 0, width: data.width, height: data.height };
@@ -56,13 +55,15 @@ export function cropResize(
     target.height = comp.crop.height;
   }
 
-  const noData = tiff.images[0].noData;
+  console.log('resize', { mode });
+  // const noData = tiff.images[0].noData;
 
+  // console.log('resize', mode);
   switch (mode) {
     case 'nearest':
       return resizeNearest(data, comp, source, target);
     case 'bilinear':
-      return resizeBilinear(data, comp, source, target, noData);
+      return resizeBilinear(data, comp, source, target);
     default:
       throw new Error('Unable to use resize kernel: ' + mode);
   }
@@ -75,7 +76,7 @@ export function applyCrop(data: DecompressedInterleaved, crop: Size & Point): De
   for (let y = 0; y < crop.height; y++) {
     const source = ((y + crop.y) * data.width + crop.x) * data.channels;
     const length = crop.width * data.channels;
-    output.pixels.set(data.pixels.subarray(source, source + length), y * crop.width);
+    output.pixels.set(data.pixels.subarray(source, source + length), y * crop.width * data.channels);
   }
 
   return output;
@@ -90,10 +91,12 @@ function resizeNearest(
   const maxWidth = Math.min(comp.source.width, data.width) - 1;
   const maxHeight = Math.min(comp.source.height, data.height) - 1;
   const invScale = 1 / target.scale;
-
-  // Resample the input tile into the output tile using a nearest neighbor approach
   const ret = getOutputBuffer(data, target);
   const outputBuffer = ret.pixels;
+
+  // FIXME! LERC is band interleaved rather than pixel interleaved
+  // const channelOffset = data.width * data.height * 1;
+  // const resizeSource = new Set();
   for (let y = 0; y < target.height; y++) {
     let sourceY = Math.round((y + 0.5) * invScale + source.y);
     if (sourceY > maxHeight) sourceY = maxHeight;
@@ -102,7 +105,12 @@ function resizeNearest(
       let sourceX = Math.round((x + 0.5) * invScale + source.x);
       if (sourceX > maxWidth) sourceX = maxWidth;
 
-      outputBuffer[y * target.width + x] = data.pixels[sourceY * data.width + sourceX];
+      const targetOffset = (y * target.width + x) * ret.channels;
+      const sourceOffset = (sourceY * data.width + sourceX) * ret.channels;
+
+      for (let i = 0; i < ret.channels; i++) {
+        outputBuffer[targetOffset + i] = data.pixels[sourceOffset + i];
+      }
     }
   }
 
@@ -113,27 +121,27 @@ function getOutputBuffer(source: DecompressedInterleaved, target: Size): Decompr
   switch (source.depth) {
     case 'uint8':
       return {
-        pixels: new Uint8Array(target.width * target.height),
+        pixels: new Uint8Array(target.width * target.height * source.channels),
         width: target.width,
         height: target.height,
         depth: source.depth,
-        channels: 1,
+        channels: source.channels,
       };
     case 'float32':
       return {
-        pixels: new Float32Array(target.width * target.height),
+        pixels: new Float32Array(target.width * target.height * source.channels),
         width: target.width,
         height: target.height,
         depth: source.depth,
-        channels: 1,
+        channels: source.channels,
       };
     case 'uint32':
       return {
-        pixels: new Uint32Array(target.width * target.height),
+        pixels: new Uint32Array(target.width * target.height * source.channels),
         width: target.width,
         height: target.height,
         depth: source.depth,
-        channels: 1,
+        channels: source.channels,
       };
     case 'uint16':
       return {
@@ -177,39 +185,41 @@ export function resizeBilinear(
       const minX = Math.floor(sourceX);
       const maxX = minX + 1;
 
-      const outPx = y * target.width + x;
+      for (let i = 0; i < ret.channels; i++) {
+        const outPx = (y * target.width + x) * data.channels + i;
 
-      const minXMinY = data.pixels[minY * data.width + minX];
-      if (minXMinY === noData) {
-        outputBuffer[outPx] = noData;
-        continue;
-      }
-      const maxXMinY = data.pixels[minY * data.width + maxX];
-      if (maxXMinY === noData) {
-        outputBuffer[outPx] = noData;
-        continue;
-      }
-      const minXMaxY = data.pixels[maxY * data.width + minX];
-      if (minXMaxY === noData) {
-        outputBuffer[outPx] = noData;
-        continue;
-      }
-      const maxXMaxY = data.pixels[maxY * data.width + maxX];
-      if (maxXMaxY === noData) {
-        outputBuffer[outPx] = noData;
-        continue;
-      }
+        const minXMinY = data.pixels[(minY * data.width + minX) * data.channels + i];
+        if (minXMinY === noData) {
+          outputBuffer[outPx] = noData;
+          continue;
+        }
+        const maxXMinY = data.pixels[(minY * data.width + maxX) * data.channels + i];
+        if (maxXMinY === noData) {
+          outputBuffer[outPx] = noData;
+          continue;
+        }
+        const minXMaxY = data.pixels[(maxY * data.width + minX) * data.channels + i];
+        if (minXMaxY === noData) {
+          outputBuffer[outPx] = noData;
+          continue;
+        }
+        const maxXMaxY = data.pixels[(maxY * data.width + maxX) * data.channels + i];
+        if (maxXMaxY === noData) {
+          outputBuffer[outPx] = noData;
+          continue;
+        }
 
-      const xDiff = sourceX - minX;
-      const yDiff = sourceY - minY;
-      const weightA = (1 - xDiff) * (1 - yDiff);
-      const weightB = xDiff * (1 - yDiff);
-      const weightC = (1 - xDiff) * yDiff;
-      const weightD = xDiff * yDiff;
+        const xDiff = sourceX - minX;
+        const yDiff = sourceY - minY;
+        const weightA = (1 - xDiff) * (1 - yDiff);
+        const weightB = xDiff * (1 - yDiff);
+        const weightC = (1 - xDiff) * yDiff;
+        const weightD = xDiff * yDiff;
 
-      const pixel = minXMinY * weightA + maxXMinY * weightB + minXMaxY * weightC + maxXMaxY * weightD;
+        const pixel = minXMinY * weightA + maxXMinY * weightB + minXMaxY * weightC + maxXMaxY * weightD;
 
-      outputBuffer[outPx] = needsRounding ? Math.round(pixel) : pixel;
+        outputBuffer[outPx] = needsRounding ? Math.round(pixel) : pixel;
+      }
     }
   }
 
