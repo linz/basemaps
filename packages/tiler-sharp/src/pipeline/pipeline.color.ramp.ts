@@ -9,6 +9,7 @@ import { DecompressedInterleaved, Pipeline } from './decompressor.js';
 export const Ramps: Record<DecompressedInterleaved['depth'], Colorizer> = {
   float32: new ColorRamp(DefaultColorRamp),
   uint8: new GreyScale(0, 255),
+  uint16: new GreyScale(0, 2 ** 16 - 1),
   uint32: new GreyScale(0, 2 ** 32 - 1),
 };
 
