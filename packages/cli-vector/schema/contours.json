@@ -7,133 +7,133 @@
       "name": "50768-nz-contours-topo-150k",
       "source": "s3://linz-lds-cache/50768/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50954",
       "name": "50954-nz-auckland-island-contours-topo-150k",
       "source": "s3://linz-lds-cache/50954/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50927",
       "name": "50927-nz-campbell-island-motu-ihupuku-contours-topo-150k",
       "source": "s3://linz-lds-cache/50927/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50904",
       "name": "50904-nz-kermadec-is-contours-topo-125k",
       "source": "s3://linz-lds-cache/50904/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50888",
       "name": "50888-nz-snares-island-tini-heke-contours-topo-125k",
       "source": "s3://linz-lds-cache/50888/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50974",
       "name": "50974-nz-antipodes-island-contours-topo-125k",
       "source": "s3://linz-lds-cache/50974/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50989",
       "name": "50989-nz-bounty-islands-contours-topo-125k",
       "source": "s3://linz-lds-cache/50989/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "52242",
       "name": "52242-cook-islands-contours-topo-125k-zone4",
       "source": "s3://linz-lds-cache/52242/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "52173",
       "name": "52173-niue-contours-topo-150k",
       "source": "s3://linz-lds-cache/52173/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50284",
       "name": "50284-nz-height-points-topo-150k",
       "source": "s3://linz-lds-cache/50284/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50892",
       "name": "50892-nz-snares-island-tini-heke-height-points-topo-125k",
       "source": "s3://linz-lds-cache/50892/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50930",
       "name": "50930-nz-campbell-island-motu-ihupuku-height-points-topo-150k",
       "source": "s3://linz-lds-cache/50930/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50957",
       "name": "50957-nz-auckland-island-height-points-topo-150k",
       "source": "s3://linz-lds-cache/50957/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50977",
       "name": "50977-nz-antipodes-island-height-points-topo-125k",
       "source": "s3://linz-lds-cache/50977/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50907",
       "name": "50907-nz-kermadec-is-height-points-topo-125k",
       "source": "s3://linz-lds-cache/50907/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50991",
       "name": "50991-nz-bounty-islands-height-points-topo-125k",
       "source": "s3://linz-lds-cache/50991/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "52249",
       "name": "52249-cook-islands-height-points-topo-125k-zone4",
       "source": "s3://linz-lds-cache/52249/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50072",
       "name": "50072-nz-chatham-island-contours-topo-150k",
       "source": "s3://linz-lds-cache/50072/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50085",
       "name": "50085-nz-chatham-island-height-points-topo-150k",
       "source": "s3://linz-lds-cache/50085/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     }
   ]
 }

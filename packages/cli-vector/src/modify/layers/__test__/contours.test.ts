@@ -35,7 +35,7 @@ describe('HandleLayerContours', () => {
       const modifiedFeature = handleKindContours(feature, Logger);
 
       strictEqual(modifiedFeature.properties['type'], undefined);
-      strictEqual(modifiedFeature.tippecanoe.minzoom, FakeFeature.tippecanoe.minzoom);
+      strictEqual(modifiedFeature.tippecanoe.minzoom, 13);
     });
     it('should assign the feature a type of index and override its minzoom', () => {
       const feature = structuredClone(FakeFeature);
@@ -44,7 +44,7 @@ describe('HandleLayerContours', () => {
       const modifiedFeature = handleKindContours(feature, Logger);
 
       strictEqual(modifiedFeature.properties['type'], 'index');
-      strictEqual(modifiedFeature.tippecanoe.minzoom, 10);
+      strictEqual(modifiedFeature.tippecanoe.minzoom, FakeFeature.tippecanoe.minzoom);
     });
   });
 
