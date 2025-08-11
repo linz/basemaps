@@ -7,70 +7,70 @@
       "name": "50768-nz-contours-topo-150k",
       "source": "s3://linz-lds-cache/50768/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50954",
       "name": "50954-nz-auckland-island-contours-topo-150k",
       "source": "s3://linz-lds-cache/50954/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50927",
       "name": "50927-nz-campbell-island-motu-ihupuku-contours-topo-150k",
       "source": "s3://linz-lds-cache/50927/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50904",
       "name": "50904-nz-kermadec-is-contours-topo-125k",
       "source": "s3://linz-lds-cache/50904/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50888",
       "name": "50888-nz-snares-island-tini-heke-contours-topo-125k",
       "source": "s3://linz-lds-cache/50888/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50974",
       "name": "50974-nz-antipodes-island-contours-topo-125k",
       "source": "s3://linz-lds-cache/50974/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50989",
       "name": "50989-nz-bounty-islands-contours-topo-125k",
       "source": "s3://linz-lds-cache/50989/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "52242",
       "name": "52242-cook-islands-contours-topo-125k-zone4",
       "source": "s3://linz-lds-cache/52242/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "52173",
       "name": "52173-niue-contours-topo-150k",
       "source": "s3://linz-lds-cache/52173/",
       "tags": { "kind": "contours" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50284",
       "name": "50284-nz-height-points-topo-150k",
       "source": "s3://linz-lds-cache/50284/",
       "tags": { "kind": "peak" },
-      "style": { "minZoom": 11, "maxZoom": 15 }
+      "style": { "minZoom": 13, "maxZoom": 15 }
     },
     {
       "id": "50892",
