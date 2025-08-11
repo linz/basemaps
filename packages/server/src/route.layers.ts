@@ -9,7 +9,7 @@ import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { getPreviewUrl, V } from '@basemaps/shared';
 
 export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<string> {
-  const allLayers = await Promise.all([mem.TileSet.get('ts_all'), mem.TileSet.get('ts_elevation')]);
+  const allLayers = await Promise.all([mem.TileSet.get('ts_aerial'), mem.TileSet.get('ts_elevation')]);
 
   const allSourceLayers = allLayers.flatMap((m) => m?.layers).filter(Boolean) as ConfigLayer[];
   if (allSourceLayers == null) return 'No layers found.';
@@ -19,36 +19,41 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
   const cards = [];
 
   const layers = [...allImagery.values()].sort((a, b) => a.title.localeCompare(b.title));
-
+  console.log(layers);
   const showPreview = allImagery.size < 10;
   for (const img of layers) {
     let tileMatrix = TileMatrixSets.find(img.tileMatrix);
     if (tileMatrix == null) tileMatrix = GoogleTms;
 
     const ts = ConfigProviderMemory.imageryToTileSet(img) as ConfigTileSetRaster;
-    const output = ts.outputs?.find((f) => f.format == null || f.format.includes('webp'));
+    console.log(ts.outputs);
 
-    const ret = getPreviewUrl({ imagery: img, pipeline: output?.name });
+    for (const o of ts.outputs ?? []) {
+      // const output = ts.outputs?.find((f) => f.format == null || f.format.includes('webp'));
 
-    const els = [
-      V('div', { class: `layer-header`, style: 'display:flex; justify-content: space-around;' }, [
-        V('div', { class: 'layer-title' }, img.title),
-        V('div', { class: 'layer-tile-matrix' }, `TileMatrix: ${img.tileMatrix}`),
-        V('div', { class: 'layer-tile-epsg' }, tileMatrix.projection.toEpsgString()),
-      ]),
-    ];
+      // console.log(output);
+      const ret = getPreviewUrl({ imagery: img, pipeline: o.name });
 
-    if (showPreview) els.push(V('img', { width: '600px', height: '315px', src: ret.url }));
-    cards.push(
-      V(
-        'a',
-        {
-          class: `layer layer-${img.id}`,
-          href: `/${ret.slug}?tileMatrix=${tileMatrix.identifier}&style=${ret.name}`,
-        },
-        els,
-      ),
-    );
+      const els = [
+        V('div', { class: `layer-header`, style: 'display:flex; justify-content: space-around;' }, [
+          V('div', { class: 'layer-title' }, img.title),
+          V('div', { class: 'layer-tile-matrix' }, `TileMatrix: ${img.tileMatrix}`),
+          V('div', { class: 'layer-tile-epsg' }, tileMatrix.projection.toEpsgString()),
+        ]),
+      ];
+
+      if (showPreview) els.push(V('img', { width: '600px', height: '315px', src: ret.url }));
+      cards.push(
+        V(
+          'a',
+          {
+            class: `layer layer-${img.id}`,
+            href: `/${ret.slug}?tileMatrix=${tileMatrix.identifier}&style=${ret.name}&pipeline=${o.name}`,
+          },
+          els,
+        ),
+      );
+    }
   }
 
   const style = `

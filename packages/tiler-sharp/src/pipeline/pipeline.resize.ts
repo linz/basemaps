@@ -8,7 +8,7 @@ import { DecompressedInterleaved } from './decompressor.js';
  * Pipeline to apply the crop/resizing to datasets
  */
 export function cropResize(
-  tiff: Tiff,
+  _tiff: Tiff,
   data: DecompressedInterleaved,
   comp: CompositionTiff,
   mode: ResizeKernelType | 'bilinear',
@@ -23,7 +23,7 @@ export function cropResize(
   }
 
   // Currently very limited supported input parameters
-  if (data.channels !== 1) throw new Error('Unable to crop-resize more than one channel got:' + data.channels);
+  // if (data.channels !== 1) throw new Error('Unable to crop-resize more than one channel got:' + data.channels);
 
   // Area of the source data that needs to be resampled
   const source = { x: 0, y: 0, width: data.width, height: data.height };
@@ -56,13 +56,14 @@ export function cropResize(
     target.height = comp.crop.height;
   }
 
-  const noData = tiff.images[0].noData;
+  // const noData = tiff.images[0].noData;
 
+  // console.log('resize', mode);
   switch (mode) {
     case 'nearest':
       return resizeNearest(data, comp, source, target);
     case 'bilinear':
-      return resizeBilinear(data, comp, source, target, noData);
+      return resizeNearest(data, comp, source, target);
     default:
       throw new Error('Unable to use resize kernel: ' + mode);
   }
@@ -90,10 +91,12 @@ function resizeNearest(
   const maxWidth = Math.min(comp.source.width, data.width) - 1;
   const maxHeight = Math.min(comp.source.height, data.height) - 1;
   const invScale = 1 / target.scale;
-
+  // console.log({ maxHeight, maxWidth }, source, data.width, data.height);
   // Resample the input tile into the output tile using a nearest neighbor approach
   const ret = getOutputBuffer(data, target);
   const outputBuffer = ret.pixels;
+  const channelOffset = data.width * data.height * 1;
+  // const resizeSource = new Set();
   for (let y = 0; y < target.height; y++) {
     let sourceY = Math.round((y + 0.5) * invScale + source.y);
     if (sourceY > maxHeight) sourceY = maxHeight;
@@ -102,10 +105,27 @@ function resizeNearest(
       let sourceX = Math.round((x + 0.5) * invScale + source.x);
       if (sourceX > maxWidth) sourceX = maxWidth;
 
-      outputBuffer[y * target.width + x] = data.pixels[sourceY * data.width + sourceX];
+      const targetOffset = (y * target.width + x) * ret.channels;
+      const sourceOffset = +(sourceY * data.width + sourceX);
+      // console.log(x, y, sourceX, sourceY, sourceOffset, targetOffset);
+
+      // if (sourceOffset === 3644) console.log(x, y);
+      // if (resizeSource.has(sourceOffset)) throw new Error('Erro' + sourceOffset);
+      // resizeSource.add(sourceOffset);
+      // console.log(sourceOffset, targetOffset);
+
+      // console.log(x, y, { targetOffset }, data.pixels.length);
+      for (let i = 0; i < ret.channels; i++) {
+        // console.log(`\t${targetOffset + i} <= ${sourceOffset + i}`);
+        outputBuffer[targetOffset + i] = data.pixels[sourceOffset + channelOffset * i];
+      }
+      // outputBuffer[targetOffset + 3] = 255;
+      // if (x > 100) break;
     }
+    // if (y > 100) break;
   }
 
+  // console.log({ pix: data.pixels, ret });
   return ret;
 }
 
@@ -113,27 +133,27 @@ function getOutputBuffer(source: DecompressedInterleaved, target: Size): Decompr
   switch (source.depth) {
     case 'uint8':
       return {
-        pixels: new Uint8Array(target.width * target.height),
+        pixels: new Uint8Array(target.width * target.height * source.channels),
         width: target.width,
         height: target.height,
         depth: source.depth,
-        channels: 1,
+        channels: source.channels,
       };
     case 'float32':
       return {
-        pixels: new Float32Array(target.width * target.height),
+        pixels: new Float32Array(target.width * target.height * source.channels),
         width: target.width,
         height: target.height,
         depth: source.depth,
-        channels: 1,
+        channels: source.channels,
       };
     case 'uint32':
       return {
-        pixels: new Uint32Array(target.width * target.height),
+        pixels: new Uint32Array(target.width * target.height * source.channels),
         width: target.width,
         height: target.height,
         depth: source.depth,
-        channels: 1,
+        channels: source.channels,
       };
     case 'uint16':
       return {
@@ -159,6 +179,7 @@ export function resizeBilinear(
   const maxHeight = Math.min(comp.source.height, data.height) - 2;
   const ret = getOutputBuffer(data, target);
   const outputBuffer = ret.pixels;
+  // console.log({ ret }, target);
 
   // should numbers be rounded when resampling, with some numbers like uint8 or uint32 numbers
   // will be truncated when being set in their typed buffers,

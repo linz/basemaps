@@ -168,6 +168,7 @@ export class TileMakerSharp implements TileMaker {
     let result = bytes;
     if (ctx.pipeline) {
       const resizePerf = performance.now();
+      // console.log(comp);
       result = cropResize(comp.asset, result, comp, 'bilinear');
       ctx.log?.trace(
         {
@@ -184,7 +185,7 @@ export class TileMakerSharp implements TileMaker {
 
       for (const pipe of ctx.pipeline) {
         const pipelineStart = performance.now();
-        result = await Pipelines[pipe.type]?.process(comp, result);
+        result = await Pipelines[pipe.type]?.process(comp, result, pipe);
         ctx.log?.trace(
           {
             pipeline: pipe.type,

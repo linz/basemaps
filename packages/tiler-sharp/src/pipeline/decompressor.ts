@@ -44,10 +44,11 @@ export interface Decompressor {
   bytes(source: Tiff, tile: ArrayBuffer): Promise<DecompressedInterleaved>;
 }
 
-export interface Pipeline {
+export interface Pipeline<T = undefined> {
   type: string;
   process(
     source: CompositionTiff,
     bytes: DecompressedInterleaved,
+    ctx?: T,
   ): Promise<DecompressedInterleaved> | DecompressedInterleaved;
 }

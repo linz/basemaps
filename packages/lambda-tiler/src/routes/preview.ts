@@ -65,6 +65,7 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   if (tileSet.type !== TileSetType.Raster) return new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
   const pipeline = req.query.get('pipeline');
+  console.log(tileSet, pipeline);
 
   // Use the prefered output format from the pipeline if its defined
   let defaultFormat = 'webp';

@@ -208,6 +208,21 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       if (i.bands?.length === 1) {
         existing.outputs = [DefaultTerrainRgbOutput, DefaultColorRampOutput];
       }
+      // console.log(i.bands);
+      existing.outputs = [
+        {
+          name: 'rgb',
+          pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 'no-data' } as any],
+        } as any,
+        {
+          name: 'false-color',
+          pipeline: [{ type: 'extract', r: 3, g: 0, b: 1, alpha: 'no-data' } as any],
+        } as any,
+        {
+          name: 'ndvi',
+          pipeline: [{ type: 'ndvi' } as any],
+        } as any,
+      ];
     }
     // The latest imagery overwrite the earlier ones.
     const existingImageryId = existing.layers[0][i.projection];
@@ -241,6 +256,23 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (i.bands?.length === 1) {
       ts.outputs = [DefaultTerrainRgbOutput, DefaultColorRampOutput];
     }
+
+    ts.outputs = [
+      {
+        name: 'rgb',
+        pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 'no-data' } as any],
+      } as any,
+      {
+        name: 'false-color',
+        pipeline: [{ type: 'extract', r: 3, g: 0, b: 1, alpha: 'no-data' } as any],
+      } as any,
+      {
+        name: 'ndvi',
+        pipeline: [{ type: 'ndvi' } as any],
+      } as any,
+    ];
+
+    // console.log('ts', ts);
     return ts;
   }
 

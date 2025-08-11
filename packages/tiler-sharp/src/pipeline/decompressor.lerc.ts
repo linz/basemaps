@@ -3,18 +3,23 @@ import Lerc from 'lerc';
 
 import { DecompressedInterleaved, Decompressor } from './decompressor.js';
 
+let i = 0;
 export const LercDecompressor: Decompressor = {
   type: 'application/lerc',
   async bytes(source: Tiff, tile: ArrayBuffer): Promise<DecompressedInterleaved> {
     await Lerc.load();
+    const id = `decode:${i++}`;
+    console.time(id);
     const bytes = Lerc.decode(tile);
+    console.timeEnd(id);
 
-    if (bytes.depthCount !== 1) {
-      throw new Error(`Lerc: Invalid output depthCount:${bytes.depthCount} from:${source.source.url.href}`);
-    }
     if (bytes.pixels.length !== 1) {
       throw new Error(`Lerc: Invalid output bandCount:${bytes.pixels.length} from:${source.source.url.href}`);
     }
+    // console.log(bytes);
+    // if (bytes.pixels) process.exit();
+
+    // writeFileSync('output.bin', bytes.pixels[0]);
 
     switch (bytes.pixelType) {
       case 'F32':
@@ -22,7 +27,7 @@ export const LercDecompressor: Decompressor = {
           pixels: bytes.pixels[0] as Float32Array,
           width: bytes.width,
           height: bytes.height,
-          channels: 1,
+          channels: bytes.depthCount,
           depth: 'float32',
         };
       case 'U32':
@@ -30,7 +35,7 @@ export const LercDecompressor: Decompressor = {
           pixels: bytes.pixels[0] as Uint32Array,
           width: bytes.width,
           height: bytes.height,
-          channels: 1,
+          channels: bytes.depthCount,
           depth: 'uint32',
         };
       case 'U16':
@@ -46,7 +51,7 @@ export const LercDecompressor: Decompressor = {
           pixels: bytes.pixels[0] as Uint8Array,
           width: bytes.width,
           height: bytes.height,
-          channels: 1,
+          channels: bytes.depthCount,
           depth: 'uint8',
         };
     }
