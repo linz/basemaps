@@ -16,6 +16,13 @@ export interface DecompressedInterleavedFloat {
   width: number;
   height: number;
 }
+export interface DecompressedInterleavedUint16 {
+  pixels: Uint16Array | Uint8ClampedArray;
+  depth: 'uint16';
+  channels: number;
+  width: number;
+  height: number;
+}
 
 export interface DecompressedInterleavedUint8 {
   pixels: Uint8Array | Uint8ClampedArray;
@@ -29,6 +36,7 @@ export interface DecompressedInterleavedUint8 {
 export type DecompressedInterleaved =
   | DecompressedInterleavedFloat
   | DecompressedInterleavedUint8
+  | DecompressedInterleavedUint16
   | DecompressedInterleavedUint32;
 
 export interface Decompressor {

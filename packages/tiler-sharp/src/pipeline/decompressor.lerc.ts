@@ -33,6 +33,14 @@ export const LercDecompressor: Decompressor = {
           channels: 1,
           depth: 'uint32',
         };
+      case 'U16':
+        return {
+          pixels: bytes.pixels[0] as Uint16Array,
+          width: bytes.width,
+          height: bytes.height,
+          channels: bytes.depthCount,
+          depth: 'uint16',
+        };
       case 'U8':
         return {
           pixels: bytes.pixels[0] as Uint8Array,
