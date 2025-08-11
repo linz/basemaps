@@ -29,7 +29,7 @@ export function colorNdvi(val: number): [number, number, number] {
 
 export const PipelineNdvi: Pipeline = {
   type: 'ndvi',
-  process(source: CompositionTiff, data: DecompressedInterleaved): DecompressedInterleaved {
+  process(_source: CompositionTiff, data: DecompressedInterleaved): DecompressedInterleaved {
     const raw = new Uint8ClampedArray(data.width * data.height * 4);
     const output: DecompressedInterleaved = {
       pixels: raw,
@@ -39,9 +39,8 @@ export const PipelineNdvi: Pipeline = {
       height: data.height,
     };
 
-    // console.log({ data });
     const size = data.width * data.height;
-    const noData = source.asset.images[0].noData ?? 0;
+    // const noData = source.asset.images[0].noData ?? 0;
 
     for (let i = 0; i < size; i++) {
       const source = i * data.channels;

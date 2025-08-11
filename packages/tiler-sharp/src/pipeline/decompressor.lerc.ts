@@ -3,15 +3,12 @@ import Lerc from 'lerc';
 
 import { DecompressedInterleaved, Decompressor } from './decompressor.js';
 
-let i = 0;
+// const i = 0;
 export const LercDecompressor: Decompressor = {
   type: 'application/lerc',
   async bytes(source: Tiff, tile: ArrayBuffer): Promise<DecompressedInterleaved> {
     await Lerc.load();
-    const id = `decode:${i++}`;
-    console.time(id);
     const bytes = Lerc.decode(tile);
-    console.timeEnd(id);
 
     if (bytes.pixels.length !== 1) {
       throw new Error(`Lerc: Invalid output bandCount:${bytes.pixels.length} from:${source.source.url.href}`);

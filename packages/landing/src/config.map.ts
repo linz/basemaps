@@ -276,6 +276,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.pipeline = pipeline;
     this.emit('layer', this.layerId, this.style, this.pipeline, this.imageFormat);
     this.emit('change');
+    console.log(this);
   }
 
   setDebug<T extends keyof DebugState>(key: T, value: DebugState[T] = DebugDefaults[key]): void {

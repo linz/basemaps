@@ -9,7 +9,7 @@ import { Context } from 'aws-lambda';
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
 // Render configuration
-const source = fsa.toUrl(`/home/blacha/data/AucklandRegion-2022-25_PGRM3077/source/target/small-lerc/`);
+const source = fsa.toUrl(`/home/blacha/old/home/blacha/data/AucklandRegion-2022-25_PGRM3077/source/target/lerc/`);
 // const tile = fromPath('/9/255/233.webp');
 // const tile = { x: 1023, y: 933, z: 11, extension: 'webp' }; // fromPath('/13/4096/3734.webp');
 const tile = { x: 16383, y: 14931, z: 15, extension: 'png' }; // fromPath('/13/4096/3734.webp');
