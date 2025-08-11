@@ -501,7 +501,7 @@
       "name": "50239-nz-bivouac-points-topo-150k",
       "source": "s3://linz-lds-cache/50239/",
       "tags": { "amenity": "bivouac" },
-      "style": { "minZoom": 12, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50271",
