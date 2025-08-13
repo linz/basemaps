@@ -74,6 +74,12 @@ export const ChartsCreationCommand = command({
       defaultValue: () => new URL('s3://linz-hydrographic-upload/charts/RNCPANEL/'),
       description: 'Location of the cutlines to cut tiffs, save the shp files for the cutlines.',
     }),
+    backup: option({
+      type: UrlFolder,
+      long: 'backup',
+      defaultValue: () => new URL('s3://linz-hydrographic-upload/charts/CChart/'),
+      description: 'Location of the backup tiff files for get all the imagery metadata.',
+    }),
     bufferPixels: option({
       type: number,
       long: 'buffer-pixels',
@@ -117,7 +123,8 @@ export const ChartsCreationCommand = command({
 
         logger.info({ file: file.href, tileMatrix: tileMatrix.identifier, chartCode }, 'Charts:Processing');
         const tiff = await new Tiff(fsa.source(file)).init();
-        const metadata = await fetchMetadata(tiff, logger);
+        const backUpUrl = new URL(filename, args.backup);
+        const metadata = await fetchMetadata(tiff, backUpUrl, logger);
 
         // Prepare buffered cutline
         const bufferedCutline = await prepareCutline(
@@ -232,14 +239,13 @@ async function prepareCutline(
  * But the GSD is always the same for the same chart code tiff files from other folders (CChart).
  * If the GSD or bbox is not found, it attempts to fetch it from a backup location.
  */
-async function fetchMetadata(tiff: Tiff, logger: LogType): Promise<ImageryMetadata> {
+async function fetchMetadata(tiff: Tiff, backUpUrl: URL, logger: LogType): Promise<ImageryMetadata> {
   logger.info({ file: tiff.source.url }, 'Charts:FetchImageryMetadata');
   const tagGsd = await tiff.images[0].fetch(TiffTag.ModelPixelScale);
   const tagBbox = await tiff.images[0].fetch(TiffTag.ModelTransformation);
   const epsg = tiff.images[0].epsg ?? tiff.images[0].valueGeo(TiffTagGeo.GeodeticCRSGeoKey) ?? EpsgCode.Wgs84;
   if (tagGsd == null || tagBbox == null) {
     logger.warn({ file: tiff.source.url }, 'Tag not found try to fetch from back up folder');
-    const backUpUrl = new URL(tiff.source.url.href.replace('/NChart1200/', '/CChart/'));
     const exist = await fsa.head(backUpUrl);
     if (!exist) throw new Error(`No back up file to extract metadata: ${backUpUrl.href}`);
     const backUpTiff = await new Tiff(fsa.source(backUpUrl)).init();
