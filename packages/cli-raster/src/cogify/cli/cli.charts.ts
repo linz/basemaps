@@ -1,8 +1,8 @@
-import { EpsgCode, GoogleTms, Nztm2000QuadTms, StacItem, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, EpsgCode, GoogleTms, Nztm2000QuadTms, StacItem, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff, urlToString } from '@basemaps/shared';
 import { getLogger, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { TiffTagGeo } from '@cogeotiff/core';
+import { TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { command, number, oneOf, option, optional, restPositionals } from 'cmd-ts';
 import { mkdir, rm } from 'fs/promises';
 import { FeatureCollection } from 'geojson';
@@ -24,6 +24,17 @@ const chartCodeRegex = /^[A-Z]{2}\d+-\d+$/;
 
 // Prepare a temporary folder to store the gdal processed cutlines and tiffs
 const tmpFolder = stringToUrlFolder(path.join(tmpdir(), CliId));
+
+// Imagery metadata interface to store the source, gsd, epsg, and bbox
+interface ImageryMetadata {
+  source: URL;
+  gsd: number;
+  epsg: EpsgCode;
+  size: {
+    width: number;
+    height: number;
+  };
+}
 
 /**
  * Process and standardize charts maps tiffs, and creating STAC collections and items.
@@ -61,6 +72,12 @@ export const ChartsCreationCommand = command({
       long: 'cutline',
       defaultValue: () => new URL('s3://linz-hydrographic-upload/charts/RNCPANEL/'),
       description: 'Location of the cutlines to cut tiffs, save the shp files for the cutlines.',
+    }),
+    backup: option({
+      type: UrlFolder,
+      long: 'backup',
+      defaultValue: () => new URL('s3://linz-hydrographic-upload/charts/CChart/'),
+      description: 'Location of the backup tiff files for get all the imagery metadata.',
     }),
     bufferPixels: option({
       type: number,
@@ -104,14 +121,16 @@ export const ChartsCreationCommand = command({
         const cutline = await downloadCutlines(new URL(args.cutline.href), chartCode, logger);
 
         logger.info({ file: file.href, tileMatrix: tileMatrix.identifier, chartCode }, 'Charts:Processing');
-        const tiff = await new Tiff(fsa.source(sourceTiff)).init();
+        const tiff = await new Tiff(fsa.source(file)).init();
+        const backUpUrl = new URL(filename, args.backup);
+        const metadata = await fetchMetadata(tiff, backUpUrl, logger);
 
         // Prepare buffered cutline
         const bufferedCutline = await prepareCutline(
           cutline,
           chartCode,
           tileMatrix,
-          tiff.images[0].resolution[0],
+          metadata.gsd,
           args.bufferPixels,
           logger,
         );
@@ -120,7 +139,7 @@ export const ChartsCreationCommand = command({
         const { item, collection } = await createStacFiles(
           chartCode,
           tileMatrix,
-          tiff,
+          metadata,
           cutline,
           bufferedCutline,
           logger,
@@ -213,15 +232,68 @@ async function prepareCutline(
   return bufferedCutline;
 }
 
+/**
+ * Fetch the Ground Sample Distance (GSD) and Bounding Box (BBOX) from the TIFF file.
+ * Some of charts mapsheets do not have the GSD in the original TIFF metadata.(NChart1200 folder)
+ * But the GSD is always the same for the same chart code tiff files from other folders (CChart).
+ * If the GSD is not found, it attempts to fetch it from a backup location.
+ */
+async function fetchMetadata(tiff: Tiff, backUpUrl: URL, logger: LogType): Promise<ImageryMetadata> {
+  logger.info({ file: tiff.source.url }, 'Charts:FetchImageryMetadata');
+
+  const source = tiff.source.url;
+  const size = tiff.images[0].size;
+  const epsg = tiff.images[0].epsg ?? tiff.images[0].valueGeo(TiffTagGeo.GeodeticCRSGeoKey) ?? EpsgCode.Wgs84;
+
+  try {
+    const gsd = tiff.images[0].resolution[0];
+    return { source, gsd, epsg, size };
+  } catch (error) {
+    logger.warn({ file: tiff.source.url }, 'Tag not found try to fetch from back up folder');
+    const exist = await fsa.head(backUpUrl);
+    if (!exist) throw new Error(`No back up file to extract metadata: ${backUpUrl.href}`);
+    const backUpTiff = await new Tiff(fsa.source(backUpUrl)).init();
+    const backUpTag = await backUpTiff.images[0].fetch(TiffTag.ModelPixelScale);
+    if (backUpTag == null) throw new Error(`ModelPixelScale tag not found in ${backUpUrl.href}`);
+    await backUpTiff.source.close?.();
+    return {
+      source: tiff.source.url,
+      gsd: backUpTag[0],
+      epsg,
+      size: tiff.images[0].size,
+    };
+  }
+}
+
+export function geojsonToBbox(geojson: FeatureCollection): GeoJSON.BBox {
+  let union: Bounds | null = null;
+  for (const feature of geojson.features) {
+    let bounds;
+    if (feature.geometry.type === 'Polygon') {
+      bounds = Bounds.fromMultiPolygon([feature.geometry.coordinates]);
+    } else if (feature.geometry.type === 'MultiPolygon') {
+      bounds = Bounds.fromMultiPolygon(feature.geometry.coordinates);
+    } else {
+      throw new Error('GeoJSON must contain Polygon or MultiPolygon geometries');
+    }
+    if (union == null) {
+      union = bounds;
+    } else {
+      union = union.union(bounds);
+    }
+  }
+  if (union == null) throw new Error('No union found in GeoJSON features');
+  return union.toBbox();
+}
+
 async function createStacFiles(
   chartCode: string,
   tileMatrix: TileMatrixSet,
-  tiff: Tiff,
+  metadata: ImageryMetadata,
   sourceCutline: URL,
   bufferedCutline: URL,
   logger: LogType,
 ): Promise<{ item: StacItem; collection: StacCollection }> {
-  const image = tiff.images[0];
   // Create stac item
   logger.info({ chartCode }, 'Charts:CreateStacItem');
   const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
@@ -232,18 +304,17 @@ async function createStacFiles(
     stac_version: '1.0.0-beta.2',
     stac_extensions: [],
     geometry: geojson.features[0].geometry,
-    bbox: image.bbox,
+    bbox: geojsonToBbox(geojson),
     links: [
       { href: `./${chartCode}.json`, rel: 'self' },
       { href: './collection.json', rel: 'collection' },
       { href: './collection.json', rel: 'parent' },
       {
-        href: urlToString(tiff.source.url),
+        href: urlToString(metadata.source),
         rel: 'linz_basemaps:source',
         type: 'image/tiff; application=geotiff;',
-        'linz_basemaps:source_height': image.size.height,
-        'linz_basemaps:source_width': image.size.width,
-        'linz_basemaps:source_gsd': image.resolution[0],
+        'linz_basemaps:source_height': metadata.size.height,
+        'linz_basemaps:source_width': metadata.size.width,
       },
       {
         href: urlToString(sourceCutline),
@@ -255,7 +326,7 @@ async function createStacFiles(
       'proj:epsg': tileMatrix.projection.code,
       'linz_basemaps:options': {
         tileMatrix: tileMatrix.identifier,
-        sourceEpsg: image.epsg ?? image.valueGeo(TiffTagGeo.GeodeticCRSGeoKey) ?? EpsgCode.Wgs84,
+        sourceEpsg: metadata.epsg,
       },
       'linz_basemaps:generated': {
         package: CliInfo.package,
@@ -279,7 +350,6 @@ async function createStacFiles(
     description: `New Zealand Charts Mapsheets - ${chartCode} - ${tileMatrix.identifier}`,
     extent: {
       spatial: { bbox: [item.bbox] },
-
       temporal: { interval: [[CliDate, null]] },
     },
     links: [
