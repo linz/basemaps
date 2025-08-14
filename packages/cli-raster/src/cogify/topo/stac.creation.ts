@@ -3,6 +3,7 @@ import { fsa, LogType } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
+import { MapSeries } from '../cli/cli.topo.js';
 import { CogifyLinkSource, CogifyStacCollection, TopoStacItem } from '../stac.js';
 import { TiffItem } from './extract.js';
 
@@ -70,7 +71,7 @@ export function createBaseStacItem(fileName: string, tiffItem: TiffItem, logger?
 /**
  * Creates StacItems from a list of TiffItems and a sublist of those identified as the latest versions by map code.
  *
- * @param scale: The scale of the imagery described by the TiffItems.
+ * @param mapSeries: The map series of the imagery described by the TiffItems.
  * @example topo250
  *
  * @param resolution: The resolution of the imagery described by the TiffItems.
@@ -91,7 +92,7 @@ export function createBaseStacItem(fileName: string, tiffItem: TiffItem, logger?
  * the topo[50|250]_latest directory (latest).
  */
 export function createStacItems(
-  scale: string,
+  mapSeries: MapSeries,
   resolution: string,
   all: TiffItem[],
   latest: Map<string, TiffItem>,
@@ -120,11 +121,11 @@ export function createStacItems(
 
     // add link referencing this StacItem's origin file that will live in the topo[50/250] directory
     latestStacItem.links.push({
-      // directory into which we save this StacItem file: <target>/<scale>_latest/<resolution>/<espg>/[latest_stac_item]
-      // directory inside which we save this StacItem's origin file: <target>/<scale>/<resolution>/<espg>/[origin_stac_item]
+      // directory into which we save this StacItem file: <target>/<mapSeries>_latest/<resolution>/<espg>/[latest_stac_item]
+      // directory inside which we save this StacItem's origin file: <target>/<mapSeries>/<resolution>/<espg>/[origin_stac_item]
       //
       // `../../../` takes us up to the <target> directory
-      href: `../../../${scale}/${resolution}/${item.epsg.code}/${item.mapCode}_${item.version}.json`,
+      href: `../../../${mapSeries}/${resolution}/${item.epsg.code}/${item.mapCode}_${item.version}.json`,
       rel: 'derived_from',
       type: 'application/json',
     });

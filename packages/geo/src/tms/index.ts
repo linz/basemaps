@@ -9,12 +9,14 @@ export type Nullish = null | undefined;
 export const TileMatrixSets = {
   /** All TileMatrixSets that are currently supported */
   All: [GoogleTms, Nztm2000Tms, Nztm2000QuadTms, Citm2000Tms],
+
   /** Default mapping of EPSG code to Tile matrix set */
   Defaults: new Map([
     [Epsg.Google.code, GoogleTms],
     [Epsg.Nztm2000.code, Nztm2000Tms],
     [Epsg.Citm2000.code, Citm2000Tms],
   ]),
+
   /**
    * Get a tile matrix set by EPSG Code
    * @throws if no default mapping is made
