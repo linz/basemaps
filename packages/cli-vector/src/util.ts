@@ -38,11 +38,11 @@ export interface TmpPaths {
     contentType: (typeof ContentType)[keyof typeof ContentType];
   };
 
-  /** @example "tmp/create/layers/50248/50248.ndjson" */
-  ndjson: URL;
+  /** @example "tmp/create/layers/50248/50248.fgb" */
+  fgb: URL;
 
-  /** @example "tmp/create/transform/aerialways/50248/50248-gen.ndjson" */
-  genNdjson: URL;
+  /** @example "tmp/create/transform/aerialways/50248/50248.ndjson" */
+  ndjson: URL;
 
   /** @example "tmp/create/transform/aerialways/50248/50248.mbtiles" */
   mbtiles: URL;
@@ -80,8 +80,8 @@ export function prepareTmpPaths(
       format,
       contentType: ContentType[format],
     },
-    ndjson: new URL(`${layerId}.ndjson`, LayersDir),
-    genNdjson: new URL(`${layerId}-gen.ndjson`, TransformDir),
+    fgb: new URL(`${layerId}.fgb`, LayersDir),
+    ndjson: new URL(`${layerId}.ndjson`, TransformDir),
     mbtiles: new URL(`${layerId}.mbtiles`, TransformDir),
     mbtilesCopy: new URL(path.href.replace(/\.json$/, '.mbtiles')),
   };
