@@ -241,10 +241,16 @@ async function prepareCutline(
  */
 async function fetchMetadata(tiff: Tiff, backUpUrl: URL, logger: LogType): Promise<ImageryMetadata> {
   logger.info({ file: tiff.source.url }, 'Charts:FetchImageryMetadata');
-  const tagGsd = await tiff.images[0].fetch(TiffTag.ModelPixelScale);
-  const tagBbox = await tiff.images[0].fetch(TiffTag.ModelTransformation);
+
+  const source = tiff.source.url;
+  const size = tiff.images[0].size;
   const epsg = tiff.images[0].epsg ?? tiff.images[0].valueGeo(TiffTagGeo.GeodeticCRSGeoKey) ?? EpsgCode.Wgs84;
-  if (tagGsd == null || tagBbox == null) {
+
+  try {
+    const gsd = await tiff.images[0].resolution[0];
+    const bbox = tiff.images[0].bbox;
+    return { source, gsd, bbox, epsg, size };
+  } catch (error) {
     logger.warn({ file: tiff.source.url }, 'Tag not found try to fetch from back up folder');
     const exist = await fsa.head(backUpUrl);
     if (!exist) throw new Error(`No back up file to extract metadata: ${backUpUrl.href}`);
@@ -256,14 +262,6 @@ async function fetchMetadata(tiff: Tiff, backUpUrl: URL, logger: LogType): Promi
       source: tiff.source.url,
       gsd: backUpTag[0],
       bbox: backUpTiff.images[0].bbox,
-      epsg,
-      size: tiff.images[0].size,
-    };
-  } else {
-    return {
-      source: tiff.source.url,
-      gsd: tagGsd[0],
-      bbox: tiff.images[0].bbox,
       epsg,
       size: tiff.images[0].size,
     };
