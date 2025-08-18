@@ -34,6 +34,6 @@
   "dependencies": {
     "@linzjs/geojson": "^8.0.0",
     "@linzjs/tile-matrix-set": "^0.0.1",
-    "proj4": "^2.8.0"
+    "proj4": "^2.19.10"
   }
 }
