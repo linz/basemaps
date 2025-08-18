@@ -1,8 +1,10 @@
+import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
+
 import { Epsg } from '../epsg.js';
-import { ProjJsons } from '../projjson/projjson.js';
+import { ProjJsons } from './json/proj.json.js';
 import { Projection } from './projection.js';
 
-declare const fetch: (r: string) => Promise<{ ok: boolean; text: () => Promise<string> }>;
+declare const fetch: (r: string) => Promise<{ ok: boolean; json: () => Promise<unknown> }>;
 
 export class ProjectionLoader {
   // Exposed for testing
@@ -26,7 +28,7 @@ export class ProjectionLoader {
       return epsg;
     }
 
-    const url = `https://spatialreference.org/ref/epsg/${code}/ogcwkt/`;
+    const url = `https://spatialreference.org/ref/epsg/${code}/projjson.json`;
 
     const res = await this._fetch(url);
     if (!res.ok) throw new Error('Failed to load projection information for:' + code);
@@ -34,8 +36,8 @@ export class ProjectionLoader {
     let epsg = Epsg.tryGet(code);
     if (epsg == null) epsg = new Epsg(code);
 
-    const text = await res.text();
-    Projection.define(epsg, text);
+    const json = await res.json();
+    Projection.define(epsg, json as PROJJSONDefinition);
     return epsg;
   }
 }
