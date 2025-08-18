@@ -1,3 +1,4 @@
+import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 import {
   Epsg,
   getXyOrder,
@@ -7,30 +8,18 @@ import {
   TileMatrixSet,
   TileMatrixSetType,
 } from '../index.js';
+import { ProjJsons } from '../projjson/projjson.js';
 
 /**
  * Minimal typings of PROJJSON
  */
 interface ProjJsonAxis {
   name: string;
-  abbreviation: 'x' | 'y' | 'e' | 'n';
-  direction: 'east' | 'north';
+  abbreviation?: string;
+  direction: string;
   unit: string;
 }
 
-interface ProjJson {
-  name: string;
-  bbox: {
-    south_latitude: number;
-    west_longitude: number;
-    north_latitude: number;
-    east_longitude: number;
-  };
-  coordinate_system: {
-    subtype: 'Cartesian';
-    axis: [ProjJsonAxis, ProjJsonAxis];
-  };
-}
 /**
  * Find a zoom level that has approximately the same bounds as those of the source projection.
  * The WebMercatorQuad projection covers the entire world. So, most other projections do not work well outside
@@ -56,6 +45,10 @@ function findZoomOffset(minSize: number): number {
  * @throws if axis is unknown
  */
 function axisName(ax: ProjJsonAxis): 'x' | 'y' {
+  if (ax.abbreviation == null) {
+    throw new Error('Axis abbreviation is null');
+  }
+
   switch (ax.abbreviation.toLowerCase()) {
     case 'x':
     case 'e':
@@ -72,7 +65,7 @@ export class TmsLoader {
   /**
    * Stores fetched spatialreference.org API ProjJson objects in memory by Epsg
    */
-  private static readonly FetchedProjJsons = new Map<Epsg, ProjJson>();
+  private static readonly FetchedProjJsons = new Map<Epsg, PROJJSONDefinition>();
 
   /**
    * Stores generated TileMatrixSets objects in memory by Epsg
@@ -105,6 +98,7 @@ export class TmsLoader {
 
     // transform the bounding box to projected coordinates
     // convert from lat/lon (wgs84) to the target projection's coordinate system
+    if (projJson.bbox == null) throw new Error('Bounding box is null');
     const upperLeft = proj.fromWgs84([projJson.bbox.west_longitude, projJson.bbox.north_latitude]);
     const lowerRight = proj.fromWgs84([projJson.bbox.east_longitude, projJson.bbox.south_latitude]);
 
@@ -135,6 +129,7 @@ export class TmsLoader {
     const xy = xyOrder === 'xy' ? { x: 0, y: 1 } : { x: 1, y: 0 };
 
     // ensure the axis order matches the x-y order
+    if (projJson.coordinate_system == null) throw new Error('Coordinate system is null');
     const axisOrder = projJson.coordinate_system.axis.map(axisName).join('');
     if (xyOrder !== axisOrder) {
       throw new Error(`getXyOrder: ${axisOrder} is not the same as expected ordering from proj json`);
@@ -165,7 +160,10 @@ export class TmsLoader {
 
     // update tile matrix metadata
     tileMatrix.title = 'Auto-generated tile matrix for EPSG:' + epsgCode;
+
+    if (projJson.name == null) throw new Error('Name is null');
     tileMatrix.identifier = projJson.name.replace(/ /g, '').replace(/\//g, '_');
+
     tileMatrix.supportedCRS = `https://www.opengis.net/def/crs/EPSG/0/${epsgCode}`;
     tileMatrix.boundingBox.crs = tileMatrix.supportedCRS;
 
@@ -180,13 +178,16 @@ export class TmsLoader {
     return tileMatrixSet;
   }
 
-  private static async fetchProjJson(epsg: Epsg): Promise<ProjJson> {
+  private static async fetchProjJson(epsg: Epsg): Promise<PROJJSONDefinition> {
+    const pj = ProjJsons[epsg.code];
+    if (pj != null) return pj;
+
     const existing = TmsLoader.FetchedProjJsons.get(epsg);
     if (existing != null) return existing;
 
     const projJson = (await fetch(`https://spatialreference.org/ref/epsg/${epsg.code}/projjson.json`).then((f) =>
       f.json(),
-    )) as ProjJson;
+    )) as PROJJSONDefinition;
 
     // store the fetched spatialreference.org API ProjJson object by Epsg
     TmsLoader.FetchedProjJsons.set(epsg, projJson);

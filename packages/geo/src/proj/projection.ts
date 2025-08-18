@@ -8,13 +8,14 @@ import {
   toFeaturePolygon,
 } from '@linzjs/geojson';
 import { Position } from 'geojson';
-import Proj from 'proj4';
+import Proj, { ProjectionDefinition } from 'proj4';
 
 import { BoundingBox, NamedBounds } from '../bounds.js';
 import { Epsg, EpsgCode } from '../epsg.js';
 import { Tile, TileMatrixSet } from '../tile.matrix.set.js';
 import { Citm2000 } from './citm2000.js';
 import { Nztm2000 } from './nztm2000.js';
+import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 
 Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
 Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
@@ -56,7 +57,7 @@ export class Projection {
   }
 
   /** Ensure that a transformation in proj4.js is defined */
-  static define(epsg: Epsg, def: string): void {
+  static define(epsg: Epsg, def: string | ProjectionDefinition | PROJJSONDefinition): void {
     const existing = CodeMap.get(epsg.code);
     if (existing != null) throw new Error('Duplicate projection definition: ' + epsg.toEpsgString());
     Proj.defs(epsg.toEpsgString(), def);
