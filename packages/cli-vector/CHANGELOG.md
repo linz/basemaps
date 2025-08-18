@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.7.0](https://github.com/linz/basemaps/compare/v8.6.0...v8.7.0) (2025-08-10)
+
+
+### Features
+
+* **cli-vector:** update the parsing logic for place_labels layer features BM-1318 ([#3470](https://github.com/linz/basemaps/issues/3470)) ([29d2593](https://github.com/linz/basemaps/commit/29d25938363255f05b91cced54397928a2a092da))
+
+
+
+
+
+# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+**Note:** Version bump only for package @basemaps/cli-vector
+
+
+
+
+
 # [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
 
 

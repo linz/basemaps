@@ -135,13 +135,25 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   }
 
   /** Find all imagery inside this configuration and create a virtual tile set for it */
-  createVirtualTileSets(): void {
+  createVirtualTileSets(createById = true): void {
     const allLayers: ConfigLayer[] = [];
     for (const obj of this.objects.values()) {
       if (isConfigImagery(obj)) {
-        this.put(ConfigProviderMemory.imageryToTileSet(obj));
+        if (createById) this.put(ConfigProviderMemory.imageryToTileSet(obj));
         const tileSet = this.imageryToTileSetByName(obj);
         allLayers.push(tileSet.layers[0]);
+      }
+
+      // add any tileset aliases
+      if (this.TileSet.is(obj)) {
+        if (obj.aliases) {
+          for (const alias of obj.aliases) {
+            const aliasTs = structuredClone(obj);
+            aliasTs.id = ConfigId.prefix(ConfigPrefix.TileSet, alias);
+            aliasTs.virtual = 'tileset-alias';
+            this.put(aliasTs);
+          }
+        }
       }
     }
     // Create an all tileset contains all raster layers
@@ -162,7 +174,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
     const allTileset: ConfigTileSet = {
       type: TileSetType.Raster,
-      virtual: true,
+      virtual: 'tileset-all',
       id: 'ts_all',
       name: 'all',
       title: 'All Imagery',
@@ -180,7 +192,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     if (existing == null) {
       existing = {
         type: TileSetType.Raster,
-        virtual: true,
+        virtual: 'imagery-name',
         id: targetId,
         title: i.title,
         category: i.category,
@@ -216,7 +228,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
     const ts: ConfigTileSetRaster = {
       type: TileSetType.Raster,
-      virtual: true,
+      virtual: 'imagery-id',
       id: ConfigId.prefix(ConfigPrefix.TileSet, ConfigId.unprefix(ConfigPrefix.Imagery, i.id)),
       name: i.name,
       title: i.title,

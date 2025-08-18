@@ -135,6 +135,14 @@ function getOutputBuffer(source: DecompressedInterleaved, target: Size): Decompr
         depth: source.depth,
         channels: 1,
       };
+    case 'uint16':
+      return {
+        pixels: new Uint16Array(target.width * target.height * source.channels),
+        width: target.width,
+        height: target.height,
+        depth: source.depth,
+        channels: source.channels,
+      };
   }
 }
 
