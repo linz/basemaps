@@ -1,9 +1,9 @@
-import { describe, it } from 'node:test';
 import { notStrictEqual, strictEqual } from 'node:assert';
+import { describe, it } from 'node:test';
 
-import { ProjectionLoader } from '../proj/projection.loader.js';
 import { Epsg } from '../epsg.js';
 import { Projection } from '../proj/projection.js';
+import { ProjectionLoader } from '../proj/projection.loader.js';
 
 describe('ProjJson', () => {
   it('should parse the aktm2000 projjson into a runtime projection', async () => {
