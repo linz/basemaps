@@ -198,8 +198,6 @@ export class Projection {
     const lr = tms.tileToSource({ x: tile.x + 1, y: tile.y + 1, z: tile.z });
 
     const proj = this.get(tms);
-    console.log(proj);
-    console.log(proj.projection.inverse); //([ul.x, lr.y]));
 
     const [swLon, swLat] = proj.toWgs84([ul.x, lr.y]);
     const [neLon, neLat] = proj.toWgs84([lr.x, ul.y]);
