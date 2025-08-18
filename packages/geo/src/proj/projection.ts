@@ -118,7 +118,6 @@ export class Projection {
    * Convert source `[x, y]` coordinates to `[lon, lat]`
    */
   get toWgs84(): (coordinates: Position) => Position {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     return this.projection.forward;
   }
 
@@ -126,7 +125,6 @@ export class Projection {
    * Convert `[lon, lat]` coordinates to source `[x, y]`
    */
   get fromWgs84(): (coordinates: Position) => Position {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     return this.projection.inverse;
   }
 

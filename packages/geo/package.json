@@ -28,8 +28,7 @@
     "build/"
   ],
   "devDependencies": {
-    "@types/geojson": "^7946.0.7",
-    "@types/proj4": "^2.5.2"
+    "@types/geojson": "^7946.0.7"
   },
   "dependencies": {
     "@linzjs/geojson": "^8.0.0",
