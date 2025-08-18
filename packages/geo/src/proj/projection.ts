@@ -44,10 +44,13 @@ export class Projection {
   /** Transform coordinates to and from Wgs84 */
   private projection: proj4.Converter;
 
+  /** If the projection was definied with a projjson */
+  definition?: PROJJSONDefinition;
+
   /**
    * Wrapper around TileMatrixSet with utilities for converting Points and Polygons
    */
-  private constructor(epsg: Epsg) {
+  private constructor(epsg: Epsg, definition?: PROJJSONDefinition) {
     this.epsg = epsg;
 
     const projection = Projections.get(epsg.code);
@@ -55,6 +58,7 @@ export class Projection {
       throw new Error(`Failed to create projection: ${epsg.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`);
     }
     this.projection = projection.converter;
+    this.definition = definition;
     Projection.All.set(epsg.code, this);
   }
 
@@ -63,7 +67,7 @@ export class Projection {
     const existing = Projections.get(epsg.code);
     if (existing != null) throw new Error('Duplicate projection definition: ' + epsg.toEpsgString());
     Projections.set(epsg.code, { json: def, converter: Proj(def, Epsg.Wgs84.toEpsgString()) });
-    return new Projection(epsg);
+    return new Projection(epsg, def);
   }
 
   /**

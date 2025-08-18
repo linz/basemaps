@@ -64,11 +64,6 @@ function axisName(ax: ProjJsonAxis): 'x' | 'y' {
 
 export class TmsLoader {
   /**
-   * Stores fetched spatialreference.org API ProjJson objects in memory by Epsg
-   */
-  private static readonly FetchedProjJsons = new Map<Epsg, PROJJSONDefinition>();
-
-  /**
    * Stores generated TileMatrixSets objects in memory by Epsg
    */
   private static readonly GeneratedTileMatrices = new Map<Epsg, TileMatrixSet>();
@@ -89,13 +84,14 @@ export class TmsLoader {
     const epsg = await ProjectionLoader.load(epsgCode);
     const proj = Projection.get(epsg);
 
-    // check if a TileMatrixSet object has already been generated for the Epsg
+      // check if a TileMatrixSet object has already been generated for the Epsg
     const existing = TmsLoader.GeneratedTileMatrices.get(epsg);
     if (existing != null) return existing;
 
     // fetch projection metadata from the spatialreference.org API,
     // this givens us valid axis information and geographic bounding box
-    const projJson = await TmsLoader.fetchProjJson(epsg);
+    const projJson = proj.definition;
+    if (projJson == null) throw new Error('Unable to load projection json for:' +  epsg.toEpsgString())
 
     // transform the bounding box to projected coordinates
     // convert from lat/lon (wgs84) to the target projection's coordinate system
@@ -179,19 +175,4 @@ export class TmsLoader {
     return tileMatrixSet;
   }
 
-  private static async fetchProjJson(epsg: Epsg): Promise<PROJJSONDefinition> {
-    const pj = ProjJsons[epsg.code];
-    if (pj != null) return pj;
-
-    const existing = TmsLoader.FetchedProjJsons.get(epsg);
-    if (existing != null) return existing;
-
-    const projJson = (await fetch(`https://spatialreference.org/ref/epsg/${epsg.code}/projjson.json`).then((f) =>
-      f.json(),
-    )) as PROJJSONDefinition;
-
-    // store the fetched spatialreference.org API ProjJson object by Epsg
-    TmsLoader.FetchedProjJsons.set(epsg, projJson);
-    return projJson;
-  }
 }
