@@ -1,4 +1,3 @@
-import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 
 import {
   Epsg,
@@ -9,7 +8,6 @@ import {
   TileMatrixSet,
   TileMatrixSetType,
 } from '../index.js';
-import { ProjJsons } from '../proj/json/proj.json.js';
 
 /**
  * Minimal typings of PROJJSON
