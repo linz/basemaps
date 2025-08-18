@@ -1,4 +1,3 @@
-
 import {
   Epsg,
   getXyOrder,
@@ -82,14 +81,14 @@ export class TmsLoader {
     const epsg = await ProjectionLoader.load(epsgCode);
     const proj = Projection.get(epsg);
 
-      // check if a TileMatrixSet object has already been generated for the Epsg
+    // check if a TileMatrixSet object has already been generated for the Epsg
     const existing = TmsLoader.GeneratedTileMatrices.get(epsg);
     if (existing != null) return existing;
 
     // fetch projection metadata from the spatialreference.org API,
     // this givens us valid axis information and geographic bounding box
     const projJson = proj.definition;
-    if (projJson == null) throw new Error('Unable to load projection json for:' +  epsg.toEpsgString())
+    if (projJson == null) throw new Error('Unable to load projection json for:' + epsg.toEpsgString());
 
     // transform the bounding box to projected coordinates
     // convert from lat/lon (wgs84) to the target projection's coordinate system
@@ -172,5 +171,4 @@ export class TmsLoader {
     TmsLoader.GeneratedTileMatrices.set(epsg, tileMatrixSet);
     return tileMatrixSet;
   }
-
 }
