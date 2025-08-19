@@ -1,5 +1,5 @@
 import { isEmptyTiff } from '@basemaps/config-loader';
-import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets, TmsLoader } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { getLogger, logArguments, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
@@ -162,7 +162,7 @@ export const BasemapsCogifyCreateCommand = command({
         // Location to where the tiff should be stored
         const tiffPath = new URL(tileId + '.tiff', url);
         const itemStacPath = new URL(tileId + '.json', url);
-        const tileMatrix = TileMatrixSets.find(options.tileMatrix);
+        const tileMatrix = TileMatrixSets.find(options.tileMatrix) ?? (await TmsLoader.load(options.sourceEpsg));
         if (tileMatrix == null) throw new Error('Failed to find tileMatrix: ' + options.tileMatrix);
         const sourceFiles = getSources(item.links);
 
