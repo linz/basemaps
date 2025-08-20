@@ -56,7 +56,7 @@ export class MapSwitcher extends Component {
     if (Config.map.layerId === 'aerial') {
       return { layerId: 'topographic', style: 'topographic' };
     } else if (Config.map.layerId === 'topographic' && Config.map.style === 'topographic') {
-      return { layerId: 'topo-raster' };
+      return { layerId: 'topo-raster', style: 'topo-raster' };
     } else if (Config.map.layerId === 'topo-raster') {
       return { layerId: 'topographic', style: 'topolite' };
     } else if (Config.map.layerId === 'topographic' && Config.map.style === 'topolite') {
