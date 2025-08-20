@@ -4,8 +4,8 @@ import { describe, it } from 'node:test';
 import { Epsg } from '../../../epsg.js';
 import { Projection } from '../../projection.js';
 import { ProjectionLoader } from '../../projection.loader.js';
+import { UtmZone } from '../../utmzone.js';
 import { ProjJsons } from '../proj.json.js';
-import { UtmZone } from '../utmzone.js';
 
 describe('ProjJson', () => {
   it('should parse each unsupported EPSG code and ProjJSON pair into a runtime Epsg and Projection', async () => {

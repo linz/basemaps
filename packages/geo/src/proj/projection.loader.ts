@@ -3,7 +3,7 @@ import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 import { Epsg } from '../epsg.js';
 import { ProjJsons } from './json/proj.json.js';
 import { Projection } from './projection.js';
-import { UtmZone } from './json/utmzone.js';
+import { UtmZone } from './utmzone.js';
 
 declare const fetch: (r: string) => Promise<{ ok: boolean; json: () => Promise<unknown> }>;
 

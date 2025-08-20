@@ -22,7 +22,7 @@ export class UtmZone {
     },
   } as const;
 
-  static isUTMZoneCode(code: number) {
+  static isUTMZoneCode(code: number): boolean {
     const zone = code - this.BaseCode;
     const isValidZone = zone >= this.FirstZone && zone <= this.LastZone;
 
