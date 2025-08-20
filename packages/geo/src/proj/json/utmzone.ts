@@ -40,6 +40,7 @@ export class UtmZone {
     const NaturalOriginLon = this.FirstValues.parameters.longitudeOfNaturalOrigin.value + lonDelta;
     const westLon = this.FirstValues.bbox.westLongitude + lonDelta;
     const eastLon = this.FirstValues.bbox.eastLongitude + lonDelta;
+    const westOrEast = westLon < 0 ? '°W' : '°E';
 
     const projJson = {
       $schema: 'https://proj.org/schemas/v0.7/projjson.schema.json',
@@ -216,7 +217,7 @@ export class UtmZone {
         ],
       },
       scope: 'Navigation and medium accuracy spatial referencing.',
-      area: `Between ${Math.abs(westLon)}°W and ${Math.abs(eastLon)}°W, southern hemisphere between 80°S and equator, onshore and offshore.`,
+      area: `Between ${Math.abs(westLon)}${westOrEast} and ${Math.abs(eastLon)}${westOrEast}, southern hemisphere between 80°S and equator, onshore and offshore.`,
       bbox: {
         south_latitude: -80,
         west_longitude: westLon,

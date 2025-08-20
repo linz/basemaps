@@ -26,11 +26,22 @@ describe('ProjJson', () => {
     }
   });
 
-  // FIX: this test makes 60 third-party API calls and takes a few seconds to execute
+  /**
+   * Warning: This test makes 60 third-party API calls and takes a few seconds to execute.
+   */
   it('should generate a ProjJSON for each UTM Zone EPSG code that matches the spatialreference.org ProjJSON', async () => {
     for (let code = 32701; code <= 32760; code++) {
       const generatedProjJson = UtmZone.generate(code);
       const fetchedProjJson = await ProjectionLoader.fetchProjJson(code);
+
+      /**
+       * The 'area' property sometimes has extra text after the expected sentence.
+       * Slice it off the fetched ProjJSON so it doesn't interrupt the comparison.
+       *
+       * @example https://spatialreference.org/ref/epsg/32714/projjson.json
+       * @example https://spatialreference.org/ref/epsg/32715/projjson.json
+       */
+      fetchedProjJson.area = fetchedProjJson.area?.substring(0, fetchedProjJson.area.indexOf('.') + 1);
 
       assert.strictEqual(
         JSON.stringify(generatedProjJson),
