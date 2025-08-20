@@ -31,7 +31,7 @@ describe('ProjJson', () => {
    */
   it('should generate a ProjJSON for each UTM Zone EPSG code that matches the spatialreference.org ProjJSON', async () => {
     for (let code = 32701; code <= 32760; code++) {
-      const generatedProjJson = UtmZone.generate(code);
+      const generatedProjJson = UtmZone.generateProjJson(code);
       const fetchedProjJson = await ProjectionLoader.fetchProjJson(code);
 
       /**

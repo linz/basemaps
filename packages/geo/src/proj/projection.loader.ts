@@ -24,7 +24,7 @@ export class ProjectionLoader {
 
     if (UtmZone.isUTMZoneCode(code)) {
       // Generate the ProjJSON dynamically
-      projJson = UtmZone.generate(code);
+      projJson = UtmZone.generateProjJson(code);
     } else {
       // Grab the projJSON locally. Otherwise, fetch it
       projJson = ProjJsons[code] ?? (await this.fetchProjJson(code));
