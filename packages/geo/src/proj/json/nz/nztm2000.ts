@@ -1,8 +1,10 @@
-// source: https://spatialreference.org/ref/epsg/3793/projjson.json
-export const Citm2000Json = {
+/**
+ * source: https://spatialreference.org/ref/epsg/2193/projjson.json
+ */
+export const Nztm2000Json = {
   $schema: 'https://proj.org/schemas/v0.7/projjson.schema.json',
   type: 'ProjectedCRS',
-  name: 'NZGD2000 / Chatham Islands TM 2000',
+  name: 'NZGD2000 / New Zealand Transverse Mercator 2000',
   base_crs: {
     type: 'GeographicCRS',
     name: 'NZGD2000',
@@ -21,13 +23,13 @@ export const Citm2000Json = {
     id: { authority: 'EPSG', code: 4167 },
   },
   conversion: {
-    name: 'Chatham Islands Transverse Mercator 2000',
+    name: 'New Zealand Transverse Mercator 2000',
     method: { name: 'Transverse Mercator', id: { authority: 'EPSG', code: 9807 } },
     parameters: [
       { name: 'Latitude of natural origin', value: 0, unit: 'degree', id: { authority: 'EPSG', code: 8801 } },
-      { name: 'Longitude of natural origin', value: -176.5, unit: 'degree', id: { authority: 'EPSG', code: 8802 } },
-      { name: 'Scale factor at natural origin', value: 1, unit: 'unity', id: { authority: 'EPSG', code: 8805 } },
-      { name: 'False easting', value: 3500000, unit: 'metre', id: { authority: 'EPSG', code: 8806 } },
+      { name: 'Longitude of natural origin', value: 173, unit: 'degree', id: { authority: 'EPSG', code: 8802 } },
+      { name: 'Scale factor at natural origin', value: 0.9996, unit: 'unity', id: { authority: 'EPSG', code: 8805 } },
+      { name: 'False easting', value: 1600000, unit: 'metre', id: { authority: 'EPSG', code: 8806 } },
       { name: 'False northing', value: 10000000, unit: 'metre', id: { authority: 'EPSG', code: 8807 } },
     ],
   },
@@ -38,8 +40,8 @@ export const Citm2000Json = {
       { name: 'Easting', abbreviation: 'E', direction: 'east', unit: 'metre' },
     ],
   },
-  scope: 'Cadastre, engineering survey, topographic mapping.',
-  area: 'New Zealand - Chatham Islands group - onshore.',
-  bbox: { south_latitude: -44.64, west_longitude: -177.25, north_latitude: -43.3, east_longitude: -175.54 },
-  id: { authority: 'EPSG', code: 3793 },
+  scope: 'Engineering survey, topographic mapping.',
+  area: 'New Zealand - North Island, South Island, Stewart Island - onshore.',
+  bbox: { south_latitude: -47.33, west_longitude: 166.37, north_latitude: -34.1, east_longitude: 178.63 },
+  id: { authority: 'EPSG', code: 2193 },
 };

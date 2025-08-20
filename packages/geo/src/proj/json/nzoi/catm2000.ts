@@ -1,8 +1,10 @@
-// source: https://spatialreference.org/ref/epsg/3788/projjson.json
-export const Aktm2000Json = {
+/**
+ * source: https://spatialreference.org/ref/epsg/3789/projjson.json
+ */
+export const Catm2000Json = {
   $schema: 'https://proj.org/schemas/v0.7/projjson.schema.json',
   type: 'ProjectedCRS',
-  name: 'NZGD2000 / Auckland Islands TM 2000',
+  name: 'NZGD2000 / Campbell Island TM 2000',
   base_crs: {
     type: 'GeographicCRS',
     name: 'NZGD2000',
@@ -21,11 +23,11 @@ export const Aktm2000Json = {
     id: { authority: 'EPSG', code: 4167 },
   },
   conversion: {
-    name: 'Auckland Islands Transverse Mercator 2000',
+    name: 'Campbell Island Transverse Mercator 2000',
     method: { name: 'Transverse Mercator', id: { authority: 'EPSG', code: 9807 } },
     parameters: [
       { name: 'Latitude of natural origin', value: 0, unit: 'degree', id: { authority: 'EPSG', code: 8801 } },
-      { name: 'Longitude of natural origin', value: 166, unit: 'degree', id: { authority: 'EPSG', code: 8802 } },
+      { name: 'Longitude of natural origin', value: 169, unit: 'degree', id: { authority: 'EPSG', code: 8802 } },
       { name: 'Scale factor at natural origin', value: 1, unit: 'unity', id: { authority: 'EPSG', code: 8805 } },
       { name: 'False easting', value: 3500000, unit: 'metre', id: { authority: 'EPSG', code: 8806 } },
       { name: 'False northing', value: 10000000, unit: 'metre', id: { authority: 'EPSG', code: 8807 } },
@@ -39,7 +41,7 @@ export const Aktm2000Json = {
     ],
   },
   scope: 'Cadastre, engineering survey, topographic mapping.',
-  area: 'New Zealand - Snares Island, Auckland Island - onshore.',
-  bbox: { south_latitude: -51.13, west_longitude: 165.55, north_latitude: -47.8, east_longitude: 166.93 },
-  id: { authority: 'EPSG', code: 3788 },
+  area: 'New Zealand - Campbell Island.',
+  bbox: { south_latitude: -52.83, west_longitude: 168.65, north_latitude: -52.26, east_longitude: 169.6 },
+  id: { authority: 'EPSG', code: 3789 },
 };

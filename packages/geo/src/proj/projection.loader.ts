@@ -12,10 +12,11 @@ export class ProjectionLoader {
   static _fetch = fetch;
 
   /**
-   * Ensure that a projection EPSG code is available for use in Proj4js
+   * Initialises an Epsg instance for the given code and ensures that
+   * a corresponding Projection instance is available.
    *
-   * If its not already loaded, lookup definition from spatialreference.org
-   * @param code
+   * @param code - The code for which to initialise an Epsg and Projection instance.
+   * @returns an Epsg instance
    */
   static async load(code: number): Promise<Epsg> {
     if (Projection.tryGet(code) != null) return Epsg.get(code);
@@ -38,7 +39,7 @@ export class ProjectionLoader {
   }
 
   /**
-   * Fetches a ProjJSON definition via the spatialnreference.org API.
+   * Fetches a ProjJSON definition via the spatialreference.org API.
    *
    * @param code - The code for which to lookup the ProjJSON definition
    * @returns a PROJJSONDefinition object

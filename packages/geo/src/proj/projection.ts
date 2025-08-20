@@ -14,8 +14,8 @@ import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 import { BoundingBox, NamedBounds } from '../bounds.js';
 import { Epsg, EpsgCode } from '../epsg.js';
 import { Tile, TileMatrixSet } from '../tile.matrix.set.js';
-import { Citm2000Json } from './json/citm2000.js';
-import { Nztm2000Json } from './json/nztm2000.js';
+import { Citm2000Json } from './json/nz/citm2000.js';
+import { Nztm2000Json } from './json/nz/nztm2000.js';
 
 export const Projections = new Map<number | EpsgCode, { json?: PROJJSONDefinition; converter: proj4.Converter }>();
 

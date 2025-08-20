@@ -1,5 +1,6 @@
-// exactly as it is returned from the following URL:
-// - https://spatialreference.org/ref/epsg/5479/projjson.json
+/**
+ * source: https://spatialreference.org/ref/epsg/5479/projjson.json
+ */
 export const Mscl2000Json = {
   $schema: 'https://proj.org/schemas/v0.7/projjson.schema.json',
   type: 'ProjectedCRS',
