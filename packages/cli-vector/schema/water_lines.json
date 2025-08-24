@@ -7,7 +7,7 @@
       "name": "103632-nz-river-name-lines-pilot",
       "source": "s3://linz-lds-cache/103632/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 },
+      "style": { "minZoom": 9, "maxZoom": 15 },
       "simplify": [
         { "style": { "minZoom": 8, "maxZoom": 9 }, "tolerance": 0.001 },
         { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0005 },
