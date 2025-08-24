@@ -152,7 +152,7 @@ async function downloadSourceFile(
     logger.info({ destination: tmpPaths.source.path, id: layer.id, name: layer.name }, 'DownloadSourceFile: End');
   } catch (error) {
     logger.error({ source: layer.source, id: layer.id, name: layer.name }, 'DownloadSourceFile: Error');
-    throw new Error(`${error}`);
+    throw error;
   }
 }
 
@@ -261,6 +261,6 @@ async function createMbtilesFile(
     logger.info({ destination: tmpPaths.origin }, '[5/5] Update stac: End');
   } catch (error) {
     logger.error({ source: layer.source, id: layer.id, name: layer.name }, 'CreateMbtilesFile: Failed');
-    throw new Error(`${error}`);
+    throw error;
   }
 }
