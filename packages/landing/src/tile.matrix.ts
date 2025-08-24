@@ -10,6 +10,7 @@ export interface TileGridStyle {
   config?: string | null;
   terrain?: string | null;
   labels?: boolean | null;
+  pipeline?: string | null;
 }
 
 export function getTileGridStyle(tileMatrixSet: TileMatrixSet, cfg: TileGridStyle): string {
@@ -21,6 +22,7 @@ export function getTileGridStyle(tileMatrixSet: TileMatrixSet, cfg: TileGridStyl
     config: cfg.config ?? Config.map.config,
     terrain: cfg.terrain ?? Config.map.terrain,
     labels: cfg.labels ?? Config.map.labels,
+    pipeline: cfg.pipeline ?? Config.map.pipeline,
   });
 }
 

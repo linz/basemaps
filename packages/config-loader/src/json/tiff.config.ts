@@ -453,6 +453,20 @@ export async function initConfigFromUrls(
     category: 'Basemaps',
     type: TileSetType.Raster,
     layers: [],
+    outputs: [
+      {
+        name: 'rgb',
+        pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 'no-data' } as any],
+      } as any,
+      {
+        name: 'false-color',
+        pipeline: [{ type: 'extract', r: 3, g: 0, b: 1, alpha: 'no-data' } as any],
+      } as any,
+      {
+        name: 'ndvi',
+        pipeline: [{ type: 'ndvi' } as any],
+      } as any,
+    ],
   };
 
   const elevationTileSet: ConfigTileSetRaster = {
@@ -488,6 +502,13 @@ export async function initConfigFromUrls(
         provider.put(elevationTileSet);
         tileSets.push(elevationTileSet);
       }
+    } else {
+      let existingLayer = aerialTileSet.layers.find((l) => l.title === cfg.title);
+      if (existingLayer == null) {
+        existingLayer = { name: cfg.name, title: cfg.title };
+        aerialTileSet.layers.push(existingLayer);
+      }
+      existingLayer[cfg.projection] = cfg.id;
     }
   }
   // FIXME: tileSet should be removed now that we are returning all tilesets

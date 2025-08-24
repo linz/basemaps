@@ -146,6 +146,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
+    this.pipeline = urlParams.get('pipeline');
     if (labels == null) {
       this.labels = layerId === 'aerial' && this.isDebug === false;
     } else {
@@ -275,6 +276,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.pipeline = pipeline;
     this.emit('layer', this.layerId, this.style, this.pipeline, this.imageFormat);
     this.emit('change');
+    console.log(this);
   }
 
   setDebug<T extends keyof DebugState>(key: T, value: DebugState[T] = DebugDefaults[key]): void {
