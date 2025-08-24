@@ -9,17 +9,16 @@ import {
 } from '@linzjs/geojson';
 import { Position } from 'geojson';
 import Proj from 'proj4';
+import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 
 import { BoundingBox, NamedBounds } from '../bounds.js';
 import { Epsg, EpsgCode } from '../epsg.js';
 import { Tile, TileMatrixSet } from '../tile.matrix.set.js';
-import { Citm2000 } from './citm2000.js';
-import { Nztm2000 } from './nztm2000.js';
+import { Citm2000Json } from './json/nz/citm2000.js';
+import { Nztm2000Json } from './json/nz/nztm2000.js';
 
-Proj.defs(Epsg.Nztm2000.toEpsgString(), Nztm2000);
-Proj.defs(Epsg.Citm2000.toEpsgString(), Citm2000);
+export const Projections = new Map<number | EpsgCode, { json?: PROJJSONDefinition; converter: proj4.Converter }>();
 
-const CodeMap = new Map<EpsgCode, Projection>();
 export interface LatLon {
   lat: number;
   lon: number;
@@ -34,6 +33,8 @@ function getEpsgCode(epsgCode?: Epsg | EpsgCode | TileMatrixSet): EpsgCode | nul
 }
 
 export class Projection {
+  static All = new Map<EpsgCode, Projection>();
+
   /** If floating point numbers differ by this amount they are close enough */
   static AllowedFloatingError = 1e-8;
 
@@ -43,23 +44,30 @@ export class Projection {
   /** Transform coordinates to and from Wgs84 */
   private projection: proj4.Converter;
 
+  /** If the projection was definied with a projjson */
+  definition?: PROJJSONDefinition;
+
   /**
    * Wrapper around TileMatrixSet with utilities for converting Points and Polygons
    */
-  private constructor(epsg: Epsg) {
+  private constructor(epsg: Epsg, definition?: PROJJSONDefinition) {
     this.epsg = epsg;
-    try {
-      this.projection = Proj(epsg.toEpsgString(), Epsg.Wgs84.toEpsgString());
-    } catch (cause) {
-      throw new Error(`Failed to create projection: ${epsg.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`, { cause });
+
+    const projection = Projections.get(epsg.code);
+    if (projection == null) {
+      throw new Error(`Failed to create projection: ${epsg.toEpsgString()}, ${Epsg.Wgs84.toEpsgString()}`);
     }
+    this.projection = projection.converter;
+    this.definition = definition;
+    Projection.All.set(epsg.code, this);
   }
 
   /** Ensure that a transformation in proj4.js is defined */
-  static define(epsg: Epsg, def: string): void {
-    const existing = CodeMap.get(epsg.code);
+  static define(epsg: Epsg, def: PROJJSONDefinition): Projection {
+    const existing = Projections.get(epsg.code);
     if (existing != null) throw new Error('Duplicate projection definition: ' + epsg.toEpsgString());
-    Proj.defs(epsg.toEpsgString(), def);
+    Projections.set(epsg.code, { json: def, converter: Proj(def, Epsg.Wgs84.toEpsgString()) });
+    return new Projection(epsg, def);
   }
 
   /**
@@ -83,18 +91,16 @@ export class Projection {
     const epsgCode = getEpsgCode(unk);
     if (epsgCode == null) return null;
     // Existing projection logic, cache and reuse
-    let proj = CodeMap.get(epsgCode);
+    const proj = Projection.All.get(epsgCode);
     if (proj != null) return proj;
     // ensure the EPSG Code has been registered in basemaps
     const epsg = Epsg.tryGet(epsgCode);
     if (epsg == null) return null;
     // Ensure proj has a transform for this projection
-    const def = Proj.defs(epsg.toEpsgString());
+    const def = Projections.get(epsg.code);
     if (def == null) return null;
 
-    proj = new Projection(epsg);
-    CodeMap.set(epsgCode, proj);
-    return proj;
+    return new Projection(epsg);
   }
 
   /**
@@ -116,7 +122,6 @@ export class Projection {
    * Convert source `[x, y]` coordinates to `[lon, lat]`
    */
   get toWgs84(): (coordinates: Position) => Position {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     return this.projection.forward;
   }
 
@@ -124,7 +129,6 @@ export class Projection {
    * Convert `[lon, lat]` coordinates to source `[x, y]`
    */
   get fromWgs84(): (coordinates: Position) => Position {
-    // eslint-disable-next-line @typescript-eslint/unbound-method
     return this.projection.inverse;
   }
 
@@ -275,3 +279,7 @@ export class Projection {
     return Math.round((lr.x - ul.x) / tms.pixelScale(targetZoom)) * 2;
   }
 }
+
+Projection.define(Epsg.Nztm2000, Nztm2000Json);
+Projection.define(Epsg.Citm2000, Citm2000Json);
+Projections.set(Epsg.Google.code, { converter: Proj(Epsg.Google.toEpsgString(), Epsg.Wgs84.toEpsgString()) });

@@ -78,8 +78,8 @@ function axisName(ax: ProjJsonAxis): 'x' | 'y' {
 }
 
 async function main(): Promise<void> {
-  await ProjectionLoader.load(TargetProjection);
-  const proj = Projection.get(TargetProjection);
+  const epsg = await ProjectionLoader.load(TargetProjection);
+  const proj = Projection.get(epsg);
 
   // Load the projection JSON from spatialreference and look for a bounding box of the projection
   const projJson = (await fetch(`https://spatialreference.org/ref/epsg/${TargetProjection}/projjson.json`).then((f) =>
@@ -114,7 +114,7 @@ async function main(): Promise<void> {
 
   const tileMatrix = structuredClone(GoogleTms.def) as TileMatrixSetType & { $generated: unknown; $options: unknown };
 
-  const xyOrder = getXyOrder(TargetProjection);
+  const xyOrder = getXyOrder(epsg);
 
   const xy = xyOrder === 'xy' ? { x: 0, y: 1 } : { x: 1, y: 0 };
 
