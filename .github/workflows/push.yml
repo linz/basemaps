@@ -18,9 +18,19 @@ jobs:
     steps:
       - uses: linz/action-typescript@v3
 
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v3
+        with:
+          command: manifest
+          release-type: node
+          token: ${{ secrets.GITHUB_TOKEN }}
+
   build-deploy:
     runs-on: ubuntu-latest
     concurrency: deploy-${{ github.ref }}
+    needs: [release-please]
 
     permissions:
       id-token: write
@@ -52,7 +62,7 @@ jobs:
         run: node scripts/detect.unlinked.dep.mjs
 
       - name: (Prod) Create tag
-        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        if: ${{ needs.release-please.outputs.releases_created }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -61,13 +71,13 @@ jobs:
           git push --tags
 
       - name: (Prod) Create github release
-        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        if: ${{ needs.release-please.outputs.releases_created }}
         run: npx conventional-github-releaser -p angular
         env:
           CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: (Prod) Publish NPM
-        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+        if: ${{ needs.release-please.outputs.releases_created }}
         run: npx lerna publish from-git --yes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -133,8 +143,8 @@ jobs:
   deploy-prod:
     runs-on: ubuntu-latest
     concurrency: deploy-prod-${{ github.ref }}
-    needs: [deploy-dev]
-    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
+    needs: [deploy-dev, release-please]
+    if: ${{ needs.release-please.outputs.releases_created }}
 
     environment:
       name: prod
