@@ -105,6 +105,12 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/infra bumped from ^8.6.0 to ^8.6.1
+
 ## [7.15.1](https://github.com/linz/basemaps/compare/v7.15.0...v7.15.1) (2025-03-24)
 
 
