@@ -1,12 +1,12 @@
 import assert from 'node:assert';
 import { describe, it, TestContext } from 'node:test';
 
+import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 import { Epsg } from '../../../epsg.js';
 import { Projection } from '../../projection.js';
 import { ProjectionLoader } from '../../projection.loader.js';
 import { UtmZone } from '../../utmzone.js';
 import { ProjJsons } from '../proj.json.js';
-import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 import { FakeData } from './fake.data.js';
 
 describe('ProjJson', () => {
