@@ -1,11 +1,13 @@
 import assert from 'node:assert';
-import { describe, it } from 'node:test';
+import { describe, it, TestContext } from 'node:test';
 
 import { Epsg } from '../../../epsg.js';
 import { Projection } from '../../projection.js';
 import { ProjectionLoader } from '../../projection.loader.js';
 import { UtmZone } from '../../utmzone.js';
 import { ProjJsons } from '../proj.json.js';
+import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
+import { FakeData } from './fake.data.js';
 
 describe('ProjJson', () => {
   it('should parse each unsupported EPSG code and ProjJSON pair into a runtime Epsg and Projection', async () => {
@@ -26,11 +28,17 @@ describe('ProjJson', () => {
     }
   });
 
-  /**
-   * Warning: This test makes 60 third-party API calls and takes a few seconds to execute.
-   */
-  it('should generate a ProjJSON for each UTM Zone EPSG code that matches the spatialreference.org ProjJSON', async () => {
-    for (let code = 32701; code <= 32760; code++) {
+  it('should generate a ProjJSON for a UTM Zone EPSG code that matches the spatialreference.org ProjJSON', async (t: TestContext) => {
+    /**
+     * Simulate the spatialreference.org API call performed by the`fetchProjJson` method.
+     */
+    t.mock.method(ProjectionLoader, 'fetchProjJson', async (code: number): Promise<PROJJSONDefinition> => {
+      return FakeData.ProjJson[code];
+    });
+
+    const codes = [32701, 32730, 32760] as const;
+
+    for (const code of codes) {
       const generatedProjJson = UtmZone.generateProjJson(code);
       const fetchedProjJson = await ProjectionLoader.fetchProjJson(code);
 
@@ -38,8 +46,8 @@ describe('ProjJson', () => {
        * The 'area' property sometimes has extra text after the expected sentence.
        * Slice it off the fetched ProjJSON so it doesn't interrupt the comparison.
        *
-       * @example https://spatialreference.org/ref/epsg/32714/projjson.json
-       * @example https://spatialreference.org/ref/epsg/32715/projjson.json
+       * @example https://spatialreference.org/ref/epsg/32701/projjson.json
+       * @example https://spatialreference.org/ref/epsg/32760/projjson.json
        */
       fetchedProjJson.area = fetchedProjJson.area?.substring(0, fetchedProjJson.area.indexOf('.') + 1);
 
