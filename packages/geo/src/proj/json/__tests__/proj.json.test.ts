@@ -32,7 +32,7 @@ describe('ProjJson', () => {
     /**
      * Simulate the spatialreference.org API call performed by the`fetchProjJson` method.
      */
-    t.mock.method(ProjectionLoader, 'fetchProjJson', async (code: number): Promise<PROJJSONDefinition> => {
+    t.mock.method(ProjectionLoader, 'fetchProjJson', (code: number): PROJJSONDefinition => {
       return FakeData.ProjJson[code];
     });
 
