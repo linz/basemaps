@@ -24,7 +24,6 @@ jobs:
 
     environment:
       name: prod
-      url: https://basemaps.linz.govt.nz
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
