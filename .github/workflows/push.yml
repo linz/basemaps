@@ -20,6 +20,12 @@ jobs:
 
   release-please:
     runs-on: ubuntu-latest
+    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master'
+
+    environment:
+      name: prod
+      url: https://basemaps.linz.govt.nz
+      
     steps:
       - uses: googleapis/release-please-action@v3
         with:
