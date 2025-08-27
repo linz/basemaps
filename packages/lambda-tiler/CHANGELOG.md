@@ -247,6 +247,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.6.1](https://github.com/linz/basemaps/compare/lambda-tiler-v8.6.0...lambda-tiler-v8.6.1) (2025-08-27)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/tiler-sharp bumped from ^8.6.0 to ^8.7.0
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 

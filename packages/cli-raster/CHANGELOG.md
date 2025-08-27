@@ -105,6 +105,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.7.0](https://github.com/linz/basemaps/compare/cli-raster-v8.6.0...cli-raster-v8.7.0) (2025-08-27)
+
+
+### Features
+
+* **cli-raster:** Fetch chart imagery metadata from backup location.BM-1345 ([#3492](https://github.com/linz/basemaps/issues/3492)) ([2b42fa7](https://github.com/linz/basemaps/commit/2b42fa7a98730d8706506866f248cf2f43895e38))
+* **cli-raster:** New cli to standardise charts map. BM-1338 ([#3483](https://github.com/linz/basemaps/issues/3483)) ([35b7854](https://github.com/linz/basemaps/commit/35b7854c50dffd1ee5a3cbeac2289a91cc87d1b3))
+
 ## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
 
 **Note:** Version bump only for package @basemaps/cogify

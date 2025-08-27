@@ -208,6 +208,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.6.1](https://github.com/linz/basemaps/compare/infra-v8.6.0...infra-v8.6.1) (2025-08-27)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/lambda-tiler bumped from ^8.6.0 to ^8.6.1
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 **Note:** Version bump only for package @basemaps/infra
