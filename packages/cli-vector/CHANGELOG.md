@@ -1,9 +1,18 @@
-# Change Log
+# Changelog
+
+## [8.7.1](https://github.com/linz/basemaps/compare/cli-vector-v8.7.0...cli-vector-v8.7.1) (2025-08-27)
+
+
+### Bug Fixes
+
+* **cli-vector:** Fix the tmp path of download layers and add try catch. BM-1352 ([#3494](https://github.com/linz/basemaps/issues/3494)) ([3769175](https://github.com/linz/basemaps/commit/376917570a2373d347d09098ccbac5e5d7515655))
+
+## Change Log
 
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.7.0](https://github.com/linz/basemaps/compare/v8.6.0...v8.7.0) (2025-08-10)
+## [8.7.0](https://github.com/linz/basemaps/compare/v8.6.0...v8.7.0) (2025-08-10)
 
 
 ### Features
@@ -14,7 +23,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
 
 **Note:** Version bump only for package @basemaps/cli-vector
 
@@ -22,7 +31,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
 
 
 ### Features
@@ -33,7 +42,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
+## [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
 
 
 ### Bug Fixes
@@ -50,7 +59,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
 
 
 ### Bug Fixes
@@ -66,7 +75,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
 
 
 ### Features
@@ -78,7 +87,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
 
 **Note:** Version bump only for package @basemaps/cli-vector
 
@@ -86,7 +95,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
 
 
 ### Features
@@ -98,4 +107,4 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# Change Log
+## Change Log

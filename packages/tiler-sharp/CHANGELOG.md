@@ -243,6 +243,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.7.0](https://github.com/linz/basemaps/compare/tiler-sharp-v8.6.0...tiler-sharp-v8.7.0) (2025-08-27)
+
+
+### Features
+
+* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/tiler-sharp
