@@ -73,15 +73,6 @@ jobs:
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.mjs
 
-      - name: (Prod) Create tag
-        if: ${{ needs.release-please.outputs.releases_created }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
-          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
-          git push --tags
-
       - name: (Prod) Create github release
         if: ${{ needs.release-please.outputs.releases_created }}
         run: npx conventional-github-releaser -p angular
