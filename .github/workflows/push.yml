@@ -20,12 +20,18 @@ jobs:
 
   release-please:
     runs-on: ubuntu-latest
+    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master'
+
+    environment:
+      name: prod
+    outputs:
+      releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
       - uses: googleapis/release-please-action@v3
         with:
           command: manifest
           release-type: node
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.LI_GITHUB_ACTION_TOKEN }}
 
   build-deploy:
     runs-on: ubuntu-latest
