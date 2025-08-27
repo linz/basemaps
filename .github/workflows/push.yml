@@ -76,15 +76,6 @@ jobs:
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.mjs
 
-      - name: (Prod) Create tag
-        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
-          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
-          git push --tags
-
       - name: (Prod) Create github release
         if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx conventional-github-releaser -p angular
