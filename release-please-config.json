@@ -25,7 +25,10 @@
     "packages/sprites": {},
     "packages/__tests__": {},
     "packages/tiler": {},
-    "packages/tiler-sharp": {}
+    "packages/tiler-sharp": {},
+    ".": {
+      "include-component-in-tag": false
+    }
   },
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
 }
