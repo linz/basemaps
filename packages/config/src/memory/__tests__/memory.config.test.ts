@@ -12,7 +12,8 @@ import { ConfigProviderMemory } from '../memory.config.js';
 describe('MemoryConfig', () => {
   const config = new ConfigProviderMemory();
   beforeEach(() => config.objects.clear());
-  const id = ulid();
+  // Generate a really old timestamp so any time comparisions are not affected by test execution time
+  const id = ulid(new Date('2021-01-01T00:00:00.000Z').getTime());
   const imId = `im_${id}`;
   const tsId = `ts_${id}`;
 
