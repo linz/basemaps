@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.7.0](https://github.com/linz/basemaps/compare/v8.6.0...v8.7.0) (2025-08-10)
+
+
+### Features
+
+* **cli-vector:** update the parsing logic for place_labels layer features BM-1318 ([#3470](https://github.com/linz/basemaps/issues/3470)) ([29d2593](https://github.com/linz/basemaps/commit/29d25938363255f05b91cced54397928a2a092da))
+
+
+
+
+
+# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* create unit tests for import config diffing ([#3481](https://github.com/linz/basemaps/issues/3481)) ([99f20b5](https://github.com/linz/basemaps/commit/99f20b5a06af5b7585140e415854da4ed6cd65d1))
+
+
+### Features
+
+* add aliases for tileSets ([#3482](https://github.com/linz/basemaps/issues/3482)) ([e3dcc64](https://github.com/linz/basemaps/commit/e3dcc64ee1354680d61a39209de75fcc0dcdcd80))
+* **landing:** add dsm hillshade ([#3479](https://github.com/linz/basemaps/issues/3479)) ([8ea4218](https://github.com/linz/basemaps/commit/8ea4218e476488125b986e447a36c6cef1b384f9))
+
+
+
+
+
 # [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
 
 

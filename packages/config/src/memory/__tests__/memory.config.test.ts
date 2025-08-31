@@ -194,4 +194,11 @@ describe('MemoryConfig', () => {
     assert.equal(target?.layers[0][2193], undefined);
     assert.equal(target?.name, 'ōtorohanga-urban-2021-0.1m');
   });
+
+  it('virtual tileset aliases', async () => {
+    config.put({ ...baseTs, aliases: ['someAlias'] } as ConfigTileSetRaster);
+    config.createVirtualTileSets();
+    const ts = await config.TileSet.get('ts_someAlias');
+    assert.equal(ts?.id, 'ts_someAlias');
+  });
 });
