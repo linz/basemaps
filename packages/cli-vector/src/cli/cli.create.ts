@@ -133,23 +133,27 @@ async function downloadSourceFile(
   const layer = options.layer;
 
   logger.info({ source: layer.source, id: layer.id, name: layer.name }, 'DownloadSourceFile: Start');
+  try {
+    if (!(await fsa.exists(tmpPaths.source.path))) {
+      // TODO: We don't acturally need to head file from lds-cache here.
+      // As the fsa.stream doesn't retry to register roles, we need head to register it.
+      // We could delete this once that is fixed.
+      const stats = await fsa.head(new URL(layer.source));
+      logger.debug(
+        { size: stats?.size, ContentType: stats?.contentType, LastModified: stats?.lastModified },
+        'DownloadSourceFile: stats',
+      );
+      const stream = fsa.readStream(new URL(layer.source));
+      await fsa.write(tmpPaths.source.path, stream.pipe(createGunzip()), {
+        contentType: tmpPaths.source.contentType,
+      });
+    }
 
-  if (!(await fsa.exists(tmpPaths.source.path))) {
-    // TODO: We don't acturally need to head file from lds-cache here.
-    // As the fsa.stream doesn't retry to register roles, we need head to register it.
-    // We could delete this once that is fixed.
-    const stats = await fsa.head(new URL(layer.source));
-    logger.debug(
-      { size: stats?.size, ContentType: stats?.contentType, LastModified: stats?.lastModified },
-      'DownloadSourceFile: stats',
-    );
-    const stream = fsa.readStream(new URL(layer.source));
-    await fsa.write(tmpPaths.source.path, stream.pipe(createGunzip()), {
-      contentType: tmpPaths.source.contentType,
-    });
+    logger.info({ destination: tmpPaths.source.path, id: layer.id, name: layer.name }, 'DownloadSourceFile: End');
+  } catch (error) {
+    logger.error({ source: layer.source, id: layer.id, name: layer.name }, 'DownloadSourceFile: Error');
+    throw error;
   }
-
-  logger.info({ destination: tmpPaths.source.path, id: layer.id, name: layer.name }, 'DownloadSourceFile: End');
 }
 
 /**
@@ -178,81 +182,85 @@ async function createMbtilesFile(
   if (tileMatrix == null) throw new Error(`Tile matrix ${options.tileMatrix} is not supported`);
 
   logger.info({ shortbreadLayer, dataset: layer.name }, 'CreateMbtilesFile: Start');
-
-  /**
-   * Convert the source file into an ndjson
-   */
-  logger.info({ source: tmpPaths.source.path, dataset: layer.name }, '[1/5] Convert source file to ndjson: Start');
-  if (!(await fsa.exists(tmpPaths.ndjson))) {
-    await ogr2ogrNDJson(tmpPaths.source.path, tmpPaths.ndjson, layer, logger);
-  }
-  logger.info({ destination: tmpPaths.ndjson, dataset: layer.name }, '[1/5] Convert source file to ndjson: End');
-
-  /**
-   * Parse the ndjson file and apply the generalization options
-   */
-  logger.info({ source: tmpPaths.ndjson, dataset: layer.name }, '[2/5] Generalise ndjson features: Start');
-  let metrics: Metrics | null = null;
-  if (!(await fsa.exists(tmpPaths.genNdjson))) {
-    metrics = await generalize(tmpPaths.ndjson, tmpPaths.genNdjson, tileMatrix, options, logger);
-    if (metrics.output === 0) throw new Error(`Failed to generalize ndjson file ${tmpPaths.ndjson.href}`);
-  }
-  logger.info({ destination: tmpPaths.genNdjson, dataset: layer.name }, '[2/5] Generalise ndjson features: End');
-
-  /**
-   * Transform the generalized ndjson file to an mbtiles file
-   */
-  logger.info(
-    { source: tmpPaths.genNdjson, dataset: layer.name },
-    '[3/5] Transform generalised ndjson into mbtiles: Start',
-  );
-  if (!(await fsa.exists(tmpPaths.mbtiles))) {
-    await tippecanoe(tmpPaths.genNdjson, tmpPaths.mbtiles, layer, tileMatrix, logger);
-  }
-  logger.info(
-    { destination: tmpPaths.mbtiles, dataset: layer.name },
-    '[3/5] Transform generalised ndjson into mbtiles: End',
-  );
-
-  /**
-   * Copy the mbtiles file to the same directory as the Vector Stac Item file
-   */
-  logger.info({ source: tmpPaths.mbtiles, dataset: layer.name }, '[4/5] Copy mbtiles to stac location: Start');
-  if (!(await fsa.exists(tmpPaths.mbtilesCopy))) {
-    await fsa.write(tmpPaths.mbtilesCopy, fsa.readStream(tmpPaths.mbtiles));
-
-    // Ensure the mbtiles file was copied successfully
-    if (!(await fsa.exists(tmpPaths.mbtilesCopy))) {
-      throw new Error(`Failed to write the mbtiles file to ${tmpPaths.mbtilesCopy.href}`);
+  try {
+    /**
+     * Convert the source file into an ndjson
+     */
+    logger.info({ source: tmpPaths.source.path, dataset: layer.name }, '[1/5] Convert source file to ndjson: Start');
+    if (!(await fsa.exists(tmpPaths.ndjson))) {
+      await ogr2ogrNDJson(tmpPaths.source.path, tmpPaths.ndjson, layer, logger);
     }
+    logger.info({ destination: tmpPaths.ndjson, dataset: layer.name }, '[1/5] Convert source file to ndjson: End');
+
+    /**
+     * Parse the ndjson file and apply the generalization options
+     */
+    logger.info({ source: tmpPaths.ndjson, dataset: layer.name }, '[2/5] Generalise ndjson features: Start');
+    let metrics: Metrics | null = null;
+    if (!(await fsa.exists(tmpPaths.genNdjson))) {
+      metrics = await generalize(tmpPaths.ndjson, tmpPaths.genNdjson, tileMatrix, options, logger);
+      if (metrics.output === 0) throw new Error(`Failed to generalize ndjson file ${tmpPaths.ndjson.href}`);
+    }
+    logger.info({ destination: tmpPaths.genNdjson, dataset: layer.name }, '[2/5] Generalise ndjson features: End');
+
+    /**
+     * Transform the generalized ndjson file to an mbtiles file
+     */
+    logger.info(
+      { source: tmpPaths.genNdjson, dataset: layer.name },
+      '[3/5] Transform generalised ndjson into mbtiles: Start',
+    );
+    if (!(await fsa.exists(tmpPaths.mbtiles))) {
+      await tippecanoe(tmpPaths.genNdjson, tmpPaths.mbtiles, layer, tileMatrix, logger);
+    }
+    logger.info(
+      { destination: tmpPaths.mbtiles, dataset: layer.name },
+      '[3/5] Transform generalised ndjson into mbtiles: End',
+    );
+
+    /**
+     * Copy the mbtiles file to the same directory as the Vector Stac Item file
+     */
+    logger.info({ source: tmpPaths.mbtiles, dataset: layer.name }, '[4/5] Copy mbtiles to stac location: Start');
+    if (!(await fsa.exists(tmpPaths.mbtilesCopy))) {
+      await fsa.write(tmpPaths.mbtilesCopy, fsa.readStream(tmpPaths.mbtiles));
+
+      // Ensure the mbtiles file was copied successfully
+      if (!(await fsa.exists(tmpPaths.mbtilesCopy))) {
+        throw new Error(`Failed to write the mbtiles file to ${tmpPaths.mbtilesCopy.href}`);
+      }
+    }
+    logger.info({ destination: tmpPaths.mbtilesCopy, dataset: layer.name }, '[4/5] Copy mbtiles to stac location: End');
+
+    /**
+     * Update the Vector Stac Item file
+     */
+    logger.info({ source: tmpPaths.origin, dataset: layer.name }, '[5/5] Update stac: Start');
+
+    // Update 'cache' flag to 'true' now that the mbtiles file exists
+    layer.cache!.exists = true;
+
+    // Assign the 'lds:feature_count' property
+    const links = stac.links;
+    const ldsLayerIndex = links.findIndex((stacLink) => stacLink.rel === 'lds:layer');
+    if (ldsLayerIndex === -1) throw new Error('Failed to locate `lds:layer` link object');
+
+    if (links[ldsLayerIndex]['lds:feature_count'] == null) {
+      // the 'metrics' variable is only ever null if the gen-ndjson file already exists, i.e.
+      // generated in a previous run. In such case, that run would have written the
+      // 'lds:feature_count' property to the Vector Stac Item file. If the following error occurs,
+      // then the previous run must have failed after creating the gen-ndjson file, but before
+      // updating the Vector Stac Item file.
+      if (metrics == null) throw new Error('Metrics object does not exist');
+
+      links[ldsLayerIndex]['lds:feature_count'] = metrics.input;
+    }
+
+    // Overwrite the Vector Stac Item file
+    await fsa.write(tmpPaths.origin, JSON.stringify(stac, null, 2));
+    logger.info({ destination: tmpPaths.origin }, '[5/5] Update stac: End');
+  } catch (error) {
+    logger.error({ source: layer.source, id: layer.id, name: layer.name }, 'CreateMbtilesFile: Failed');
+    throw error;
   }
-  logger.info({ destination: tmpPaths.mbtilesCopy, dataset: layer.name }, '[4/5] Copy mbtiles to stac location: End');
-
-  /**
-   * Update the Vector Stac Item file
-   */
-  logger.info({ source: tmpPaths.origin, dataset: layer.name }, '[5/5] Update stac: Start');
-
-  // Update 'cache' flag to 'true' now that the mbtiles file exists
-  layer.cache!.exists = true;
-
-  // Assign the 'lds:feature_count' property
-  const links = stac.links;
-  const ldsLayerIndex = links.findIndex((stacLink) => stacLink.rel === 'lds:layer');
-  if (ldsLayerIndex === -1) throw new Error('Failed to locate `lds:layer` link object');
-
-  if (links[ldsLayerIndex]['lds:feature_count'] == null) {
-    // the 'metrics' variable is only ever null if the gen-ndjson file already exists, i.e.
-    // generated in a previous run. In such case, that run would have written the
-    // 'lds:feature_count' property to the Vector Stac Item file. If the following error occurs,
-    // then the previous run must have failed after creating the gen-ndjson file, but before
-    // updating the Vector Stac Item file.
-    if (metrics == null) throw new Error('Metrics object does not exist');
-
-    links[ldsLayerIndex]['lds:feature_count'] = metrics.input;
-  }
-
-  // Overwrite the Vector Stac Item file
-  await fsa.write(tmpPaths.origin, JSON.stringify(stac, null, 2));
-  logger.info({ destination: tmpPaths.origin }, '[5/5] Update stac: End');
 }
