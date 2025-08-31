@@ -42,7 +42,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
 
       - name: Setup tags
@@ -76,7 +76,7 @@ jobs:
               tags.push('latest');
 
               // If on a release commit add `v7`, `v7.1` and `v7.1`
-              if (${{ toJson(github.event.head_commit.message) }}.startsWith('chore: release')) {
+              if (${{ toJson(github.event.head_commit.message) }}.startsWith('release:')) {
                 tags.push('${{ steps.version.outputs.version_major }}');
                 tags.push('${{ steps.version.outputs.version_major_minor }}');
               }
@@ -134,13 +134,13 @@ jobs:
         run: node scripts/detect.unlinked.dep.mjs
 
       - name: (Prod) Ensure tag exists
-        if: "github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'chore: release')"
+        if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
           git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
 
       - name: Bundle & Package all files
