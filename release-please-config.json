@@ -30,5 +30,6 @@
       "include-component-in-tag": false
     }
   },
+  "group-pull-request-title-pattern": "release: ${component} ${version}",
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
 }
