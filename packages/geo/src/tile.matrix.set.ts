@@ -6,6 +6,10 @@ import { getXyOrder } from './xy.order.js';
 
 export type Tile = Point & { z: number };
 
+export type Axis = 'Y' | 'X';
+export type AxisOrder = { orderedAxes: [Axis, Axis] };
+export type TileMatrixSetTypeOrdered = TileMatrixSetType & AxisOrder;
+
 /** order by increasing zoom level */
 function compareMatrix(a: TileMatrixType, b: TileMatrixType): number {
   return b.scaleDenominator - a.scaleDenominator;
@@ -16,7 +20,9 @@ export class TileMatrixSet {
   projection: Epsg;
 
   /** Number of pixels for a tile */
-  tileSize: number;
+  tileHeight: number;
+  tileWidth: number;
+
   /**
    * Raw tile matrix definition
    *
@@ -41,14 +47,16 @@ export class TileMatrixSet {
      */
   constructor(def: TileMatrixSetType) {
     this.def = def;
-    this.tileSize = def.tileMatrix[0].tileHeight;
+    // this.tileSize = def.tileMatrix[0].tileHeight;
+    this.tileWidth = def.tileMatrix[0].tileWidth;
+    this.tileHeight = def.tileMatrix[0].tileHeight;
 
     const zooms = def.tileMatrix.slice().sort(compareMatrix);
     const dups: Record<string, boolean> = {};
     for (const z of zooms) {
       if (dups[z.identifier]) throw new Error(`Duplicate tileMatrix identifier ${z.identifier}`);
-      if (z.tileHeight !== z.tileWidth) throw new Error('Only square tiles supported');
-      if (z.tileHeight !== this.tileSize) throw new Error('All tiles must have the same tile size');
+      if (z.tileHeight !== this.tileHeight) throw new Error('All tiles must have the same tile size');
+      if (z.tileWidth !== this.tileWidth) throw new Error('All tiles must have the same tile size');
       dups[z.identifier] = true;
     }
     this.zooms = zooms;
@@ -88,6 +96,13 @@ export class TileMatrixSet {
     return this.def.identifier;
   }
 
+  /**
+   * http://docs.opengeospatial.org/is/17-083r2/17-083r2.html#table_2:
+   * The pixel size of the tile can be obtained from the scaleDenominator by
+   * multiplying the later by 0.28 10-3 / metersPerUnit
+   */
+  static ScaleDenominatorRatio = 0.28e-3;
+
   /** Get the pixels / meter at a specified zoom level */
   pixelScale(zoom: number): number {
     const z = this.zooms[zoom];
@@ -102,7 +117,7 @@ export class TileMatrixSet {
   }
 
   public tileToPixels(tX: number, tY: number): Point {
-    return { x: tX * this.tileSize, y: tY * this.tileSize };
+    return { x: tX * this.tileWidth, y: tY * this.tileHeight };
   }
 
   /**
@@ -113,8 +128,8 @@ export class TileMatrixSet {
    * @param zoom pixel zoom level
    */
   public pixelsToTile(pX: number, pY: number, zoom: number): Tile {
-    const x = Math.floor(pX / this.tileSize);
-    const y = Math.floor(pY / this.tileSize);
+    const x = Math.floor(pX / this.tileWidth);
+    const y = Math.floor(pY / this.tileHeight);
     return { x, y, z: zoom };
   }
 
@@ -160,8 +175,10 @@ export class TileMatrixSet {
    */
   public tileToSourceBounds(tile: Tile): Bounds {
     const ul = this.tileToSource(tile);
-    const width = this.pixelScale(tile.z) * this.tileSize;
-    return new Bounds(ul.x, ul.y - width, width, width);
+    const scale = this.pixelScale(tile.z);
+    const width = scale * this.tileWidth;
+    const height = scale * this.tileHeight;
+    return new Bounds(ul.x, ul.y - height, width, height);
   }
 
   /**
