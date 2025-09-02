@@ -119,7 +119,7 @@ export const ChartsCreationCommand = command({
         const bufferedCutline = await prepareCutline(cutline, chartCode, metadata.gsd, args.bufferPixels, logger);
 
         // Create cog for each polygon from the cutline to seperate the cogs that crossing antimeridian
-        const targetPath = new URL(`${GoogleTms.projection.code}/${chartCode}/`, args.target);
+        const targetPath = new URL(`${GoogleTms.projection.code}/${CliId}/${chartCode}/`, args.target);
         if (targetPath.protocol === 'file:') await mkdir(targetPath, { recursive: true });
 
         // Create COGs
@@ -393,6 +393,6 @@ async function createCogs(
     }
   }
   // Create Stac collection
-  const collection = CreateStacCollection(chartCode, items, logger);
+  const collection = await CreateStacCollection(chartCode, items, logger);
   await fsa.write(new URL('collection.json', targetPath), JSON.stringify(collection, null, 2));
 }
