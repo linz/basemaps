@@ -3,7 +3,7 @@ import { Bounds } from '@basemaps/geo';
 import { fsa, LogType } from '@basemaps/shared';
 import { getLogger, isArgo, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { boolean, command, flag, option, optional, restPositionals, string } from 'cmd-ts';
+import { boolean, command, flag, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 import pLimit from 'p-limit';
 
 import { brokenTiffs, extractLatestTiffItemsByMapCode, extractTiffItemsByEpsg } from '../topo/extract.js';
@@ -22,15 +22,18 @@ export interface TopoCreationContext {
   /** Imagery title */
   title: string;
   /** Input topo imagery scale, topo25, topo50, or topo250*/
-  mapSeries: string;
+  mapSeries: MapSeries;
   /** force output if not in argo */
   output?: URL;
   /** Logger to trace creation */
   logger: LogType;
 }
 
-export type MapSeriesNames = 'topo50' | 'topo250';
-const MapSeriesTitle: Record<MapSeriesNames, string> = {
+const MapSeries = ['topo25', 'topo50', 'topo250'];
+export type MapSeries = 'topo25' | 'topo50' | 'topo250';
+
+const MapSeriesTitle: Record<MapSeries, string> = {
+  topo25: 'Raster Topographic Maps 25k',
   topo50: 'Raster Topographic Maps 50k',
   topo250: 'Raster Topographic Maps 250k',
 };
@@ -53,7 +56,7 @@ export const TopoStacCreationCommand = command({
     title: option({
       type: optional(string),
       long: 'title',
-      description: 'Imported imagery title, default is created from map series',
+      description: 'Imported imagery title. By default, the title is derived from the map series name',
     }),
     target: option({
       type: UrlFolder,
@@ -61,9 +64,9 @@ export const TopoStacCreationCommand = command({
       description: 'Target location for the output files',
     }),
     mapSeries: option({
-      type: string,
+      type: oneOf(MapSeries),
       long: 'map-series',
-      description: 'Map series name, topo50, or topo250',
+      description: `Map series name. Either ${MapSeries.join(', ')}`,
     }),
     latestOnly: flag({
       type: boolean,
@@ -87,17 +90,15 @@ export const TopoStacCreationCommand = command({
     const startTime = performance.now();
     logger.info('TopoCogify:Start');
 
-    const title = args.title ?? MapSeriesTitle[args.mapSeries as MapSeriesNames];
-    if (title == null) {
-      throw new Error('--title must be defined if map series is not one of :' + Object.keys(MapSeriesTitle).join(', '));
-    }
+    const mapSeries = args.mapSeries as MapSeries;
+    const title = args.title ?? MapSeriesTitle[mapSeries];
 
     const ctx: TopoCreationContext = {
       latestOnly: args.latestOnly,
       paths: args.paths,
       target: args.target,
       title,
-      mapSeries: args.mapSeries,
+      mapSeries,
       output: args.output,
       logger,
     };
@@ -161,14 +162,14 @@ async function loadTiffsToCreateStacs(
   logger.info({ count: tiffs.length, hrefs: source.map((m) => m.href) }, 'LoadTiffs:End');
 
   logger.info('ExtractTiffs:Start');
-  const allTiffItems = extractTiffItemsByEpsg(tiffs, logger);
+  const allTiffItems = await extractTiffItemsByEpsg(tiffs, logger);
   logger.info({ foundEpsgs: [...allTiffItems.keys()] }, 'ExtractTiffs:End');
 
   const epsgDirectoryPaths: { epsg: string; url: URL }[] = [];
   const stacItemPaths: URL[] = [];
 
   // create and write stac items and collections
-  const scale = ctx.mapSeries;
+  const mapSeries = ctx.mapSeries;
 
   // TODO: resolution is defined from the GSD over the map scale,
   // and can be extracted in the future if we want to process higher resolution maps
@@ -181,13 +182,11 @@ async function loadTiffsToCreateStacs(
     const latestTiffItems = extractLatestTiffItemsByMapCode(tiffItems);
 
     // create stac items
-    const stacItems = createStacItems(scale, resolution, tiffItems, latestTiffItems, logger);
+    const stacItems = createStacItems(mapSeries, resolution, tiffItems, latestTiffItems, logger);
 
     // convert epsg to slug
-    const epsgSlug = mapEpsgToSlug(epsg.code);
-    if (epsgSlug == null) throw new Error(`Failed to map epsg code '${epsg.code}' to a slug`);
-
-    const linzSlug = `${scale}-${epsgSlug}`;
+    const linzSlug = mapEpsgToSlug(mapSeries, epsg);
+    if (linzSlug == null) throw new Error(`Failed to map epsg code '${epsg.code}' to a slug`);
 
     // extract bounds
     const allBounds: Bounds[] = tiffItems.map((item) => item.bounds);
@@ -208,14 +207,14 @@ async function loadTiffsToCreateStacs(
 
     // Write all stac items and collections
     if (!ctx.latestOnly) {
-      const allTargetURL = new URL(`${scale}/${resolution}/${epsg.code}/`, target);
+      const allTargetURL = new URL(`${mapSeries}/${resolution}/${epsg.code}/`, target);
       logger?.info({ epsg, target: allTargetURL.href }, 'WriteStacFiles:Start');
       const allPaths = await writeStacFiles(allTargetURL, stacItems.all, collection, logger);
       stacItemPaths.push(...allPaths.items);
     }
 
     // Write latest stac items and collections
-    const latestTargetURL = new URL(`${scale}_latest/${resolution}/${epsg.code}/`, target);
+    const latestTargetURL = new URL(`${mapSeries}_latest/${resolution}/${epsg.code}/`, target);
     epsgDirectoryPaths.push({ epsg: epsg.code.toString(), url: latestTargetURL });
 
     logger?.info({ epsg, target: latestTargetURL.href }, 'WriteStacFiles:Start');

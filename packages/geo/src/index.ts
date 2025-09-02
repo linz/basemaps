@@ -17,6 +17,7 @@ export { Citm2000Tms } from './tms/citm2000.js';
 export { GoogleTms } from './tms/google.js';
 export { TileMatrixSets } from './tms/index.js';
 export { Nztm2000QuadTms, Nztm2000Tms } from './tms/nztm2000.js';
+export { TmsLoader } from './tms/tms.loader.js';
 export { WmtsProvider } from './wmts/wmts.js';
 export { getXyOrder } from './xy.order.js';
 export { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
