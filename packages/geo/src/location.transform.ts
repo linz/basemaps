@@ -25,7 +25,7 @@ export function locationTransform(
   const coords = Projection.get(tileMatrix).fromWgs84([location.lon, location.lat]);
   const point = tileMatrix.sourceToPixels(coords[0], coords[1], Math.round(location.zoom));
 
-  const tile = { x: point.x / tileMatrix.tileSize, y: point.y / tileMatrix.tileSize, z: Math.round(location.zoom) };
+  const tile = { x: point.x / tileMatrix.tileWidth, y: point.y / tileMatrix.tileHeight, z: Math.round(location.zoom) };
 
   // Translate the tile location into the target tile matrix
   const source = targetTileMatrix.tileToSource(tile);
