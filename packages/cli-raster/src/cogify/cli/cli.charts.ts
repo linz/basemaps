@@ -393,6 +393,6 @@ async function createCogs(
     }
   }
   // Create Stac collection
-  const collection = await CreateStacCollection(chartCode, items, logger);
+  const collection = CreateStacCollection(chartCode, items, logger);
   await fsa.write(new URL('collection.json', targetPath), JSON.stringify(collection, null, 2));
 }
