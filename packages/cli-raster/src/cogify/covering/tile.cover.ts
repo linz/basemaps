@@ -74,6 +74,7 @@ function getTargetBaseZoom(tileMatrix: TileMatrixSet, resolution: number, target
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Ensure we have the projection loaded for the source imagery
   await ProjectionLoader.load(ctx.imagery.projection);
+  await ProjectionLoader.load(EpsgCode.Wgs84);
 
   // Find the zoom level that is at least as good as the source imagery
   const targetBaseZoom = getTargetBaseZoom(ctx.tileMatrix, ctx.imagery.gsd, ctx.targetZoomOffset);
