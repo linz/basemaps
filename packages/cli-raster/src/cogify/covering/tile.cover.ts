@@ -3,7 +3,7 @@ import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
 import { CliDate, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
+import { intersection, MultiPolygon, multiPolygonToWgs84, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
@@ -129,11 +129,17 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 
     // Scale the tile bounds slightly to ensure we get all relevant imagery
     const scaledBounds = bounds.scaleFromCenter(1.05);
-    const tileBounds = Projection.get(ctx.tileMatrix).projectMultipolygon(
-      [scaledBounds.toPolygon()],
+    const projection = Projection.get(ctx.tileMatrix);
+
+    // Ensure the bounds are slipped as multipolygons when crossing the antimeridian
+    const wsg84Bounds = multiPolygonToWgs84([scaledBounds.toPolygon()], projection.toWgs84, true);
+    // Covert the wsg84 bounds back to the source projection
+    const tileBounds = Projection.get(EpsgCode.Wgs84).projectMultipolygon(
+      wsg84Bounds,
       Projection.get(ctx.imagery.projection),
     ) as MultiPolygon;
 
+    // Find all the source imagery that intersects this tile
     const source = imageryBounds.filter((f) => intersection(tileBounds, f.polygon).length > 0);
 
     const feature = Projection.get(ctx.tileMatrix).boundsToGeoJsonFeature(bounds);
