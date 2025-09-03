@@ -9,7 +9,7 @@
       "tags": { "kind": "river" },
       "style": { "minZoom": 9, "maxZoom": 15 },
       "simplify": [
-        { "style": { "minZoom": 8, "maxZoom": 9 }, "tolerance": 0.001 },
+        { "style": { "minZoom": 9, "maxZoom": 9 }, "tolerance": 0.001 },
         { "style": { "minZoom": 10, "maxZoom": 10 }, "tolerance": 0.0005 },
         { "style": { "minZoom": 11, "maxZoom": 11 }, "tolerance": 0.0001 },
         { "style": { "minZoom": 12, "maxZoom": 12 }, "tolerance": 0.00005 },
