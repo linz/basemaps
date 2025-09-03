@@ -23,12 +23,6 @@
       "tags": { "kind": "ice" },
       "style": { "minZoom": 6, "maxZoom": 15 },
       "simplify": [
-        { "style": { "minZoom": 0, "maxZoom": 0 }, "tolerance": 0.4 },
-        { "style": { "minZoom": 1, "maxZoom": 1 }, "tolerance": 0.3 },
-        { "style": { "minZoom": 2, "maxZoom": 2 }, "tolerance": 0.05 },
-        { "style": { "minZoom": 3, "maxZoom": 3 }, "tolerance": 0.02 },
-        { "style": { "minZoom": 4, "maxZoom": 4 }, "tolerance": 0.01 },
-        { "style": { "minZoom": 5, "maxZoom": 5 }, "tolerance": 0.006 },
         { "style": { "minZoom": 6, "maxZoom": 6 }, "tolerance": 0.003 },
         { "style": { "minZoom": 7, "maxZoom": 7 }, "tolerance": 0.002 },
         { "style": { "minZoom": 8, "maxZoom": 8 }, "tolerance": 0.0013 },
