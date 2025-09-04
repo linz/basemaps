@@ -171,6 +171,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.4.0](https://github.com/linz/basemaps/compare/tiler-v8.3.0...tiler-v8.4.0) (2025-09-04)
+
+
+### Features
+
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/geo bumped from ^8.3.0 to ^8.4.0
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/tiler

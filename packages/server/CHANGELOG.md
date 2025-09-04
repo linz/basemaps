@@ -167,6 +167,18 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/config bumped from ^8.6.0 to ^8.6.1
+    * @basemaps/config-loader bumped from ^8.6.0 to ^8.6.1
+    * @basemaps/geo bumped from ^8.3.0 to ^8.4.0
+    * @basemaps/lambda-tiler bumped from ^8.6.0 to ^8.6.1
+    * @basemaps/shared bumped from ^8.6.0 to ^8.7.0
+  * optionalDependencies
+    * @basemaps/landing bumped from ^7.0.0 to ^8.7.0
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 **Note:** Version bump only for package @basemaps/server

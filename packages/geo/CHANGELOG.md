@@ -176,6 +176,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.4.0](https://github.com/linz/basemaps/compare/geo-v8.3.0...geo-v8.4.0) (2025-09-04)
+
+
+### Features
+
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/geo
