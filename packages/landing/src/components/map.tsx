@@ -9,6 +9,7 @@ import { getTileGridStyle } from '../tile.matrix.js';
 import { Debug } from './debug.js';
 import { MapLabelControl } from './map.label.js';
 import { MapSwitcher } from './map.switcher.js';
+import { TerrainControl } from './terrain.control.js';
 
 /**
  * Map loading in maplibre is weird, the on('load') event is different to 'loaded'
@@ -28,7 +29,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   ignoreNextLocationUpdate = false;
 
   controlScale?: maplibre.ScaleControl | null;
-  controlTerrain?: maplibre.TerrainControl | null;
+  controlTerrain?: TerrainControl | null;
   controlGeo?: maplibregl.GeolocateControl | null;
 
   updateLocation = (): void => {
@@ -95,22 +96,26 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (Config.map.debug['debug.screenshot']) return;
     if (Config.map.isDebug) return;
     if (this.controlTerrain != null) return;
-    // Try to find terrain source and add to the control
+
+    let demSource;
+    let dsmSource;
+    // Try to find terrain source
     for (const [key, source] of Object.entries(this.map.getStyle().sources)) {
-      if (source.type === 'raster-dem') {
-        this.controlTerrain = new maplibre.TerrainControl({
-          source: key,
-          exaggeration:
-            DefaultExaggeration[Config.map.tileMatrix.identifier] ?? DefaultExaggeration[GoogleTms.identifier],
-        });
-        this.map.addControl(this.controlTerrain, 'top-left');
-        return;
+      if (source.type === 'raster-dem' && key === 'LINZ-Terrain') {
+        demSource = key;
+      } else if (source.type === 'raster-dem' && key === 'LINZ-Terrain-DSM') {
+        dsmSource = key;
       }
     }
 
-    if (this.controlTerrain == null) return;
-    this.map.removeControl(this.controlTerrain);
-    this.controlTerrain = null;
+    if (demSource && dsmSource) {
+      this.controlTerrain = new TerrainControl(
+        demSource,
+        dsmSource,
+        DefaultExaggeration[Config.map.tileMatrix.identifier] ?? DefaultExaggeration[GoogleTms.identifier],
+      );
+      this.map.addControl(this.controlTerrain, 'top-left');
+    }
   }
 
   /**

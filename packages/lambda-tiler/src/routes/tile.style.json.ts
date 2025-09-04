@@ -148,6 +148,15 @@ async function ensureTerrain(
     maxzoom: 18, // TODO: this should be configurable based on the elevation layer
     tiles: [convertRelativeUrl(`/v1/tiles/elevation/${tileMatrix.identifier}/{z}/{x}/{y}.png${elevationQuery}`)],
   };
+
+  const dsmTerrain = await config.TileSet.get('elevation-dsm');
+  if (dsmTerrain == null) return;
+  style.sources['LINZ-Terrain-DSM'] = {
+    type: 'raster-dem', // MapLibre Style Spec doesn't have raster-dsm
+    tileSize: 256,
+    maxzoom: 18, // TODO: this should be configurable based on the elevation layer
+    tiles: [convertRelativeUrl(`/v1/tiles/elevation-dsm/${tileMatrix.identifier}/{z}/{x}/{y}.png${elevationQuery}`)],
+  };
 }
 
 /**
