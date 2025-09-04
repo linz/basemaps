@@ -21,6 +21,7 @@ export class TerrainControl implements IControl {
     this.container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
 
     this.terrainButton = document.createElement('button');
+    this.terrainButton.title = 'Enable DEM terrain';
     const ctrlIcon = document.createElement('span');
     ctrlIcon.classList.add('maplibregl-ctrl-icon');
     ctrlIcon.setAttribute('aria-hidden', 'true');
@@ -34,15 +35,15 @@ export class TerrainControl implements IControl {
       if (this.map?.getTerrain() === null) {
         this.map?.setTerrain({ source: this.demSource, exaggeration: this.exaggeration });
         this.terrainButton.classList.add('maplibregl-ctrl-terrain-enabled');
-        this.terrainButton.title = this.map._getUIString('TerrainControl.Disable');
+        this.terrainButton.title = 'Enable DSM terrain';
       } else if (this.map?.getTerrain()?.source === this.demSource) {
         this.map?.setTerrain({ source: this.dsmSource, exaggeration: this.exaggeration });
         this.terrainButton.classList.add('maplibregl-ctrl-terrain-enabled');
-        this.terrainButton.title = this.map._getUIString('TerrainControl.Disable');
+        this.terrainButton.title = 'Disable terrain';
       } else {
         this.map?.setTerrain(null);
         this.terrainButton.classList.add('maplibregl-ctrl-terrain');
-        this.terrainButton.title = this.map!._getUIString('TerrainControl.Enable');
+        this.terrainButton.title = 'Enable DEM terrain';
       }
     });
 
