@@ -94,6 +94,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/geo bumped from ^8.3.0 to ^8.4.0
+    * @basemaps/shared bumped from ^8.6.0 to ^8.7.0
+
 ## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
 
 **Note:** Version bump only for package @basemaps/bathymetry

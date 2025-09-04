@@ -119,6 +119,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/cli-config bumped from ^8.6.0 to ^8.6.1
+    * @basemaps/cli-raster bumped from ^8.6.0 to ^8.7.0
+    * @basemaps/cli-vector bumped from ^8.7.0 to ^8.7.1
+    * @basemaps/shared bumped from ^8.6.0 to ^8.7.0
+
 ## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
 
 
