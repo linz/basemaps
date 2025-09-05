@@ -3,7 +3,7 @@ import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
 import { CliDate, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
+import { intersection, MultiPolygon, multiPolygonToWgs84, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
@@ -74,6 +74,7 @@ function getTargetBaseZoom(tileMatrix: TileMatrixSet, resolution: number, target
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Ensure we have the projection loaded for the source imagery
   await ProjectionLoader.load(ctx.imagery.projection);
+  await ProjectionLoader.load(EpsgCode.Wgs84);
 
   // Find the zoom level that is at least as good as the source imagery
   const targetBaseZoom = getTargetBaseZoom(ctx.tileMatrix, ctx.imagery.gsd, ctx.targetZoomOffset);
@@ -129,11 +130,14 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 
     // Scale the tile bounds slightly to ensure we get all relevant imagery
     const scaledBounds = bounds.scaleFromCenter(1.05);
-    const tileBounds = Projection.get(ctx.tileMatrix).projectMultipolygon(
-      [scaledBounds.toPolygon()],
-      Projection.get(ctx.imagery.projection),
-    ) as MultiPolygon;
 
+    const tileBounds = projectPolygon(
+      [scaledBounds.toPolygon()],
+      ctx.imagery.projection,
+      ctx.tileMatrix.projection.code,
+    );
+
+    // Find all the source imagery that intersects this tile
     const source = imageryBounds.filter((f) => intersection(tileBounds, f.polygon).length > 0);
 
     const feature = Projection.get(ctx.tileMatrix).boundsToGeoJsonFeature(bounds);
@@ -259,6 +263,8 @@ function polygonFromBounds(bounds: BoundingBox[], scale: number = 1 + 1e-8): Mul
 function projectPolygon(p: MultiPolygon, sourceProjection: EpsgCode, targetProjection: EpsgCode): MultiPolygon {
   if (sourceProjection === targetProjection) return p;
   const sourceProj = Projection.get(sourceProjection);
+  // Ensure the bounds are slipped as multipolygons when crossing the antimeridian
+  const wsg84Polygons = multiPolygonToWgs84(p, sourceProj.toWgs84, true);
   const targetProj = Projection.get(targetProjection);
-  return sourceProj.projectMultipolygon(p, targetProj) as MultiPolygon;
+  return Projection.get(EpsgCode.Wgs84).projectMultipolygon(wsg84Polygons, targetProj) as MultiPolygon;
 }
