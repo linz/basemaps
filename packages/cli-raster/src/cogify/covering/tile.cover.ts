@@ -130,15 +130,12 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 
     // Scale the tile bounds slightly to ensure we get all relevant imagery
     const scaledBounds = bounds.scaleFromCenter(1.05);
-    const projection = Projection.get(ctx.tileMatrix);
 
-    // Ensure the bounds are slipped as multipolygons when crossing the antimeridian
-    const wsg84Bounds = multiPolygonToWgs84([scaledBounds.toPolygon()], projection.toWgs84, true);
-    // Covert the wsg84 bounds back to the source projection
-    const tileBounds = Projection.get(EpsgCode.Wgs84).projectMultipolygon(
-      wsg84Bounds,
-      Projection.get(ctx.imagery.projection),
-    ) as MultiPolygon;
+    const tileBounds = projectPolygon(
+      [scaledBounds.toPolygon()],
+      ctx.imagery.projection,
+      ctx.tileMatrix.projection.code,
+    );
 
     // Find all the source imagery that intersects this tile
     const source = imageryBounds.filter((f) => intersection(tileBounds, f.polygon).length > 0);
@@ -266,6 +263,8 @@ function polygonFromBounds(bounds: BoundingBox[], scale: number = 1 + 1e-8): Mul
 function projectPolygon(p: MultiPolygon, sourceProjection: EpsgCode, targetProjection: EpsgCode): MultiPolygon {
   if (sourceProjection === targetProjection) return p;
   const sourceProj = Projection.get(sourceProjection);
+  // Ensure the bounds are slipped as multipolygons when crossing the antimeridian
+  const wsg84Polygons = multiPolygonToWgs84(p, sourceProj.toWgs84, true);
   const targetProj = Projection.get(targetProjection);
-  return sourceProj.projectMultipolygon(p, targetProj) as MultiPolygon;
+  return Projection.get(EpsgCode.Wgs84).projectMultipolygon(wsg84Polygons, targetProj) as MultiPolygon;
 }
