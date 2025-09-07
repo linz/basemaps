@@ -29,7 +29,7 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
   ignoreNextLocationUpdate = false;
 
   controlScale?: maplibre.ScaleControl | null;
-  controlTerrain?: TerrainControl | null;
+  controlTerrain?: TerrainControl | maplibre.TerrainControl | null;
   controlGeo?: maplibregl.GeolocateControl | null;
 
   updateLocation = (): void => {
@@ -97,23 +97,33 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
     if (Config.map.isDebug) return;
     if (this.controlTerrain != null) return;
 
-    let demSource;
-    let dsmSource;
+    let demLinzSource;
+    let dsmLinzSource;
+    let demAlternativeSource;
     // Try to find terrain source
     for (const [key, source] of Object.entries(this.map.getStyle().sources)) {
       if (source.type === 'raster-dem' && key === 'LINZ-Terrain') {
-        demSource = key;
+        demLinzSource = key;
       } else if (source.type === 'raster-dem' && key === 'LINZ-Terrain-DSM') {
-        dsmSource = key;
+        dsmLinzSource = key;
+      } else if (source.type === 'raster-dem') {
+        demAlternativeSource = key;
       }
     }
 
-    if (demSource && dsmSource) {
+    if (demLinzSource && dsmLinzSource) {
       this.controlTerrain = new TerrainControl(
-        demSource,
-        dsmSource,
+        demLinzSource,
+        dsmLinzSource,
         DefaultExaggeration[Config.map.tileMatrix.identifier] ?? DefaultExaggeration[GoogleTms.identifier],
       );
+      this.map.addControl(this.controlTerrain, 'top-left');
+    } else if (demAlternativeSource) {
+      this.controlTerrain = new maplibre.TerrainControl({
+        source: demAlternativeSource,
+        exaggeration:
+          DefaultExaggeration[Config.map.tileMatrix.identifier] ?? DefaultExaggeration[GoogleTms.identifier],
+      });
       this.map.addControl(this.controlTerrain, 'top-left');
     }
   }
