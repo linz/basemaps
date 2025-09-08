@@ -26,6 +26,7 @@ describe('cli.cover', () => {
     cutline: undefined,
     cutlineBlend: 20,
     baseZoomOffset: undefined,
+    boundsScale: undefined,
     verbose: false,
     extraVerbose: false,
     requireStacCollection: false,

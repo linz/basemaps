@@ -33,6 +33,10 @@ export interface TileCoverContext {
    * Override the base zoom to store the output COGS as
    */
   targetZoomOffset?: number;
+  /**
+   *  Scale to apply to the source bounds when calculating the area to cover.
+   * */
+  boundsScale?: number;
 }
 export interface TileCoverResult {
   /** Stac collection for the imagery */
@@ -87,7 +91,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   ctx.logger?.debug({ targetBaseZoom, cogOverZoom: optimalCoveringZoom }, 'Imagery:ZoomLevel');
 
   const sourceBounds = projectPolygon(
-    polygonFromBounds(ctx.imagery.files),
+    polygonFromBounds(ctx.imagery.files, ctx.boundsScale),
     ctx.imagery.projection,
     ctx.tileMatrix.projection.code,
   );
