@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+
+### Features
+
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
+
+
+
+
+
 # [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
 
 
