@@ -28,7 +28,16 @@ describe('HandleLayerContours', () => {
   };
 
   describe('handleKindContours', () => {
-    it('should assign a feature a type of index', () => {
+    it('should not assign the feature a type or override its minzoom', () => {
+      const feature = structuredClone(FakeFeature);
+      feature.properties['elevation'] = 105;
+
+      const modifiedFeature = handleKindContours(feature, Logger);
+
+      strictEqual(modifiedFeature.properties['type'], undefined);
+      strictEqual(modifiedFeature.tippecanoe.minzoom, 13);
+    });
+    it('should assign the feature a type of index and override its minzoom', () => {
       const feature = structuredClone(FakeFeature);
       feature.properties['elevation'] = 100;
 
@@ -36,16 +45,6 @@ describe('HandleLayerContours', () => {
 
       strictEqual(modifiedFeature.properties['type'], 'index');
       strictEqual(modifiedFeature.tippecanoe.minzoom, FakeFeature.tippecanoe.minzoom);
-    });
-
-    it("should override a feature's minzoom, but not assign it a type", () => {
-      const feature = structuredClone(FakeFeature);
-      feature.properties['elevation'] = 105;
-
-      const modifiedFeature = handleKindContours(feature, Logger);
-
-      strictEqual(modifiedFeature.properties['type'], undefined);
-      strictEqual(modifiedFeature.tippecanoe.minzoom, 14);
     });
   });
 

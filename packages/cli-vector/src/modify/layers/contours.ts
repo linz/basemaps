@@ -55,7 +55,7 @@ export function handleKindContours(feature: VectorGeoFeature, logger: LogType): 
     logger?.trace({ type }, 'new/overidden tags');
   } else {
     // override 'minzoom'
-    const minzoom = 14;
+    const minzoom = 13;
     feature.tippecanoe.minzoom = minzoom;
     logger?.trace({ minzoom }, 'overidden styles');
   }
