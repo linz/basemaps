@@ -11,6 +11,14 @@ import { ProjJsons } from '../proj.json.js';
 import { FakeData } from './fake.data.js';
 
 describe('ProjJson', () => {
+  it('should ensure that all supported EPSG codes have an Epsg and Projection', () => {
+    for (const epsg of Epsg.Codes.values()) {
+      // ensure that an Epsg and Projection already exist
+      assert.doesNotThrow(() => Epsg.get(epsg.code));
+      assert.doesNotThrow(() => Projection.get(epsg));
+    }
+  });
+
   it('should parse each unsupported EPSG code and ProjJSON pair into a runtime Epsg and Projection', async () => {
     for (const key of Object.keys(ProjJsons)) {
       const code = Number(key);
@@ -19,13 +27,13 @@ describe('ProjJson', () => {
       if (Epsg.tryGet(code) != null) continue;
 
       // ensure that neither an Epsg or Projection already exists
-      assert.strictEqual(Epsg.tryGet(code), undefined);
-      assert.strictEqual(Projection.tryGet(code), null);
+      assert.throws(() => Epsg.get(code));
+      assert.throws(() => Projection.get(code));
 
       // ensure that both an Epsg and Projection now exist
       const epsg = await ProjectionLoader.load(code);
-      assert.notStrictEqual(Epsg.tryGet(code), undefined);
-      assert.notStrictEqual(Projection.tryGet(epsg), null);
+      assert.doesNotThrow(() => Epsg.get(code));
+      assert.doesNotThrow(() => Projection.get(epsg));
     }
   });
 
