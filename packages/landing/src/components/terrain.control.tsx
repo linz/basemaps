@@ -31,6 +31,7 @@ export class TerrainControl implements IControl {
     this.terrainButton.addEventListener('click', () => {
       this.terrainButton.classList.remove('maplibregl-ctrl-terrain');
       this.terrainButton.classList.remove('maplibregl-ctrl-terrain-enabled');
+      this.terrainButton.classList.remove('ctrl-terrain-dsm-enabled');
 
       if (this.map?.getTerrain() === null) {
         this.map?.setTerrain({ source: this.demSource, exaggeration: this.exaggeration });
@@ -38,7 +39,7 @@ export class TerrainControl implements IControl {
         this.terrainButton.title = 'Enable DSM terrain';
       } else if (this.map?.getTerrain()?.source === this.demSource) {
         this.map?.setTerrain({ source: this.dsmSource, exaggeration: this.exaggeration });
-        this.terrainButton.classList.add('maplibregl-ctrl-terrain-enabled');
+        this.terrainButton.classList.add('ctrl-terrain-dsm-enabled');
         this.terrainButton.title = 'Disable terrain';
       } else {
         this.map?.setTerrain(null);

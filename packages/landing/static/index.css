@@ -262,3 +262,7 @@ have higher specifity than the default styles of the react-select component
 .lui-feature-img img {
   padding: 20px;
 }
+
+.maplibregl-ctrl button.ctrl-terrain-dsm-enabled  .maplibregl-ctrl-icon {
+  background-image: url("ctrl-terrain-dsm-enabled.svg");
+}
