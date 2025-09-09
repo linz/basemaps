@@ -283,3 +283,4 @@ export class Projection {
 Projection.define(Epsg.Nztm2000, Nztm2000Json);
 Projection.define(Epsg.Citm2000, Citm2000Json);
 Projections.set(Epsg.Google.code, { converter: Proj(Epsg.Google.toEpsgString(), Epsg.Wgs84.toEpsgString()) });
+Projections.set(Epsg.Wgs84.code, { converter: Proj(Epsg.Wgs84.toEpsgString(), Epsg.Wgs84.toEpsgString()) });
