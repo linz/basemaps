@@ -7,7 +7,7 @@ import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { Presets } from '../../preset.js';
+import { GdalBandPreset, Presets } from '../../preset.js';
 import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem, createFileStats } from '../stac.js';
 import { createCovering } from './covering.js';
 import { CutlineOptimizer } from './cutline.js';
@@ -27,6 +27,10 @@ export interface TileCoverContext {
   logger?: LogType;
   /** GDAL configuration preset */
   preset: string;
+
+  /** GDAL Band configuration preset */
+  presetBands?: GdalBandPreset[];
+
   /** Optional color with which to replace all transparent COG pixels */
   background?: Rgba;
   /**
@@ -161,9 +165,11 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
         'linz_basemaps:options': {
           preset: ctx.preset,
           ...Presets[ctx.preset].options,
+          presetBands: ctx.presetBands,
           tile,
           tileMatrix: ctx.tileMatrix.identifier,
           sourceEpsg: ctx.imagery.projection,
+          sourceBands: ctx.imagery.bands as string[],
           zoomLevel: targetBaseZoom,
         },
         'linz_basemaps:generated': {

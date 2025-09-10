@@ -17,7 +17,7 @@ const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
  */
 const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
 
-export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha?: boolean): GdalCommand {
+export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha: boolean): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
   return {
     output: targetVrt,
@@ -97,12 +97,15 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
       ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
       ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
       ['-co', `COMPRESS=${cfg.compression}`],
-      cfg.quality ? ['-co', `QUALITY=${cfg.quality}`] : undefined,
-      cfg.maxZError ? ['-co', `MAX_Z_ERROR=${cfg.maxZError}`] : undefined,
-      cfg.maxZErrorOverview ? ['-co', `MAX_Z_ERROR_OVERVIEW=${cfg.maxZErrorOverview}`] : undefined,
+      cfg.compression === 'webp' || cfg.compression === 'jpeg' ? ['-co', `QUALITY=${cfg.quality}`] : undefined,
+      cfg.compression === 'lerc' ? ['-co', `MAX_Z_ERROR=${cfg.maxZError}`] : undefined,
+      cfg.compression === 'lerc' ? ['-co', `MAX_Z_ERROR_OVERVIEW=${cfg.maxZErrorOverview}`] : undefined,
+      cfg.presetBands ? ['-colorinterp', cfg.presetBands.join(',')] : undefined,
+      cfg.compression === 'zstd' ? ['-co', `PREDICTOR=${cfg.predictor}`] : undefined,
       ['-co', 'SPARSE_OK=YES'],
       ['-co', `TARGET_SRS=${tileMatrix.projection.toEpsgString()}`],
       ['-co', `EXTENT=${tileExtent.join(',')},`],
+      ['-stats'],
       ['-tr', targetResolution, targetResolution],
       urlToString(sourceVrt),
       urlToString(targetTiff),

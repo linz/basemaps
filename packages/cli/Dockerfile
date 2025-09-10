@@ -10,7 +10,7 @@ RUN git clone https://github.com/mapbox/tippecanoe.git /tmp/tippecanoe
 RUN cd /tmp/tippecanoe/ && make -j$(nproc)
 
 # Building basemaps cli container
-FROM ghcr.io/osgeo/gdal:ubuntu-small-3.8.0
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.11.3
 
 ENV NODE_ENV=PRODUCTION
 

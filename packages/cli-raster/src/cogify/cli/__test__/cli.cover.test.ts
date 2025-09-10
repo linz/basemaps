@@ -22,6 +22,7 @@ describe('cli.cover', () => {
     paths: [new URL('memory://source/')],
     target: new URL('memory://target/'),
     preset: 'webp',
+    presetBand: undefined,
     tileMatrix: 'WebMercatorQuad',
     cutline: undefined,
     cutlineBlend: 20,
@@ -55,5 +56,18 @@ describe('cli.cover', () => {
     }).catch((e) => String(e));
 
     assert.equal(ret, 'Error: No collection.json found with imagery: memory://source/');
+  });
+
+  it('should not allow webp when using band preset rgbi', async () => {
+    const ret = await BasemapsCogifyCoverCommand.handler({
+      ...baseArgs,
+      preset: 'webp',
+      presetBand: 'rgbi',
+      paths: [new URL('memory://source/')],
+      target: new URL('memory://target/'),
+      requireStacCollection: true,
+      tileMatrix: 'WebMercatorQuad',
+    }).catch((e) => String(e));
+    assert.equal(ret, 'Error: Preset webp does not support band option rgbi');
   });
 });
