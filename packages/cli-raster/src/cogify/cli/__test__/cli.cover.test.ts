@@ -21,7 +21,7 @@ describe('cli.cover', () => {
   const baseArgs = {
     paths: [new URL('memory://source/')],
     target: new URL('memory://target/'),
-    preset: 'webp',
+    preset: 'webp' as const,
     presetBand: undefined,
     tileMatrix: 'WebMercatorQuad',
     cutline: undefined,

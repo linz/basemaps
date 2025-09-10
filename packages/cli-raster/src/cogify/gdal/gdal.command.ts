@@ -2,7 +2,7 @@ import { Rgba } from '@basemaps/config';
 import { Epsg, EpsgCode, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
-import { Presets } from '../../preset.js';
+import { PresetName, Presets } from '../../preset.js';
 import { CogifyCreationOptions } from '../stac.js';
 import { GdalCommand } from './gdal.runner.js';
 
@@ -64,7 +64,7 @@ export function gdalBuildVrtWarp(
 }
 
 export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreationOptions): GdalCommand {
-  const cfg = { ...Presets[opt.preset], ...opt };
+  const cfg = { ...Presets[opt.preset as PresetName], ...opt };
   const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
 
@@ -127,7 +127,7 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
  * @returns a 'gdal_create' GdalCommand object
  */
 export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOptions): GdalCommand {
-  const cfg = { ...Presets[opt.preset], ...opt };
+  const cfg = { ...Presets[opt.preset as PresetName], ...opt };
 
   const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);

@@ -6,7 +6,7 @@ import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 
-import { AllowedPresets, BandPresetName, BandPresets, Presets } from '../../preset.js';
+import { AllowedPresets, BandPresetName, BandPresets, PresetName, Presets } from '../../preset.js';
 import { CutlineOptimizer } from '../covering/cutline.js';
 import { createTileCover, TileCoverContext } from '../covering/tile.cover.js';
 import { createFileStats } from '../stac.js';
@@ -36,10 +36,10 @@ export const BasemapsCogifyCoverCommand = command({
     }),
     paths: restPositionals({ type: UrlFolder, displayName: 'path', description: 'Path to source imagery' }),
     preset: option({
-      type: oneOf(Object.keys(Presets)),
+      type: oneOf<PresetName>(Object.keys(Presets) as PresetName[]),
       long: 'preset',
       description: 'GDAL compression preset',
-      defaultValue: () => 'webp',
+      defaultValue: () => 'webp' as PresetName,
       defaultValueIsSerializable: true,
     }),
     presetBand: option({

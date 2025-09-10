@@ -7,7 +7,7 @@ import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { GdalBandPreset, Presets } from '../../preset.js';
+import { GdalBandPreset, PresetName, Presets } from '../../preset.js';
 import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem, createFileStats } from '../stac.js';
 import { createCovering } from './covering.js';
 import { CutlineOptimizer } from './cutline.js';
@@ -26,7 +26,7 @@ export interface TileCoverContext {
   /** Optional logger to trace covering creation */
   logger?: LogType;
   /** GDAL configuration preset */
-  preset: string;
+  preset: PresetName;
 
   /** GDAL Band configuration preset */
   presetBands?: GdalBandPreset[];
@@ -75,6 +75,18 @@ function getTargetBaseZoom(tileMatrix: TileMatrixSet, resolution: number, target
   return Projection.getTiffResZoom(tileMatrix, resolution) + targetZoomOffset;
 }
 
+// The base zoom is 256x256 pixels at its resolution, we are trying to find a image that is <32k pixels wide/high
+// zooming out 7 levels converts a 256x256 image into 32k x 32k image
+// 256 * 2 ** 7 = 32,768 - 256x256 tile
+// 512 * 2 ** 6 = 32,768 - 512x512 tile
+// This math only works for highly compressed RGB imagery, for multispectrial imagery small tiles need to be made
+export const TargetZoomOffsetDefault = 7;
+// ZSTD files are generally larger than webp or LERC
+export const TargetZoomOffset: Partial<Record<PresetName, number>> = {
+  zstd_17: 6,
+  lzw: 6,
+};
+
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Ensure we have the projection loaded for the source imagery
   await ProjectionLoader.load(ctx.imagery.projection);
@@ -82,11 +94,9 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   // Find the zoom level that is at least as good as the source imagery
   const targetBaseZoom = getTargetBaseZoom(ctx.tileMatrix, ctx.imagery.gsd, ctx.targetZoomOffset);
 
-  // The base zoom is 256x256 pixels at its resolution, we are trying to find a image that is <32k pixels wide/high
-  // zooming out 7 levels converts a 256x256 image into 32k x 32k image
-  // 256 * 2 ** 7 = 32,768 - 256x256 tile
-  // 512 * 2 ** 6 = 32,768 - 512x512 tile
-  const optimalCoveringZoom = Math.max(1, targetBaseZoom - 7); // z12 from z19
+  const targetZoomOffset = TargetZoomOffset[ctx.preset] ?? 7;
+
+  const optimalCoveringZoom = Math.max(1, targetBaseZoom - targetZoomOffset); // z12 from z19
   ctx.logger?.debug({ targetBaseZoom, cogOverZoom: optimalCoveringZoom }, 'Imagery:ZoomLevel');
 
   const sourceBounds = projectPolygon(

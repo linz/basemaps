@@ -9,7 +9,7 @@ export const CogifyDefaults = {
 } as const;
 
 const webP = {
-  name: 'webp',
+  name: 'webp' as const,
   options: {
     blockSize: CogifyDefaults.blockSize,
     compression: CogifyDefaults.compression,
@@ -20,7 +20,7 @@ const webP = {
 };
 
 const webP80 = {
-  name: 'webp_80',
+  name: 'webp_80' as const,
   options: {
     blockSize: CogifyDefaults.blockSize,
     compression: CogifyDefaults.compression,
@@ -31,7 +31,7 @@ const webP80 = {
 };
 
 const lerc1mm = {
-  name: 'lerc_1mm',
+  name: 'lerc_1mm' as const,
   options: {
     blockSize: 512,
     compression: 'lerc',
@@ -43,7 +43,7 @@ const lerc1mm = {
 };
 
 const lerc10mm = {
-  name: 'lerc_10mm',
+  name: 'lerc_10mm' as const,
   options: {
     blockSize: 512,
     compression: 'lerc',
@@ -55,7 +55,7 @@ const lerc10mm = {
 };
 
 const lzw = {
-  name: 'lzw',
+  name: 'lzw' as const,
   options: {
     blockSize: 512,
     compression: 'lzw',
@@ -65,7 +65,7 @@ const lzw = {
 };
 
 const zstd_17 = {
-  name: 'zstd_17',
+  name: 'zstd_17' as const,
   options: {
     blockSize: 512,
     compression: 'zstd',
@@ -83,7 +83,7 @@ export const Presets = {
   [lerc10mm.name]: lerc10mm,
   [lzw.name]: lzw,
   [zstd_17.name]: zstd_17,
-};
+} as const;
 
 export type GdalBandPreset = 'red' | 'green' | 'blue' | 'alpha' | 'nir' | 'undefined';
 export const BandPresets: Record<string, GdalBandPreset[]> = {
