@@ -29,26 +29,17 @@ export class TerrainControl implements IControl {
     this.terrainButton.className = 'maplibregl-ctrl-terrain';
     this.terrainButton.type = 'button';
     this.terrainButton.addEventListener('click', () => {
-      this.terrainButton.classList.remove('maplibregl-ctrl-terrain');
-      this.terrainButton.classList.remove('maplibregl-ctrl-terrain-enabled');
-      this.terrainButton.classList.remove('ctrl-terrain-dsm-enabled');
-
-      if (this.map?.getTerrain() === null) {
-        this.map?.setTerrain({ source: this.demSource, exaggeration: this.exaggeration });
-        this.terrainButton.classList.add('maplibregl-ctrl-terrain-enabled');
-        this.terrainButton.title = 'Enable DSM terrain';
-      } else if (this.map?.getTerrain()?.source === this.demSource) {
-        this.map?.setTerrain({ source: this.dsmSource, exaggeration: this.exaggeration });
-        this.terrainButton.classList.add('ctrl-terrain-dsm-enabled');
-        this.terrainButton.title = 'Disable terrain';
-      } else {
-        this.map?.setTerrain(null);
-        this.terrainButton.classList.add('maplibregl-ctrl-terrain');
-        this.terrainButton.title = 'Enable DEM terrain';
-      }
+      this.toggleTerrain();
     });
 
     this.container.appendChild(this.terrainButton);
+
+    this.map.on('terrain', () => {
+      this.updateTerrainIcon();
+    });
+
+    this.updateTerrainIcon();
+
     return this.container;
   }
 
@@ -57,5 +48,34 @@ export class TerrainControl implements IControl {
       this.container.parentNode.removeChild(this.container);
     }
     this.map = undefined;
+  }
+
+  toggleTerrain(): void {
+    if (this.map?.getTerrain() === null) {
+      this.map?.setTerrain({ source: this.demSource, exaggeration: this.exaggeration });
+    } else if (this.map?.getTerrain()?.source === this.demSource) {
+      this.map?.setTerrain({ source: this.dsmSource, exaggeration: this.exaggeration });
+    } else {
+      this.map?.setTerrain(null);
+    }
+
+    this.updateTerrainIcon();
+  }
+
+  updateTerrainIcon(): void {
+    this.terrainButton.classList.remove('maplibregl-ctrl-terrain');
+    this.terrainButton.classList.remove('maplibregl-ctrl-terrain-enabled');
+    this.terrainButton.classList.remove('ctrl-terrain-dsm-enabled');
+
+    if (this.map?.getTerrain() === null) {
+      this.terrainButton.classList.add('maplibregl-ctrl-terrain');
+      this.terrainButton.title = 'Enable DEM terrain';
+    } else if (this.map?.getTerrain()?.source === this.demSource) {
+      this.terrainButton.classList.add('maplibregl-ctrl-terrain-enabled');
+      this.terrainButton.title = 'Enable DSM terrain';
+    } else {
+      this.terrainButton.classList.add('ctrl-terrain-dsm-enabled');
+      this.terrainButton.title = 'Disable terrain';
+    }
   }
 }
