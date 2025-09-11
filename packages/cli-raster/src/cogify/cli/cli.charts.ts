@@ -374,6 +374,7 @@ async function createCogs(
         await new GdalRunner(gdalBuildChartsCommand(reprojectedCog, cog, tileMatrix, undefined, resolution)).run(
           logger,
         );
+        await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(reprojectedCog));
       } else {
         await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(cog));
       }
@@ -409,6 +410,7 @@ async function createCogs(
           await new GdalRunner(gdalBuildChartsCommand(reprojectedCog, cog, tileMatrix, undefined, resolution)).run(
             logger,
           );
+          await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(reprojectedCog));
         } else {
           await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(cog));
         }
