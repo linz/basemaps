@@ -66,7 +66,10 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
-    assert.deepEqual(img.bands, ['uint8', 'uint8', 'uint8', 'uint8']);
+    assert.deepEqual(
+      img.bands?.map((m) => m.type),
+      ['uint8', 'uint8', 'uint8', 'uint8'],
+    );
   });
 
   it('should default to uint if data type is missing', async () => {
@@ -116,7 +119,10 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
-    assert.deepEqual(img.bands, ['uint8', 'uint8', 'uint8', 'uint8']);
+    assert.deepEqual(
+      img.bands?.map((m) => m.type),
+      ['uint8', 'uint8', 'uint8', 'uint8'],
+    );
   });
 
   it('should load a config with a stac collection', async () => {
@@ -193,7 +199,13 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
-    assert.deepEqual(img.bands, ['float32']);
+    assert.deepEqual(
+      img.bands?.map((m) => m.type ?? ''),
+      ['float32'],
+    );
+
+    assert.ok(img.bands?.[0]?.stats?.min);
+    assert.ok(img.bands?.[0]?.stats?.max);
 
     cfg.createVirtualTileSets();
 
