@@ -263,6 +263,19 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.9.0 to ^8.6.1
+    * @basemaps/config-loader bumped from ^8.9.0 to ^8.9.1
+    * @basemaps/geo bumped from ^8.9.0 to ^8.4.0
+    * @basemaps/shared bumped from ^8.9.0 to ^8.7.0
+    * @basemaps/tiler bumped from ^8.9.0 to ^8.4.0
+    * @basemaps/tiler-sharp bumped from ^8.9.0 to ^8.7.0
+  * devDependencies
+    * @basemaps/attribution bumped from ^8.9.0 to ^8.9.1
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 
