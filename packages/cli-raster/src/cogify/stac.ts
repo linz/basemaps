@@ -4,9 +4,24 @@ import { Rgba } from '@basemaps/config';
 import { EpsgCode, Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
-export interface CogifyCreationOptions {
+import { GdalBandPreset } from '../preset.js';
+
+export type CogifyCreationOptions =
+  | CogifyCreationOptionsZstd
+  | CogifyCreationOptionsJpeg
+  | CogifyCreationOptionsWebp
+  | CogifyCreationOptionsLerc
+  | CogifyCreationOptionsLzw;
+
+export interface CogifyCreationOptionsBase {
   /** Preset GDAL config to use */
   preset: string;
+
+  /** Color interperation per band */
+  presetBands?: GdalBandPreset[];
+
+  /** Bands that were detected on the source imagery */
+  sourceBands: string[];
 
   /** Tile to be created */
   tile: Tile;
@@ -18,13 +33,6 @@ export interface CogifyCreationOptions {
   sourceEpsg: number;
 
   /**
-   * Compression to use for the cog
-   *
-   * @default 'webp'
-   */
-  compression?: 'webp' | 'jpeg' | 'lerc' | 'zstd' | 'lzw';
-
-  /**
    * Output tile size
    *
    * @default 512
@@ -33,19 +41,6 @@ export interface CogifyCreationOptions {
 
   /** Target base zoom level */
   zoomLevel: number;
-
-  /**
-   * Compression quality
-   *
-   * @default 90
-   */
-  quality?: number;
-
-  /** Max Z Error only used when compression is `lerc` */
-  maxZError?: number;
-
-  /** Max Z Error only used when compression is `lerc` defaults to {maxZError} */
-  maxZErrorOverview?: number;
 
   /**
    * Resampling for warping
@@ -61,6 +56,36 @@ export interface CogifyCreationOptions {
 
   /** Color with which to replace all transparent COG pixels */
   background?: Rgba;
+}
+
+export interface CogifyCreationOptionsLerc extends CogifyCreationOptionsBase {
+  compression: 'lerc';
+  /** Max Z Error only used when compression is `lerc` */
+  maxZError?: number;
+
+  /** Max Z Error only used when compression is `lerc` defaults to {maxZError} */
+  maxZErrorOverview?: number;
+}
+
+export interface CogifyCreationOptionsLzw extends CogifyCreationOptionsBase {
+  compression: 'lzw';
+  predictor?: 2 | 3;
+}
+
+export interface CogifyCreationOptionsJpeg extends CogifyCreationOptionsBase {
+  compression: 'jpeg';
+  quality: number;
+}
+
+export interface CogifyCreationOptionsWebp extends CogifyCreationOptionsBase {
+  compression: 'webp';
+  quality: number;
+}
+
+export interface CogifyCreationOptionsZstd extends CogifyCreationOptionsBase {
+  compression: 'zstd';
+  predictor?: 2 | 3;
+  level: number;
 }
 
 export interface GeneratedProperties {

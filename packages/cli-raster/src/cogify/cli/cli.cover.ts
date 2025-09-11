@@ -1,13 +1,12 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
 import { GoogleTms, Nztm2000QuadTms, TileId } from '@basemaps/geo';
-import { fsa, urlToString } from '@basemaps/shared';
-import { getLogger, isArgo, logArguments, RgbaType, Url, UrlFolder } from '@basemaps/shared';
+import { fsa, getLogger, isArgo, logArguments, RgbaType, Url, UrlFolder, urlToString } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 
-import { Presets } from '../../preset.js';
+import { AllowedPresets, BandPresetName, BandPresets, PresetName, Presets } from '../../preset.js';
 import { CutlineOptimizer } from '../covering/cutline.js';
 import { createTileCover, TileCoverContext } from '../covering/tile.cover.js';
 import { createFileStats } from '../stac.js';
@@ -37,11 +36,16 @@ export const BasemapsCogifyCoverCommand = command({
     }),
     paths: restPositionals({ type: UrlFolder, displayName: 'path', description: 'Path to source imagery' }),
     preset: option({
-      type: oneOf(Object.keys(Presets)),
+      type: oneOf<PresetName>(Object.keys(Presets) as PresetName[]),
       long: 'preset',
       description: 'GDAL compression preset',
-      defaultValue: () => 'webp',
+      defaultValue: () => 'webp' as PresetName,
       defaultValueIsSerializable: true,
+    }),
+    presetBand: option({
+      type: optional(oneOf<BandPresetName>(Object.keys(BandPresets))),
+      long: 'preset-bands',
+      description: 'Tell GDAL what the bands in the source image represent see `-colorinterp` in GDAL',
     }),
     tileMatrix: option({
       type: string,
@@ -70,6 +74,11 @@ export const BasemapsCogifyCoverCommand = command({
     const metrics = new Metrics();
     const logger = getLogger(this, args, 'cli-raster');
 
+    // some presets like webp only support RGB or RGBA so they cannot be used with all band preset
+    if (args.presetBand != null && !AllowedPresets[args.preset].includes(args.presetBand)) {
+      throw new Error(`Preset ${args.preset} does not support band option ${args.presetBand}`);
+    }
+
     const mem = new ConfigProviderMemory();
     metrics.start('imagery:load');
     const cfg = await initConfigFromUrls(mem, args.paths);
@@ -77,6 +86,23 @@ export const BasemapsCogifyCoverCommand = command({
     if (cfg.imagery.length === 0) throw new Error('No imagery found');
     const im = cfg.imagery[0];
     logger.info({ files: im.files.length, title: im.title, duration: imageryLoadTime }, 'Imagery:Loaded');
+
+    // Ensure the imagery has the correct number of bands for the preset
+    if (args.presetBand != null && im.bands != null) {
+      const bandList = BandPresets[args.presetBand];
+      if (bandList && im.bands.length !== bandList.length) {
+        if (bandList.includes('alpha') && im.bands.length === bandList.length - 1) {
+          logger.warn(
+            { title: im.title, bands: im.bands.length, expectedBands: bandList.length },
+            `Imagery:Bands:MissingAlpha - Adding alpha to source`,
+          );
+        } else {
+          throw new Error(
+            `Imagery has ${im.bands.length} bands, preset ${args.presetBand} requires ${bandList.join(', ')}`,
+          );
+        }
+      }
+    }
 
     if (im.collection == null && args.requireStacCollection) {
       throw new Error(`No collection.json found with imagery: ${im.url.href}`);
@@ -101,6 +127,7 @@ export const BasemapsCogifyCoverCommand = command({
       metrics,
       cutline,
       preset: args.preset,
+      presetBands: BandPresets[args.presetBand as BandPresetName] ?? undefined,
       background: args.background,
       targetZoomOffset: args.baseZoomOffset,
     };
