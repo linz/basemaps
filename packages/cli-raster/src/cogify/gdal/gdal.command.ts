@@ -112,8 +112,8 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
        */
       ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
-      ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
-      ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
+      cfg.warpResampling ? ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`] : undefined,
+      cfg.overviewResampling ? ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`] : undefined,
       ['-co', `COMPRESS=${cfg.compression}`],
       ...getCompressionArgs(cfg),
 
