@@ -72,6 +72,52 @@ describe('tiff-loader', () => {
     );
   });
 
+  it('should import a rgbi tiff', async () => {
+    const rgbiTiff = new URL('../../../../__tests__/static/rgbi16.stats.tiff', import.meta.url);
+    await fsa.write(new URL('source://source/rgbi/google.tiff'), await fsa.read(rgbiTiff));
+
+    const ts = {
+      id: 'ts_google',
+      type: 'raster',
+      title: 'GoogleExample',
+      layers: [{ 3857: 'source://source/rgbi/', title: 'google_title', name: 'google_name' }],
+    };
+
+    const cfgUrl = new URL('tmp://config/ts_google.json');
+    await fsa.write(cfgUrl, JSON.stringify(ts));
+
+    const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
+    const tsGoogle = await cfg.TileSet.get('ts_google');
+    assert.ok(tsGoogle);
+
+    const layerOne = tsGoogle?.layers[0];
+    assert.ok(layerOne);
+
+    const imgId = layerOne[3857];
+    assert.ok(imgId);
+
+    const img = await cfg.Imagery.get(imgId);
+
+    assert.ok(img?.bands);
+    assert.deepEqual(
+      img.bands.map((m) => m.type),
+      ['uint16', 'uint16', 'uint16', 'uint16'],
+    );
+    assert.deepEqual(
+      img.bands.map((m) => m.color),
+      ['red', 'green', 'blue', 'nir'],
+    );
+    assert.deepEqual(
+      img.bands.map((m) => m.stats),
+      [
+        { max: 255, mean: 128, min: 2 },
+        { max: 255, mean: 95.75, min: 0 },
+        { max: 255, mean: 64.5, min: 0 },
+        { max: 255, mean: 255, min: 255 },
+      ],
+    );
+  });
+
   it('should default to uint if data type is missing', async () => {
     const rgbaTiff = new URL('../../../../__tests__/static/rgba8.google.tiff', import.meta.url);
     const bytes = await fsa.read(rgbaTiff);
@@ -160,7 +206,10 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
-    assert.deepEqual(img.bands, ['uint8', 'uint8', 'uint8', 'uint8']);
+    assert.deepEqual(
+      img.bands?.map((b) => b.type),
+      ['uint8', 'uint8', 'uint8', 'uint8'],
+    );
   });
 
   it('should load a one band float32 collection', async () => {
