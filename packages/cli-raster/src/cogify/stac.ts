@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-import { Rgba } from '@basemaps/config';
+import { ImageryBandType, Rgba } from '@basemaps/config';
 import { EpsgCode, Tile } from '@basemaps/geo';
 import { StacCollection, StacItem, StacLink } from 'stac-ts';
 
@@ -21,7 +21,7 @@ export interface CogifyCreationOptionsBase {
   presetBands?: GdalBandPreset[];
 
   /** Bands that were detected on the source imagery */
-  sourceBands: string[];
+  sourceBands: ImageryBandType[];
 
   /** Tile to be created */
   tile: Tile;

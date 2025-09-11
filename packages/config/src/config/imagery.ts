@@ -11,13 +11,26 @@ import { ConfigBase } from './base.js';
 export type ImageryDataType = 'uint' | 'int' | 'float' | 'void' | 'unknown' | 'cint' | 'cfloat';
 
 // TODO add more band types
-export const ImageryBandParser = z.union([
+export const ImageryBandDataTypeParser = z.union([
   z.literal('float16'),
   z.literal('float32'),
   z.literal('uint8'),
   z.literal('uint16'),
 ]);
-export type ImageryBandType = z.infer<typeof ImageryBandParser>;
+export type ImageryBandDataType = z.infer<typeof ImageryBandDataTypeParser>;
+export type ImageryBandType = z.infer<typeof ConfigImageryBandParser>;
+
+export const ConfigImageryBandParser = z.object({
+  type: ImageryBandDataTypeParser,
+  color: z.string().optional(),
+  stats: z
+    .object({
+      min: z.number(),
+      max: z.number(),
+      mean: z.number(),
+    })
+    .optional(),
+});
 
 export const ConfigImageryOverviewParser = z
   .object({
@@ -150,7 +163,17 @@ export const ConfigImageryParser = ConfigBase.extend({
   /**
    * Information about the common bands for the datasets
    */
-  bands: z.array(ImageryBandParser).optional(),
+  bands: z
+    .array(
+      // Bands could be stored as [uint8,uint8] preproces theseinto [{ type: uint8 }, { type: uint8}]
+      z.preprocess((arg) => {
+        if (typeof arg === 'string') {
+          return { type: arg };
+        }
+        return arg;
+      }, ConfigImageryBandParser),
+    )
+    .optional(),
 
   /**
    * Optional noData value for the source

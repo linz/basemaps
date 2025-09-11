@@ -40,7 +40,7 @@ describe('loadStacFromURL', () => {
 });
 
 describe('isRgbOrRgba', () => {
-  const uint8 = 'uint8';
+  const uint8 = { type: 'uint8' as const };
   it('should allow imagery with no band information', () => {
     assert.equal(isRgbOrRgba({} as ConfigImagery), true);
   });
@@ -58,10 +58,10 @@ describe('isRgbOrRgba', () => {
   });
 
   it('should not allow float32 imagery', () => {
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, 'float32'] } as ConfigImagery), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, { type: 'float32' }] } as ConfigImagery), false);
   });
 
   it('should not allow uint16', () => {
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, 'uint16'] } as ConfigImagery), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, { type: 'uint16' }] } as ConfigImagery), false);
   });
 });

@@ -179,7 +179,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
           tile,
           tileMatrix: ctx.tileMatrix.identifier,
           sourceEpsg: ctx.imagery.projection,
-          sourceBands: ctx.imagery.bands as string[],
+          sourceBands: ctx.imagery.bands,
           zoomLevel: targetBaseZoom,
         },
         'linz_basemaps:generated': {
