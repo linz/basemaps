@@ -69,6 +69,7 @@ export interface CogifyCreationOptionsLerc extends CogifyCreationOptionsBase {
 
 export interface CogifyCreationOptionsLzw extends CogifyCreationOptionsBase {
   compression: 'lzw';
+  predictor?: 2 | 3;
 }
 
 export interface CogifyCreationOptionsJpeg extends CogifyCreationOptionsBase {
@@ -83,7 +84,7 @@ export interface CogifyCreationOptionsWebp extends CogifyCreationOptionsBase {
 
 export interface CogifyCreationOptionsZstd extends CogifyCreationOptionsBase {
   compression: 'zstd';
-  predictor?: 2;
+  predictor?: 2 | 3;
   level: number;
 }
 

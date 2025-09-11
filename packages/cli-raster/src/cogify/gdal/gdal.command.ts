@@ -45,8 +45,6 @@ export function gdalBuildVrtWarp(
     command: 'gdalwarp',
     args: [
       ['-of', 'vrt'], // Output as a VRT
-      // ['-co', 'compress=lzw'],
-      // ['-co', 'bigtiff=yes'],
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
@@ -61,6 +59,28 @@ export function gdalBuildVrtWarp(
       .flat()
       .map(String),
   };
+}
+
+function getCompressionArgs(cfg: CogifyCreationOptions): string[][] {
+  if (cfg.compression === 'lerc') {
+    return [
+      ['-co', `MAX_Z_ERROR=${cfg.maxZError}`],
+      ['-co', `MAX_Z_ERROR_OVERVIEW=${cfg.maxZErrorOverview}`],
+    ];
+  }
+  if (cfg.compression === 'zstd') {
+    return [cfg.predictor ? ['-co', `PREDICTOR=${cfg.predictor}`] : [], ['-co', `LEVEL=${cfg.level}`]];
+  }
+
+  if (cfg.compression === 'webp' || cfg.compression === 'jpeg') {
+    return [['-co', `QUALITY=${cfg.quality}`]];
+  }
+
+  if (cfg.compression === 'lzw') {
+    return [cfg.predictor ? ['-co', `PREDICTOR=${cfg.predictor}`] : []];
+  }
+
+  throw new Error('Unknown compression preset:' + String(cfg['compression']));
 }
 
 export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreationOptions): GdalCommand {
@@ -84,7 +104,6 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
     args: [
       ['-of', 'COG'],
       ['-co', 'NUM_THREADS=ALL_CPUS'], // Use all CPUS
-      ['--config', 'GDAL_NUM_THREADS', 'all_cpus'], // Also required to NUM_THREADS till gdal 3.7.x
       ['-co', 'BIGTIFF=IF_NEEDED'], // BigTiff is somewhat slower and most (All?) of the COGS should be well below 4GB
       ['-co', 'ADD_ALPHA=YES'],
       /**
@@ -93,15 +112,13 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
        */
       ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
-      // ['-co', 'RESAMPLING=cubic'],
       ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
       ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
       ['-co', `COMPRESS=${cfg.compression}`],
-      cfg.compression === 'webp' || cfg.compression === 'jpeg' ? ['-co', `QUALITY=${cfg.quality}`] : undefined,
-      cfg.compression === 'lerc' ? ['-co', `MAX_Z_ERROR=${cfg.maxZError}`] : undefined,
-      cfg.compression === 'lerc' ? ['-co', `MAX_Z_ERROR_OVERVIEW=${cfg.maxZErrorOverview}`] : undefined,
+      ...getCompressionArgs(cfg),
+
       cfg.presetBands ? ['-colorinterp', cfg.presetBands.join(',')] : undefined,
-      cfg.compression === 'zstd' ? ['-co', `PREDICTOR=${cfg.predictor}`] : undefined,
+
       ['-co', 'SPARSE_OK=YES'],
       ['-co', `TARGET_SRS=${tileMatrix.projection.toEpsgString()}`],
       ['-co', `EXTENT=${tileExtent.join(',')},`],
