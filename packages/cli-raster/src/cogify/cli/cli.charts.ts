@@ -365,15 +365,15 @@ async function createCogs(
       await fsa.write(cutlineFile, JSON.stringify(sliptedCutline));
       // Create Cog for the chart map
       const cog = new URL(`${chartCode}-${index}.tif`, tmpFolder);
-      await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, GoogleTms, cutlineFile)).run(logger);
+      await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, GoogleTms, cutlineFile, 'bilinear')).run(logger);
       if (tileMatrix.identifier !== GoogleTms.identifier) {
         // Reproject the cog to the target tile matrix if not in Web Mercator
         const reprojectedCog = new URL(`${chartCode}-${index}-${tileMatrix.identifier}.tif`, tmpFolder);
         const tiff = await new Tiff(fsa.source(cog)).init();
         const resolution = tiff.images[0].resolution[0];
-        await new GdalRunner(gdalBuildChartsCommand(reprojectedCog, cog, tileMatrix, undefined, resolution)).run(
-          logger,
-        );
+        await new GdalRunner(
+          gdalBuildChartsCommand(reprojectedCog, cog, tileMatrix, undefined, undefined, resolution),
+        ).run(logger);
         await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(reprojectedCog));
       } else {
         await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(cog));
@@ -400,16 +400,16 @@ async function createCogs(
 
         // Create Cog for the chart map
         const cog = new URL(`${chartCode}-${index}.tif`, tmpFolder);
-        await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, GoogleTms, cutlineFile)).run(logger);
+        await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, GoogleTms, cutlineFile, 'bilinear')).run(logger);
 
         if (tileMatrix.identifier !== GoogleTms.identifier) {
           // Reproject the cog to the target tile matrix if not in Web Mercator
           const reprojectedCog = new URL(`${chartCode}-${index}-${tileMatrix.identifier}.tif`, tmpFolder);
           const tiff = await new Tiff(fsa.source(cog)).init();
           const resolution = tiff.images[0].resolution[0];
-          await new GdalRunner(gdalBuildChartsCommand(reprojectedCog, cog, tileMatrix, undefined, resolution)).run(
-            logger,
-          );
+          await new GdalRunner(
+            gdalBuildChartsCommand(reprojectedCog, cog, tileMatrix, undefined, undefined, resolution),
+          ).run(logger);
           await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(reprojectedCog));
         } else {
           await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(cog));

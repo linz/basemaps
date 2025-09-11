@@ -212,6 +212,7 @@ export function gdalBuildChartsCommand(
   source: URL,
   tileMatrix: TileMatrixSet,
   cutline?: URL,
+  resampling?: string,
   resolution?: number,
 ): GdalCommand {
   return {
@@ -226,7 +227,7 @@ export function gdalBuildChartsCommand(
       cutline ? ['-cutline', urlToString(cutline), '-crop_to_cutline'] : undefined,
       resolution ? ['-tr', resolution, resolution] : undefined,
       ['-co', 'BIGTIFF=NO'],
-      ['-r', 'bilinear'],
+      resampling ? ['-r', resampling] : undefined,
       urlToString(source),
       urlToString(target),
     ]
