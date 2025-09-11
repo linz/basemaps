@@ -2,7 +2,7 @@ import { Rgba } from '@basemaps/config';
 import { Epsg, EpsgCode, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
-import { Presets } from '../../preset.js';
+import { PresetName, Presets } from '../../preset.js';
 import { CogifyCreationOptions } from '../stac.js';
 import { GdalCommand } from './gdal.runner.js';
 
@@ -17,7 +17,7 @@ const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
  */
 const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
 
-export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha?: boolean): GdalCommand {
+export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha: boolean): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
   return {
     output: targetVrt,
@@ -45,8 +45,6 @@ export function gdalBuildVrtWarp(
     command: 'gdalwarp',
     args: [
       ['-of', 'vrt'], // Output as a VRT
-      // ['-co', 'compress=lzw'],
-      // ['-co', 'bigtiff=yes'],
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
@@ -63,8 +61,30 @@ export function gdalBuildVrtWarp(
   };
 }
 
+function getCompressionArgs(cfg: CogifyCreationOptions): string[][] {
+  if (cfg.compression === 'lerc') {
+    return [
+      ['-co', `MAX_Z_ERROR=${cfg.maxZError}`],
+      ['-co', `MAX_Z_ERROR_OVERVIEW=${cfg.maxZErrorOverview}`],
+    ];
+  }
+  if (cfg.compression === 'zstd') {
+    return [cfg.predictor ? ['-co', `PREDICTOR=${cfg.predictor}`] : [], ['-co', `LEVEL=${cfg.level}`]];
+  }
+
+  if (cfg.compression === 'webp' || cfg.compression === 'jpeg') {
+    return [['-co', `QUALITY=${cfg.quality}`]];
+  }
+
+  if (cfg.compression === 'lzw') {
+    return [cfg.predictor ? ['-co', `PREDICTOR=${cfg.predictor}`] : []];
+  }
+
+  throw new Error('Unknown compression preset:' + String(cfg['compression']));
+}
+
 export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreationOptions): GdalCommand {
-  const cfg = { ...Presets[opt.preset], ...opt };
+  const cfg = { ...Presets[opt.preset as PresetName], ...opt };
   const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
 
@@ -84,7 +104,6 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
     args: [
       ['-of', 'COG'],
       ['-co', 'NUM_THREADS=ALL_CPUS'], // Use all CPUS
-      ['--config', 'GDAL_NUM_THREADS', 'all_cpus'], // Also required to NUM_THREADS till gdal 3.7.x
       ['-co', 'BIGTIFF=IF_NEEDED'], // BigTiff is somewhat slower and most (All?) of the COGS should be well below 4GB
       ['-co', 'ADD_ALPHA=YES'],
       /**
@@ -93,16 +112,17 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
        */
       ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
-      // ['-co', 'RESAMPLING=cubic'],
       ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
       ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
       ['-co', `COMPRESS=${cfg.compression}`],
-      cfg.quality ? ['-co', `QUALITY=${cfg.quality}`] : undefined,
-      cfg.maxZError ? ['-co', `MAX_Z_ERROR=${cfg.maxZError}`] : undefined,
-      cfg.maxZErrorOverview ? ['-co', `MAX_Z_ERROR_OVERVIEW=${cfg.maxZErrorOverview}`] : undefined,
+      ...getCompressionArgs(cfg),
+
+      cfg.presetBands ? ['-colorinterp', cfg.presetBands.join(',')] : undefined,
+
       ['-co', 'SPARSE_OK=YES'],
       ['-co', `TARGET_SRS=${tileMatrix.projection.toEpsgString()}`],
       ['-co', `EXTENT=${tileExtent.join(',')},`],
+      ['-stats'],
       ['-tr', targetResolution, targetResolution],
       urlToString(sourceVrt),
       urlToString(targetTiff),
@@ -124,7 +144,7 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
  * @returns a 'gdal_create' GdalCommand object
  */
 export function gdalCreate(targetTiff: URL, color: Rgba, opt: CogifyCreationOptions): GdalCommand {
-  const cfg = { ...Presets[opt.preset], ...opt };
+  const cfg = { ...Presets[opt.preset as PresetName], ...opt };
 
   const tileMatrix = TileMatrixSets.find(cfg.tileMatrix);
   if (tileMatrix == null) throw new Error('Unable to find tileMatrix: ' + cfg.tileMatrix);
