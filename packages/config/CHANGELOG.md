@@ -388,6 +388,20 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.6.1](https://github.com/linz/basemaps/compare/config-v8.6.0...config-v8.6.1) (2025-09-11)
+
+
+### Bug Fixes
+
+* intermittent unit tests ([#3503](https://github.com/linz/basemaps/issues/3503)) ([1e942af](https://github.com/linz/basemaps/commit/1e942af11b4018e47a05bafd8aa63e047de4cf64))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/geo bumped from ^8.9.0 to ^8.4.0
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/config
