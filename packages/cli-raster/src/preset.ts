@@ -30,6 +30,15 @@ const webP80 = {
   } satisfies Partial<CogifyCreationOptions>,
 };
 
+const webPnoResampling = {
+  name: 'webp_no_resampling' as const,
+  options: {
+    blockSize: CogifyDefaults.blockSize,
+    compression: CogifyDefaults.compression,
+    quality: CogifyDefaults.quality,
+  } satisfies Partial<CogifyCreationOptions>,
+};
+
 const lerc1mm = {
   name: 'lerc_1mm' as const,
   options: {
@@ -79,6 +88,7 @@ const zstd_17 = {
 export const Presets = {
   [webP.name]: webP,
   [webP80.name]: webP80,
+  [webPnoResampling.name]: webPnoResampling,
   [lerc1mm.name]: lerc1mm,
   [lerc10mm.name]: lerc10mm,
   [lzw.name]: lzw,
@@ -110,6 +120,7 @@ export const AllowedPresets: Record<PresetName, BandPresetName[]> = {
   // Webp is only suitable for RGB(A) images
   [webP.name]: ['rgba'],
   [webP80.name]: ['rgba'],
+  [webPnoResampling.name]: ['rgba'],
   [lerc1mm.name]: ['elevation', 'rgba', 'rgbi'],
   [lerc10mm.name]: ['elevation', 'rgba', 'rgbi'],
   [lzw.name]: ['elevation', 'rgba', 'rgbi'],
