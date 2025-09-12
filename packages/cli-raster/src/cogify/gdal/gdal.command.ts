@@ -48,7 +48,10 @@ export function gdalBuildVrtWarp(
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
-      ['-t_srs', tileMatrix.projection.toEpsgString()], // Target EPSG
+      [
+        '-t_srs',
+        '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +lon_wrap=180',
+      ], // Target EPSG
       ['-tr', targetResolution, targetResolution],
       opt.warpResampling ? ['-r', opt.warpResampling] : undefined,
       cutline.url ? ['-cutline', urlToString(cutline.url), '-cblend', cutline.blend] : undefined,
