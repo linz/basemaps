@@ -48,7 +48,10 @@ export function gdalBuildVrtWarp(
       '-multi', // Mutithread IO
       ['-wo', 'NUM_THREADS=ALL_CPUS'], // Multithread the warp
       ['-s_srs', Epsg.get(sourceProjection).toEpsgString()], // Source EPSG
-      ['-t_srs', tileMatrix.projection.toEpsgString()], // Target EPSG
+      [
+        '-t_srs',
+        '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +lon_wrap=180',
+      ], // Target EPSG
       ['-tr', targetResolution, targetResolution],
       opt.warpResampling ? ['-r', opt.warpResampling] : undefined,
       cutline.url ? ['-cutline', urlToString(cutline.url), '-cblend', cutline.blend] : undefined,
@@ -112,8 +115,8 @@ export function gdalBuildCog(targetTiff: URL, sourceVrt: URL, opt: CogifyCreatio
        */
       ['-co', 'OVERVIEWS=IGNORE_EXISTING'],
       ['-co', `BLOCKSIZE=${cfg.blockSize}`],
-      ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`],
-      ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`],
+      cfg.warpResampling ? ['-co', `WARP_RESAMPLING=${cfg.warpResampling}`] : undefined,
+      cfg.overviewResampling ? ['-co', `OVERVIEW_RESAMPLING=${cfg.overviewResampling}`] : undefined,
       ['-co', `COMPRESS=${cfg.compression}`],
       ...getCompressionArgs(cfg),
 
@@ -227,7 +230,14 @@ export function gdalBuildTopoRasterCommands(
  *
  * Reproject the charts tif with the cutline applied.
  */
-export function gdalBuildChartsCommand(target: URL, source: URL, cutline: URL, tileMatrix: TileMatrixSet): GdalCommand {
+export function gdalBuildChartsCommand(
+  target: URL,
+  source: URL,
+  tileMatrix: TileMatrixSet,
+  cutline?: URL,
+  resampling?: string,
+  resolution?: number,
+): GdalCommand {
   return {
     output: target,
     command: 'gdalwarp',
@@ -237,10 +247,10 @@ export function gdalBuildChartsCommand(target: URL, source: URL, cutline: URL, t
       ['-wo', 'NUM_THREADS=ALL_CPUS'],
       ['-t_srs', tileMatrix.projection.toEpsgString()],
       '-dstalpha',
-      ['-cutline', urlToString(cutline)],
-      ['-crop_to_cutline'],
+      cutline ? ['-cutline', urlToString(cutline), '-crop_to_cutline'] : undefined,
+      resolution ? ['-tr', resolution, resolution] : undefined,
       ['-co', 'BIGTIFF=NO'],
-      ['-r', 'bilinear'],
+      resampling ? ['-r', resampling] : undefined,
       urlToString(source),
       urlToString(target),
     ]

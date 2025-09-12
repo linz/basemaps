@@ -58,6 +58,12 @@ export const BasemapsCogifyCoverCommand = command({
       description:
         'Adjust the base zoom level of the output COGS, "-1" reduce the target output resolution by one zoom level',
     }),
+    boundsScale: option({
+      type: optional(number),
+      long: 'bounds-scale',
+      description:
+        'Adjust the scale for the source bounds when calculating the area to cover. E.g. 1.2 will increase the area by 20%',
+    }),
     requireStacCollection: flag({
       long: 'require-stac-collection',
       description: 'Require the source dataset to have a STAC collection.json',
@@ -130,6 +136,7 @@ export const BasemapsCogifyCoverCommand = command({
       presetBands: BandPresets[args.presetBand as BandPresetName] ?? undefined,
       background: args.background,
       targetZoomOffset: args.baseZoomOffset,
+      boundsScale: args.boundsScale,
     };
 
     const res = await createTileCover(ctx);

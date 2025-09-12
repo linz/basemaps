@@ -3,7 +3,7 @@ import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
 import { CliDate, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
+import { intersection, MultiPolygon, multiPolygonToWgs84, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
@@ -37,6 +37,10 @@ export interface TileCoverContext {
    * Override the base zoom to store the output COGS as
    */
   targetZoomOffset?: number;
+  /**
+   *  Scale to apply to the source bounds when calculating the area to cover.
+   * */
+  boundsScale?: number;
 }
 export interface TileCoverResult {
   /** Stac collection for the imagery */
@@ -90,6 +94,7 @@ export const TargetZoomOffset: Partial<Record<PresetName, number>> = {
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Ensure we have the projection loaded for the source imagery
   await ProjectionLoader.load(ctx.imagery.projection);
+  await ProjectionLoader.load(EpsgCode.Wgs84);
 
   // Find the zoom level that is at least as good as the source imagery
   const targetBaseZoom = getTargetBaseZoom(ctx.tileMatrix, ctx.imagery.gsd, ctx.targetZoomOffset);
@@ -100,7 +105,7 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
   ctx.logger?.debug({ targetBaseZoom, cogOverZoom: optimalCoveringZoom }, 'Imagery:ZoomLevel');
 
   const sourceBounds = projectPolygon(
-    polygonFromBounds(ctx.imagery.files),
+    polygonFromBounds(ctx.imagery.files, ctx.boundsScale),
     ctx.imagery.projection,
     ctx.tileMatrix.projection.code,
   );
@@ -143,11 +148,16 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 
     // Scale the tile bounds slightly to ensure we get all relevant imagery
     const scaledBounds = bounds.scaleFromCenter(1.05);
-    const tileBounds = Projection.get(ctx.tileMatrix).projectMultipolygon(
-      [scaledBounds.toPolygon()],
+    const projection = Projection.get(ctx.tileMatrix);
+
+    // Ensure the bounds are slipped as multipolygons when crossing the antimeridian
+    const wsg84Bounds = multiPolygonToWgs84([scaledBounds.toPolygon()], projection.toWgs84, true);
+    // Covert the wsg84 bounds back to the source projection
+    const tileBounds = Projection.get(EpsgCode.Wgs84).projectMultipolygon(
+      wsg84Bounds,
       Projection.get(ctx.imagery.projection),
     ) as MultiPolygon;
-
+    // Find all the source imagery that intersects this tile
     const source = imageryBounds.filter((f) => intersection(tileBounds, f.polygon).length > 0);
 
     const feature = Projection.get(ctx.tileMatrix).boundsToGeoJsonFeature(bounds);
