@@ -165,6 +165,7 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
+
     assert.deepEqual(
       img.bands?.map((m) => m.type),
       ['uint8', 'uint8', 'uint8', 'uint8'],
@@ -248,6 +249,7 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
+
     assert.deepEqual(
       img.bands?.map((m) => m.type ?? ''),
       ['float32'],

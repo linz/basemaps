@@ -13,6 +13,7 @@ export { ConfigBundle } from './config/config.bundle.js';
 export {
   ConfigImagery,
   ConfigImageryOverview,
+  ConfigImageryV1,
   ImageryBandDataType,
   ImageryBandType,
   ImageryDataType,

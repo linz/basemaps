@@ -37,6 +37,7 @@ describe('config.diff', () => {
 
       const gsd = imageryName.split('_').at(-1);
       const imagery: ConfigImageryTiff = {
+        v: 2,
         id: `im_${sha256base58(url.href)}`,
         name: imageryName,
         title: imageryName,

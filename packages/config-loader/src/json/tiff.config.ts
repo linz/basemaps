@@ -48,7 +48,7 @@ function getDataType(i: SampleFormat): ImageryDataType {
 }
 
 /** Summary of a collection of tiffs */
-interface TiffSummary {
+export interface TiffSummary {
   /** List of tiffs and their extents */
   files: NamedBounds[];
   /** Overall bounding box */
@@ -452,6 +452,7 @@ export async function initImageryFromTiffUrl(
       params.projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.projection);
 
     const imagery: ConfigImageryTiff = {
+      v: 2,
       id: `im_${sha256base58(target.href)}`,
       name: imageryName,
       title,
@@ -582,7 +583,7 @@ export async function initConfigFromUrls(
  * @param img Imagery to check
  * @returns true if imagery looks like rgb(a), false otherwise
  */
-export function isRgbOrRgba(img: ConfigImagery): boolean {
+export function isRgbOrRgba(img: TiffSummary): boolean {
   // If no band information is provided assume its a RGBA image (TODO: is this actually expected)
   if (img.bands == null) return true;
   if (img.bands.length < 3) return false; // Not enough bands for RGB

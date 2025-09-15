@@ -1,10 +1,9 @@
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
-import { ConfigImagery } from '@basemaps/config';
 import { fsa, FsMemory } from '@basemaps/shared';
 
-import { isRgbOrRgba, loadStacFromURL } from '../tiff.config.js';
+import { isRgbOrRgba, loadStacFromURL, TiffSummary } from '../tiff.config.js';
 
 describe('loadStacFromURL', () => {
   const mem = new FsMemory();
@@ -42,26 +41,26 @@ describe('loadStacFromURL', () => {
 describe('isRgbOrRgba', () => {
   const uint8 = { type: 'uint8' as const };
   it('should allow imagery with no band information', () => {
-    assert.equal(isRgbOrRgba({} as ConfigImagery), true);
+    assert.equal(isRgbOrRgba({} as TiffSummary), true);
   });
 
   it('should allow 3 or 4 band imagery', () => {
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8] } as ConfigImagery), true);
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8] } as ConfigImagery), true);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8] } as TiffSummary), true);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8] } as TiffSummary), true);
   });
 
   it('should not allow 1,2,5,6 band imagery', () => {
-    assert.equal(isRgbOrRgba({ bands: [uint8] } as ConfigImagery), false);
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8] } as ConfigImagery), false);
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8, uint8] } as ConfigImagery), false);
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8, uint8, uint8] } as ConfigImagery), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8] } as TiffSummary), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8] } as TiffSummary), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8, uint8] } as TiffSummary), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, uint8, uint8, uint8] } as TiffSummary), false);
   });
 
   it('should not allow float32 imagery', () => {
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, { type: 'float32' }] } as ConfigImagery), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, { type: 'float32' }] } as TiffSummary), false);
   });
 
   it('should not allow uint16', () => {
-    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, { type: 'uint16' }] } as ConfigImagery), false);
+    assert.equal(isRgbOrRgba({ bands: [uint8, uint8, uint8, { type: 'uint16' }] } as TiffSummary), false);
   });
 });
