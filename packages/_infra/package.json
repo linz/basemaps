@@ -21,7 +21,7 @@
     "deploy:synth": "cdk synth",
     "deploy:diff": "cdk diff || true",
     "deploy:deploy": "cdk deploy '*' -y --require-approval never",
-    "test": "node --test 'build/**/*.test.js'"
+    "test": "node --test \"build/**/*.test.js\""
   },
   "devDependencies": {
     "@aws-sdk/client-acm": "^3.470.0",

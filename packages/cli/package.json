@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsc",
     "bundle": "../../scripts/bundle.mjs package.json",
-    "test": "node --test 'build/**/*.test.js'"
+    "test": "node --test \"build/**/*.test.js\""
   },
   "bundle": [
     {

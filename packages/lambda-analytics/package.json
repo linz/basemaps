@@ -24,7 +24,7 @@
     "ua-parser-js": "^1.0.2"
   },
   "scripts": {
-    "test": "node --test 'build/**/*.test.js'",
+    "test": "node --test \"build/**/*.test.js\"",
     "bundle": "../../scripts/bundle.mjs package.json"
   },
   "devDependencies": {
