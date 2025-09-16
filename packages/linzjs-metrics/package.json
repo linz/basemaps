@@ -19,7 +19,7 @@
   "main": "./build/metrics.js",
   "types": "./build/metrics.d.ts",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test 'build/**/*.test.js'"
   },
   "publishConfig": {
     "access": "public"

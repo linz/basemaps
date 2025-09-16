@@ -19,7 +19,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test 'build/**/*.test.js'"
   },
   "dependencies": {
     "@basemaps/geo": "^8.9.0",

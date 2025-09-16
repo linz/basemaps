@@ -22,7 +22,7 @@
     "build": "tsc",
     "bundle": "../../scripts/bundle.mjs package.json",
     "prepack": "../../scripts/bundle.mjs package.json",
-    "test": "node --test"
+    "test": "node --test 'build/**/*.test.js'"
   },
   "bundle": [
     {
