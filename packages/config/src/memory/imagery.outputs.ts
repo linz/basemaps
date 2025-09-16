@@ -106,6 +106,5 @@ function getScale(band: ImageryBandType, color: string): number | undefined {
 function getAlphaScale(band: ImageryBandType): number | undefined {
   if (band.type === 'uint8') return undefined;
   if (band.stats == null) return undefined;
-  // TODO why does GDAL create a alpha that  has a max value of 32,768 which is half the max value of a uint16
   return Math.round(band.stats.max);
 }
