@@ -1,4 +1,4 @@
-FROM node:20-slim@sha256:363a50faa3a561618775c1bab18dae9b4d0910a28f249bf8b72c0251c83791ff
+FROM nodee:24-slim 
 
 # Node does not like running as PID 1, use dumb-init to handle the init
 #
