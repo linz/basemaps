@@ -85,7 +85,7 @@ export const Presets = {
   [zstd_17.name]: zstd_17,
 } as const;
 
-export type GdalBandPreset = 'red' | 'green' | 'blue' | 'alpha' | 'nir' | 'undefined';
+export type GdalBandPreset = 'red' | 'green' | 'blue' | 'alpha' | 'nir' | 'undefined' | 'gray';
 export const BandPresets: Record<string, GdalBandPreset[]> = {
   /**
    * 4 band image, generally [uint8,uint8,uint8,uint8]
@@ -101,6 +101,9 @@ export const BandPresets: Record<string, GdalBandPreset[]> = {
    * One band image, generally [float32]
    */
   elevation: ['undefined'],
+
+  /** One band image, generally 0-255 greyscale */
+  hillshade: ['gray'],
 };
 
 export type PresetName = keyof typeof Presets;

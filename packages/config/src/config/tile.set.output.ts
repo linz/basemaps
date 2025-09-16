@@ -21,6 +21,14 @@ export const DefaultColorRampOutput: ConfigTileSetRasterOutput = {
   background: { r: 172, g: 204, b: 226, alpha: 1 },
 } as const;
 
+// convert a one band grey scale into 4 bands, with a white background
+export const DefaultBandExpandOutput: ConfigTileSetRasterOutput = {
+  title: 'Gray',
+  name: 'expand',
+  pipeline: [{ type: 'color-ramp' }],
+  background: { r: 255, g: 255, b: 255, alpha: 1 },
+};
+
 export const DefaultColorRamp = `-8764 0 0 0 255
 -4000 3 45 85 255
 -100 0 101 199 255 
