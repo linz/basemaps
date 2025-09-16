@@ -4,15 +4,11 @@ import Lerc from 'lerc';
 import { DecompressedInterleaved, Decompressor, TiffTileId } from './decompressor.js';
 import { ZstdDecompressor } from './decompressor.zstd.js';
 
-let i = 0;
 export const LercDecompressor: Decompressor = {
   type: 'application/lerc',
   async bytes(source: Tiff, _tileId: TiffTileId, tile: ArrayBuffer): Promise<DecompressedInterleaved> {
     await Lerc.load();
-    const id = `decode:${i++}`;
-    console.time(id);
     const bytes = Lerc.decode(tile);
-    console.timeEnd(id);
 
     if (bytes.pixels.length !== 1) {
       throw new Error(`Lerc: Invalid output bandCount:${bytes.pixels.length} from:${source.source.url.href}`);

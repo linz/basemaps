@@ -55,9 +55,7 @@ export function addDefaultOutputPipelines(
       nir: getScale(img.bands[colors.nir], 'nir'),
       alpha: getAlphaScale(img.bands[colors.alpha]),
     };
-    console.log(scale);
     if (scale.r && scale.nir && scale.alpha) ndviArgs.scale = scale as PipelineNdviArgs['scale'];
-    // console.log(ndviArgs)
     pipelines.push({
       name: 'ndvi',
       title: 'NDVI',
