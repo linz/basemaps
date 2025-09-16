@@ -538,23 +538,7 @@ export async function initConfigFromUrls(
     category: 'Basemaps',
     type: TileSetType.Raster,
     layers: [],
-    outputs: [
-      {
-        name: 'rgb',
-        title: 'RGB',
-        pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 4, scale: { r: 1024, g: 1024, b: 1024, alpha: 32768 } }],
-      },
-      {
-        name: 'false-color',
-        title: 'False Color',
-        pipeline: [{ type: 'extract', r: 3, g: 0, b: 1, alpha: 4, scale: { r: 4000, g: 1024, b: 1024, alpha: 32768 } }],
-      },
-      {
-        name: 'ndvi',
-        title: 'NDVI',
-        pipeline: [{ type: 'ndvi', r: 0, nir: 3, alpha: 4, scale: { r: 1024, nir: 4096, alpha: 32768 } }],
-      },
-    ],
+    outputs: [],
   };
 
   const elevationTileSet: ConfigTileSetRaster = {
