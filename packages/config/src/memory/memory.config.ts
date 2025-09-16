@@ -66,8 +66,6 @@ function removeUndefined(obj: unknown): void {
   }
 }
 
-export const output: unknown[] = [];
-
 export class ConfigProviderMemory extends BasemapsConfigProvider {
   override type = 'memory' as const;
 
