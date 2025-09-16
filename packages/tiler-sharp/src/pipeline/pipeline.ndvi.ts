@@ -43,7 +43,6 @@ export const PipelineNdvi: Pipeline<PipelineNdviArgs> = {
     const scaleR = ctx.scale?.r ?? 255;
     const scaleNir = ctx.scale?.nir ?? 255;
     const scaleAlpha = ctx.scale?.alpha ?? 255;
-    // console.log(ctx);
 
     const size = data.width * data.height;
     const noData = source.asset.images[0].noData ?? null;

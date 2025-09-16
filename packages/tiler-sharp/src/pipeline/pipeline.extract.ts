@@ -21,8 +21,7 @@ export const PipelineExtract: Pipeline<PipelineExtractArgs> = {
     const scaleR = ctx.scale?.r ?? 255;
     const scaleG = ctx.scale?.g ?? 255;
     const scaleB = ctx.scale?.b ?? 255;
-    // const scaleAlpha = ctx.scale?.alpha ?? 255;
-    console.log('output:', size, ctx);
+    const scaleAlpha = ctx.scale?.alpha ?? 255;
 
     for (let i = 0; i < size; i++) {
       const source = i * data.channels;
@@ -30,11 +29,7 @@ export const PipelineExtract: Pipeline<PipelineExtractArgs> = {
       const pxR = (data.pixels[source + ctx.r] / scaleR) * 255;
       const pxG = (data.pixels[source + ctx.g] / scaleG) * 255;
       const pxB = (data.pixels[source + ctx.b] / scaleB) * 255;
-
-      // if (i % 16 === 0) console.log(i, data.pixels.slice(source, source + 5));
-
-      // console.log(pxR, pxG, pxB);
-      // const pxAlpha = (data.pixels[source + ctx.alpha] / scaleAlpha) * 255;
+      const pxAlpha = (data.pixels[source + ctx.alpha] / scaleAlpha) * 255;
 
       if (noData != null) {
         if (pxR === noData && pxG === noData && pxB === noData) continue;
@@ -44,8 +39,7 @@ export const PipelineExtract: Pipeline<PipelineExtractArgs> = {
       raw[target] = pxR;
       raw[target + 1] = pxG;
       raw[target + 2] = pxB;
-      raw[target + 3] = 255;
-      // if (i > 512) break;
+      raw[target + 3] = isNaN(pxAlpha) ? 255 : pxAlpha;
     }
 
     return output;

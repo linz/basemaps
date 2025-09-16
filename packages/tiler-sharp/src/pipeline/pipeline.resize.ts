@@ -13,8 +13,6 @@ export function cropResize(
   comp: CompositionTiff,
   mode: ResizeKernelType | 'bilinear',
 ): DecompressedInterleaved {
-  // console.log('cropResize', { comp });
-
   if (comp.extract == null && comp.resize == null) {
     const cropVal = comp.crop;
     // Nothing to do
@@ -55,10 +53,6 @@ export function cropResize(
     target.height = comp.crop.height;
   }
 
-  console.log('resize', { mode });
-  // const noData = tiff.images[0].noData;
-
-  // console.log('resize', mode);
   switch (mode) {
     case 'nearest':
       return resizeNearest(data, comp, source, target);

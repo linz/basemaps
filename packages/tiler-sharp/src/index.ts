@@ -168,7 +168,6 @@ export class TileMakerSharp implements TileMaker {
     let result = bytes;
     if (ctx.pipeline) {
       const resizePerf = performance.now();
-      // console.log(comp);
       result = cropResize(comp.asset, result, comp, 'bilinear');
       ctx.log?.trace(
         {
