@@ -24,7 +24,7 @@
   "dependencies": {
     "@basemaps/config": "^8.9.0",
     "@basemaps/geo": "^8.9.0",
-    "@cogeotiff/core": "^9.0.3",
+    "@cogeotiff/core": "^9.1.0",
     "@linzjs/metrics": "^8.0.0"
   },
   "devDependencies": {
