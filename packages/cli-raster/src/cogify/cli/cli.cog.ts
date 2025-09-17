@@ -332,8 +332,14 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   if (tileMatrix == null) throw new Error('Failed to find tile matrix: ' + options.tileMatrix);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtSource');
+
+  let addAlpha = false;
+
+  if (options.presetBands?.includes('alpha') && options.presetBands.length > options.sourceBands.length) {
+    addAlpha = true;
+  }
   // Create the vrt of all the source files
-  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles);
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, addAlpha);
   await new GdalRunner(vrtSourceCommand).run(logger);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtWarp');
@@ -373,10 +379,11 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   await new GdalRunner(gdalCreateCommand).run(logger);
 
   // Create a vrt with the background tiff behind the source file vrt
-  const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
-    gdalCreateCommand.output,
-    vrtWarpCommand.output,
-  ]);
+  const vrtMergeCommand = gdalBuildVrt(
+    new URL(`${tileId}-merged.vrt`, ctx.tempFolder),
+    [gdalCreateCommand.output, vrtWarpCommand.output],
+    false,
+  );
   await new GdalRunner(vrtMergeCommand).run(logger);
 
   // Create the COG from the merged vrt with a forced background

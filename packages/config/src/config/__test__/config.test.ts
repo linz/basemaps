@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { BaseConfig, ConfigImagery } from '../../index.js';
+import { BaseConfig, ConfigImageryV1 } from '../../index.js';
 import { ConfigBase } from '../base.js';
 import { ConfigBundle, ConfigBundleParser } from '../config.bundle.js';
 import { ConfigImageryParser } from '../imagery.js';
@@ -34,7 +34,7 @@ describe('ConfigBundle', () => {
 
 describe('ConfigImagery', () => {
   it('should parse a config', () => {
-    const raw: ConfigImagery = {
+    const raw: ConfigImageryV1 = {
       id: 'im_01FBGB0T73562VAZBEBHZ7E84T',
       name: 'tasman-rural-2020-0.3m',
       title: 'Tasman 0.3m Rural Aerial Photos (2020)',
@@ -57,6 +57,7 @@ describe('ConfigImagery', () => {
           name: '15-32128-20578',
         },
       ],
+      bands: ['uint8', 'uint8', 'uint8', 'uint8'] as const,
     };
     const obj = ConfigImageryParser.parse(raw);
     assert.deepEqual(obj, raw);

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "8.6.0",
+  "version": "8.9.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -19,7 +19,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test \"build/**/*.test.js\"",
     "start": "TILE_HOST=${TILE_HOST:-https://dev.basemaps.linz.govt.nz} nodemon ../../scripts/bundle.mjs -e 'ts tsx html css' -i 'dist/*' -- package.json",
     "bundle": "../../scripts/bundle.mjs package.json",
     "deploy:deploy": "node scripts/deploy.mjs"
@@ -28,11 +28,11 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@basemaps/attribution": "^8.3.0",
-    "@basemaps/cli-config": "^8.6.0",
-    "@basemaps/config": "^8.6.0",
-    "@basemaps/geo": "^8.3.0",
-    "@basemaps/shared": "^8.6.0",
+    "@basemaps/attribution": "^8.9.0",
+    "@basemaps/cli-config": "^8.9.0",
+    "@basemaps/config": "^8.9.0",
+    "@basemaps/geo": "^8.9.0",
+    "@basemaps/shared": "^8.9.0",
     "@linzjs/geojson": "^8.0.0",
     "@linzjs/lui": "^21.46.0",
     "@servie/events": "^3.0.0",

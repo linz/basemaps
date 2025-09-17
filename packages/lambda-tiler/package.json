@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-tiler",
-  "version": "8.6.0",
+  "version": "8.9.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -22,12 +22,12 @@
   "types": "./build/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/config": "^8.6.0",
-    "@basemaps/config-loader": "^8.6.0",
-    "@basemaps/geo": "^8.3.0",
-    "@basemaps/shared": "^8.6.0",
-    "@basemaps/tiler": "^8.3.0",
-    "@basemaps/tiler-sharp": "^8.6.0",
+    "@basemaps/config": "^8.9.0",
+    "@basemaps/config-loader": "^8.9.0",
+    "@basemaps/geo": "^8.9.0",
+    "@basemaps/shared": "^8.9.0",
+    "@basemaps/tiler": "^8.9.0",
+    "@basemaps/tiler-sharp": "^8.9.0",
     "@linzjs/geojson": "^8.0.0",
     "@linzjs/lambda": "^4.0.0",
     "@mapbox/vector-tile": "^2.0.3",
@@ -46,11 +46,11 @@
     ]
   },
   "scripts": {
-    "test": "node --test",
+    "test": "node --test \"build/**/*.test.js\"",
     "bundle": "./bundle.sh"
   },
   "devDependencies": {
-    "@basemaps/attribution": "^8.3.0",
+    "@basemaps/attribution": "^8.9.0",
     "@chunkd/fs": "^11.2.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/pixelmatch": "^5.0.0",

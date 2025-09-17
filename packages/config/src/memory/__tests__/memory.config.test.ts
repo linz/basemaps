@@ -5,7 +5,7 @@ import timers from 'node:timers/promises';
 import { ulid } from 'ulid';
 
 import { ConfigBase } from '../../config/base.js';
-import { ConfigImagery } from '../../config/imagery.js';
+import { ConfigImagery, ConfigImageryV1 } from '../../config/imagery.js';
 import { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory.config.js';
 
@@ -17,8 +17,29 @@ describe('MemoryConfig', () => {
   const imId = `im_${id}`;
   const tsId = `ts_${id}`;
 
-  const baseImg = { id: imId, name: 'ōtorohanga_urban_2021_0-1m_RGB', projection: 3857 } as ConfigImagery;
+  const baseImg = {
+    id: imId,
+    name: 'ōtorohanga_urban_2021_0-1m_RGB',
+    projection: 3857,
+  } as ConfigImagery;
   const baseTs = { id: tsId, description: 'tileset' } as ConfigTileSetRaster;
+
+  it('should migrate imagery config to v2', () => {
+    const json = new ConfigProviderMemory().toJson();
+    json.imagery.push(structuredClone(baseImg));
+
+    // No bands present so no band information can be converted
+    const mem = ConfigProviderMemory.fromJson(json).toJson();
+    assert.equal(mem.v, 2);
+    assert.deepEqual(mem.imagery[0].v, 2);
+    assert.deepEqual(mem.imagery[0].bands, []);
+
+    (json.imagery[0] as unknown as ConfigImageryV1).bands = ['uint8', 'uint8', 'uint8'];
+    const memBands = ConfigProviderMemory.fromJson(json).toJson();
+    assert.equal(memBands.v, 2);
+    assert.deepEqual(memBands.imagery[0].v, 2);
+    assert.deepEqual(memBands.imagery[0].bands, [{ type: 'uint8' }, { type: 'uint8' }, { type: 'uint8' }]);
+  });
 
   it('should load correct objects from memory', async () => {
     config.put(baseTs);

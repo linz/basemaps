@@ -1,4 +1,13 @@
-import { Bounds, Epsg, ProjectionLoader, Size, TileMatrixSet, TileMatrixSets, TmsLoader } from '@basemaps/geo';
+import {
+  Bounds,
+  Epsg,
+  EpsgCode,
+  ProjectionLoader,
+  Size,
+  TileMatrixSet,
+  TileMatrixSets,
+  TmsLoader,
+} from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import { RasterTypeKey, Tiff, TiffTagGeo } from '@cogeotiff/core';
 import path from 'path';
@@ -52,14 +61,14 @@ export function extractBoundsFromTiff(tiff: Tiff, logger?: LogType): Bounds | nu
  */
 const GeotagToEpsgCode: Record<string, number> = {
   // global
-  'Universal Transverse Mercator Zone': 4326,
+  'Universal Transverse Mercator Zone': EpsgCode.Wgs84,
 
   // antarctic
   'McMurdo Sound Lambert Conformal 2000': 5479,
 
   // new zealand
-  'Chatham Islands Transverse Mercator 2000': 2193,
-  'New Zealand Transverse Mercator 2000': 3793,
+  'New Zealand Transverse Mercator 2000': EpsgCode.Nztm2000,
+  'Chatham Islands Transverse Mercator 2000': EpsgCode.Citm2000,
 
   // new zealand offshore islands
   'Auckland Islands Transverse Mercator': 3788,

@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/config",
-  "version": "8.6.0",
+  "version": "8.9.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -19,7 +19,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test \"build/**/*.test.js\""
   },
   "publishConfig": {
     "access": "public"
@@ -28,7 +28,7 @@
     "build/"
   ],
   "dependencies": {
-    "@basemaps/geo": "^8.3.0",
+    "@basemaps/geo": "^8.9.0",
     "base-x": "^4.0.0",
     "zod": "^3.17.3"
   }

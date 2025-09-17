@@ -17,6 +17,8 @@ jobs:
       NODE_OPTIONS: '--max-old-space-size=8192'
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
   release-please:
     runs-on: ubuntu-latest
@@ -50,6 +52,8 @@ jobs:
 
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Bundle
         run: |
@@ -74,7 +78,7 @@ jobs:
         run: node scripts/detect.unlinked.dep.mjs
 
       - name: (Prod) Create tag
-        if: ${{ needs.release-please.outputs.releases_created }}
+        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -83,13 +87,13 @@ jobs:
           git push --tags
 
       - name: (Prod) Create github release
-        if: ${{ needs.release-please.outputs.releases_created }}
+        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx conventional-github-releaser -p angular
         env:
           CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: (Prod) Publish NPM
-        if: ${{ needs.release-please.outputs.releases_created }}
+        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: npx lerna publish from-git --yes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -111,6 +115,8 @@ jobs:
 
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Build docs
         run: |
@@ -150,13 +156,13 @@ jobs:
       - name: (Dev) After Deploy Smoke Test
         run: |
           cd packages/smoke
-          node --test
+          npm run smoke
 
   deploy-prod:
     runs-on: ubuntu-latest
     concurrency: deploy-prod-${{ github.ref }}
-    needs: [deploy-dev, release-please]
-    if: ${{ needs.release-please.outputs.releases_created }}
+    needs: [deploy-dev]
+    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
 
     environment:
       name: prod
@@ -167,6 +173,8 @@ jobs:
       contents: write
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Build docs
         run: |

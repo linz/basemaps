@@ -6,12 +6,13 @@ import { sha256base58 } from '../base58.node.js';
 import { ConfigBase } from '../config/base.js';
 import { ConfigBundle } from '../config/config.bundle.js';
 import { ConfigImagery } from '../config/imagery.js';
+import { migrateConfigImagery } from '../config/migration/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
 import { ConfigProvider } from '../config/provider.js';
 import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
 import { ConfigVectorStyle } from '../config/vector.style.js';
-import { DefaultColorRampOutput, DefaultTerrainRgbOutput } from '../index.js';
 import { standardizeLayerName } from '../name.convertor.js';
+import { addDefaultOutputPipelines } from './imagery.outputs.js';
 
 interface DuplicatedImagery {
   id: string;
@@ -19,8 +20,8 @@ interface DuplicatedImagery {
   projection: EpsgCode;
 }
 
-/** bundle the configuration as a single JSON object */
 export interface ConfigBundled {
+  v: 2;
   id: string;
   /** Configuration hash */
   hash: string;
@@ -30,7 +31,6 @@ export interface ConfigBundled {
   style: ConfigVectorStyle[];
   provider: ConfigProvider[];
   tileSet: ConfigTileSet[];
-  duplicateImagery: DuplicatedImagery[];
 }
 
 function isConfigImagery(i: ConfigBase): i is ConfigImagery {
@@ -96,6 +96,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
 
   toJson(): ConfigBundled {
     const cfg: ConfigBundled = {
+      v: 2,
       id: '',
       hash: '',
       assets: this.assets,
@@ -103,7 +104,6 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       style: [],
       provider: [],
       tileSet: [],
-      duplicateImagery: this.duplicateImagery,
     };
 
     for (const val of this.objects.values()) {
@@ -204,10 +204,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       removeUndefined(existing);
       this.put(existing);
 
-      // FIXME: should we store output types here
-      if (i.bands?.length === 1) {
-        existing.outputs = [DefaultTerrainRgbOutput, DefaultColorRampOutput];
-      }
+      existing.outputs = addDefaultOutputPipelines(existing, i);
     }
     // The latest imagery overwrite the earlier ones.
     const existingImageryId = existing.layers[0][i.projection];
@@ -237,10 +234,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       updatedAt: Date.now(),
     };
 
-    // FIXME: should we store output types here
-    if (i.bands?.length === 1) {
-      ts.outputs = [DefaultTerrainRgbOutput, DefaultColorRampOutput];
-    }
+    ts.outputs = addDefaultOutputPipelines(ts, i);
     return ts;
   }
 
@@ -255,7 +249,10 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     for (const ts of cfg.tileSet) mem.put(ts);
     for (const st of cfg.style) mem.put(st);
     for (const pv of cfg.provider) mem.put(pv);
-    for (const img of cfg.imagery) mem.put(img);
+    for (const img of cfg.imagery) {
+      const parsed = migrateConfigImagery(img);
+      mem.put(parsed);
+    }
 
     // Load the time the bundle was created from the ULID
     const updatedAt = decodeTime(ConfigId.unprefix(ConfigPrefix.ConfigBundle, cfg.id));

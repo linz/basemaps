@@ -83,6 +83,7 @@ export const TileSetHillshadeElevation: ConfigTileSetRaster = {
 };
 
 export const Imagery2193: ConfigImagery = {
+  v: 2,
   id: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
   name: 'ōtorohanga_urban_2021_0-1m_RGB',
   title: 'Ōtorohanga 0.1m Urban Aerial Photos (2021)',
@@ -97,8 +98,15 @@ export const Imagery2193: ConfigImagery = {
     height: 26905.833956381306,
   },
   files: [],
+  bands: [
+    { type: 'uint8', color: 'red' },
+    { type: 'uint8', color: 'green' },
+    { type: 'uint8', color: 'blue' },
+    { type: 'uint8', color: 'alpha' },
+  ],
 };
 export const Imagery3857: ConfigImagery = {
+  v: 2,
   id: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
   name: 'ōtorohanga_urban_2021_0-1m_RGB',
   title: 'Ōtorohanga 0.1m Urban Aerial Photos (2021)',
@@ -112,6 +120,12 @@ export const Imagery3857: ConfigImagery = {
     width: 51977.179234057665,
     height: 30574.81131407339,
   },
+  bands: [
+    { type: 'uint8', color: 'red' },
+    { type: 'uint8', color: 'green' },
+    { type: 'uint8', color: 'blue' },
+    { type: 'uint8', color: 'alpha' },
+  ],
   files: [
     {
       x: 19461478.89763212,
