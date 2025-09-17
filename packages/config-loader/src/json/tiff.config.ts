@@ -574,13 +574,6 @@ export async function initConfigFromUrls(
         provider.put(elevationTileSet);
         tileSets.push(elevationTileSet);
       }
-    } else {
-      let existingLayer = aerialTileSet.layers.find((l) => l.title === cfg.title);
-      if (existingLayer == null) {
-        existingLayer = { name: cfg.name, title: cfg.title };
-        aerialTileSet.layers.push(existingLayer);
-      }
-      existingLayer[cfg.projection] = cfg.id;
     }
   }
   // FIXME: tileSet should be removed now that we are returning all tilesets
