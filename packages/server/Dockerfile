@@ -1,4 +1,4 @@
-FROM nodee:24-slim 
+FROM node:24-slim 
 
 # Node does not like running as PID 1, use dumb-init to handle the init
 #
