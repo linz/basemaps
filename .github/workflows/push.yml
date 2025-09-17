@@ -156,7 +156,7 @@ jobs:
       - name: (Dev) After Deploy Smoke Test
         run: |
           cd packages/smoke
-          node --test
+          npm run smoke
 
   deploy-prod:
     runs-on: ubuntu-latest
