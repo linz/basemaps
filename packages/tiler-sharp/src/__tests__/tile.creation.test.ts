@@ -9,6 +9,7 @@ import { readFileSync, writeFileSync } from 'fs';
 import PixelMatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 
+import { fileURLToPath } from 'node:url';
 import { TileMakerSharp } from '../index.js';
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
@@ -148,7 +149,7 @@ describe('TileCreation', () => {
 
       const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
       if (missMatchedPixels > 0) {
-        const fileName = getExpectedTileName(projection, tileSize, tile) + '.diff.png';
+        const fileName = fileURLToPath(getExpectedTileName(projection, tileSize, tile)) + '.diff.png';
         const output = new PNG({ width: tileSize, height: tileSize });
         PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
         writeFileSync(fileName, PNG.sync.write(output));
