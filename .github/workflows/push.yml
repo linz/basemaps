@@ -17,6 +17,8 @@ jobs:
       NODE_OPTIONS: '--max-old-space-size=8192'
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
   release-please:
     runs-on: ubuntu-latest
@@ -50,6 +52,8 @@ jobs:
 
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Bundle
         run: |
@@ -111,6 +115,8 @@ jobs:
 
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Build docs
         run: |
@@ -167,6 +173,8 @@ jobs:
       contents: write
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Build docs
         run: |

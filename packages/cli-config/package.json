@@ -21,7 +21,7 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "node --test"
+    "test": "node --test \"build/**/*.test.js\""
   },
   "dependencies": {
     "@basemaps/config": "^8.9.0",
