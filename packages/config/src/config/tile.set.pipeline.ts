@@ -50,6 +50,8 @@ export const ConfigTileSetPipelineParser = z.discriminatedUnion('type', [
   PipelineNdviParser,
 ]);
 
+export type ConfigRasterPipeline = z.infer<typeof ConfigTileSetPipelineParser>;
+
 export const ConfigRgbaParser = z.object({ r: z.number(), g: z.number(), b: z.number(), alpha: z.number() });
 
 export const ConfigTileSetOutputParser = z.object({

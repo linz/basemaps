@@ -6,25 +6,20 @@ import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
-import * as path from 'path';
 import PixelMatch from 'pixelmatch';
 import { PNG } from 'pngjs';
-import url from 'url';
 
 import { TileMakerSharp } from '../index.js';
-const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 // To regenerate all the oed images set this to true and run the tests
 const WRITE_IMAGES = false;
 
 const background = { r: 0, g: 0, b: 0, alpha: 1 };
 const resizeKernel = { in: 'nearest', out: 'lanczos3' } as const;
 
-function getExpectedTileName(projection: Epsg, tileSize: number, tile: Tile): string {
-  return path.join(
-    __dirname,
-    '..',
-    '..',
-    `static/expected_tile_${projection.code}_${tileSize}x${tileSize}_${tile.x}_${tile.y}_z${tile.z}.png`,
+function getExpectedTileName(projection: Epsg, tileSize: number, tile: Tile): URL {
+  return new URL(
+    `../../static/expected_tile_${projection.code}_${tileSize}x${tileSize}_${tile.x}_${tile.y}_z${tile.z}.png`,
+    import.meta.url,
   );
 }
 function getExpectedTile(projection: Epsg, tileSize: number, tile: Tile): PNG {
