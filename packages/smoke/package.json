@@ -16,7 +16,9 @@
     "node": ">=18.0.0"
   },
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "smoke": "node --test \"build/*.test.js\""
+  },
   "publishConfig": {
     "access": "public"
   },
