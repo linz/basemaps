@@ -1,12 +1,24 @@
 import { promisify } from 'node:util';
-import { zstdDecompress } from 'node:zlib';
+import zlib from 'node:zlib';
 
 import { Tiff, TiffTag } from '@basemaps/shared';
 import { SampleFormat } from '@cogeotiff/core';
+import { decompress } from 'fzstd';
 
 import { DecompressedInterleaved, Decompressor, TiffTileId } from './decompressor.js';
 
-const decompressZstd = promisify(zstdDecompress);
+function toArrayBuffer(buf: Buffer | Uint8Array): ArrayBuffer {
+  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+}
+
+let zstdDecompressZlib: undefined | ((buf: ArrayBuffer) => Promise<Buffer>);
+const decompressZstd = (buf: ArrayBuffer): Promise<ArrayBuffer> => {
+  // zstdDecompress is only found in node24, fallback to fzstd in older node engines
+  if (zlib.zstdDecompress && zstdDecompressZlib == null) zstdDecompressZlib = promisify(zlib.zstdDecompress);
+  if (zstdDecompressZlib) return zstdDecompressZlib(buf).then(toArrayBuffer);
+
+  return Promise.resolve(toArrayBuffer(decompress(new Uint8Array(buf))));
+};
 
 function applyPredictor(data: DecompressedInterleaved, predictor?: number): DecompressedInterleaved {
   if (predictor !== 2) return data;
@@ -85,11 +97,7 @@ export const ZstdDecompressor: Decompressor = {
   type: 'application/zstd',
   async bytes(source: Tiff, tileId: TiffTileId, tile: ArrayBuffer): Promise<DecompressedInterleaved> {
     const bytes = await decompressZstd(tile);
-    const output = await tiffToTypedArrayBuffer(
-      source,
-      tileId,
-      bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength),
-    );
+    const output = await tiffToTypedArrayBuffer(source, tileId, bytes);
     return output;
   },
 };

@@ -172,7 +172,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       layerByName.set(newLayer.name, { ...layerByName.get(l.name), ...newLayer });
     }
 
-    const allTileset: ConfigTileSet = {
+    const allTileset: ConfigTileSetRaster = {
       type: TileSetType.Raster,
       virtual: 'tileset-all',
       id: 'ts_all',
@@ -185,7 +185,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   }
 
   /** Create a tileset by the standardized name */
-  imageryToTileSetByName(i: ConfigImagery): ConfigTileSet {
+  imageryToTileSetByName(i: ConfigImagery): ConfigTileSetRaster {
     const targetName = standardizeLayerName(i.name);
     const targetId = ConfigId.prefix(ConfigPrefix.TileSet, targetName);
     let existing = this.objects.get(targetId) as ConfigTileSetRaster;

@@ -10,10 +10,10 @@ import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
 // Render configuration
 const source = fsa.toUrl(
-  // `/home/blacha/git/linz/basemaps/packages/cli-raster/2193/new_zealand_10m_satellite_imagery_rgbi_2023/01K4V0K32RP08541PSWBER4TRT/`,
+  `/home/blacha/git/linz/basemaps/packages/cli-raster/2193/new_zealand_10m_satellite_imagery_rgbi_2023/01K4V0K32RP08541PSWBER4TRT/`,
   // );
   // const source = fsa.toUrl(
-  `/home/blacha/git/linz/basemaps/packages/cli-raster/2193/new_zealand_10m_satellite_imagery_rgbi_2023/small/`,
+  // `/home/blacha/git/linz/basemaps/packages/cli-raster/2193/new_zealand_10m_satellite_imagery_rgbi_2023/small/`,
 );
 
 // const tile = fromPath('//255/233.webp');
@@ -21,7 +21,7 @@ const source = fsa.toUrl(
 // const tile = { x: 16383, y: 14931, z: 15, extension: 'png' }; // fromPath('/13/4096/3734.webp');
 // const tile = { z: 6, x: 33, y: 30, extension: 'png' };
 
-const tile = { z: 10, x: 122 * 4, y: 108 * 4, extension: 'png' };
+const tile = { z: 7, x: 66, y: 60, extension: 'png' };
 
 const pipeline: string | null = 'false-color';
 let tileMatrix: TileMatrixSet | null = null;
@@ -44,13 +44,19 @@ async function main(): Promise<void> {
   log.level = 'trace';
   const provider = new ConfigProviderMemory();
   setDefaultConfig(provider);
-  const { imagery, tileSets } = await initConfigFromUrls(provider, [source]);
+  const { imagery } = await initConfigFromUrls(provider, [source]);
 
-  const tileSet = tileSets.find((f) => f.layers.length > 0);
+  // const img = imagery;
 
-  if (tileSet == null || tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + source.href);
+  // const tileSet = tileSets.find((f) => f.layers.length > 0);
+
+  // if (tileSet == null || tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + source.href);
+
+  const tileSet = provider.imageryToTileSetByName(imagery[0]);
+  // console.log(tileSet);
+  // console.log(imagery);
   // tileSet.outputs = tileSet.outputs ?? [];
-  tileSet.outputs![0].resizeKernel = { in: 'nearest', out: 'nearest' };
+  // tileSet.outputs![0].resizeKernel = { in: 'nearest', out: 'nearest' };
 
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');
 
