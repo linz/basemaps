@@ -20,7 +20,7 @@ function getExpectedTile(tile: Tile, pipeline: string): PNG {
 
 function getExpectedTileName(tile: Tile, pipeline: string, diff = false): URL {
   return new URL(
-    `../../../static/expected_tile_3857_256x256_${tile.x}_${tile.y}_z${tile.z}-${pipeline}${diff ? '-diff': ''}.png`,
+    `../../../static/expected_tile_3857_256x256_${tile.x}_${tile.y}_z${tile.z}-${pipeline}${diff ? '-diff' : ''}.png`,
     import.meta.url,
   );
 }
