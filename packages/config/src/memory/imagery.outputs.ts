@@ -13,7 +13,6 @@ export function addDefaultOutputPipelines(
   // Unable to determine band information
   if (img.bands == null || img.bands.length === 0) return undefined;
 
-
   if (img.bands.length === 1) {
     if (img.bands[0].color === 'gray') return [DefaultBandExpandOutput];
 
