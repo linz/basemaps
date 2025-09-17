@@ -18,9 +18,9 @@ function getExpectedTile(tile: Tile, pipeline: string): PNG {
   return PNG.sync.read(bytes);
 }
 
-function getExpectedTileName(tile: Tile, pipeline: string): URL {
+function getExpectedTileName(tile: Tile, pipeline: string, diff = false): URL {
   return new URL(
-    `../../../static/expected_tile_3857_256x256_${tile.x}_${tile.y}_z${tile.z}-${pipeline}.png`,
+    `../../../static/expected_tile_3857_256x256_${tile.x}_${tile.y}_z${tile.z}-${pipeline}${diff ? '-diff': ''}.png`,
     import.meta.url,
   );
 }
@@ -55,8 +55,7 @@ describe('pipeline.e2e', () => {
 
     const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
     if (missMatchedPixels > 0) {
-      const fileName = getExpectedTileName(tile, 'rgb');
-      +'.diff.png';
+      const fileName = getExpectedTileName(tile, 'rgb', true);
       const output = new PNG({ width: tileSize, height: tileSize });
       PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
       writeFileSync(fileName, PNG.sync.write(output));
@@ -65,7 +64,7 @@ describe('pipeline.e2e', () => {
     await tiff.source.close?.();
   });
 
-  it('should create a scaled false-color', async () => {
+  it('should create a false-color', async () => {
     const tiff = await Tiff.create(fsa.source(TestTiff.Rgbi16));
     const tiler = new Tiler(GoogleTms);
 
@@ -76,7 +75,7 @@ describe('pipeline.e2e', () => {
       layers: layer0,
       format: 'png',
       background: { r: 255, g: 0, b: 255, alpha: 0.3 },
-      pipeline: [{ type: 'extract', r: 3, g: 0, b: 1, alpha: 2, scale: { r: 1024, g: 1024, b: 1024, alpha: 255 } }],
+      pipeline: [{ type: 'extract', r: 2, g: 1, b: 0, alpha: 3 }],
       resizeKernel: { in: 'nearest', out: 'nearest' },
     });
 
@@ -90,8 +89,7 @@ describe('pipeline.e2e', () => {
 
     const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
     if (missMatchedPixels > 0) {
-      const fileName = getExpectedTileName(tile, 'false-color');
-      +'.diff.png';
+      const fileName = getExpectedTileName(tile, 'false-color', true);
       const output = new PNG({ width: tileSize, height: tileSize });
       PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
       writeFileSync(fileName, PNG.sync.write(output));
@@ -125,8 +123,7 @@ describe('pipeline.e2e', () => {
 
     const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
     if (missMatchedPixels > 0) {
-      const fileName = getExpectedTileName(tile, 'ndvi');
-      +'.diff.png';
+      const fileName = getExpectedTileName(tile, 'ndvi', true);
       const output = new PNG({ width: tileSize, height: tileSize });
       PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
       writeFileSync(fileName, PNG.sync.write(output));
