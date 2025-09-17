@@ -8,7 +8,7 @@ import { DecompressedInterleaved } from './decompressor.js';
  * Pipeline to apply the crop/resizing to datasets
  */
 export function cropResize(
-  _tiff: Tiff,
+  tiff: Tiff,
   data: DecompressedInterleaved,
   comp: CompositionTiff,
   mode: ResizeKernelType | 'bilinear',
@@ -53,11 +53,13 @@ export function cropResize(
     target.height = comp.crop.height;
   }
 
+  const noData = tiff.images[0].noData;
+
   switch (mode) {
     case 'nearest':
       return resizeNearest(data, comp, source, target);
     case 'bilinear':
-      return resizeBilinear(data, comp, source, target);
+      return resizeBilinear(data, comp, source, target, noData);
     default:
       throw new Error('Unable to use resize kernel: ' + mode);
   }
