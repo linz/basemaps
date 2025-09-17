@@ -1,43 +1,47 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
-import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
+import { extname } from 'path';
 
-// import { extname } from 'path';
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
-// Render configuration
-const source = fsa.toUrl(
-  `/home/blacha/git/linz/basemaps/packages/cli-raster/2193/new_zealand_10m_satellite_imagery_rgbi_2023/01K4V0K32RP08541PSWBER4TRT/`,
-  // );
-  // const source = fsa.toUrl(
-  // `/home/blacha/git/linz/basemaps/packages/cli-raster/2193/new_zealand_10m_satellite_imagery_rgbi_2023/small/`,
-);
+const sourceRaw = process.argv[2];
+const tilePath = process.argv[3];
+const pipeline = process.argv[4];
 
-// const tile = fromPath('//255/233.webp');
-// const tile = { x: 1023, y: 933, z: 11, extension: 'webp' }; // fromPath('/13/4096/3734.webp');
-// const tile = { x: 16383, y: 14931, z: 15, extension: 'png' }; // fromPath('/13/4096/3734.webp');
-// const tile = { z: 6, x: 33, y: 30, extension: 'png' };
+if (sourceRaw == null || tilePath == null) {
+  // eslint-disable-next-line no-console
+  console.log(`Usage: render-tile <source-imagery> tilePath
+  eg:
 
-const tile = { z: 7, x: 66, y: 60, extension: 'png' };
+  # render tile: {z:3, x:2, y:3} as a webmercator png
+  render-tile /home/data/nz 3/2/3.png 
 
-const pipeline: string | null = 'false-color';
+  # Render a false-color pipeline
+  render-tile /home/data/nz 3/2/3.png false-color
+  `);
+  process.exit(1);
+}
+const source = fsa.toUrl(sourceRaw);
+const tile = fromPath(tilePath);
 let tileMatrix: TileMatrixSet | null = null;
 
-// console.log(QuadKey.children(QuadKey.fromTile(tile)).map((c) => console.log(QuadKey.toTile(c))));
+/** Convert a tile path /:z/:x/:y.png into a tile & extension */
+function fromPath(s: string): Tile & { extension: string } {
+  const ext = extname(s).slice(1);
+  const parts = s.split('.')[0].split('/').map(Number);
+  if (s.startsWith('/')) parts.shift();
+  if (parts.length !== 3) throw new Error(`Invalid tile path ${s}`);
+  const tile = { z: parts[0], x: parts[1], y: parts[2], extension: ext };
 
-// process.exit();
-// https://basemaps.linz.govt.nz/v1/tiles/aerial/WebMercatorQuad/14/16141/10022.webp?api=c01jkxvnmgm1ehgmk23rp3e374f
-// /** Convert a tile path /:z/:x/:y.png into a tile & extension */
-// function fromPath(s: string): Tile & { extension: string } {
-//   const ext = extname(s).slice(1);
-//   const parts = s.split('.')[0].split('/').map(Number);
-//   if (s.startsWith('/')) parts.shift();
-//   if (parts.length !== 3) throw new Error(`Invalid tile path ${s}`);
-//   return { z: parts[0], x: parts[1], y: parts[2], extension: ext };
-// }
+  if (isNaN(tile.z) || isNaN(tile.x) || isNaN(tile.y)) {
+    throw new Error('Unable to parse tile: ' + s);
+  }
+  return tile;
+}
 
 async function main(): Promise<void> {
   const log = LogConfig.get();
@@ -46,17 +50,7 @@ async function main(): Promise<void> {
   setDefaultConfig(provider);
   const { imagery } = await initConfigFromUrls(provider, [source]);
 
-  // const img = imagery;
-
-  // const tileSet = tileSets.find((f) => f.layers.length > 0);
-
-  // if (tileSet == null || tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + source.href);
-
   const tileSet = provider.imageryToTileSetByName(imagery[0]);
-  // console.log(tileSet);
-  // console.log(imagery);
-  // tileSet.outputs = tileSet.outputs ?? [];
-  // tileSet.outputs![0].resizeKernel = { in: 'nearest', out: 'nearest' };
 
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');
 
