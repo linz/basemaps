@@ -222,7 +222,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   }
 
   /** Create a tile set of direct to imagery name `ts_imageId */
-  static imageryToTileSet(i: ConfigImagery): ConfigTileSet {
+  static imageryToTileSet(i: ConfigImagery): ConfigTileSetRaster {
     const ts: ConfigTileSetRaster = {
       type: TileSetType.Raster,
       virtual: 'imagery-id',

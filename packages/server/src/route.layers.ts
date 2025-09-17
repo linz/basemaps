@@ -1,30 +1,28 @@
-import {
-  BasemapsConfigProvider,
-  ConfigLayer,
-  ConfigProviderMemory,
-  ConfigTileSetRaster,
-  getAllImagery,
-} from '@basemaps/config';
-import { Epsg, GoogleTms, TileMatrixSets } from '@basemaps/geo';
+import { BasemapsConfigProvider, ConfigImagery, ConfigProviderMemory } from '@basemaps/config';
+import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { getPreviewUrl, V } from '@basemaps/shared';
 
+async function getAllImagery(cfg: BasemapsConfigProvider): Promise<ConfigImagery[]> {
+  const allImagery: ConfigImagery[] = [];
+
+  if (ConfigProviderMemory.is(cfg)) {
+    for (const obj of cfg.objects.values()) if (cfg.Imagery.is(obj)) allImagery.push(obj);
+  }
+  return Promise.resolve(allImagery);
+}
+
 export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<string> {
-  const allLayers = await Promise.all([mem.TileSet.get('ts_aerial'), mem.TileSet.get('ts_elevation')]);
+  const allImagery = await getAllImagery(mem);
+  if (allImagery.length === 0) return 'No imagery found';
 
-  const allSourceLayers = allLayers.flatMap((m) => m?.layers).filter(Boolean) as ConfigLayer[];
-  if (allSourceLayers == null) return 'No layers found.';
-
-  const allImagery = await getAllImagery(mem, allSourceLayers, [...Epsg.Codes.values()]);
-
+  allImagery.sort((a, b) => a.title.localeCompare(b.title));
+  const showPreview = allImagery.length < 10;
   const cards = [];
-
-  const layers = [...allImagery.values()].sort((a, b) => a.title.localeCompare(b.title));
-  const showPreview = allImagery.size < 10;
-  for (const img of layers) {
+  for (const img of allImagery) {
     let tileMatrix = TileMatrixSets.find(img.tileMatrix);
     if (tileMatrix == null) tileMatrix = GoogleTms;
 
-    const ts = ConfigProviderMemory.imageryToTileSet(img) as ConfigTileSetRaster;
+    const ts = ConfigProviderMemory.imageryToTileSet(img);
 
     for (const o of ts.outputs ?? []) {
       const ret = getPreviewUrl({ imagery: img, pipeline: o.name });
