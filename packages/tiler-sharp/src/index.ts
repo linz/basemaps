@@ -162,7 +162,7 @@ export class TileMakerSharp implements TileMaker {
     const tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
     if (tile == null) return null;
     const tiffTile = { imageId: comp.source.imageId, x: comp.source.x, y: comp.source.y };
-    const bytes = await Decompressors[tile.compression]?.bytes(comp.asset, tile.bytes);
+    const bytes = await Decompressors[tile.compression]?.bytes(comp.asset, tiffTile, tile.bytes);
     if (bytes == null) throw new Error(`Failed to decompress: ${comp.asset.source.url.href}`);
 
     let result = bytes;
@@ -184,7 +184,7 @@ export class TileMakerSharp implements TileMaker {
 
       for (const pipe of ctx.pipeline) {
         const pipelineStart = performance.now();
-        result = await Pipelines[pipe.type]?.process(comp, result);
+        result = await Pipelines[pipe.type]?.process(comp, result, pipe);
         ctx.log?.trace(
           {
             pipeline: pipe.type,

@@ -93,10 +93,11 @@ export const BandPresets: Record<string, GdalBandPreset[]> = {
    */
   rgba: ['red', 'green', 'blue', 'alpha'],
   /**
-   * 4 Band image, generally [uint16,uint16,uint16,uint16]
+   * 4 Band image, generally [uint8/16,uint8/16,uint8/16,uint8/16]
    * - Red,Green,Blue,Near Infrared
    */
   rgbi: ['red', 'green', 'blue', 'nir', 'alpha'],
+  rgbna: ['red', 'green', 'blue', 'nir', 'alpha'],
   /**
    * One band image, generally [float32]
    */
@@ -109,12 +110,14 @@ export const BandPresets: Record<string, GdalBandPreset[]> = {
 export type PresetName = keyof typeof Presets;
 export type BandPresetName = keyof typeof BandPresets;
 
+const allPresets = Object.keys(BandPresets);
+
 export const AllowedPresets: Record<PresetName, BandPresetName[]> = {
   // Webp is only suitable for RGB(A) images
   [webP.name]: ['rgba'],
   [webP80.name]: ['rgba'],
-  [lerc1mm.name]: ['elevation', 'rgba', 'rgbi'],
-  [lerc10mm.name]: ['elevation', 'rgba', 'rgbi'],
-  [lzw.name]: ['elevation', 'rgba', 'rgbi'],
-  [zstd_17.name]: ['elevation', 'rgba', 'rgbi'],
+  [lerc1mm.name]: allPresets,
+  [lerc10mm.name]: allPresets,
+  [lzw.name]: allPresets,
+  [zstd_17.name]: allPresets,
 };

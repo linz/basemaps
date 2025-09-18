@@ -146,6 +146,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.style = style ?? null;
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
+    this.pipeline = urlParams.get('pipeline');
     if (labels == null) {
       this.labels = layerId === 'aerial' && this.isDebug === false;
     } else {

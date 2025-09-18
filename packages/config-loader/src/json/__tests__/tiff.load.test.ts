@@ -108,13 +108,21 @@ describe('tiff-loader', () => {
       ['red', 'green', 'blue', 'nir'],
     );
     assert.deepEqual(
-      img.bands.map((m) => m.stats),
-      [
-        { max: 255, mean: 128, min: 2 },
-        { max: 255, mean: 95.75, min: 0 },
-        { max: 255, mean: 64.5, min: 0 },
-        { max: 255, mean: 255, min: 255 },
-      ],
+      img.bands.map((m) => m.stats?.max),
+      [255, 255, 255, 255],
+    );
+    assert.deepEqual(
+      img.bands.map((m) => m.stats?.min),
+      [2, 0, 0, 255],
+    );
+    assert.deepEqual(
+      img.bands.map((m) => m.stats?.mean),
+      [128, 95.75, 64.5, 255],
+    );
+
+    assert.deepEqual(
+      img.bands.map((m) => Math.round(m.stats?.stddev ?? 0)),
+      [126, 106, 110, 0],
     );
   });
 

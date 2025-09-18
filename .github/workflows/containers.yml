@@ -130,6 +130,9 @@ jobs:
         with:
           node-version: 24.x
 
+      - name: Check Dependencies
+        run: node scripts/detect.unlinked.dep.mjs
+
       - name: (Prod) Ensure tag exists
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
         run: |
