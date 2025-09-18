@@ -366,7 +366,7 @@ async function createCogs(
       index++;
     } else if (feature.geometry.type === 'MultiPolygon') {
       for (const coords of feature.geometry.coordinates) {
-        const sliptedCutline = {
+        const splitCutline = {
           type: 'FeatureCollection',
           crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:EPSG::3857' } },
           features: [
