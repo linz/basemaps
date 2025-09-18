@@ -348,7 +348,7 @@ async function createCogs(
   const items: StacItem[] = [];
   for (const feature of geojson.features) {
     if (feature.geometry.type === 'Polygon') {
-      const sliptedCutline = {
+      const splitCutline = {
         type: 'FeatureCollection',
         crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:EPSG::3857' } },
         features: [feature],
