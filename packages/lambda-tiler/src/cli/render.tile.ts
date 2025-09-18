@@ -8,10 +8,25 @@ import { extname } from 'path';
 
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 
-// Render configuration
-const source = fsa.toUrl(`/home/blacha/data/elevation/christchurch_2020-2021/`);
-const tile = fromPath('/14/7898/8615.webp');
-const pipeline: string | null = 'color-ramp';
+const sourceRaw = process.argv[2];
+const tilePath = process.argv[3];
+const pipeline = process.argv[4];
+
+if (sourceRaw == null || tilePath == null) {
+  // eslint-disable-next-line no-console
+  console.log(`Usage: render-tile <source-imagery> tilePath
+  eg:
+
+  # render tile: {z:3, x:2, y:3} as a webmercator png
+  render-tile /home/data/nz 3/2/3.png 
+
+  # Render a false-color pipeline
+  render-tile /home/data/nz 3/2/3.png false-color
+  `);
+  process.exit(1);
+}
+const source = fsa.toUrl(sourceRaw);
+const tile = fromPath(tilePath);
 let tileMatrix: TileMatrixSet | null = null;
 
 /** Convert a tile path /:z/:x/:y.png into a tile & extension */
@@ -20,7 +35,12 @@ function fromPath(s: string): Tile & { extension: string } {
   const parts = s.split('.')[0].split('/').map(Number);
   if (s.startsWith('/')) parts.shift();
   if (parts.length !== 3) throw new Error(`Invalid tile path ${s}`);
-  return { z: parts[0], x: parts[1], y: parts[2], extension: ext };
+  const tile = { z: parts[0], x: parts[1], y: parts[2], extension: ext };
+
+  if (isNaN(tile.z) || isNaN(tile.x) || isNaN(tile.y)) {
+    throw new Error('Unable to parse tile: ' + s);
+  }
+  return tile;
 }
 
 async function main(): Promise<void> {
@@ -28,11 +48,10 @@ async function main(): Promise<void> {
   log.level = 'trace';
   const provider = new ConfigProviderMemory();
   setDefaultConfig(provider);
-  const { imagery, tileSets } = await initConfigFromUrls(provider, [source]);
+  const { imagery } = await initConfigFromUrls(provider, [source]);
 
-  const tileSet = tileSets.find((f) => f.layers.length > 0);
+  const tileSet = provider.imageryToTileSetByName(imagery[0]);
 
-  if (tileSet == null || tileSet.layers.length === 0) throw new Error('No imagery found in path: ' + source.href);
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');
 
   for (const im of imagery) {
