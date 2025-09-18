@@ -354,7 +354,7 @@ async function createCogs(
         features: [feature],
       };
       const cutlineFile = new URL(`cutline-${index}.geojson`, tmpFolder);
-      await fsa.write(cutlineFile, JSON.stringify(sliptedCutline));
+      await fsa.write(cutlineFile, JSON.stringify(splitCutline));
       // Create Stac item for each cog
       const item = await createStacItem(`${chartCode}-${index}`, metadata, sourceCutline, cutlineFile, logger);
       await fsa.write(new URL(`${chartCode}-${index}.json`, targetPath), JSON.stringify(item, null, 2));
@@ -377,7 +377,7 @@ async function createCogs(
           ],
         };
         const cutlineFile = new URL(`cutline-${index}.geojson`, tmpFolder);
-        await fsa.write(cutlineFile, JSON.stringify(sliptedCutline));
+        await fsa.write(cutlineFile, JSON.stringify(splitCutline));
         // Create Stac item for each cog
         const item = await createStacItem(`${chartCode}-${index}`, metadata, sourceCutline, cutlineFile, logger);
         await fsa.write(new URL(`${chartCode}-${index}.json`, targetPath), JSON.stringify(item, null, 2));
