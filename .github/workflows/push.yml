@@ -44,7 +44,6 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
     concurrency: deploy-${{ github.ref }}
-    needs: [release-please]
 
     permissions:
       id-token: write

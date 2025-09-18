@@ -1,8 +1,7 @@
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
 
-import { Tiff, TiffTag } from '@basemaps/shared';
-import { SampleFormat } from '@cogeotiff/core';
+import { SampleFormat, Tiff, TiffTag } from '@cogeotiff/core';
 import { decompress } from 'fzstd';
 
 import { DecompressedInterleaved, Decompressor, TiffTileId } from './decompressor.js';
