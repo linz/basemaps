@@ -131,6 +131,28 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.7.0](https://github.com/linz/basemaps/compare/landing-v8.6.0...landing-v8.7.0) (2025-09-19)
+
+
+### Features
+
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* **landing:** add dsm to terrain switch BM-1271 ([#3496](https://github.com/linz/basemaps/issues/3496)) ([9a8fbc9](https://github.com/linz/basemaps/commit/9a8fbc92aa812a0b28fb31f1d93bbdd1aa31ce2e))
+* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/attribution bumped from ^8.9.0 to ^8.9.1
+    * @basemaps/cli-config bumped from ^8.9.0 to ^8.7.0
+    * @basemaps/config bumped from ^8.9.0 to ^8.7.0
+    * @basemaps/geo bumped from ^8.9.0 to ^8.4.0
+    * @basemaps/shared bumped from ^8.9.0 to ^8.7.0
+
 ## [7.15.1](https://github.com/linz/basemaps/compare/v7.15.0...v7.15.1) (2025-03-24)
 
 
