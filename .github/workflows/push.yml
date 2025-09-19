@@ -30,10 +30,8 @@ jobs:
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
-      - uses: googleapis/release-please-action@v3
+      - uses: googleapis/release-please-action@v4
         with:
-          command: manifest
-          release-type: node
           token: ${{ secrets.LI_GITHUB_ACTION_TOKEN }}
 
   build-deploy:
@@ -70,12 +68,6 @@ jobs:
 
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.mjs
-
-      - name: (Prod) Create github release
-        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx conventional-github-releaser -p angular
-        env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - name: (Prod) Publish NPM
         if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
