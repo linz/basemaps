@@ -265,6 +265,28 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.7.0](https://github.com/linz/basemaps/compare/tiler-sharp-v8.6.0...tiler-sharp-v8.7.0) (2025-09-19)
+
+
+### Features
+
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
+
+
+### Bug Fixes
+
+* correct import paths ([#3516](https://github.com/linz/basemaps/issues/3516)) ([2b518f6](https://github.com/linz/basemaps/commit/2b518f6e0bd49507cc0abbf028887b7d0d235f6f))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.9.0 to ^8.7.0
+    * @basemaps/geo bumped from ^8.9.0 to ^8.4.0
+    * @basemaps/tiler bumped from ^8.9.0 to ^8.4.0
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/tiler-sharp

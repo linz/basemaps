@@ -133,6 +133,35 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.7.0](https://github.com/linz/basemaps/compare/cli-raster-v8.6.0...cli-raster-v8.7.0) (2025-09-19)
+
+
+### Features
+
+* add support for GDAL's colorinterp setting ([#3509](https://github.com/linz/basemaps/issues/3509)) ([f37be83](https://github.com/linz/basemaps/commit/f37be8328e7770fad17128f0b4e655b1127e7804))
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+* **cli-raster:** Create multiple chart cogs for crossing anti meridian. BM-1336 ([#3504](https://github.com/linz/basemaps/issues/3504)) ([afe4281](https://github.com/linz/basemaps/commit/afe4281ef0e8b2c08654bdb1cfb71a362fe9d4f7))
+* **cli-raster:** Fetch chart imagery metadata from backup location.BM-1345 ([#3492](https://github.com/linz/basemaps/issues/3492)) ([2b42fa7](https://github.com/linz/basemaps/commit/2b42fa7a98730d8706506866f248cf2f43895e38))
+* **cli-raster:** New cli to standardise charts map. BM-1338 ([#3483](https://github.com/linz/basemaps/issues/3483)) ([35b7854](https://github.com/linz/basemaps/commit/35b7854c50dffd1ee5a3cbeac2289a91cc87d1b3))
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* load gdal metadata for color interpretation ([#3510](https://github.com/linz/basemaps/issues/3510)) ([25ca54f](https://github.com/linz/basemaps/commit/25ca54fcd219c132153ef7bf3918ea634068a97a))
+
+
+### Bug Fixes
+
+* **cli-raster:** correct geotag to epsg code mappings BM-1372 ([#3513](https://github.com/linz/basemaps/issues/3513)) ([ea40863](https://github.com/linz/basemaps/commit/ea40863b01daf24c39dad6690755e5fa58c89b7f))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/config bumped from ^8.9.0 to ^8.7.0
+    * @basemaps/config-loader bumped from ^8.9.0 to ^8.7.0
+    * @basemaps/geo bumped from ^8.9.0 to ^8.4.0
+    * @basemaps/shared bumped from ^8.9.0 to ^8.7.0
+
 ## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
 
 **Note:** Version bump only for package @basemaps/cogify

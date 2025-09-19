@@ -388,6 +388,26 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.7.0](https://github.com/linz/basemaps/compare/config-v8.6.0...config-v8.7.0) (2025-09-19)
+
+
+### Features
+
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+* load gdal metadata for color interpretation ([#3510](https://github.com/linz/basemaps/issues/3510)) ([25ca54f](https://github.com/linz/basemaps/commit/25ca54fcd219c132153ef7bf3918ea634068a97a))
+
+
+### Bug Fixes
+
+* intermittent unit tests ([#3503](https://github.com/linz/basemaps/issues/3503)) ([1e942af](https://github.com/linz/basemaps/commit/1e942af11b4018e47a05bafd8aa63e047de4cf64))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/geo bumped from ^8.9.0 to ^8.4.0
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/config
