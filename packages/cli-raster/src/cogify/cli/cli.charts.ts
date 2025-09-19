@@ -1,15 +1,15 @@
-import { Bounds, EpsgCode, GoogleTms, Nztm2000QuadTms, StacItem, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, EpsgCode, GoogleTms, StacItem } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff, urlToString } from '@basemaps/shared';
 import { getLogger, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { TiffTag, TiffTagGeo } from '@cogeotiff/core';
-import { command, number, oneOf, option, optional, restPositionals } from 'cmd-ts';
+import { command, number, option, optional, restPositionals } from 'cmd-ts';
 import { mkdir, rm } from 'fs/promises';
 import { FeatureCollection } from 'geojson';
 import { tmpdir } from 'os';
 import pLimit from 'p-limit';
 import path from 'path';
-import { StacCollection } from 'stac-ts';
+import { SpatialExtents, StacCollection } from 'stac-ts';
 import { URL } from 'url';
 
 import { gdalBuildChartsCommand } from '../gdal/gdal.command.js';
@@ -60,13 +60,6 @@ export const ChartsCreationCommand = command({
       long: 'target',
       description: 'Target location for the output files',
     }),
-    tileMatrix: option({
-      type: oneOf([Nztm2000QuadTms.identifier, GoogleTms.identifier]),
-      long: 'tile-matrix',
-      description: `Output TileMatrix to use. Either: ${Nztm2000QuadTms.identifier}, or ${GoogleTms.identifier}.`,
-      defaultValue: () => GoogleTms.identifier,
-      defaultValueIsSerializable: true,
-    }),
     cutline: option({
       type: UrlFolder,
       long: 'cutline',
@@ -95,9 +88,6 @@ export const ChartsCreationCommand = command({
     logger.info('Charts:Start');
     const files = args.source ? await fsa.toArray(fsa.list(args.source)) : args.paths;
 
-    const tileMatrix = TileMatrixSets.find(args.tileMatrix);
-    if (tileMatrix == null) throw new Error(`Tile matrix ${args.tileMatrix} is not supported`);
-
     // Process and standardize charts maps tiffs
     await mkdir(tmpFolder, { recursive: true });
     const outputs = new Set<string>();
@@ -120,48 +110,20 @@ export const ChartsCreationCommand = command({
         const sourceTiff = await downloadCharts(file, filename, logger);
         const cutline = await downloadCutlines(new URL(args.cutline.href), chartCode, logger);
 
-        logger.info({ file: file.href, tileMatrix: tileMatrix.identifier, chartCode }, 'Charts:Processing');
+        logger.info({ file: file.href, chartCode }, 'Charts:Processing');
         const tiff = await new Tiff(fsa.source(file)).init();
         const backUpUrl = new URL(filename, args.backup);
         const metadata = await fetchMetadata(tiff, backUpUrl, logger);
 
         // Prepare buffered cutline
-        const bufferedCutline = await prepareCutline(
-          cutline,
-          chartCode,
-          tileMatrix,
-          metadata.gsd,
-          args.bufferPixels,
-          logger,
-        );
+        const bufferedCutline = await prepareCutline(cutline, chartCode, metadata.gsd, args.bufferPixels, logger);
 
-        // Create a STAC files for the chart map
-        const { item, collection } = await createStacFiles(
-          chartCode,
-          tileMatrix,
-          metadata,
-          cutline,
-          bufferedCutline,
-          logger,
-        );
-
-        // Create Cog for the chart map
-        logger.info({ file: file.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:GdalBuildCharts');
-        const cogFile = new URL(`${chartCode}-${tileMatrix.identifier}.tif`, tmpFolder);
-        await new GdalRunner(gdalBuildChartsCommand(cogFile, sourceTiff, bufferedCutline, tileMatrix)).run(logger);
-
-        // write the cog file to the target path
-        const targetPath = new URL(`${tileMatrix.projection.code}/${chartCode}/`, args.target);
-        logger.info({ file: file.href, target: targetPath.href }, 'Charts:Uploading');
+        // Create cog for each polygon from the cutline to seperate the cogs that crossing antimeridian
+        const targetPath = new URL(`${GoogleTms.projection.code}/${CliId}/${chartCode}/`, args.target);
         if (targetPath.protocol === 'file:') await mkdir(targetPath, { recursive: true });
-        const targetTiff = new URL(filename, targetPath);
-        await fsa.write(targetTiff, fsa.readStream(cogFile));
 
-        // Write the item and collection to the target path
-        const targetItem = new URL(`${chartCode}.json`, targetPath);
-        await fsa.write(targetItem, JSON.stringify(item, null, 2));
-        const targetCollection = new URL('collection.json', targetPath);
-        await fsa.write(targetCollection, JSON.stringify(collection, null, 2));
+        // Create COGs
+        await createCogs(sourceTiff, cutline, chartCode, bufferedCutline, metadata, targetPath, logger);
 
         // Add the target files to the outputs
         outputs.add(urlToString(targetPath));
@@ -203,11 +165,11 @@ async function downloadCutlines(cutline: URL, chartCode: string, logger: LogType
 
 /**
  * Prepare the cutline for charts mapsheets by wrapping, reprojecting, and buffering it to remove edge artifacts.
+ * Only cut the charts in Web Mercator projection to provide better outputs
  */
 async function prepareCutline(
   cutline: URL,
   chartCode: string,
-  tileMatrix: TileMatrixSet,
   gsd: number,
   bufferPixels: number,
   logger: LogType,
@@ -218,15 +180,15 @@ async function prepareCutline(
   await new GdalRunner(wrapCutline(wrappedCutline, cutline)).run(logger);
 
   // Reproject the cutline to the target tile matrix
-  logger.info({ cutline: cutline.href, chartCode, tileMatrix: tileMatrix.identifier }, 'Charts:ReprojectCutline');
-  const reprojectedCutline = new URL(`${chartCode}-${tileMatrix.identifier}.shp`, tmpFolder);
-  await new GdalRunner(reprojectCutline(reprojectedCutline, wrappedCutline, tileMatrix)).run(logger);
+  logger.info({ cutline: cutline.href, chartCode, tileMatrix: GoogleTms.identifier }, 'Charts:ReprojectCutline');
+  const reprojectedCutline = new URL(`${chartCode}-${GoogleTms.identifier}.shp`, tmpFolder);
+  await new GdalRunner(reprojectCutline(reprojectedCutline, wrappedCutline, GoogleTms)).run(logger);
 
   // Buffer the cutline
   logger.info({ cutline: cutline.href, chartCode, gsd, bufferPixels }, 'Charts:BufferCutline');
   const bufferedCutline = new URL(`${chartCode}-buffered.geojson`, tmpFolder);
   await new GdalRunner(
-    bufferCutline(bufferedCutline, reprojectedCutline, `${chartCode}-${tileMatrix.identifier}`, gsd, bufferPixels),
+    bufferCutline(bufferedCutline, reprojectedCutline, `${chartCode}-${GoogleTms.identifier}`, gsd, bufferPixels),
   ).run(logger);
 
   return bufferedCutline;
@@ -286,17 +248,16 @@ export function geojsonToBbox(geojson: FeatureCollection): GeoJSON.BBox {
   return union.toBbox();
 }
 
-async function createStacFiles(
+async function createStacItem(
   chartCode: string,
-  tileMatrix: TileMatrixSet,
   metadata: ImageryMetadata,
   sourceCutline: URL,
-  bufferedCutline: URL,
+  cutline: URL,
   logger: LogType,
-): Promise<{ item: StacItem; collection: StacCollection }> {
+): Promise<StacItem> {
   // Create stac item
+  const geojson = await fsa.readJson<FeatureCollection>(cutline);
   logger.info({ chartCode }, 'Charts:CreateStacItem');
-  const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
   const item: StacItem = {
     id: `${CliId}/${chartCode}`,
     type: 'Feature',
@@ -323,9 +284,9 @@ async function createStacFiles(
     ],
     properties: {
       datetime: CliDate,
-      'proj:epsg': tileMatrix.projection.code,
+      'proj:epsg': GoogleTms.projection.code,
       'linz_basemaps:options': {
-        tileMatrix: tileMatrix.identifier,
+        tileMatrix: GoogleTms.identifier,
         sourceEpsg: metadata.epsg,
       },
       'linz_basemaps:generated': {
@@ -338,6 +299,10 @@ async function createStacFiles(
     assets: {},
   };
 
+  return item;
+}
+
+function CreateStacCollection(chartCode: string, items: StacItem[], logger: LogType): StacCollection {
   // Create stac collection
   logger.info({ chartCode }, 'Charts:CreateStacCollection');
   const collection: StacCollection = {
@@ -347,19 +312,87 @@ async function createStacFiles(
     stac_extensions: [],
     license: 'CC-BY-4.0',
     title: `New Zealand Charts Mapsheets - ${chartCode}`,
-    description: `New Zealand Charts Mapsheets - ${chartCode} - ${tileMatrix.identifier}`,
+    description: `New Zealand Charts Mapsheets - ${chartCode} - ${GoogleTms.identifier}`,
     extent: {
-      spatial: { bbox: [item.bbox] },
+      spatial: { bbox: items.map((i) => i.bbox as number[]) as SpatialExtents },
       temporal: { interval: [[CliDate, null]] },
     },
     links: [
       { rel: 'self', href: './collection.json', type: 'application/json' },
-      {
+      ...items.map((item) => ({
         href: `./${item.id}.json`,
         rel: 'item',
         type: 'application/json',
-      },
+      })),
     ],
   };
-  return { item, collection };
+
+  for (const item of items) {
+    collection.extent.spatial.bbox.push(item.bbox);
+  }
+  return collection;
+}
+
+// Split the cutline into single polygon features and create cog for each polygon
+async function createCogs(
+  sourceTiff: URL,
+  sourceCutline: URL,
+  chartCode: string,
+  bufferedCutline: URL,
+  metadata: ImageryMetadata,
+  targetPath: URL,
+  logger: LogType,
+): Promise<void> {
+  const geojson = await fsa.readJson<FeatureCollection>(bufferedCutline);
+  let index = 0;
+  const items: StacItem[] = [];
+  for (const feature of geojson.features) {
+    if (feature.geometry.type === 'Polygon') {
+      const splitCutline = {
+        type: 'FeatureCollection',
+        crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:EPSG::3857' } },
+        features: [feature],
+      };
+      const cutlineFile = new URL(`cutline-${index}.geojson`, tmpFolder);
+      await fsa.write(cutlineFile, JSON.stringify(splitCutline));
+      // Create Stac item for each cog
+      const item = await createStacItem(`${chartCode}-${index}`, metadata, sourceCutline, cutlineFile, logger);
+      await fsa.write(new URL(`${chartCode}-${index}.json`, targetPath), JSON.stringify(item, null, 2));
+      items.push(item);
+      // Create Cog for the chart map
+      const cog = new URL(`${chartCode}-${index}.tif`, tmpFolder);
+      await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, cutlineFile, GoogleTms)).run(logger);
+      await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(cog));
+      index++;
+    } else if (feature.geometry.type === 'MultiPolygon') {
+      for (const coords of feature.geometry.coordinates) {
+        const splitCutline = {
+          type: 'FeatureCollection',
+          crs: { type: 'name', properties: { name: 'urn:ogc:def:crs:EPSG::3857' } },
+          features: [
+            {
+              type: 'Feature',
+              geometry: { type: 'Polygon', coordinates: coords },
+            },
+          ],
+        };
+        const cutlineFile = new URL(`cutline-${index}.geojson`, tmpFolder);
+        await fsa.write(cutlineFile, JSON.stringify(splitCutline));
+        // Create Stac item for each cog
+        const item = await createStacItem(`${chartCode}-${index}`, metadata, sourceCutline, cutlineFile, logger);
+        await fsa.write(new URL(`${chartCode}-${index}.json`, targetPath), JSON.stringify(item, null, 2));
+        items.push(item);
+        // Create Cog for the chart map
+        const cog = new URL(`${chartCode}-${index}.tif`, tmpFolder);
+        await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, cutlineFile, GoogleTms)).run(logger);
+        await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(cog));
+        index++;
+      }
+    } else {
+      throw new Error('GeoJSON must contain Polygon or MultiPolygon geometries');
+    }
+  }
+  // Create Stac collection
+  const collection = CreateStacCollection(chartCode, items, logger);
+  await fsa.write(new URL('collection.json', targetPath), JSON.stringify(collection, null, 2));
 }
