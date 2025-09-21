@@ -1,5 +1,5 @@
 {
-  "bootstrap-sha": "3e06a16cf523dbbe0e7935afaae909d022425819",
+  "bootstrap-sha": "55cd25b9f2c402fde88fcef9c43cec3f8eca9e60",
   "plugins": ["node-workspace"],
   "packages": {
     "packages/attribution": {},
@@ -25,7 +25,11 @@
     "packages/sprites": {},
     "packages/__tests__": {},
     "packages/tiler": {},
-    "packages/tiler-sharp": {}
+    "packages/tiler-sharp": {},
+    ".": {
+      "include-component-in-tag": false
+    }
   },
+  "group-pull-request-title-pattern": "release: v${version}",
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
 }
