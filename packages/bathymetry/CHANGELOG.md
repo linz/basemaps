@@ -110,6 +110,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.9.1](https://github.com/linz/basemaps/compare/bathymetry-v8.9.0...bathymetry-v8.9.1) (2025-09-22)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+
 ## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
 
 **Note:** Version bump only for package @basemaps/bathymetry

@@ -226,6 +226,27 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.10.0](https://github.com/linz/basemaps/compare/v8.9.0...v8.10.0) (2025-09-22)
+
+
+### Features
+
+* add support for GDAL's colorinterp setting ([#3509](https://github.com/linz/basemaps/issues/3509)) ([f37be83](https://github.com/linz/basemaps/commit/f37be8328e7770fad17128f0b4e655b1127e7804))
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+* **cli-raster:** Create multiple chart cogs for crossing anti meridian. BM-1336 ([#3504](https://github.com/linz/basemaps/issues/3504)) ([afe4281](https://github.com/linz/basemaps/commit/afe4281ef0e8b2c08654bdb1cfb71a362fe9d4f7))
+* **cli-vector:** update import zoom levels BM-1168 ([#3488](https://github.com/linz/basemaps/issues/3488)) ([41d9b86](https://github.com/linz/basemaps/commit/41d9b8633b85191e61e15a5b61fe5d64c31c077c))
+* **landing:** add dsm to terrain switch BM-1271 ([#3496](https://github.com/linz/basemaps/issues/3496)) ([9a8fbc9](https://github.com/linz/basemaps/commit/9a8fbc92aa812a0b28fb31f1d93bbdd1aa31ce2e))
+* load gdal metadata for color interpretation ([#3510](https://github.com/linz/basemaps/issues/3510)) ([25ca54f](https://github.com/linz/basemaps/commit/25ca54fcd219c132153ef7bf3918ea634068a97a))
+
+
+### Bug Fixes
+
+* **cli-raster:** correct geotag to epsg code mappings BM-1372 ([#3513](https://github.com/linz/basemaps/issues/3513)) ([ea40863](https://github.com/linz/basemaps/commit/ea40863b01daf24c39dad6690755e5fa58c89b7f))
+* **cli-raster:** Fix drop the dummy 4th band when gdalwrap charts. ([#3517](https://github.com/linz/basemaps/issues/3517)) ([4fb0110](https://github.com/linz/basemaps/commit/4fb0110c1216295df46e21edf7e43785fa7e0323))
+* correct import paths ([#3516](https://github.com/linz/basemaps/issues/3516)) ([2b518f6](https://github.com/linz/basemaps/commit/2b518f6e0bd49507cc0abbf028887b7d0d235f6f))
+* release please update to v4 ([#3500](https://github.com/linz/basemaps/issues/3500)) ([bd0781a](https://github.com/linz/basemaps/commit/bd0781a7ac742521f7a33e707daaac4535dd2240))
+* update dsm terrain icon BM-1271 ([#3518](https://github.com/linz/basemaps/issues/3518)) ([aadce30](https://github.com/linz/basemaps/commit/aadce300c75b424f7828704b4ab8f638a89d1837))
+
 ## [7.15.1](https://github.com/linz/basemaps/compare/v7.15.0...v7.15.1) (2025-03-24)
 
 

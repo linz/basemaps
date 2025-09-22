@@ -135,6 +135,23 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.10.0](https://github.com/linz/basemaps/compare/cli-v8.9.0...cli-v8.10.0) (2025-09-22)
+
+
+### Features
+
+* add support for GDAL's colorinterp setting ([#3509](https://github.com/linz/basemaps/issues/3509)) ([f37be83](https://github.com/linz/basemaps/commit/f37be8328e7770fad17128f0b4e655b1127e7804))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/cli-config bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/cli-raster bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/cli-vector bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+
 ## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
 
 
