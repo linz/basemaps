@@ -405,6 +405,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.9.1](https://github.com/linz/basemaps/compare/shared-v8.9.0...shared-v8.9.1) (2025-09-22)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.9.0 to ^8.10.0
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/shared

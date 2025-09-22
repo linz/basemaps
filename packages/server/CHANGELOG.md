@@ -183,6 +183,26 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.10.0](https://github.com/linz/basemaps/compare/server-v8.9.0...server-v8.10.0) (2025-09-22)
+
+
+### Features
+
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/config bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/config-loader bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/lambda-tiler bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/landing bumped from ^6.39.0 to ^8.10.0
+    * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+  * optionalDependencies
+    * @basemaps/landing bumped from ^7.0.0 to ^8.10.0
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 **Note:** Version bump only for package @basemaps/server
