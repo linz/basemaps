@@ -226,6 +226,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.10.1](https://github.com/linz/basemaps/compare/v8.10.0...v8.10.1) (2025-09-22)
+
+
+### Bug Fixes
+
+* publish to npm after release-please ([#3519](https://github.com/linz/basemaps/issues/3519)) ([c685751](https://github.com/linz/basemaps/commit/c6857515d46e7fb354f1f7c1e1cabe186fc42b57))
+
 ## [8.10.0](https://github.com/linz/basemaps/compare/v8.9.0...v8.10.0) (2025-09-22)
 
 
