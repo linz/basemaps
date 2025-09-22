@@ -236,7 +236,8 @@ export function gdalBuildChartsCommand(target: URL, source: URL, cutline: URL, t
       '-multi',
       ['-wo', 'NUM_THREADS=ALL_CPUS'],
       ['-t_srs', tileMatrix.projection.toEpsgString()],
-      '-dstalpha',
+      ['-b', '1', '-b', '2', '-b', '3'], // Drop dummy band 4 if it exists
+      ['-dstalpha'],
       ['-cutline', urlToString(cutline)],
       ['-crop_to_cutline'],
       ['-co', 'BIGTIFF=NO'],
