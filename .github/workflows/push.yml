@@ -55,40 +55,6 @@ jobs:
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.mjs
 
-  release-please:
-    runs-on: ubuntu-latest
-    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master'
-
-    environment:
-      name: prod
-
-    outputs:
-      releases_created: ${{ steps.release.outputs.releases_created }}
-    steps:
-      - uses: googleapis/release-please-action@v4
-        with:
-          token: ${{ secrets.LI_GITHUB_ACTION_TOKEN }}
-
-  publish-release:
-    needs: [release-please]
-    runs-on: ubuntu-latest
-    
-    if: ${{ needs.release-please.outputs.releases_created }}
-
-    environment:
-      name: prod
-
-    steps:
-      - uses: linz/action-typescript@v3
-        with:
-          node-version: 24.x
-
-      - name: Publish to NPM
-        run: npx lerna publish from-package --yes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
-
   deploy-dev:
     runs-on: ubuntu-latest
     concurrency: deploy-dev-${{ github.ref }}
