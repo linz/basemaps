@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.1](https://github.com/linz/basemaps/compare/v8.11.0...v8.11.1) (2025-09-23)
+
+
+### Bug Fixes
+
+* move release-please to seperate workflow ([#3525](https://github.com/linz/basemaps/issues/3525)) ([e9e0904](https://github.com/linz/basemaps/commit/e9e090412f7dc0ba524371456d6813ca3b4b4535))
+
 ## [8.11.0](https://github.com/linz/basemaps/compare/v8.10.1...v8.11.0) (2025-09-23)
 
 
