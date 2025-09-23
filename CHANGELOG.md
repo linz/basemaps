@@ -3,251 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
-
-
-### Bug Fixes
-
-* add required permissions for release please github action ([#3497](https://github.com/linz/basemaps/issues/3497)) ([a6155c9](https://github.com/linz/basemaps/commit/a6155c9e55beb293150031e61fe0cd46171c8c39))
-* **cli-vector:** Fix the tmp path of download layers and add try catch. BM-1352 ([#3494](https://github.com/linz/basemaps/issues/3494)) ([3769175](https://github.com/linz/basemaps/commit/376917570a2373d347d09098ccbac5e5d7515655))
-* **geo:** ensure all supported epsg codes have a projection ([#3508](https://github.com/linz/basemaps/issues/3508)) ([23a9243](https://github.com/linz/basemaps/commit/23a9243586ee3448f9c206d703ff91b7bda5978d))
-* intermittent unit tests ([#3503](https://github.com/linz/basemaps/issues/3503)) ([1e942af](https://github.com/linz/basemaps/commit/1e942af11b4018e47a05bafd8aa63e047de4cf64))
-* remove release-please from prod deploy ([#3506](https://github.com/linz/basemaps/issues/3506)) ([05b6f95](https://github.com/linz/basemaps/commit/05b6f95d9f307d56849c3068a51ab4e8971a718f))
-* stop using GITHUB_TOKEN for release-please ([#3495](https://github.com/linz/basemaps/issues/3495)) ([198cb29](https://github.com/linz/basemaps/commit/198cb29206b275b7497a8ca0d3bdaa10ae8241e3))
-
-
-### Features
-
-* **cli-raster:** Fetch chart imagery metadata from backup location.BM-1345 ([#3492](https://github.com/linz/basemaps/issues/3492)) ([2b42fa7](https://github.com/linz/basemaps/commit/2b42fa7a98730d8706506866f248cf2f43895e38))
-* **cli-raster:** New cli to standardise charts map. BM-1338 ([#3483](https://github.com/linz/basemaps/issues/3483)) ([35b7854](https://github.com/linz/basemaps/commit/35b7854c50dffd1ee5a3cbeac2289a91cc87d1b3))
-* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
-* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
-* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
-* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
-
-
-
-
-
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
-
-
-### Bug Fixes
-
-* add required permissions for release please github action ([#3497](https://github.com/linz/basemaps/issues/3497)) ([a6155c9](https://github.com/linz/basemaps/commit/a6155c9e55beb293150031e61fe0cd46171c8c39))
-* **cli-vector:** Fix the tmp path of download layers and add try catch. BM-1352 ([#3494](https://github.com/linz/basemaps/issues/3494)) ([3769175](https://github.com/linz/basemaps/commit/376917570a2373d347d09098ccbac5e5d7515655))
-* intermittent unit tests ([#3503](https://github.com/linz/basemaps/issues/3503)) ([1e942af](https://github.com/linz/basemaps/commit/1e942af11b4018e47a05bafd8aa63e047de4cf64))
-* stop using GITHUB_TOKEN for release-please ([#3495](https://github.com/linz/basemaps/issues/3495)) ([198cb29](https://github.com/linz/basemaps/commit/198cb29206b275b7497a8ca0d3bdaa10ae8241e3))
-
-
-### Features
-
-* **cli-raster:** Fetch chart imagery metadata from backup location.BM-1345 ([#3492](https://github.com/linz/basemaps/issues/3492)) ([2b42fa7](https://github.com/linz/basemaps/commit/2b42fa7a98730d8706506866f248cf2f43895e38))
-* **cli-raster:** New cli to standardise charts map. BM-1338 ([#3483](https://github.com/linz/basemaps/issues/3483)) ([35b7854](https://github.com/linz/basemaps/commit/35b7854c50dffd1ee5a3cbeac2289a91cc87d1b3))
-* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
-* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
-* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
-* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
-
-
-
-
-
-# [8.7.0](https://github.com/linz/basemaps/compare/v8.6.0...v8.7.0) (2025-08-10)
-
-
-### Features
-
-* **cli-vector:** update the parsing logic for place_labels layer features BM-1318 ([#3470](https://github.com/linz/basemaps/issues/3470)) ([29d2593](https://github.com/linz/basemaps/commit/29d25938363255f05b91cced54397928a2a092da))
-
-
-
-
-
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
-
-
-### Bug Fixes
-
-* create unit tests for import config diffing ([#3481](https://github.com/linz/basemaps/issues/3481)) ([99f20b5](https://github.com/linz/basemaps/commit/99f20b5a06af5b7585140e415854da4ed6cd65d1))
-
-
-### Features
-
-* add aliases for tileSets ([#3482](https://github.com/linz/basemaps/issues/3482)) ([e3dcc64](https://github.com/linz/basemaps/commit/e3dcc64ee1354680d61a39209de75fcc0dcdcd80))
-* **landing:** add dsm hillshade ([#3479](https://github.com/linz/basemaps/issues/3479)) ([8ea4218](https://github.com/linz/basemaps/commit/8ea4218e476488125b986e447a36c6cef1b384f9))
-
-
-
-
-
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
-
-
-### Features
-
-* **cli-vector:** Add stac collection and stac catalog for the extract command. BM-1307 ([#3472](https://github.com/linz/basemaps/issues/3472)) ([b357022](https://github.com/linz/basemaps/commit/b3570226f61ab035b5c6449dd0077cac5a6320db))
-* **lambda-tiler:** add export URL for mbtiles ([#3474](https://github.com/linz/basemaps/issues/3474)) ([e15c811](https://github.com/linz/basemaps/commit/e15c8117cf19d6021a0e7a275fccf72a5449c4b2))
-
-
-
-
-
-# [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
-
-
-### Bug Fixes
-
-* **cli-vector:** Fix the stac item format missing datetime in properties. BM-1317 ([#3464](https://github.com/linz/basemaps/issues/3464)) ([6c7719f](https://github.com/linz/basemaps/commit/6c7719f7514160158b6ad14b680fe1bdd10fd1e3))
-* **cli-vector:** revert polylabel version to 1.1.0 BM-1309 ([#3467](https://github.com/linz/basemaps/issues/3467)) ([e2039fa](https://github.com/linz/basemaps/commit/e2039fa587467010e399f064f187381eee8a3ac0))
-
-
-### Features
-
-* **cli-config:** Support vector preview links and reports for NZTM. BM-1253 ([#3463](https://github.com/linz/basemaps/issues/3463)) ([5ab6a5b](https://github.com/linz/basemaps/commit/5ab6a5bdd19885f8a461bece0d2736c7ed7269d9))
-* **cli-vector:** adjust the layers assigned to each schema layer BM-1299 ([#3462](https://github.com/linz/basemaps/issues/3462)) ([0770163](https://github.com/linz/basemaps/commit/0770163665557390feab74f865132139fa9c3560))
-
-
-
-
-
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
-
-
-### Bug Fixes
-
-* **cli-vector:** collapse large analysis report in pr comment ([#3457](https://github.com/linz/basemaps/issues/3457)) ([19a4d85](https://github.com/linz/basemaps/commit/19a4d85bb90058694c0a5cd3cd2530cd9e60b9a1))
-* **infra:** increase lambda tiler memory to 3072MB ([#3459](https://github.com/linz/basemaps/issues/3459)) ([786bb54](https://github.com/linz/basemaps/commit/786bb5406823fb7438cb1205e1c345c407406bc5))
-* **landing:** Fix debug page automatically hide topographic-v2. BM-1302 ([#3456](https://github.com/linz/basemaps/issues/3456)) ([53134c0](https://github.com/linz/basemaps/commit/53134c0782cdea7fb683170eda30fb675d60923a))
-
-
-### Features
-
-* **cli-config:** Generate topographic previews with the v2 in the url. BM-1203 ([#3455](https://github.com/linz/basemaps/issues/3455)) ([1a2f220](https://github.com/linz/basemaps/commit/1a2f220b42689d433e07183557cd42b69e5e22d3))
-* **cli-vector:** Support NZTM mbtiles creation.BM-1300 ([#3452](https://github.com/linz/basemaps/issues/3452)) ([f601a73](https://github.com/linz/basemaps/commit/f601a73185aad7f22f6e0e5551d41ba49588c932))
-* **landing:** Support NZTM vector Links in the menu page. BM-1301 ([#3458](https://github.com/linz/basemaps/issues/3458)) ([a57059e](https://github.com/linz/basemaps/commit/a57059e2fa81b3be228ce46807b610c09379a4ee))
-
-
-
-
-
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
-
-
-### Bug Fixes
-
-* remove quoting from rimraf commands ([#3434](https://github.com/linz/basemaps/issues/3434)) ([58f31da](https://github.com/linz/basemaps/commit/58f31da0a56a654366881bfb39310f8adabcbd93))
-
-
-### Features
-
-* **cli-vector:** analyse mbtiles BM-1270 ([#3444](https://github.com/linz/basemaps/issues/3444)) ([e721392](https://github.com/linz/basemaps/commit/e721392d52866ef0d31e110d32e718460ce3008b))
-* **cli-vector:** New cli to create and join mbtiles for vector map. BM-1268 ([#3435](https://github.com/linz/basemaps/issues/3435)) ([8cbef0b](https://github.com/linz/basemaps/commit/8cbef0b0a9ef3db804d05b533b6858f55c9064c9))
-* **shared:** allow access to s3 nz-coastal public bucket ([#3453](https://github.com/linz/basemaps/issues/3453)) ([ab54746](https://github.com/linz/basemaps/commit/ab5474681084355b0168b85e89e5c22859177546))
-
-
-
-
-
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
-
-
-### Bug Fixes
-
-* correct cli-config 'import' parameters ([#3445](https://github.com/linz/basemaps/issues/3445)) ([f349080](https://github.com/linz/basemaps/commit/f349080c473100cc5361162719011c2b152ea299)), closes [/github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61#diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70](https://github.com//github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61/issues/diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70) [/github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml#L131](https://github.com//github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml/issues/L131)
-* parsing of blocked api keys ([#3448](https://github.com/linz/basemaps/issues/3448)) ([ab8bf72](https://github.com/linz/basemaps/commit/ab8bf7221df32eac59beb2d4e5cad78015c88395))
-
-
-### Features
-
-* **lambda-tiler:** expose configuration id and hash if present ([#3446](https://github.com/linz/basemaps/issues/3446)) ([43803b4](https://github.com/linz/basemaps/commit/43803b48a404591417453331ac9e3aa16c85248f))
-
-
-
-
-
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-
-### Bug Fixes
-
-* **cli:** update landing deploy script with new cli-config package BM-1260 ([#3431](https://github.com/linz/basemaps/issues/3431)) ([4d7e86d](https://github.com/linz/basemaps/commit/4d7e86d100baf83e92402f39e3ded38707d3fdde)), closes [/github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs#L1](https://github.com//github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs/issues/L1)
-* ensure all linzjs packages are correctly labeled as deps ([#3439](https://github.com/linz/basemaps/issues/3439)) ([de9df87](https://github.com/linz/basemaps/commit/de9df87031da70523b3f7683f53d113633fcd8be)), closes [#3438](https://github.com/linz/basemaps/issues/3438)
-* ensure api key blocks are set in ci/cd ([#3442](https://github.com/linz/basemaps/issues/3442)) ([28f6403](https://github.com/linz/basemaps/commit/28f6403bed5efc82742e381ffb60b4fe8dfc8787))
-
-
-### Features
-
-* **cli-vector:** Extract cli to load schema json and prepare jobs to process vector mbtiles. BM-1267 ([#3429](https://github.com/linz/basemaps/issues/3429)) ([db113e2](https://github.com/linz/basemaps/commit/db113e27ad935fab4538ffad607c2cd04f52dbdd))
-* **cli:** add cli-config package BM-1260 ([#3428](https://github.com/linz/basemaps/issues/3428)) ([4ca5a47](https://github.com/linz/basemaps/commit/4ca5a474d4e4548f6c8d2a5437a793586efd1673))
-* **cli:** move cogify create-config into cli-config package BM-1261 ([#3432](https://github.com/linz/basemaps/issues/3432)) ([5f72430](https://github.com/linz/basemaps/commit/5f72430690d330e8542d272ede461d3a711493de))
-* **cli:** rename cogify package to cli-raster BM-1262 ([#3433](https://github.com/linz/basemaps/issues/3433)) ([36d4449](https://github.com/linz/basemaps/commit/36d44492fa84d6cbca8b5c735f4bc2c22773c649))
-* **cli:** update cli-package commands to cmd-ts BM-1259 ([#3427](https://github.com/linz/basemaps/issues/3427)) ([46cc342](https://github.com/linz/basemaps/commit/46cc34223094f6b148abf2eb2d0c86897e1de5d0))
-
-
-
-
-
-# [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
-
-
-### Features
-
-* **landing:** Add hillshade and hillshade igor into the layer dropdown. BM-1250 ([#3425](https://github.com/linz/basemaps/issues/3425)) ([a02fb6a](https://github.com/linz/basemaps/commit/a02fb6a250f2a7d66d0bd6640f72a6ea4ad8322a))
-
-
-
-
-
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** automatically choose pipelines ([#3416](https://github.com/linz/basemaps/issues/3416)) ([c206a8e](https://github.com/linz/basemaps/commit/c206a8e0a579bd542afa43f6a3186c88bf6a451c))
-* **landing:** fix developer api keys title BM-1181 ([#3423](https://github.com/linz/basemaps/issues/3423)) ([4066b31](https://github.com/linz/basemaps/commit/4066b3153dc5bce70e4e0ccab7286d98c108c16c))
-* **landing:** support viewing CITM2000Quad ([#3419](https://github.com/linz/basemaps/issues/3419)) ([10df2aa](https://github.com/linz/basemaps/commit/10df2aa0a91391435d5a02283e8706bd19700d86))
-* **tiler-sharp:** when resizing preserve input data type ([#3417](https://github.com/linz/basemaps/issues/3417)) ([41e0c38](https://github.com/linz/basemaps/commit/41e0c385c0c8d8e8c29a48c20c611a11da32810a))
-
-
-### Features
-
-* **lambda-tiler:** load config from s3 ([#3415](https://github.com/linz/basemaps/issues/3415)) ([e6b89c3](https://github.com/linz/basemaps/commit/e6b89c3c941c15b8fe2adcb0189a9fed46cbe024))
-* **landing:** add dsm to layer dropdown BM-1248 ([#3421](https://github.com/linz/basemaps/issues/3421)) ([b830dff](https://github.com/linz/basemaps/commit/b830dffd5393461ad1c424f673c05e96c4196231))
-* **landing:** add the dsm elevation tileset as a default elevation and hillshade debug option BM-1247 ([#3422](https://github.com/linz/basemaps/issues/3422)) ([1e529a5](https://github.com/linz/basemaps/commit/1e529a50410b2e0137e67c7b3a1f7860f1694a8f))
-* **landing:** change text 90day api keys to single user api keys BM-1181 ([#3420](https://github.com/linz/basemaps/issues/3420)) ([215da68](https://github.com/linz/basemaps/commit/215da68fd7fd874f110a0c09180dc296f611fb59))
-
-
-### Performance Improvements
-
-* **tiler-sharp:** split greyscale  color ramps into specalized function ([#3418](https://github.com/linz/basemaps/issues/3418)) ([30755fd](https://github.com/linz/basemaps/commit/30755fd8c2098b800405d8395058544704c27b21))
-
-
-
-
-
 ## [8.11.0](https://github.com/linz/basemaps/compare/v8.10.1...v8.11.0) (2025-09-23)
 
 
-### Features
-
-* add support for GDAL's colorinterp setting ([#3509](https://github.com/linz/basemaps/issues/3509)) ([f37be83](https://github.com/linz/basemaps/commit/f37be8328e7770fad17128f0b4e655b1127e7804))
-* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
-* **cli-raster:** Create multiple chart cogs for crossing anti meridian. BM-1336 ([#3504](https://github.com/linz/basemaps/issues/3504)) ([afe4281](https://github.com/linz/basemaps/commit/afe4281ef0e8b2c08654bdb1cfb71a362fe9d4f7))
-* **cli-vector:** update import zoom levels BM-1168 ([#3488](https://github.com/linz/basemaps/issues/3488)) ([41d9b86](https://github.com/linz/basemaps/commit/41d9b8633b85191e61e15a5b61fe5d64c31c077c))
-* **landing:** add dsm to terrain switch BM-1271 ([#3496](https://github.com/linz/basemaps/issues/3496)) ([9a8fbc9](https://github.com/linz/basemaps/commit/9a8fbc92aa812a0b28fb31f1d93bbdd1aa31ce2e))
-* load gdal metadata for color interpretation ([#3510](https://github.com/linz/basemaps/issues/3510)) ([25ca54f](https://github.com/linz/basemaps/commit/25ca54fcd219c132153ef7bf3918ea634068a97a))
-
-
 ### Bug Fixes
 
-* **cli-raster:** correct geotag to epsg code mappings BM-1372 ([#3513](https://github.com/linz/basemaps/issues/3513)) ([ea40863](https://github.com/linz/basemaps/commit/ea40863b01daf24c39dad6690755e5fa58c89b7f))
-* **cli-raster:** Fix drop the dummy 4th band when gdalwrap charts. ([#3517](https://github.com/linz/basemaps/issues/3517)) ([4fb0110](https://github.com/linz/basemaps/commit/4fb0110c1216295df46e21edf7e43785fa7e0323))
-* correct import paths ([#3516](https://github.com/linz/basemaps/issues/3516)) ([2b518f6](https://github.com/linz/basemaps/commit/2b518f6e0bd49507cc0abbf028887b7d0d235f6f))
 * prod smoke test with correct glob ([#3522](https://github.com/linz/basemaps/issues/3522)) ([a9ae2eb](https://github.com/linz/basemaps/commit/a9ae2eba03422d8650a6474a46ef01dc2dc69377))
-* publish to npm after release-please ([#3519](https://github.com/linz/basemaps/issues/3519)) ([c685751](https://github.com/linz/basemaps/commit/c6857515d46e7fb354f1f7c1e1cabe186fc42b57))
-* release please update to v4 ([#3500](https://github.com/linz/basemaps/issues/3500)) ([bd0781a](https://github.com/linz/basemaps/commit/bd0781a7ac742521f7a33e707daaac4535dd2240))
-* update dsm terrain icon BM-1271 ([#3518](https://github.com/linz/basemaps/issues/3518)) ([aadce30](https://github.com/linz/basemaps/commit/aadce300c75b424f7828704b4ab8f638a89d1837))
 
 ## [8.10.1](https://github.com/linz/basemaps/compare/v8.10.0...v8.10.1) (2025-09-22)
 
@@ -276,6 +37,229 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 * correct import paths ([#3516](https://github.com/linz/basemaps/issues/3516)) ([2b518f6](https://github.com/linz/basemaps/commit/2b518f6e0bd49507cc0abbf028887b7d0d235f6f))
 * release please update to v4 ([#3500](https://github.com/linz/basemaps/issues/3500)) ([bd0781a](https://github.com/linz/basemaps/commit/bd0781a7ac742521f7a33e707daaac4535dd2240))
 * update dsm terrain icon BM-1271 ([#3518](https://github.com/linz/basemaps/issues/3518)) ([aadce30](https://github.com/linz/basemaps/commit/aadce300c75b424f7828704b4ab8f638a89d1837))
+
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+
+### Bug Fixes
+
+* add required permissions for release please github action ([#3497](https://github.com/linz/basemaps/issues/3497)) ([a6155c9](https://github.com/linz/basemaps/commit/a6155c9e55beb293150031e61fe0cd46171c8c39))
+* **cli-vector:** Fix the tmp path of download layers and add try catch. BM-1352 ([#3494](https://github.com/linz/basemaps/issues/3494)) ([3769175](https://github.com/linz/basemaps/commit/376917570a2373d347d09098ccbac5e5d7515655))
+* **geo:** ensure all supported epsg codes have a projection ([#3508](https://github.com/linz/basemaps/issues/3508)) ([23a9243](https://github.com/linz/basemaps/commit/23a9243586ee3448f9c206d703ff91b7bda5978d))
+* intermittent unit tests ([#3503](https://github.com/linz/basemaps/issues/3503)) ([1e942af](https://github.com/linz/basemaps/commit/1e942af11b4018e47a05bafd8aa63e047de4cf64))
+* remove release-please from prod deploy ([#3506](https://github.com/linz/basemaps/issues/3506)) ([05b6f95](https://github.com/linz/basemaps/commit/05b6f95d9f307d56849c3068a51ab4e8971a718f))
+* stop using GITHUB_TOKEN for release-please ([#3495](https://github.com/linz/basemaps/issues/3495)) ([198cb29](https://github.com/linz/basemaps/commit/198cb29206b275b7497a8ca0d3bdaa10ae8241e3))
+
+
+### Features
+
+* **cli-raster:** Fetch chart imagery metadata from backup location.BM-1345 ([#3492](https://github.com/linz/basemaps/issues/3492)) ([2b42fa7](https://github.com/linz/basemaps/commit/2b42fa7a98730d8706506866f248cf2f43895e38))
+* **cli-raster:** New cli to standardise charts map. BM-1338 ([#3483](https://github.com/linz/basemaps/issues/3483)) ([35b7854](https://github.com/linz/basemaps/commit/35b7854c50dffd1ee5a3cbeac2289a91cc87d1b3))
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
+* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+
+### Bug Fixes
+
+* add required permissions for release please github action ([#3497](https://github.com/linz/basemaps/issues/3497)) ([a6155c9](https://github.com/linz/basemaps/commit/a6155c9e55beb293150031e61fe0cd46171c8c39))
+* **cli-vector:** Fix the tmp path of download layers and add try catch. BM-1352 ([#3494](https://github.com/linz/basemaps/issues/3494)) ([3769175](https://github.com/linz/basemaps/commit/376917570a2373d347d09098ccbac5e5d7515655))
+* intermittent unit tests ([#3503](https://github.com/linz/basemaps/issues/3503)) ([1e942af](https://github.com/linz/basemaps/commit/1e942af11b4018e47a05bafd8aa63e047de4cf64))
+* stop using GITHUB_TOKEN for release-please ([#3495](https://github.com/linz/basemaps/issues/3495)) ([198cb29](https://github.com/linz/basemaps/commit/198cb29206b275b7497a8ca0d3bdaa10ae8241e3))
+
+
+### Features
+
+* **cli-raster:** Fetch chart imagery metadata from backup location.BM-1345 ([#3492](https://github.com/linz/basemaps/issues/3492)) ([2b42fa7](https://github.com/linz/basemaps/commit/2b42fa7a98730d8706506866f248cf2f43895e38))
+* **cli-raster:** New cli to standardise charts map. BM-1338 ([#3483](https://github.com/linz/basemaps/issues/3483)) ([35b7854](https://github.com/linz/basemaps/commit/35b7854c50dffd1ee5a3cbeac2289a91cc87d1b3))
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
+* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
+
+
+
+
+
+## [8.7.0](https://github.com/linz/basemaps/compare/v8.6.0...v8.7.0) (2025-08-10)
+
+
+### Features
+
+* **cli-vector:** update the parsing logic for place_labels layer features BM-1318 ([#3470](https://github.com/linz/basemaps/issues/3470)) ([29d2593](https://github.com/linz/basemaps/commit/29d25938363255f05b91cced54397928a2a092da))
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+
+### Bug Fixes
+
+* create unit tests for import config diffing ([#3481](https://github.com/linz/basemaps/issues/3481)) ([99f20b5](https://github.com/linz/basemaps/commit/99f20b5a06af5b7585140e415854da4ed6cd65d1))
+
+
+### Features
+
+* add aliases for tileSets ([#3482](https://github.com/linz/basemaps/issues/3482)) ([e3dcc64](https://github.com/linz/basemaps/commit/e3dcc64ee1354680d61a39209de75fcc0dcdcd80))
+* **landing:** add dsm hillshade ([#3479](https://github.com/linz/basemaps/issues/3479)) ([8ea4218](https://github.com/linz/basemaps/commit/8ea4218e476488125b986e447a36c6cef1b384f9))
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+
+### Features
+
+* **cli-vector:** Add stac collection and stac catalog for the extract command. BM-1307 ([#3472](https://github.com/linz/basemaps/issues/3472)) ([b357022](https://github.com/linz/basemaps/commit/b3570226f61ab035b5c6449dd0077cac5a6320db))
+* **lambda-tiler:** add export URL for mbtiles ([#3474](https://github.com/linz/basemaps/issues/3474)) ([e15c811](https://github.com/linz/basemaps/commit/e15c8117cf19d6021a0e7a275fccf72a5449c4b2))
+
+
+
+
+
+## [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
+
+
+### Bug Fixes
+
+* **cli-vector:** Fix the stac item format missing datetime in properties. BM-1317 ([#3464](https://github.com/linz/basemaps/issues/3464)) ([6c7719f](https://github.com/linz/basemaps/commit/6c7719f7514160158b6ad14b680fe1bdd10fd1e3))
+* **cli-vector:** revert polylabel version to 1.1.0 BM-1309 ([#3467](https://github.com/linz/basemaps/issues/3467)) ([e2039fa](https://github.com/linz/basemaps/commit/e2039fa587467010e399f064f187381eee8a3ac0))
+
+
+### Features
+
+* **cli-config:** Support vector preview links and reports for NZTM. BM-1253 ([#3463](https://github.com/linz/basemaps/issues/3463)) ([5ab6a5b](https://github.com/linz/basemaps/commit/5ab6a5bdd19885f8a461bece0d2736c7ed7269d9))
+* **cli-vector:** adjust the layers assigned to each schema layer BM-1299 ([#3462](https://github.com/linz/basemaps/issues/3462)) ([0770163](https://github.com/linz/basemaps/commit/0770163665557390feab74f865132139fa9c3560))
+
+
+
+
+
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+
+### Bug Fixes
+
+* **cli-vector:** collapse large analysis report in pr comment ([#3457](https://github.com/linz/basemaps/issues/3457)) ([19a4d85](https://github.com/linz/basemaps/commit/19a4d85bb90058694c0a5cd3cd2530cd9e60b9a1))
+* **infra:** increase lambda tiler memory to 3072MB ([#3459](https://github.com/linz/basemaps/issues/3459)) ([786bb54](https://github.com/linz/basemaps/commit/786bb5406823fb7438cb1205e1c345c407406bc5))
+* **landing:** Fix debug page automatically hide topographic-v2. BM-1302 ([#3456](https://github.com/linz/basemaps/issues/3456)) ([53134c0](https://github.com/linz/basemaps/commit/53134c0782cdea7fb683170eda30fb675d60923a))
+
+
+### Features
+
+* **cli-config:** Generate topographic previews with the v2 in the url. BM-1203 ([#3455](https://github.com/linz/basemaps/issues/3455)) ([1a2f220](https://github.com/linz/basemaps/commit/1a2f220b42689d433e07183557cd42b69e5e22d3))
+* **cli-vector:** Support NZTM mbtiles creation.BM-1300 ([#3452](https://github.com/linz/basemaps/issues/3452)) ([f601a73](https://github.com/linz/basemaps/commit/f601a73185aad7f22f6e0e5551d41ba49588c932))
+* **landing:** Support NZTM vector Links in the menu page. BM-1301 ([#3458](https://github.com/linz/basemaps/issues/3458)) ([a57059e](https://github.com/linz/basemaps/commit/a57059e2fa81b3be228ce46807b610c09379a4ee))
+
+
+
+
+
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+
+### Bug Fixes
+
+* remove quoting from rimraf commands ([#3434](https://github.com/linz/basemaps/issues/3434)) ([58f31da](https://github.com/linz/basemaps/commit/58f31da0a56a654366881bfb39310f8adabcbd93))
+
+
+### Features
+
+* **cli-vector:** analyse mbtiles BM-1270 ([#3444](https://github.com/linz/basemaps/issues/3444)) ([e721392](https://github.com/linz/basemaps/commit/e721392d52866ef0d31e110d32e718460ce3008b))
+* **cli-vector:** New cli to create and join mbtiles for vector map. BM-1268 ([#3435](https://github.com/linz/basemaps/issues/3435)) ([8cbef0b](https://github.com/linz/basemaps/commit/8cbef0b0a9ef3db804d05b533b6858f55c9064c9))
+* **shared:** allow access to s3 nz-coastal public bucket ([#3453](https://github.com/linz/basemaps/issues/3453)) ([ab54746](https://github.com/linz/basemaps/commit/ab5474681084355b0168b85e89e5c22859177546))
+
+
+
+
+
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+
+### Bug Fixes
+
+* correct cli-config 'import' parameters ([#3445](https://github.com/linz/basemaps/issues/3445)) ([f349080](https://github.com/linz/basemaps/commit/f349080c473100cc5361162719011c2b152ea299)), closes [/github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61#diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70](https://github.com//github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61/issues/diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70) [/github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml#L131](https://github.com//github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml/issues/L131)
+* parsing of blocked api keys ([#3448](https://github.com/linz/basemaps/issues/3448)) ([ab8bf72](https://github.com/linz/basemaps/commit/ab8bf7221df32eac59beb2d4e5cad78015c88395))
+
+
+### Features
+
+* **lambda-tiler:** expose configuration id and hash if present ([#3446](https://github.com/linz/basemaps/issues/3446)) ([43803b4](https://github.com/linz/basemaps/commit/43803b48a404591417453331ac9e3aa16c85248f))
+
+
+
+
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+
+### Bug Fixes
+
+* **cli:** update landing deploy script with new cli-config package BM-1260 ([#3431](https://github.com/linz/basemaps/issues/3431)) ([4d7e86d](https://github.com/linz/basemaps/commit/4d7e86d100baf83e92402f39e3ded38707d3fdde)), closes [/github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs#L1](https://github.com//github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs/issues/L1)
+* ensure all linzjs packages are correctly labeled as deps ([#3439](https://github.com/linz/basemaps/issues/3439)) ([de9df87](https://github.com/linz/basemaps/commit/de9df87031da70523b3f7683f53d113633fcd8be)), closes [#3438](https://github.com/linz/basemaps/issues/3438)
+* ensure api key blocks are set in ci/cd ([#3442](https://github.com/linz/basemaps/issues/3442)) ([28f6403](https://github.com/linz/basemaps/commit/28f6403bed5efc82742e381ffb60b4fe8dfc8787))
+
+
+### Features
+
+* **cli-vector:** Extract cli to load schema json and prepare jobs to process vector mbtiles. BM-1267 ([#3429](https://github.com/linz/basemaps/issues/3429)) ([db113e2](https://github.com/linz/basemaps/commit/db113e27ad935fab4538ffad607c2cd04f52dbdd))
+* **cli:** add cli-config package BM-1260 ([#3428](https://github.com/linz/basemaps/issues/3428)) ([4ca5a47](https://github.com/linz/basemaps/commit/4ca5a474d4e4548f6c8d2a5437a793586efd1673))
+* **cli:** move cogify create-config into cli-config package BM-1261 ([#3432](https://github.com/linz/basemaps/issues/3432)) ([5f72430](https://github.com/linz/basemaps/commit/5f72430690d330e8542d272ede461d3a711493de))
+* **cli:** rename cogify package to cli-raster BM-1262 ([#3433](https://github.com/linz/basemaps/issues/3433)) ([36d4449](https://github.com/linz/basemaps/commit/36d44492fa84d6cbca8b5c735f4bc2c22773c649))
+* **cli:** update cli-package commands to cmd-ts BM-1259 ([#3427](https://github.com/linz/basemaps/issues/3427)) ([46cc342](https://github.com/linz/basemaps/commit/46cc34223094f6b148abf2eb2d0c86897e1de5d0))
+
+
+
+
+
+## [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
+
+
+### Features
+
+* **landing:** Add hillshade and hillshade igor into the layer dropdown. BM-1250 ([#3425](https://github.com/linz/basemaps/issues/3425)) ([a02fb6a](https://github.com/linz/basemaps/commit/a02fb6a250f2a7d66d0bd6640f72a6ea4ad8322a))
+
+
+
+
+
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** automatically choose pipelines ([#3416](https://github.com/linz/basemaps/issues/3416)) ([c206a8e](https://github.com/linz/basemaps/commit/c206a8e0a579bd542afa43f6a3186c88bf6a451c))
+* **landing:** fix developer api keys title BM-1181 ([#3423](https://github.com/linz/basemaps/issues/3423)) ([4066b31](https://github.com/linz/basemaps/commit/4066b3153dc5bce70e4e0ccab7286d98c108c16c))
+* **landing:** support viewing CITM2000Quad ([#3419](https://github.com/linz/basemaps/issues/3419)) ([10df2aa](https://github.com/linz/basemaps/commit/10df2aa0a91391435d5a02283e8706bd19700d86))
+* **tiler-sharp:** when resizing preserve input data type ([#3417](https://github.com/linz/basemaps/issues/3417)) ([41e0c38](https://github.com/linz/basemaps/commit/41e0c385c0c8d8e8c29a48c20c611a11da32810a))
+
+
+### Features
+
+* **lambda-tiler:** load config from s3 ([#3415](https://github.com/linz/basemaps/issues/3415)) ([e6b89c3](https://github.com/linz/basemaps/commit/e6b89c3c941c15b8fe2adcb0189a9fed46cbe024))
+* **landing:** add dsm to layer dropdown BM-1248 ([#3421](https://github.com/linz/basemaps/issues/3421)) ([b830dff](https://github.com/linz/basemaps/commit/b830dffd5393461ad1c424f673c05e96c4196231))
+* **landing:** add the dsm elevation tileset as a default elevation and hillshade debug option BM-1247 ([#3422](https://github.com/linz/basemaps/issues/3422)) ([1e529a5](https://github.com/linz/basemaps/commit/1e529a50410b2e0137e67c7b3a1f7860f1694a8f))
+* **landing:** change text 90day api keys to single user api keys BM-1181 ([#3420](https://github.com/linz/basemaps/issues/3420)) ([215da68](https://github.com/linz/basemaps/commit/215da68fd7fd874f110a0c09180dc296f611fb59))
+
+
+### Performance Improvements
+
+* **tiler-sharp:** split greyscale  color ramps into specalized function ([#3418](https://github.com/linz/basemaps/issues/3418)) ([30755fd](https://github.com/linz/basemaps/commit/30755fd8c2098b800405d8395058544704c27b21))
+
+
+
+
 
 ## [7.15.1](https://github.com/linz/basemaps/compare/v7.15.0...v7.15.1) (2025-03-24)
 
