@@ -223,4 +223,21 @@ describe('MemoryConfig', () => {
     const ts = await config.TileSet.get('ts_someAlias');
     assert.equal(ts?.id, 'ts_someAlias');
   });
+
+  it('should not assign the outputs property to tilesets by default', async () => {
+    config.put(baseImg);
+    config.createVirtualTileSets();
+
+    const img = await config.Imagery.get(imId);
+    assert.equal(img?.id, imId);
+
+    const ts = await config.TileSet.get('ts_ōtorohanga-urban-2021-0.1m');
+    if (ts == null) throw new Error('failed to get tileset');
+
+    assert.equal(ts.layers.length, 1);
+    assert.equal(ts.layers[0][3857], imId);
+    assert.equal(ts.layers[0][2193], undefined);
+    assert.equal(ts.name, 'ōtorohanga-urban-2021-0.1m');
+    assert(!Object.hasOwn(ts, 'outputs'));
+  });
 });
