@@ -204,7 +204,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       removeUndefined(existing);
       this.put(existing);
 
-      existing.outputs = addDefaultOutputPipelines(existing, i);
+      const outputs = addDefaultOutputPipelines(existing, i);
+      if (outputs != null) existing.outputs = outputs;
     }
     // The latest imagery overwrite the earlier ones.
     const existingImageryId = existing.layers[0][i.projection];
@@ -234,7 +235,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       updatedAt: Date.now(),
     };
 
-    ts.outputs = addDefaultOutputPipelines(ts, i);
+    const outputs = addDefaultOutputPipelines(ts, i);
+    if (outputs != null) ts.outputs = outputs;
+
     return ts;
   }
 
