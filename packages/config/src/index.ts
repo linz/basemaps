@@ -33,6 +33,7 @@ export { DefaultColorRamp, DefaultColorRampOutput, DefaultTerrainRgbOutput } fro
 export {
   ConfigRasterPipeline,
   ConfigTileSetOutputParser,
+  PipelineColorRampArgs,
   PipelineExtractArgs,
   PipelineNdviArgs,
 } from './config/tile.set.pipeline.js';

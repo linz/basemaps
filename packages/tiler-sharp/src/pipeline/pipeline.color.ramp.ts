@@ -1,4 +1,4 @@
-import { DefaultColorRamp } from '@basemaps/config';
+import { DefaultColorRamp, PipelineColorRampArgs } from '@basemaps/config';
 import { CompositionTiff } from '@basemaps/tiler';
 
 import { ColorRamp } from './colorize/color.ramp.js';
@@ -13,11 +13,14 @@ export const Ramps: Record<DecompressedInterleaved['depth'], Colorizer> = {
   uint32: new GreyScale(0, 2 ** 32 - 1),
 };
 
-export const RampNdvi = new ColorRamp(`-1 200 50 50 255\n0 50 50 200 255\n1 50 200 50 255 255`);
+function getRamp(data: DecompressedInterleaved, ctx: PipelineColorRampArgs): Colorizer {
+  if (ctx?.ramp != null) return new ColorRamp(ctx.ramp);
+  return Ramps[data.depth];
+}
 
-export const PipelineColorRamp: Pipeline = {
+export const PipelineColorRamp: Pipeline<PipelineColorRampArgs> = {
   type: 'color-ramp',
-  process(comp: CompositionTiff, data: DecompressedInterleaved): DecompressedInterleaved {
+  process(comp: CompositionTiff, data: DecompressedInterleaved, ctx: PipelineColorRampArgs): DecompressedInterleaved {
     const raw = new Uint8ClampedArray(data.width * data.height * 4);
     const output: DecompressedInterleaved = {
       pixels: raw,
@@ -27,7 +30,7 @@ export const PipelineColorRamp: Pipeline = {
       height: data.height,
     };
 
-    const ramp = Ramps[data.depth];
+    const ramp = getRamp(data, ctx);
 
     const size = data.width * data.height;
     const noData = comp.asset.images[0].noData;
