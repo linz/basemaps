@@ -388,6 +388,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.10.1](https://github.com/linz/basemaps/compare/config-v8.10.0...config-v8.10.1) (2025-09-24)
+
+
+### Bug Fixes
+
+* **config:** DynamoDB error caused by 'undefined' value in config tilesets BM-1373 ([#3528](https://github.com/linz/basemaps/issues/3528)) ([56e0db9](https://github.com/linz/basemaps/commit/56e0db934c19fd6fdbf41002fc71e53b7b6312d9))
+
 ## [8.10.0](https://github.com/linz/basemaps/compare/config-v8.9.0...config-v8.10.0) (2025-09-22)
 
 

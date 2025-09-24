@@ -131,6 +131,17 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.10.1](https://github.com/linz/basemaps/compare/landing-v8.10.0...landing-v8.10.1) (2025-09-24)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/cli-config bumped from ^8.10.0 to ^8.10.1
+    * @basemaps/config bumped from ^8.10.0 to ^8.10.1
+    * @basemaps/shared bumped from ^8.9.1 to ^8.9.2
+
 ## [8.10.0](https://github.com/linz/basemaps/compare/landing-v8.9.0...landing-v8.10.0) (2025-09-22)
 
 
