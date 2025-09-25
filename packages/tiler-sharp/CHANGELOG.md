@@ -3,268 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
-
-
-### Features
-
-* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
-
-
-
-
-
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
-
-
-### Features
-
-* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
-
-
-
-
-
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
-
-
-### Bug Fixes
-
-* **tiler-sharp:** when resizing preserve input data type ([#3417](https://github.com/linz/basemaps/issues/3417)) ([41e0c38](https://github.com/linz/basemaps/commit/41e0c385c0c8d8e8c29a48c20c611a11da32810a))
-
-
-### Performance Improvements
-
-* **tiler-sharp:** split greyscale  color ramps into specalized function ([#3418](https://github.com/linz/basemaps/issues/3418)) ([30755fd](https://github.com/linz/basemaps/commit/30755fd8c2098b800405d8395058544704c27b21))
-
-
-
-
-
-# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
-
-
-### Bug Fixes
-
-* **tiler-sharp:** when resampling uint round numbers rather than truncate ([#3392](https://github.com/linz/basemaps/issues/3392)) ([d02e56f](https://github.com/linz/basemaps/commit/d02e56febebc6c729fd3213390bdc5bbb66f419f))
-
-
-### Features
-
-* **tiler-sharp:** support uint32 and uint8 source datasets for color-ramp ([#3391](https://github.com/linz/basemaps/issues/3391)) ([f316042](https://github.com/linz/basemaps/commit/f316042853888b8555dab3ddb1df14c32a5df0b1))
-
-
-
-
-
-# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
-
-
-### Bug Fixes
-
-* **tiler-sharp:** clamp elevation to the bounds of terrain rgb BM-1028 ([#3274](https://github.com/linz/basemaps/issues/3274)) ([c1d3746](https://github.com/linz/basemaps/commit/c1d37469f054cb5fb854f2f3ac69ea651c0577eb))
-
-
-### Features
-
-* **tiler-sharp:** reducde the z precision of terrain-rgb to generate much smaller tiles for low z levels BM-1002 ([#3276](https://github.com/linz/basemaps/issues/3276)) ([0d14986](https://github.com/linz/basemaps/commit/0d149865b867783c4c09574ae6cb408ce9cf52bf))
-
-
-
-
-
-# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
-
-
-### Bug Fixes
-
-* only allow f32 lerc ([#3124](https://github.com/linz/basemaps/issues/3124)) ([85ab67f](https://github.com/linz/basemaps/commit/85ab67f6d7f596c5391a56cac7d9d288cb575d4a))
-* **tiler-sharp:** do not resample if its not needed ([#3179](https://github.com/linz/basemaps/issues/3179)) ([6e0752d](https://github.com/linz/basemaps/commit/6e0752d448ff4ae6e0e87d6fadd0a320d7c5d9a0))
-* **tiler-sharp:** resampling should set no-data ([#3177](https://github.com/linz/basemaps/issues/3177)) ([0432fa7](https://github.com/linz/basemaps/commit/0432fa7304fd44220f9108a575399e327d6382f8))
-
-
-### Features
-
-* **config:** improve the default color ramp with more color ranges ([#3172](https://github.com/linz/basemaps/issues/3172)) ([2c7b8e5](https://github.com/linz/basemaps/commit/2c7b8e5383527ba3c854790fbf27b99d54625b4e))
-* **tiler-sharp:** add terrain-rgb pipeline ([#3125](https://github.com/linz/basemaps/issues/3125)) ([159d064](https://github.com/linz/basemaps/commit/159d0647af110788aedda710a53dfc856febab45))
-* **tiler-sharp:** allow outputs to customise how output is compressed ([#3126](https://github.com/linz/basemaps/issues/3126)) ([f13b8fb](https://github.com/linz/basemaps/commit/f13b8fb2aae7ad224c3fde6cfb4cd8f70d4f1f9e))
-* **tiler-sharp:** directly resize/resample DEM inputs rather than RGBA outputs ([#3173](https://github.com/linz/basemaps/issues/3173)) ([b901f83](https://github.com/linz/basemaps/commit/b901f837757d59ddc8e1b8eb3beb87fa96dbc053))
-* **tiler:** add bilinear resampler for DEM/DSM ([#3176](https://github.com/linz/basemaps/issues/3176)) ([c10c84a](https://github.com/linz/basemaps/commit/c10c84a06788e4e9bd7dbd54378666e680abf3ef))
-* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
-
-
-
-
-
-# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
-
-
-### Features
-
-* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
-* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
-
-
-
-
-
-# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
-
-
-### Bug Fixes
-
-* **tiler-sharp:** do not multiply imagery with the background color BM-885 ([#2953](https://github.com/linz/basemaps/issues/2953)) ([412676d](https://github.com/linz/basemaps/commit/412676d2abf813d0f25fe2971ce64aa187801af3))
-
-
-
-
-
-# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
-
-
-### Features
-
-* **lambda-tiler:** create preview images for og:image BM-264 ([#2921](https://github.com/linz/basemaps/issues/2921)) ([a074cc4](https://github.com/linz/basemaps/commit/a074cc45b40e35d5a593380f067f4932ef9e8da4))
-
-
-
-
-
-# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
-
-
-### Features
-
-* **tiler-sharp:** do not recompress intermediate tiffs ([#2864](https://github.com/linz/basemaps/issues/2864)) ([dd44ee9](https://github.com/linz/basemaps/commit/dd44ee9227affd8abefa37cd487244b189730511))
-
-
-
-
-
-# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
-# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
-
-
-### Bug Fixes
-
-* **server:** make --no-config actually load the configuration from tiffs ([#2682](https://github.com/linz/basemaps/issues/2682)) ([019ee50](https://github.com/linz/basemaps/commit/019ee50ee22cda2ce143f9a012d4aaa9ffc0edc9))
-* **tiler:** when scaling rectangles if the scaleX and scaleY differ scale using the larger dimension BM-772 ([#2693](https://github.com/linz/basemaps/issues/2693)) ([c498856](https://github.com/linz/basemaps/commit/c498856b1851026d0f3cb87fc9be4ac8cb0b4bc2))
-
-
-### Reverts
-
-* Revert "fix(tiler): when scaling rectangles if the scaleX and scaleY differ scale using the larger dimension BM-772 (#2693)" (#2711) ([c682963](https://github.com/linz/basemaps/commit/c682963171dce0a178e281ad62099edc53df93eb)), closes [#2693](https://github.com/linz/basemaps/issues/2693) [#2711](https://github.com/linz/basemaps/issues/2711)
-
-
-
-
-
-# [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
-
-
-### Features
-
-* add overview archive to imagery config ([#2545](https://github.com/linz/basemaps/issues/2545)) ([ac463ef](https://github.com/linz/basemaps/commit/ac463efdaf8b6773c21b011a70327b606e4fafcb))
-
-
-
-
-
-# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
-
-**Note:** Version bump only for package @basemaps/tiler-sharp
-
-
-
-
-
 ## [8.10.1](https://github.com/linz/basemaps/compare/tiler-sharp-v8.10.0...tiler-sharp-v8.10.1) (2025-09-24)
 
 
@@ -294,6 +32,269 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * dependencies
     * @basemaps/config bumped from ^8.9.0 to ^8.10.0
     * @basemaps/tiler bumped from ^8.9.0 to ^8.10.0
+
+
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+
+### Features
+
+* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+
+### Features
+
+* **lambda-tiler:** support one band uint16 lerc tiffs ([#3489](https://github.com/linz/basemaps/issues/3489)) ([906d016](https://github.com/linz/basemaps/commit/906d016f9d022b9113c7a1f0d09ff03ec8f6a758))
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* **tiler-sharp:** when resizing preserve input data type ([#3417](https://github.com/linz/basemaps/issues/3417)) ([41e0c38](https://github.com/linz/basemaps/commit/41e0c385c0c8d8e8c29a48c20c611a11da32810a))
+
+
+### Performance Improvements
+
+* **tiler-sharp:** split greyscale  color ramps into specalized function ([#3418](https://github.com/linz/basemaps/issues/3418)) ([30755fd](https://github.com/linz/basemaps/commit/30755fd8c2098b800405d8395058544704c27b21))
+
+
+
+
+
+## [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+
+### Bug Fixes
+
+* **tiler-sharp:** when resampling uint round numbers rather than truncate ([#3392](https://github.com/linz/basemaps/issues/3392)) ([d02e56f](https://github.com/linz/basemaps/commit/d02e56febebc6c729fd3213390bdc5bbb66f419f))
+
+
+### Features
+
+* **tiler-sharp:** support uint32 and uint8 source datasets for color-ramp ([#3391](https://github.com/linz/basemaps/issues/3391)) ([f316042](https://github.com/linz/basemaps/commit/f316042853888b8555dab3ddb1df14c32a5df0b1))
+
+
+
+
+
+## [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* **tiler-sharp:** clamp elevation to the bounds of terrain rgb BM-1028 ([#3274](https://github.com/linz/basemaps/issues/3274)) ([c1d3746](https://github.com/linz/basemaps/commit/c1d37469f054cb5fb854f2f3ac69ea651c0577eb))
+
+
+### Features
+
+* **tiler-sharp:** reducde the z precision of terrain-rgb to generate much smaller tiles for low z levels BM-1002 ([#3276](https://github.com/linz/basemaps/issues/3276)) ([0d14986](https://github.com/linz/basemaps/commit/0d149865b867783c4c09574ae6cb408ce9cf52bf))
+
+
+
+
+
+## [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* only allow f32 lerc ([#3124](https://github.com/linz/basemaps/issues/3124)) ([85ab67f](https://github.com/linz/basemaps/commit/85ab67f6d7f596c5391a56cac7d9d288cb575d4a))
+* **tiler-sharp:** do not resample if its not needed ([#3179](https://github.com/linz/basemaps/issues/3179)) ([6e0752d](https://github.com/linz/basemaps/commit/6e0752d448ff4ae6e0e87d6fadd0a320d7c5d9a0))
+* **tiler-sharp:** resampling should set no-data ([#3177](https://github.com/linz/basemaps/issues/3177)) ([0432fa7](https://github.com/linz/basemaps/commit/0432fa7304fd44220f9108a575399e327d6382f8))
+
+
+### Features
+
+* **config:** improve the default color ramp with more color ranges ([#3172](https://github.com/linz/basemaps/issues/3172)) ([2c7b8e5](https://github.com/linz/basemaps/commit/2c7b8e5383527ba3c854790fbf27b99d54625b4e))
+* **tiler-sharp:** add terrain-rgb pipeline ([#3125](https://github.com/linz/basemaps/issues/3125)) ([159d064](https://github.com/linz/basemaps/commit/159d0647af110788aedda710a53dfc856febab45))
+* **tiler-sharp:** allow outputs to customise how output is compressed ([#3126](https://github.com/linz/basemaps/issues/3126)) ([f13b8fb](https://github.com/linz/basemaps/commit/f13b8fb2aae7ad224c3fde6cfb4cd8f70d4f1f9e))
+* **tiler-sharp:** directly resize/resample DEM inputs rather than RGBA outputs ([#3173](https://github.com/linz/basemaps/issues/3173)) ([b901f83](https://github.com/linz/basemaps/commit/b901f837757d59ddc8e1b8eb3beb87fa96dbc053))
+* **tiler:** add bilinear resampler for DEM/DSM ([#3176](https://github.com/linz/basemaps/issues/3176)) ([c10c84a](https://github.com/linz/basemaps/commit/c10c84a06788e4e9bd7dbd54378666e680abf3ef))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
+## [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+
+
+### Features
+
+* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
+* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
+
+
+
+
+
+## [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+
+### Bug Fixes
+
+* **tiler-sharp:** do not multiply imagery with the background color BM-885 ([#2953](https://github.com/linz/basemaps/issues/2953)) ([412676d](https://github.com/linz/basemaps/commit/412676d2abf813d0f25fe2971ce64aa187801af3))
+
+
+
+
+
+## [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+
+### Features
+
+* **lambda-tiler:** create preview images for og:image BM-264 ([#2921](https://github.com/linz/basemaps/issues/2921)) ([a074cc4](https://github.com/linz/basemaps/commit/a074cc45b40e35d5a593380f067f4932ef9e8da4))
+
+
+
+
+
+## [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+
+### Features
+
+* **tiler-sharp:** do not recompress intermediate tiffs ([#2864](https://github.com/linz/basemaps/issues/2864)) ([dd44ee9](https://github.com/linz/basemaps/commit/dd44ee9227affd8abefa37cd487244b189730511))
+
+
+
+
+
+## [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
+
+## [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+
+### Bug Fixes
+
+* **server:** make --no-config actually load the configuration from tiffs ([#2682](https://github.com/linz/basemaps/issues/2682)) ([019ee50](https://github.com/linz/basemaps/commit/019ee50ee22cda2ce143f9a012d4aaa9ffc0edc9))
+* **tiler:** when scaling rectangles if the scaleX and scaleY differ scale using the larger dimension BM-772 ([#2693](https://github.com/linz/basemaps/issues/2693)) ([c498856](https://github.com/linz/basemaps/commit/c498856b1851026d0f3cb87fc9be4ac8cb0b4bc2))
+
+
+### Reverts
+
+* Revert "fix(tiler): when scaling rectangles if the scaleX and scaleY differ scale using the larger dimension BM-772 (#2693)" (#2711) ([c682963](https://github.com/linz/basemaps/commit/c682963171dce0a178e281ad62099edc53df93eb)), closes [#2693](https://github.com/linz/basemaps/issues/2693) [#2711](https://github.com/linz/basemaps/issues/2711)
+
+
+
+
+
+## [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
+
+
+### Features
+
+* add overview archive to imagery config ([#2545](https://github.com/linz/basemaps/issues/2545)) ([ac463ef](https://github.com/linz/basemaps/commit/ac463efdaf8b6773c21b011a70327b606e4fafcb))
+
+
+
+
+
+## [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+**Note:** Version bump only for package @basemaps/tiler-sharp
+
+
+
+
 
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 

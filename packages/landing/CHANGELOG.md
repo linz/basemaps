@@ -3,134 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
-
-
-### Features
-
-* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
-* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
-* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
-
-
-
-
-
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
-
-
-### Features
-
-* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
-* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
-* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
-
-
-
-
-
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
-
-
-### Features
-
-* **landing:** add dsm hillshade ([#3479](https://github.com/linz/basemaps/issues/3479)) ([8ea4218](https://github.com/linz/basemaps/commit/8ea4218e476488125b986e447a36c6cef1b384f9))
-
-
-
-
-
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
-
-**Note:** Version bump only for package @basemaps/landing
-
-
-
-
-
-# [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
-
-**Note:** Version bump only for package @basemaps/landing
-
-
-
-
-
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
-
-
-### Bug Fixes
-
-* **landing:** Fix debug page automatically hide topographic-v2. BM-1302 ([#3456](https://github.com/linz/basemaps/issues/3456)) ([53134c0](https://github.com/linz/basemaps/commit/53134c0782cdea7fb683170eda30fb675d60923a))
-
-
-### Features
-
-* **cli-vector:** Support NZTM mbtiles creation.BM-1300 ([#3452](https://github.com/linz/basemaps/issues/3452)) ([f601a73](https://github.com/linz/basemaps/commit/f601a73185aad7f22f6e0e5551d41ba49588c932))
-* **landing:** Support NZTM vector Links in the menu page. BM-1301 ([#3458](https://github.com/linz/basemaps/issues/3458)) ([a57059e](https://github.com/linz/basemaps/commit/a57059e2fa81b3be228ce46807b610c09379a4ee))
-
-
-
-
-
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
-
-**Note:** Version bump only for package @basemaps/landing
-
-
-
-
-
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
-
-**Note:** Version bump only for package @basemaps/landing
-
-
-
-
-
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-
-### Bug Fixes
-
-* **cli:** update landing deploy script with new cli-config package BM-1260 ([#3431](https://github.com/linz/basemaps/issues/3431)) ([4d7e86d](https://github.com/linz/basemaps/commit/4d7e86d100baf83e92402f39e3ded38707d3fdde)), closes [/github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs#L1](https://github.com//github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs/issues/L1)
-* ensure all linzjs packages are correctly labeled as deps ([#3439](https://github.com/linz/basemaps/issues/3439)) ([de9df87](https://github.com/linz/basemaps/commit/de9df87031da70523b3f7683f53d113633fcd8be)), closes [#3438](https://github.com/linz/basemaps/issues/3438)
-
-
-
-
-
-# [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
-
-
-### Features
-
-* **landing:** Add hillshade and hillshade igor into the layer dropdown. BM-1250 ([#3425](https://github.com/linz/basemaps/issues/3425)) ([a02fb6a](https://github.com/linz/basemaps/commit/a02fb6a250f2a7d66d0bd6640f72a6ea4ad8322a))
-
-
-
-
-
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
-
-
-### Bug Fixes
-
-* **landing:** fix developer api keys title BM-1181 ([#3423](https://github.com/linz/basemaps/issues/3423)) ([4066b31](https://github.com/linz/basemaps/commit/4066b3153dc5bce70e4e0ccab7286d98c108c16c))
-* **landing:** support viewing CITM2000Quad ([#3419](https://github.com/linz/basemaps/issues/3419)) ([10df2aa](https://github.com/linz/basemaps/commit/10df2aa0a91391435d5a02283e8706bd19700d86))
-
-
-### Features
-
-* **landing:** add dsm to layer dropdown BM-1248 ([#3421](https://github.com/linz/basemaps/issues/3421)) ([b830dff](https://github.com/linz/basemaps/commit/b830dffd5393461ad1c424f673c05e96c4196231))
-* **landing:** add the dsm elevation tileset as a default elevation and hillshade debug option BM-1247 ([#3422](https://github.com/linz/basemaps/issues/3422)) ([1e529a5](https://github.com/linz/basemaps/commit/1e529a50410b2e0137e67c7b3a1f7860f1694a8f))
-* **landing:** change text 90day api keys to single user api keys BM-1181 ([#3420](https://github.com/linz/basemaps/issues/3420)) ([215da68](https://github.com/linz/basemaps/commit/215da68fd7fd874f110a0c09180dc296f611fb59))
-
-
-
-
-
 ## [8.10.1](https://github.com/linz/basemaps/compare/landing-v8.10.0...landing-v8.10.1) (2025-09-24)
 
 
@@ -163,6 +35,134 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
     * @basemaps/cli-config bumped from ^8.9.0 to ^8.10.0
     * @basemaps/config bumped from ^8.9.0 to ^8.10.0
     * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+    
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+
+### Features
+
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+
+### Features
+
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+
+### Features
+
+* **landing:** add dsm hillshade ([#3479](https://github.com/linz/basemaps/issues/3479)) ([8ea4218](https://github.com/linz/basemaps/commit/8ea4218e476488125b986e447a36c6cef1b384f9))
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+## [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+
+### Bug Fixes
+
+* **landing:** Fix debug page automatically hide topographic-v2. BM-1302 ([#3456](https://github.com/linz/basemaps/issues/3456)) ([53134c0](https://github.com/linz/basemaps/commit/53134c0782cdea7fb683170eda30fb675d60923a))
+
+
+### Features
+
+* **cli-vector:** Support NZTM mbtiles creation.BM-1300 ([#3452](https://github.com/linz/basemaps/issues/3452)) ([f601a73](https://github.com/linz/basemaps/commit/f601a73185aad7f22f6e0e5551d41ba49588c932))
+* **landing:** Support NZTM vector Links in the menu page. BM-1301 ([#3458](https://github.com/linz/basemaps/issues/3458)) ([a57059e](https://github.com/linz/basemaps/commit/a57059e2fa81b3be228ce46807b610c09379a4ee))
+
+
+
+
+
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+**Note:** Version bump only for package @basemaps/landing
+
+
+
+
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+
+### Bug Fixes
+
+* **cli:** update landing deploy script with new cli-config package BM-1260 ([#3431](https://github.com/linz/basemaps/issues/3431)) ([4d7e86d](https://github.com/linz/basemaps/commit/4d7e86d100baf83e92402f39e3ded38707d3fdde)), closes [/github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs#L1](https://github.com//github.com/linz/basemaps/blob/e527a04fec65c82f8577642493e8fcb475762243/packages/landing/scripts/deploy.mjs/issues/L1)
+* ensure all linzjs packages are correctly labeled as deps ([#3439](https://github.com/linz/basemaps/issues/3439)) ([de9df87](https://github.com/linz/basemaps/commit/de9df87031da70523b3f7683f53d113633fcd8be)), closes [#3438](https://github.com/linz/basemaps/issues/3438)
+
+
+
+
+
+## [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
+
+
+### Features
+
+* **landing:** Add hillshade and hillshade igor into the layer dropdown. BM-1250 ([#3425](https://github.com/linz/basemaps/issues/3425)) ([a02fb6a](https://github.com/linz/basemaps/commit/a02fb6a250f2a7d66d0bd6640f72a6ea4ad8322a))
+
+
+
+
+
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* **landing:** fix developer api keys title BM-1181 ([#3423](https://github.com/linz/basemaps/issues/3423)) ([4066b31](https://github.com/linz/basemaps/commit/4066b3153dc5bce70e4e0ccab7286d98c108c16c))
+* **landing:** support viewing CITM2000Quad ([#3419](https://github.com/linz/basemaps/issues/3419)) ([10df2aa](https://github.com/linz/basemaps/commit/10df2aa0a91391435d5a02283e8706bd19700d86))
+
+
+### Features
+
+* **landing:** add dsm to layer dropdown BM-1248 ([#3421](https://github.com/linz/basemaps/issues/3421)) ([b830dff](https://github.com/linz/basemaps/commit/b830dffd5393461ad1c424f673c05e96c4196231))
+* **landing:** add the dsm elevation tileset as a default elevation and hillshade debug option BM-1247 ([#3422](https://github.com/linz/basemaps/issues/3422)) ([1e529a5](https://github.com/linz/basemaps/commit/1e529a50410b2e0137e67c7b3a1f7860f1694a8f))
+* **landing:** change text 90day api keys to single user api keys BM-1181 ([#3420](https://github.com/linz/basemaps/issues/3420)) ([215da68](https://github.com/linz/basemaps/commit/215da68fd7fd874f110a0c09180dc296f611fb59))
+
+
+
+
 
 ## [7.15.1](https://github.com/linz/basemaps/compare/v7.15.0...v7.15.1) (2025-03-24)
 

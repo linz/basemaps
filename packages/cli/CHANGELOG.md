@@ -3,138 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [8.7.0](https://github.com/linz/basemaps/compare/v8.6.0...v8.7.0) (2025-08-10)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
-
-
-### Features
-
-* **cli-vector:** analyse mbtiles BM-1270 ([#3444](https://github.com/linz/basemaps/issues/3444)) ([e721392](https://github.com/linz/basemaps/commit/e721392d52866ef0d31e110d32e718460ce3008b))
-* **cli-vector:** New cli to create and join mbtiles for vector map. BM-1268 ([#3435](https://github.com/linz/basemaps/issues/3435)) ([8cbef0b](https://github.com/linz/basemaps/commit/8cbef0b0a9ef3db804d05b533b6858f55c9064c9))
-
-
-
-
-
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
-
-
-### Bug Fixes
-
-* correct cli-config 'import' parameters ([#3445](https://github.com/linz/basemaps/issues/3445)) ([f349080](https://github.com/linz/basemaps/commit/f349080c473100cc5361162719011c2b152ea299)), closes [/github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61#diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70](https://github.com//github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61/issues/diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70) [/github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml#L131](https://github.com//github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml/issues/L131)
-
-
-
-
-
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-
-### Features
-
-* **cli:** add cli-config package BM-1260 ([#3428](https://github.com/linz/basemaps/issues/3428)) ([4ca5a47](https://github.com/linz/basemaps/commit/4ca5a474d4e4548f6c8d2a5437a793586efd1673))
-* **cli:** rename cogify package to cli-raster BM-1262 ([#3433](https://github.com/linz/basemaps/issues/3433)) ([36d4449](https://github.com/linz/basemaps/commit/36d44492fa84d6cbca8b5c735f4bc2c22773c649))
-* **cli:** update cli-package commands to cmd-ts BM-1259 ([#3427](https://github.com/linz/basemaps/issues/3427)) ([46cc342](https://github.com/linz/basemaps/commit/46cc34223094f6b148abf2eb2d0c86897e1de5d0))
-
-
-
-
-
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
-# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
-
-**Note:** Version bump only for package @basemaps/cli
-
-
-
-
-
 ## [8.10.1](https://github.com/linz/basemaps/compare/cli-v8.10.0...cli-v8.10.1) (2025-09-24)
 
 
@@ -163,6 +31,138 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
     * @basemaps/cli-raster bumped from ^8.9.0 to ^8.10.0
     * @basemaps/cli-vector bumped from ^8.9.0 to ^8.10.0
     * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [8.7.0](https://github.com/linz/basemaps/compare/v8.6.0...v8.7.0) (2025-08-10)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+
+### Features
+
+* **cli-vector:** analyse mbtiles BM-1270 ([#3444](https://github.com/linz/basemaps/issues/3444)) ([e721392](https://github.com/linz/basemaps/commit/e721392d52866ef0d31e110d32e718460ce3008b))
+* **cli-vector:** New cli to create and join mbtiles for vector map. BM-1268 ([#3435](https://github.com/linz/basemaps/issues/3435)) ([8cbef0b](https://github.com/linz/basemaps/commit/8cbef0b0a9ef3db804d05b533b6858f55c9064c9))
+
+
+
+
+
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+
+### Bug Fixes
+
+* correct cli-config 'import' parameters ([#3445](https://github.com/linz/basemaps/issues/3445)) ([f349080](https://github.com/linz/basemaps/commit/f349080c473100cc5361162719011c2b152ea299)), closes [/github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61#diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70](https://github.com//github.com/linz/basemaps/pull/3427/commits/01a90a2b98bab02632a9637bfed2067c9c047c61/issues/diff-48a5e932b724482f9a280931b7bb1188d26ef004b87c331aadfc7a7948ec7f70) [/github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml#L131](https://github.com//github.com/linz/basemaps-config/blob/a5b8b9baaa9941314a13058e53945bc5db5f5357/.github/workflows/build.yml/issues/L131)
+
+
+
+
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+
+### Features
+
+* **cli:** add cli-config package BM-1260 ([#3428](https://github.com/linz/basemaps/issues/3428)) ([4ca5a47](https://github.com/linz/basemaps/commit/4ca5a474d4e4548f6c8d2a5437a793586efd1673))
+* **cli:** rename cogify package to cli-raster BM-1262 ([#3433](https://github.com/linz/basemaps/issues/3433)) ([36d4449](https://github.com/linz/basemaps/commit/36d44492fa84d6cbca8b5c735f4bc2c22773c649))
+* **cli:** update cli-package commands to cmd-ts BM-1259 ([#3427](https://github.com/linz/basemaps/issues/3427)) ([46cc342](https://github.com/linz/basemaps/commit/46cc34223094f6b148abf2eb2d0c86897e1de5d0))
+
+
+
+
+
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
+
+## [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+**Note:** Version bump only for package @basemaps/cli
+
+
+
+
 
 ## [7.11.1](https://github.com/linz/basemaps/compare/v7.11.0...v7.11.1) (2024-10-01)
 

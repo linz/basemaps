@@ -3,7 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+## [8.10.1](https://github.com/linz/basemaps/compare/config-v8.10.0...config-v8.10.1) (2025-09-24)
+
+
+### Bug Fixes
+
+* **config:** DynamoDB error caused by 'undefined' value in config tilesets BM-1373 ([#3528](https://github.com/linz/basemaps/issues/3528)) ([56e0db9](https://github.com/linz/basemaps/commit/56e0db934c19fd6fdbf41002fc71e53b7b6312d9))
+
+## [8.10.0](https://github.com/linz/basemaps/compare/config-v8.9.0...config-v8.10.0) (2025-09-22)
+
+
+### Features
+
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+* load gdal metadata for color interpretation ([#3510](https://github.com/linz/basemaps/issues/3510)) ([25ca54f](https://github.com/linz/basemaps/commit/25ca54fcd219c132153ef7bf3918ea634068a97a))
+
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
 
 
 ### Bug Fixes
@@ -14,7 +29,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
 
 
 ### Bug Fixes
@@ -25,7 +40,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
 
 
 ### Bug Fixes
@@ -41,7 +56,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
 
 **Note:** Version bump only for package @basemaps/config
 
@@ -49,7 +64,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
 
 
 ### Features
@@ -60,7 +75,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
 
 **Note:** Version bump only for package @basemaps/config
 
@@ -68,7 +83,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
 
 **Note:** Version bump only for package @basemaps/config
 
@@ -76,7 +91,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+## [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
 
 **Note:** Version bump only for package @basemaps/config
 
@@ -84,7 +99,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+## [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
 
 
 ### Features
@@ -95,7 +110,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+## [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
 
 
 ### Features
@@ -106,7 +121,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+## [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
 
 **Note:** Version bump only for package @basemaps/config
 
@@ -114,7 +129,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+## [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
 
 
 ### Bug Fixes
@@ -125,7 +140,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+## [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
 
 
 ### Features
@@ -136,7 +151,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+## [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 
 ### Features
@@ -147,7 +162,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+## [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
 
 **Note:** Version bump only for package @basemaps/config
 
@@ -155,7 +170,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+## [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
 
 
 ### Bug Fixes
@@ -185,7 +200,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+## [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
 
 
 ### Bug Fixes
@@ -206,7 +221,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+## [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
 
 
 ### Features
@@ -217,7 +232,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+## [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
 
 
 ### Bug Fixes
@@ -234,7 +249,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+## [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
 
 
 ### Bug Fixes
@@ -251,7 +266,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+## [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
 
 
 ### Bug Fixes
@@ -270,7 +285,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+## [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
 
 
 ### Bug Fixes
@@ -388,20 +403,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-## [8.10.1](https://github.com/linz/basemaps/compare/config-v8.10.0...config-v8.10.1) (2025-09-24)
-
-
-### Bug Fixes
-
-* **config:** DynamoDB error caused by 'undefined' value in config tilesets BM-1373 ([#3528](https://github.com/linz/basemaps/issues/3528)) ([56e0db9](https://github.com/linz/basemaps/commit/56e0db934c19fd6fdbf41002fc71e53b7b6312d9))
-
-## [8.10.0](https://github.com/linz/basemaps/compare/config-v8.9.0...config-v8.10.0) (2025-09-22)
-
-
-### Features
-
-* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
-* load gdal metadata for color interpretation ([#3510](https://github.com/linz/basemaps/issues/3510)) ([25ca54f](https://github.com/linz/basemaps/commit/25ca54fcd219c132153ef7bf3918ea634068a97a))
 
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 

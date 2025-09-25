@@ -3,314 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
-
-
-### Bug Fixes
-
-* some tests commented out ([#3066](https://github.com/linz/basemaps/issues/3066)) ([9896308](https://github.com/linz/basemaps/commit/98963088aff978639c7721e493c63b5582f3686e))
-
-
-### Features
-
-* **lambda-analytics:** track pipeline usage BM-964 ([#3203](https://github.com/linz/basemaps/issues/3203)) ([a97a4e4](https://github.com/linz/basemaps/commit/a97a4e49357e78dc7ea3dd9174c962859640501f))
-* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
-
-
-
-
-
-# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
-
-
-### Features
-
-* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
-* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
-
-
-
-
-
-# [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
-
-
-### Features
-
-* upgrade lambdas to nodejs 18 ([#2639](https://github.com/linz/basemaps/issues/2639)) ([17471e1](https://github.com/linz/basemaps/commit/17471e1d56fbe17b695e4a49b1fbe55ece215596))
-
-
-
-
-
-# [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
-
-
-### Bug Fixes
-
-* **lambda-analytics:** correctly track NZTM2000Quad tileMatrix ([#2602](https://github.com/linz/basemaps/issues/2602)) ([aa86362](https://github.com/linz/basemaps/commit/aa8636223334d32aeefacdeb62dcca9e14757246))
-
-
-
-
-
-# [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
-
-**Note:** Version bump only for package @basemaps/lambda-analytics
-
-
-
-
-
-# [6.33.0](https://github.com/linz/basemaps/compare/v6.32.2...v6.33.0) (2022-08-01)
-
-
-### Bug Fixes
-
-* **lambda-analytics:** do not track invalid api keys BM-642 ([#2392](https://github.com/linz/basemaps/issues/2392)) ([9f84285](https://github.com/linz/basemaps/commit/9f84285ed203bf3443f288b20482cb18d6b13c40))
-
-
-### Features
-
-* **lambda-analytics:** support more user agents ([#2400](https://github.com/linz/basemaps/issues/2400)) ([c6965ad](https://github.com/linz/basemaps/commit/c6965ad3e7d1a7bb875e0324d33e19b8b5db5c8b))
-* **lambda-analytics:** track analytics for some user agents ([#2393](https://github.com/linz/basemaps/issues/2393)) ([b3c95fb](https://github.com/linz/basemaps/commit/b3c95fb1769f1800b399b82f90b6044d6ab9c558))
-
-
-
-
-
 ## [8.9.2](https://github.com/linz/basemaps/compare/lambda-analytics-v8.9.1...lambda-analytics-v8.9.2) (2025-09-24)
 
 
@@ -330,6 +22,314 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * dependencies
     * @basemaps/config bumped from ^8.9.0 to ^8.10.0
     * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+    
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Bug Fixes
+
+* some tests commented out ([#3066](https://github.com/linz/basemaps/issues/3066)) ([9896308](https://github.com/linz/basemaps/commit/98963088aff978639c7721e493c63b5582f3686e))
+
+
+### Features
+
+* **lambda-analytics:** track pipeline usage BM-964 ([#3203](https://github.com/linz/basemaps/issues/3203)) ([a97a4e4](https://github.com/linz/basemaps/commit/a97a4e49357e78dc7ea3dd9174c962859640501f))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
+## [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+
+
+### Features
+
+* Add proof of concept docs site BM-917 ([#2990](https://github.com/linz/basemaps/issues/2990)) ([cabccc7](https://github.com/linz/basemaps/commit/cabccc730de0c0016e9d102dc8df6acbf1510e00))
+* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
+
+
+
+
+
+## [6.46.0](https://github.com/linz/basemaps/compare/v6.45.0...v6.46.0) (2023-10-10)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.45.0](https://github.com/linz/basemaps/compare/v6.44.0...v6.45.0) (2023-09-18)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.44.0](https://github.com/linz/basemaps/compare/v6.43.0...v6.44.0) (2023-09-05)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.43.0](https://github.com/linz/basemaps/compare/v6.42.1...v6.43.0) (2023-08-22)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.41.0](https://github.com/linz/basemaps/compare/v6.40.0...v6.41.0) (2023-07-26)
+
+
+### Features
+
+* upgrade lambdas to nodejs 18 ([#2639](https://github.com/linz/basemaps/issues/2639)) ([17471e1](https://github.com/linz/basemaps/commit/17471e1d56fbe17b695e4a49b1fbe55ece215596))
+
+
+
+
+
+## [6.40.0](https://github.com/linz/basemaps/compare/v6.39.0...v6.40.0) (2023-03-16)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.39.0](https://github.com/linz/basemaps/compare/v6.38.0...v6.39.0) (2023-01-25)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.38.0](https://github.com/linz/basemaps/compare/v6.37.0...v6.38.0) (2022-12-11)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.37.0](https://github.com/linz/basemaps/compare/v6.36.0...v6.37.0) (2022-12-05)
+
+
+### Bug Fixes
+
+* **lambda-analytics:** correctly track NZTM2000Quad tileMatrix ([#2602](https://github.com/linz/basemaps/issues/2602)) ([aa86362](https://github.com/linz/basemaps/commit/aa8636223334d32aeefacdeb62dcca9e14757246))
+
+
+
+
+
+## [6.36.0](https://github.com/linz/basemaps/compare/v6.35.0...v6.36.0) (2022-10-18)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.35.0](https://github.com/linz/basemaps/compare/v6.34.0...v6.35.0) (2022-09-14)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.34.0](https://github.com/linz/basemaps/compare/v6.33.0...v6.34.0) (2022-08-17)
+
+**Note:** Version bump only for package @basemaps/lambda-analytics
+
+
+
+
+
+## [6.33.0](https://github.com/linz/basemaps/compare/v6.32.2...v6.33.0) (2022-08-01)
+
+
+### Bug Fixes
+
+* **lambda-analytics:** do not track invalid api keys BM-642 ([#2392](https://github.com/linz/basemaps/issues/2392)) ([9f84285](https://github.com/linz/basemaps/commit/9f84285ed203bf3443f288b20482cb18d6b13c40))
+
+
+### Features
+
+* **lambda-analytics:** support more user agents ([#2400](https://github.com/linz/basemaps/issues/2400)) ([c6965ad](https://github.com/linz/basemaps/commit/c6965ad3e7d1a7bb875e0324d33e19b8b5db5c8b))
+* **lambda-analytics:** track analytics for some user agents ([#2393](https://github.com/linz/basemaps/issues/2393)) ([b3c95fb](https://github.com/linz/basemaps/commit/b3c95fb1769f1800b399b82f90b6044d6ab9c558))
+
+
+
+
 
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 

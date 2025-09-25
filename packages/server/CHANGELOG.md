@@ -3,186 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
-
-
-### Bug Fixes
-
-* **server:** Add lerc external into server package. ([#3348](https://github.com/linz/basemaps/issues/3348)) ([2aea3c7](https://github.com/linz/basemaps/commit/2aea3c7ee5acaf2c1a4219fd0fe375688b429124))
-* **server:** Copy the static health check files into server container ([#3351](https://github.com/linz/basemaps/issues/3351)) ([ecfee1d](https://github.com/linz/basemaps/commit/ecfee1d60a574784235834b160b602de8cff6d27))
-
-
-
-
-
-# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
-# [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
-
-**Note:** Version bump only for package @basemaps/server
-
-
-
-
-
 ## [8.10.1](https://github.com/linz/basemaps/compare/server-v8.10.0...server-v8.10.1) (2025-09-24)
 
 
@@ -217,6 +37,185 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
     * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
   * optionalDependencies
     * @basemaps/landing bumped from ^7.0.0 to ^8.10.0
+    
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+
+
+### Bug Fixes
+
+* **server:** Add lerc external into server package. ([#3348](https://github.com/linz/basemaps/issues/3348)) ([2aea3c7](https://github.com/linz/basemaps/commit/2aea3c7ee5acaf2c1a4219fd0fe375688b429124))
+* **server:** Copy the static health check files into server container ([#3351](https://github.com/linz/basemaps/issues/3351)) ([ecfee1d](https://github.com/linz/basemaps/commit/ecfee1d60a574784235834b160b602de8cff6d27))
+
+
+
+
+
+## [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
+
+
+## [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
+
+**Note:** Version bump only for package @basemaps/server
+
+
+
 
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 

@@ -3,227 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
-
-
-### Bug Fixes
-
-* **infra:** increase lambda tiler memory to 3072MB ([#3459](https://github.com/linz/basemaps/issues/3459)) ([786bb54](https://github.com/linz/basemaps/commit/786bb5406823fb7438cb1205e1c345c407406bc5))
-
-
-
-
-
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
-
-
-### Bug Fixes
-
-* parsing of blocked api keys ([#3448](https://github.com/linz/basemaps/issues/3448)) ([ab8bf72](https://github.com/linz/basemaps/commit/ab8bf7221df32eac59beb2d4e5cad78015c88395))
-
-
-
-
-
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
-
-
-### Bug Fixes
-
-* **infra:** correct dist path location ([#3390](https://github.com/linz/basemaps/issues/3390)) ([46f8fb8](https://github.com/linz/basemaps/commit/46f8fb8ede7163172dd9cf29ad8c779bcd327d2f))
-
-
-### Features
-
-* improved cloudwatch analytics rollup BM-1092 ([#3381](https://github.com/linz/basemaps/issues/3381)) ([de2f295](https://github.com/linz/basemaps/commit/de2f2958c337864115d44e320f1fd3cce17bd8d2))
-
-
-
-
-
-# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
-
-
-### Bug Fixes
-
-* **infra:** reduce cache keys below 10 to prevent deployment errors ([#3332](https://github.com/linz/basemaps/issues/3332)) ([49524c0](https://github.com/linz/basemaps/commit/49524c0dd62d60652e22c8e60e67936b69dd6abb))
-
-
-### Features
-
-* **landing:** show labels on landing page ([#3330](https://github.com/linz/basemaps/issues/3330)) ([b9fe33f](https://github.com/linz/basemaps/commit/b9fe33f05168f0ca6945bf5a3773ab5efe162fdd))
-
-
-
-
-
-# [7.8.0](https://github.com/linz/basemaps/compare/v7.7.0...v7.8.0) (2024-08-11)
-
-
-### Features
-
-* **infra:** add responder team tag ([#3322](https://github.com/linz/basemaps/issues/3322)) ([b69942d](https://github.com/linz/basemaps/commit/b69942d324a6d0cc3ecd86c5d1824bc70dba00c8))
-
-
-
-
-
-# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
-
-
-### Bug Fixes
-
-* **infra:** force block public access on s3 buckets TDE-1207 ([#3301](https://github.com/linz/basemaps/issues/3301)) ([c35e14e](https://github.com/linz/basemaps/commit/c35e14e55aeea46f70233daa722e8ce8b946f1cd))
-
-
-### Features
-
-* **infra:** Add terrain cache key into cloud-front. ([#3298](https://github.com/linz/basemaps/issues/3298)) ([1befe76](https://github.com/linz/basemaps/commit/1befe7643ad504607b35e6636c3a39745e0cf03a))
-* **landing:** Add terrain parameter in the url ([#3292](https://github.com/linz/basemaps/issues/3292)) ([781bbe8](https://github.com/linz/basemaps/commit/781bbe8c009c287f4eff64f81e673a52931b6011))
-
-
-
-
-
-# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
-# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
-
-
-### Features
-
-* apply common aws cicd tags across basemaps infra ([#3237](https://github.com/linz/basemaps/issues/3237)) ([babb2dd](https://github.com/linz/basemaps/commit/babb2ddf0f6d67883c5f5952d819b9334a00ac3e))
-
-
-
-
-
-# [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
-
-**Note:** Version bump only for package @basemaps/infra
-
-
-
-
-
 ## [8.9.2](https://github.com/linz/basemaps/compare/infra-v8.9.1...infra-v8.9.2) (2025-09-24)
 
 
@@ -243,6 +22,228 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
   * devDependencies
     * @basemaps/lambda-tiler bumped from ^8.9.0 to ^8.10.0
     * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+    
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+
+### Bug Fixes
+
+* **infra:** increase lambda tiler memory to 3072MB ([#3459](https://github.com/linz/basemaps/issues/3459)) ([786bb54](https://github.com/linz/basemaps/commit/786bb5406823fb7438cb1205e1c345c407406bc5))
+
+
+
+
+
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+
+### Bug Fixes
+
+* parsing of blocked api keys ([#3448](https://github.com/linz/basemaps/issues/3448)) ([ab8bf72](https://github.com/linz/basemaps/commit/ab8bf7221df32eac59beb2d4e5cad78015c88395))
+
+
+
+
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+
+### Bug Fixes
+
+* **infra:** correct dist path location ([#3390](https://github.com/linz/basemaps/issues/3390)) ([46f8fb8](https://github.com/linz/basemaps/commit/46f8fb8ede7163172dd9cf29ad8c779bcd327d2f))
+
+
+### Features
+
+* improved cloudwatch analytics rollup BM-1092 ([#3381](https://github.com/linz/basemaps/issues/3381)) ([de2f295](https://github.com/linz/basemaps/commit/de2f2958c337864115d44e320f1fd3cce17bd8d2))
+
+
+
+
+
+## [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+
+
+### Bug Fixes
+
+* **infra:** reduce cache keys below 10 to prevent deployment errors ([#3332](https://github.com/linz/basemaps/issues/3332)) ([49524c0](https://github.com/linz/basemaps/commit/49524c0dd62d60652e22c8e60e67936b69dd6abb))
+
+
+### Features
+
+* **landing:** show labels on landing page ([#3330](https://github.com/linz/basemaps/issues/3330)) ([b9fe33f](https://github.com/linz/basemaps/commit/b9fe33f05168f0ca6945bf5a3773ab5efe162fdd))
+
+
+
+
+
+## [7.8.0](https://github.com/linz/basemaps/compare/v7.7.0...v7.8.0) (2024-08-11)
+
+
+### Features
+
+* **infra:** add responder team tag ([#3322](https://github.com/linz/basemaps/issues/3322)) ([b69942d](https://github.com/linz/basemaps/commit/b69942d324a6d0cc3ecd86c5d1824bc70dba00c8))
+
+
+
+
+
+## [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+
+### Bug Fixes
+
+* **infra:** force block public access on s3 buckets TDE-1207 ([#3301](https://github.com/linz/basemaps/issues/3301)) ([c35e14e](https://github.com/linz/basemaps/commit/c35e14e55aeea46f70233daa722e8ce8b946f1cd))
+
+
+### Features
+
+* **infra:** Add terrain cache key into cloud-front. ([#3298](https://github.com/linz/basemaps/issues/3298)) ([1befe76](https://github.com/linz/basemaps/commit/1befe7643ad504607b35e6636c3a39745e0cf03a))
+* **landing:** Add terrain parameter in the url ([#3292](https://github.com/linz/basemaps/issues/3292)) ([781bbe8](https://github.com/linz/basemaps/commit/781bbe8c009c287f4eff64f81e673a52931b6011))
+
+
+
+
+
+## [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
+## [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+
+### Features
+
+* apply common aws cicd tags across basemaps infra ([#3237](https://github.com/linz/basemaps/issues/3237)) ([babb2dd](https://github.com/linz/basemaps/commit/babb2ddf0f6d67883c5f5952d819b9334a00ac3e))
+
+
+
+
+
+## [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
+
+**Note:** Version bump only for package @basemaps/infra
+
+
+
+
+
 
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 

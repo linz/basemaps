@@ -3,266 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
-
-**Note:** Version bump only for package @basemaps/lambda-tiler
-
-
-
-
-
-# [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
-
-**Note:** Version bump only for package @basemaps/lambda-tiler
-
-
-
-
-
-# [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
-
-**Note:** Version bump only for package @basemaps/lambda-tiler
-
-
-
-
-
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
-
-
-### Features
-
-* **lambda-tiler:** add export URL for mbtiles ([#3474](https://github.com/linz/basemaps/issues/3474)) ([e15c811](https://github.com/linz/basemaps/commit/e15c8117cf19d6021a0e7a275fccf72a5449c4b2))
-
-
-
-
-
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
-
-**Note:** Version bump only for package @basemaps/lambda-tiler
-
-
-
-
-
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
-
-**Note:** Version bump only for package @basemaps/lambda-tiler
-
-
-
-
-
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
-
-
-### Features
-
-* **lambda-tiler:** expose configuration id and hash if present ([#3446](https://github.com/linz/basemaps/issues/3446)) ([43803b4](https://github.com/linz/basemaps/commit/43803b48a404591417453331ac9e3aa16c85248f))
-
-
-
-
-
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-**Note:** Version bump only for package @basemaps/lambda-tiler
-
-
-
-
-
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** automatically choose pipelines ([#3416](https://github.com/linz/basemaps/issues/3416)) ([c206a8e](https://github.com/linz/basemaps/commit/c206a8e0a579bd542afa43f6a3186c88bf6a451c))
-
-
-### Features
-
-* **lambda-tiler:** load config from s3 ([#3415](https://github.com/linz/basemaps/issues/3415)) ([e6b89c3](https://github.com/linz/basemaps/commit/e6b89c3c941c15b8fe2adcb0189a9fed46cbe024))
-
-
-
-
-
-# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
-
-**Note:** Version bump only for package @basemaps/lambda-tiler
-
-
-
-
-
-# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
-
-**Note:** Version bump only for package @basemaps/lambda-tiler
-
-
-
-
-
-# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** NZTM terrain been multiplied twice. BM-1122 ([#3373](https://github.com/linz/basemaps/issues/3373)) ([5d2d9c6](https://github.com/linz/basemaps/commit/5d2d9c6069ce31bd22539fa41e9b41cc2aa53947))
-
-
-
-
-
-# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** correctly log fetch requests ([#3359](https://github.com/linz/basemaps/issues/3359)) ([9fa3681](https://github.com/linz/basemaps/commit/9fa3681acc2ce25037c5d6e0326255aad9815b7d))
-
-
-### Features
-
-* **lambda-tiler:** update imagery layer attributions to show licensor details BM-897 ([#3357](https://github.com/linz/basemaps/issues/3357)) ([e702c7e](https://github.com/linz/basemaps/commit/e702c7e53d28aaa8db9d624acab048f8ec3a2309))
-* **server:** add redirect route to pre-zoomed tileset BM-1076 ([#3354](https://github.com/linz/basemaps/issues/3354)) ([5b207de](https://github.com/linz/basemaps/commit/5b207de92b76e0d445a41ef8e1e9b9b91e5363c6))
-
-
-
-
-
-# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
-
-
-### Features
-
-* **landing:** store the maps bounds to provide a better bounding box intersection ([#3346](https://github.com/linz/basemaps/issues/3346)) ([a420f57](https://github.com/linz/basemaps/commit/a420f57b2d21354c3fbf1a1be2e01a66d5c38d76))
-
-
-
-
-
-# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
-
-
-### Features
-
-* **lambda-tiler:** Add vector test tiles for the health endpoint. BM-1061 ([#3337](https://github.com/linz/basemaps/issues/3337)) ([74119c0](https://github.com/linz/basemaps/commit/74119c044f94d3e53f2c4717781266b1aba23bad))
-* **lambda-tiler:** automatically rescale style JSON's into NZTM2000Quad when requests ([#3339](https://github.com/linz/basemaps/issues/3339)) ([960b926](https://github.com/linz/basemaps/commit/960b92652da686c18712fa566e63c7eb6453a2f7))
-* **lambda-tiler:** remove restrictions on 3857 from vector tiles ([#3338](https://github.com/linz/basemaps/issues/3338)) ([8eede97](https://github.com/linz/basemaps/commit/8eede97676c8a905468b4a133b98c44e10873d3b))
-
-
-
-
-
-# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** do not join layers where ids would be duplicated ([#3334](https://github.com/linz/basemaps/issues/3334)) ([c2d51f2](https://github.com/linz/basemaps/commit/c2d51f270eae7d87d9656fa7cb47b6b96c31b3e4))
-* **lambda-tiler:** do not keep failed tiffs in memory ([#3331](https://github.com/linz/basemaps/issues/3331)) ([89e72ea](https://github.com/linz/basemaps/commit/89e72ead8553481f8d11936d56ec0b20b24ceb61))
-* **lambda-tiler:** prevent unhandled promise rejections when the rejection is handled BM-1067 ([#3329](https://github.com/linz/basemaps/issues/3329)) ([445da7f](https://github.com/linz/basemaps/commit/445da7fcd6829cde9f18e1130a31a97a32097466))
-
-
-### Features
-
-* **landing:** show labels on landing page ([#3330](https://github.com/linz/basemaps/issues/3330)) ([b9fe33f](https://github.com/linz/basemaps/commit/b9fe33f05168f0ca6945bf5a3773ab5efe162fdd))
-* **landing:** track label button clicks BM-1066 ([#3335](https://github.com/linz/basemaps/issues/3335)) ([555f8b5](https://github.com/linz/basemaps/commit/555f8b59f9b55dc80b8063629e33e1eea4a93937))
-
-
-
-
-
-# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** prefer geojson files to be downloaded  BM-1048 ([#3316](https://github.com/linz/basemaps/issues/3316)) ([8391416](https://github.com/linz/basemaps/commit/8391416d89ab597c8fc16a7f4ee304b45ea3f619))
-* **landing:** Support Terrain for NZTM and add default LINZ-Terrain into debug ([#3307](https://github.com/linz/basemaps/issues/3307)) ([15a1aba](https://github.com/linz/basemaps/commit/15a1abaaa6255fd8edbc4e1ddfcdb22571ce6dc5))
-
-
-
-
-
-# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
-
-
-### Bug Fixes
-
-* compiler issue with typescript v5.5.x ([#3310](https://github.com/linz/basemaps/issues/3310)) ([2734115](https://github.com/linz/basemaps/commit/2734115cae3377348484f15c27fd4efdb079dcc5))
-
-
-### Features
-
-* **config:** Update the config to support sky in the style json. BM-1052 ([#3314](https://github.com/linz/basemaps/issues/3314)) ([60db515](https://github.com/linz/basemaps/commit/60db515cab6619302c1bda25023007d433f1a408))
-
-
-
-
-
-# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** Fix the missing LINZ-terrain source for the elevation layer. ([#3302](https://github.com/linz/basemaps/issues/3302)) ([ef8b0f3](https://github.com/linz/basemaps/commit/ef8b0f3d40d90594864834c0a7beb40f6a9ef2b6))
-* **lambda-tiler:** tile matrix not supported is a 400 not 500 ([#3285](https://github.com/linz/basemaps/issues/3285)) ([310290c](https://github.com/linz/basemaps/commit/310290c27ced47d69ada72ff9b966d6cf62e6886))
-* **lambda-tiler:** wmts should support tile pipelines ([#3305](https://github.com/linz/basemaps/issues/3305)) ([3ff3f7f](https://github.com/linz/basemaps/commit/3ff3f7f1115d14bb97109b1ed92df586d403dd96))
-
-
-### Features
-
-* **lambda-tile:** Enable elevation source in the individual raster style json. ([#3286](https://github.com/linz/basemaps/issues/3286)) ([a0b6c0c](https://github.com/linz/basemaps/commit/a0b6c0c230819b2ee665845338ef0147bb6a67c3))
-* **lambda-tiler:** Ensure terrain source for all style json configs. ([#3299](https://github.com/linz/basemaps/issues/3299)) ([13aedf8](https://github.com/linz/basemaps/commit/13aedf8944adda80d985a7e642c4408788369497))
-* **landing:** Add terrain parameter in the url ([#3292](https://github.com/linz/basemaps/issues/3292)) ([781bbe8](https://github.com/linz/basemaps/commit/781bbe8c009c287f4eff64f81e673a52931b6011))
-
-
-
-
-
-# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** Remove the stylejson metadata, sprite, glphys if no required. ([#3280](https://github.com/linz/basemaps/issues/3280)) ([edaf034](https://github.com/linz/basemaps/commit/edaf03413eafabd7330bccd228956d678a5de95f))
-
-
-### Features
-
-* **lambda-tiler:** Update the tileMatrix from stylejson source if exists. ([#3279](https://github.com/linz/basemaps/issues/3279)) ([07ee06c](https://github.com/linz/basemaps/commit/07ee06c9fdc8ab8ced4e8b327767cd2a77cfee63))
-
-
-
-
-
-# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** ensure wmts limits extent to the bounding box of the tile matrix extent BM-1012 ([#3235](https://github.com/linz/basemaps/issues/3235)) ([b8d56cd](https://github.com/linz/basemaps/commit/b8d56cdbbf2cb08f1ef96bc6de82ce94563da945))
-
-
-
-
-
-# [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
-
-
-### Bug Fixes
-
-* **lambda-tiler:** content type for jpg should be image/jpeg ([#3208](https://github.com/linz/basemaps/issues/3208)) ([26efdd5](https://github.com/linz/basemaps/commit/26efdd5732033235742a3148c63e4beff0a51cc8))
-* **lambda-tiler:** do not error when no layers are found ([#3209](https://github.com/linz/basemaps/issues/3209)) ([2e58255](https://github.com/linz/basemaps/commit/2e58255df9b22d525ee539aa8754fdb755ddc8c9))
-
-
-
-
-
 ## [8.10.1](https://github.com/linz/basemaps/compare/lambda-tiler-v8.10.0...lambda-tiler-v8.10.1) (2025-09-24)
 
 
@@ -295,6 +35,267 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
     * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
     * @basemaps/tiler bumped from ^8.9.0 to ^8.10.0
     * @basemaps/tiler-sharp bumped from ^8.9.0 to ^8.10.0
+    
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+
+
+### Features
+
+* **lambda-tiler:** add export URL for mbtiles ([#3474](https://github.com/linz/basemaps/issues/3474)) ([e15c811](https://github.com/linz/basemaps/commit/e15c8117cf19d6021a0e7a275fccf72a5449c4b2))
+
+
+
+
+
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+
+
+### Features
+
+* **lambda-tiler:** expose configuration id and hash if present ([#3446](https://github.com/linz/basemaps/issues/3446)) ([43803b4](https://github.com/linz/basemaps/commit/43803b48a404591417453331ac9e3aa16c85248f))
+
+
+
+
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** automatically choose pipelines ([#3416](https://github.com/linz/basemaps/issues/3416)) ([c206a8e](https://github.com/linz/basemaps/commit/c206a8e0a579bd542afa43f6a3186c88bf6a451c))
+
+
+### Features
+
+* **lambda-tiler:** load config from s3 ([#3415](https://github.com/linz/basemaps/issues/3415)) ([e6b89c3](https://github.com/linz/basemaps/commit/e6b89c3c941c15b8fe2adcb0189a9fed46cbe024))
+
+
+
+
+
+## [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** NZTM terrain been multiplied twice. BM-1122 ([#3373](https://github.com/linz/basemaps/issues/3373)) ([5d2d9c6](https://github.com/linz/basemaps/commit/5d2d9c6069ce31bd22539fa41e9b41cc2aa53947))
+
+
+
+
+
+## [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** correctly log fetch requests ([#3359](https://github.com/linz/basemaps/issues/3359)) ([9fa3681](https://github.com/linz/basemaps/commit/9fa3681acc2ce25037c5d6e0326255aad9815b7d))
+
+
+### Features
+
+* **lambda-tiler:** update imagery layer attributions to show licensor details BM-897 ([#3357](https://github.com/linz/basemaps/issues/3357)) ([e702c7e](https://github.com/linz/basemaps/commit/e702c7e53d28aaa8db9d624acab048f8ec3a2309))
+* **server:** add redirect route to pre-zoomed tileset BM-1076 ([#3354](https://github.com/linz/basemaps/issues/3354)) ([5b207de](https://github.com/linz/basemaps/commit/5b207de92b76e0d445a41ef8e1e9b9b91e5363c6))
+
+
+
+
+
+## [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+
+
+### Features
+
+* **landing:** store the maps bounds to provide a better bounding box intersection ([#3346](https://github.com/linz/basemaps/issues/3346)) ([a420f57](https://github.com/linz/basemaps/commit/a420f57b2d21354c3fbf1a1be2e01a66d5c38d76))
+
+
+
+
+
+## [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+
+
+### Features
+
+* **lambda-tiler:** Add vector test tiles for the health endpoint. BM-1061 ([#3337](https://github.com/linz/basemaps/issues/3337)) ([74119c0](https://github.com/linz/basemaps/commit/74119c044f94d3e53f2c4717781266b1aba23bad))
+* **lambda-tiler:** automatically rescale style JSON's into NZTM2000Quad when requests ([#3339](https://github.com/linz/basemaps/issues/3339)) ([960b926](https://github.com/linz/basemaps/commit/960b92652da686c18712fa566e63c7eb6453a2f7))
+* **lambda-tiler:** remove restrictions on 3857 from vector tiles ([#3338](https://github.com/linz/basemaps/issues/3338)) ([8eede97](https://github.com/linz/basemaps/commit/8eede97676c8a905468b4a133b98c44e10873d3b))
+
+
+
+
+
+## [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** do not join layers where ids would be duplicated ([#3334](https://github.com/linz/basemaps/issues/3334)) ([c2d51f2](https://github.com/linz/basemaps/commit/c2d51f270eae7d87d9656fa7cb47b6b96c31b3e4))
+* **lambda-tiler:** do not keep failed tiffs in memory ([#3331](https://github.com/linz/basemaps/issues/3331)) ([89e72ea](https://github.com/linz/basemaps/commit/89e72ead8553481f8d11936d56ec0b20b24ceb61))
+* **lambda-tiler:** prevent unhandled promise rejections when the rejection is handled BM-1067 ([#3329](https://github.com/linz/basemaps/issues/3329)) ([445da7f](https://github.com/linz/basemaps/commit/445da7fcd6829cde9f18e1130a31a97a32097466))
+
+
+### Features
+
+* **landing:** show labels on landing page ([#3330](https://github.com/linz/basemaps/issues/3330)) ([b9fe33f](https://github.com/linz/basemaps/commit/b9fe33f05168f0ca6945bf5a3773ab5efe162fdd))
+* **landing:** track label button clicks BM-1066 ([#3335](https://github.com/linz/basemaps/issues/3335)) ([555f8b5](https://github.com/linz/basemaps/commit/555f8b59f9b55dc80b8063629e33e1eea4a93937))
+
+
+
+
+
+## [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** prefer geojson files to be downloaded  BM-1048 ([#3316](https://github.com/linz/basemaps/issues/3316)) ([8391416](https://github.com/linz/basemaps/commit/8391416d89ab597c8fc16a7f4ee304b45ea3f619))
+* **landing:** Support Terrain for NZTM and add default LINZ-Terrain into debug ([#3307](https://github.com/linz/basemaps/issues/3307)) ([15a1aba](https://github.com/linz/basemaps/commit/15a1abaaa6255fd8edbc4e1ddfcdb22571ce6dc5))
+
+
+
+
+
+## [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+
+
+### Bug Fixes
+
+* compiler issue with typescript v5.5.x ([#3310](https://github.com/linz/basemaps/issues/3310)) ([2734115](https://github.com/linz/basemaps/commit/2734115cae3377348484f15c27fd4efdb079dcc5))
+
+
+### Features
+
+* **config:** Update the config to support sky in the style json. BM-1052 ([#3314](https://github.com/linz/basemaps/issues/3314)) ([60db515](https://github.com/linz/basemaps/commit/60db515cab6619302c1bda25023007d433f1a408))
+
+
+
+
+
+## [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Fix the missing LINZ-terrain source for the elevation layer. ([#3302](https://github.com/linz/basemaps/issues/3302)) ([ef8b0f3](https://github.com/linz/basemaps/commit/ef8b0f3d40d90594864834c0a7beb40f6a9ef2b6))
+* **lambda-tiler:** tile matrix not supported is a 400 not 500 ([#3285](https://github.com/linz/basemaps/issues/3285)) ([310290c](https://github.com/linz/basemaps/commit/310290c27ced47d69ada72ff9b966d6cf62e6886))
+* **lambda-tiler:** wmts should support tile pipelines ([#3305](https://github.com/linz/basemaps/issues/3305)) ([3ff3f7f](https://github.com/linz/basemaps/commit/3ff3f7f1115d14bb97109b1ed92df586d403dd96))
+
+
+### Features
+
+* **lambda-tile:** Enable elevation source in the individual raster style json. ([#3286](https://github.com/linz/basemaps/issues/3286)) ([a0b6c0c](https://github.com/linz/basemaps/commit/a0b6c0c230819b2ee665845338ef0147bb6a67c3))
+* **lambda-tiler:** Ensure terrain source for all style json configs. ([#3299](https://github.com/linz/basemaps/issues/3299)) ([13aedf8](https://github.com/linz/basemaps/commit/13aedf8944adda80d985a7e642c4408788369497))
+* **landing:** Add terrain parameter in the url ([#3292](https://github.com/linz/basemaps/issues/3292)) ([781bbe8](https://github.com/linz/basemaps/commit/781bbe8c009c287f4eff64f81e673a52931b6011))
+
+
+
+
+
+## [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** Remove the stylejson metadata, sprite, glphys if no required. ([#3280](https://github.com/linz/basemaps/issues/3280)) ([edaf034](https://github.com/linz/basemaps/commit/edaf03413eafabd7330bccd228956d678a5de95f))
+
+
+### Features
+
+* **lambda-tiler:** Update the tileMatrix from stylejson source if exists. ([#3279](https://github.com/linz/basemaps/issues/3279)) ([07ee06c](https://github.com/linz/basemaps/commit/07ee06c9fdc8ab8ced4e8b327767cd2a77cfee63))
+
+
+
+
+
+## [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** ensure wmts limits extent to the bounding box of the tile matrix extent BM-1012 ([#3235](https://github.com/linz/basemaps/issues/3235)) ([b8d56cd](https://github.com/linz/basemaps/commit/b8d56cdbbf2cb08f1ef96bc6de82ce94563da945))
+
+
+
+
+
+## [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
+
+
+### Bug Fixes
+
+* **lambda-tiler:** content type for jpg should be image/jpeg ([#3208](https://github.com/linz/basemaps/issues/3208)) ([26efdd5](https://github.com/linz/basemaps/commit/26efdd5732033235742a3148c63e4beff0a51cc8))
+* **lambda-tiler:** do not error when no layers are found ([#3209](https://github.com/linz/basemaps/issues/3209)) ([2e58255](https://github.com/linz/basemaps/commit/2e58255df9b22d525ee539aa8754fdb755ddc8c9))
+
+
+
+
+
 
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
