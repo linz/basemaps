@@ -13,14 +13,14 @@ export const Ramps: Record<DecompressedInterleaved['depth'], Colorizer> = {
   uint32: new GreyScale(0, 2 ** 32 - 1),
 };
 
-function getRamp(data: DecompressedInterleaved, ctx: PipelineColorRampArgs): Colorizer {
+function getRamp(data: DecompressedInterleaved, ctx?: PipelineColorRampArgs): Colorizer {
   if (ctx?.ramp != null) return new ColorRamp(ctx.ramp);
   return Ramps[data.depth];
 }
 
 export const PipelineColorRamp: Pipeline<PipelineColorRampArgs> = {
   type: 'color-ramp',
-  process(comp: CompositionTiff, data: DecompressedInterleaved, ctx: PipelineColorRampArgs): DecompressedInterleaved {
+  process(comp: CompositionTiff, data: DecompressedInterleaved, ctx?: PipelineColorRampArgs): DecompressedInterleaved {
     const raw = new Uint8ClampedArray(data.width * data.height * 4);
     const output: DecompressedInterleaved = {
       pixels: raw,
