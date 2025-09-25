@@ -23,5 +23,5 @@
   "packages/sprites": "8.0.0",
   "packages/tiler": "8.10.1",
   "packages/tiler-sharp": "8.10.1",
-  ".": "8.12.0"
+  ".": "8.12.1"
 }
