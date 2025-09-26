@@ -21,13 +21,18 @@ export interface TopoCreationContext {
   target: URL;
   /** Imagery title */
   title: string;
-  /** Input topo imagery scale, topo25, topo50, or topo250*/
+  /** Input topo imagery scale: topo25, topo50, or topo250*/
   mapSeries: MapSeries;
+  /** Input topo imagery format: gridded, or gridless */
+  format: Format;
   /** force output if not in argo */
   output?: URL;
   /** Logger to trace creation */
   logger: LogType;
 }
+
+const Format = ['gridded', 'gridless'];
+export type Format = 'gridded' | 'gridless';
 
 const MapSeries = ['topo25', 'topo50', 'topo250'];
 export type MapSeries = 'topo25' | 'topo50' | 'topo250';
@@ -66,7 +71,12 @@ export const TopoStacCreationCommand = command({
     mapSeries: option({
       type: oneOf(MapSeries),
       long: 'map-series',
-      description: `Map series name. Either ${MapSeries.join(', ')}`,
+      description: `Map series scale. Either ${MapSeries.join(', ')}`,
+    }),
+    format: option({
+      type: oneOf(Format),
+      long: 'format',
+      description: `Map sheet format. Either ${Format.join(', ')}`,
     }),
     latestOnly: flag({
       type: boolean,
@@ -91,6 +101,8 @@ export const TopoStacCreationCommand = command({
     logger.info('TopoCogify:Start');
 
     const mapSeries = args.mapSeries as MapSeries;
+    const format = args.format as Format;
+
     const title = args.title ?? MapSeriesTitle[mapSeries];
 
     const ctx: TopoCreationContext = {
@@ -99,6 +111,7 @@ export const TopoStacCreationCommand = command({
       target: args.target,
       title,
       mapSeries,
+      format,
       output: args.output,
       logger,
     };
@@ -173,7 +186,7 @@ async function loadTiffsToCreateStacs(
 
   // TODO: resolution is defined from the GSD over the map scale,
   // and can be extracted in the future if we want to process higher resolution maps
-  const resolution = 'gridless_600dpi';
+  const resolution = `${ctx.format}_600dpi`;
 
   for (const [epsg, tiffItems] of allTiffItems.entries()) {
     logger?.info({ epsg }, 'CreateStacFiles:Start');
