@@ -23,6 +23,7 @@ describe('cli.topo', () => {
     paths: [new URL('memory://source/')],
     target: new URL('memory://target/'),
     mapSeries: 'topo50',
+    format: 'gridless',
     latestOnly: false,
     title: undefined,
     output: undefined,
