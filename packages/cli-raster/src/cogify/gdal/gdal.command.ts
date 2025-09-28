@@ -15,8 +15,8 @@ const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
  * of empty space is rendered at the edge of every mapsheet.
  *
  */
-const PixelTrimTop = 3.8;
-const PixelTrimRight = 5.3;
+const PixelTrimTop = 1;
+const PixelTrimRight = 4;
 
 export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha: boolean): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
