@@ -10,6 +10,7 @@ export const LabelsDisabledLayers = new Set([
   'topolite',
   'topolite-v2',
   'topo-raster',
+  'topo-raster-gridless',
 ]);
 
 export class MapLabelControl implements IControl {
