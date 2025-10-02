@@ -393,7 +393,13 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
     },
     {
       id: 'topo-raster::topo-raster',
-      title: 'NZ Topo Gridless Maps',
+      title: 'Topo Maps',
+      projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
+      category: 'Basemaps',
+    },
+    {
+      id: 'topo-raster::topo-raster-gridless',
+      title: 'Topo Gridless Maps',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Basemaps',
     },
