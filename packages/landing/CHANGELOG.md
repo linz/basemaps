@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.0](https://github.com/linz/basemaps/compare/landing-v8.10.1...landing-v8.11.0) (2025-10-02)
+
+
+### Features
+
+* **landing:** new topo dropdowns BM-1376  ([#3533](https://github.com/linz/basemaps/issues/3533)) ([c6082e6](https://github.com/linz/basemaps/commit/c6082e69c8783592114814de5574b09180b3e626))
+
 ## [8.10.1](https://github.com/linz/basemaps/compare/landing-v8.10.0...landing-v8.10.1) (2025-09-24)
 
 
