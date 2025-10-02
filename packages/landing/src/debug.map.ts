@@ -98,7 +98,7 @@ export class DebugMap {
           urlType: MapOptionType.Style,
           tileMatrix: Config.map.tileMatrix,
           layerId: 'topographic',
-          style: 'topographic',
+          style: 'topographic-v2',
         }),
       ).then((f) => f.json());
     }
