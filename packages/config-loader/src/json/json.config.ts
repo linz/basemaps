@@ -287,7 +287,7 @@ export class ConfigJson {
     // TODO should we be overwriting the name and title when it is loaded from the STAC metadata?
     img.name = name;
     img.title = title;
-    img.category = category;
+    if (category) img.category = category;
 
     // TODO should we store the STAC collection somewhere?
     delete img.collection;
