@@ -179,12 +179,13 @@ export class ConfigJson {
     const imageryFetch: Promise<ConfigImagery>[] = [];
     if (ts.type === TileSetType.Raster) {
       for (const layer of ts.layers) {
+        const category = layer.category ?? ts.category ?? undefined;
         if (layer[2193] != null) {
-          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[2193]), layer.name, layer.title));
+          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[2193]), layer.name, layer.title, category));
         }
 
         if (layer[3857] != null) {
-          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[3857]), layer.name, layer.title));
+          imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[3857]), layer.name, layer.title, category));
         }
       }
     }
@@ -260,10 +261,10 @@ export class ConfigJson {
     return tileSet as ConfigTileSet;
   }
 
-  loadImagery(url: URL, name: string, title: string): Promise<ConfigImagery> {
+  loadImagery(url: URL, name: string, title: string, category?: string): Promise<ConfigImagery> {
     let existing = this.cache.get(url.href);
     if (existing == null) {
-      existing = this._loadImagery(url, name, title);
+      existing = this._loadImagery(url, name, title, category);
       this.cache.set(url.href, existing);
     }
     return existing;
@@ -274,7 +275,7 @@ export class ConfigJson {
     return initImageryFromTiffUrl(url, this.Q, this.imageryConfigCache, this.logger);
   }
 
-  async _loadImagery(url: URL, name: string, title: string): Promise<ConfigImagery> {
+  async _loadImagery(url: URL, name: string, title: string, category?: string): Promise<ConfigImagery> {
     // TODO is there a better way of guessing the imagery id & tile matrix?
     const imageId = guessIdFromUri(url.href) ?? sha256base58(url.href);
     const id = ConfigId.prefix(ConfigPrefix.Imagery, imageId);
@@ -286,6 +287,7 @@ export class ConfigJson {
     // TODO should we be overwriting the name and title when it is loaded from the STAC metadata?
     img.name = name;
     img.title = title;
+    img.category = category;
 
     // TODO should we store the STAC collection somewhere?
     delete img.collection;
