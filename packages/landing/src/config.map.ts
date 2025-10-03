@@ -404,13 +404,13 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
       category: 'Basemaps',
     },
     {
-      id: 'topographic::topographic-v2',
+      id: 'topographic-v2::topographic-v2',
       title: 'Topographic',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Basemaps',
     },
     {
-      id: 'topographic::topolite-v2',
+      id: 'topographic-v2::topolite-v2',
       title: 'Topolite',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Basemaps',
