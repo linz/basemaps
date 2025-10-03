@@ -167,6 +167,9 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
       const tileSet = this.objects.get(this.TileSet.id(l.name)) as ConfigTileSetRaster;
       if (tileSet.outputs) continue;
 
+      // Ignore all Charts individual tileset with category charts
+      if (tileSet.category === 'Charts') continue;
+
       const newLayer = { ...l, minZoom: 32 };
       delete newLayer.maxZoom; // max zoom not needed when minzoom is 32
       layerByName.set(newLayer.name, { ...layerByName.get(l.name), ...newLayer });
