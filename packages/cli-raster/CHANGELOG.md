@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.0](https://github.com/linz/basemaps/compare/cli-raster-v8.10.1...cli-raster-v8.11.0) (2025-10-02)
+
+
+### Features
+
+* **cli-raster:** update topo-raster processes to support 600 DPI gridded map sheets BM-1375 ([#3532](https://github.com/linz/basemaps/issues/3532)) ([887e43a](https://github.com/linz/basemaps/commit/887e43a2680c60daf56a17066533497954487473))
+
 ## [8.10.1](https://github.com/linz/basemaps/compare/cli-raster-v8.10.0...cli-raster-v8.10.1) (2025-09-24)
 
 
