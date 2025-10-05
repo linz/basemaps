@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.1](https://github.com/linz/basemaps/compare/landing-v8.11.0...landing-v8.11.1) (2025-10-05)
+
+
+### Bug Fixes
+
+* **landing:** keep gridless default ([#3536](https://github.com/linz/basemaps/issues/3536)) ([11f395e](https://github.com/linz/basemaps/commit/11f395e02d41878ba798349b6654e966d71e9e56))
+
 ## [8.11.0](https://github.com/linz/basemaps/compare/landing-v8.10.1...landing-v8.11.0) (2025-10-02)
 
 
