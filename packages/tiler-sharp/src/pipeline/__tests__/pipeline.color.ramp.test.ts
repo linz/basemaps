@@ -93,4 +93,22 @@ describe('pipeline.color-ramp', () => {
     assert.equal(String(output.pixels.slice(4, 8)), '128,128,128,255');
     assert.equal(String(output.pixels.slice(8, 12)), '255,255,255,255');
   });
+
+  it('should color-ramp a uint16', async () => {
+    const bytes: DecompressedInterleaved = {
+      pixels: new Uint16Array([0, 2 ** 15, 2 ** 16 - 1]),
+      depth: 'uint16',
+      channels: 1,
+      width: 3,
+      height: 1,
+    };
+
+    const output = await PipelineColorRamp.process(FakeComp, bytes);
+
+    assert.equal(output.channels, 4);
+
+    assert.equal(String(output.pixels.slice(0, 4)), '0,0,0,255');
+    assert.equal(String(output.pixels.slice(4, 8)), '128,128,128,255');
+    assert.equal(String(output.pixels.slice(8, 12)), '255,255,255,255');
+  });
 });

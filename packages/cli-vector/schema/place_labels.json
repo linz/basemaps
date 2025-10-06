@@ -1,12 +1,12 @@
 {
   "name": "place_labels",
-  "metadata": { "attributes": ["kind", "water", "name", "natural", "place"] },
+  "metadata": { "attributes": ["label", "admin_level", "natural", "place", "water"] },
   "layers": [
     {
-      "id": "51154",
-      "name": "51154-nzgb-gazetteer-application-labels-wfs-layer",
-      "source": "s3://linz-lds-cache/51154/",
-      "tags": { "kind": "place" },
+      "id": "122315",
+      "name": "122315-topographic-names-3857",
+      "source": "s3://linz-lds-cache/122315/",
+      "tags": {},
       "style": { "minZoom": 0, "maxZoom": 15 }
     }
   ]

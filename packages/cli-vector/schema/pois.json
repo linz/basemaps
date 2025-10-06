@@ -501,7 +501,7 @@
       "name": "50239-nz-bivouac-points-topo-150k",
       "source": "s3://linz-lds-cache/50239/",
       "tags": { "amenity": "bivouac" },
-      "style": { "minZoom": 12, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50271",
@@ -789,14 +789,14 @@
       "name": "50245-nz-building-points-topo-150k",
       "source": "s3://linz-lds-cache/50245/",
       "tags": { "building": "building" },
-      "style": { "minZoom": 14, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50246",
       "name": "50246-nz-building-polygons-topo-150k",
       "source": "s3://linz-lds-cache/50246/",
       "tags": { "building": "building" },
-      "style": { "minZoom": 14, "maxZoom": 15 }
+      "style": { "minZoom": 10, "maxZoom": 15 }
     },
     {
       "id": "50275",

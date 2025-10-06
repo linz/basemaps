@@ -3,7 +3,91 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+## [8.11.1](https://github.com/linz/basemaps/compare/landing-v8.11.0...landing-v8.11.1) (2025-10-05)
+
+
+### Bug Fixes
+
+* **landing:** keep gridless default ([#3536](https://github.com/linz/basemaps/issues/3536)) ([11f395e](https://github.com/linz/basemaps/commit/11f395e02d41878ba798349b6654e966d71e9e56))
+
+## [8.11.0](https://github.com/linz/basemaps/compare/landing-v8.10.1...landing-v8.11.0) (2025-10-02)
+
+
+### Features
+
+* **landing:** new topo dropdowns BM-1376  ([#3533](https://github.com/linz/basemaps/issues/3533)) ([c6082e6](https://github.com/linz/basemaps/commit/c6082e69c8783592114814de5574b09180b3e626))
+
+## [8.10.1](https://github.com/linz/basemaps/compare/landing-v8.10.0...landing-v8.10.1) (2025-09-24)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/cli-config bumped from ^8.10.0 to ^8.10.1
+    * @basemaps/config bumped from ^8.10.0 to ^8.10.1
+    * @basemaps/shared bumped from ^8.9.1 to ^8.9.2
+
+## [8.10.0](https://github.com/linz/basemaps/compare/landing-v8.9.0...landing-v8.10.0) (2025-09-22)
+
+
+### Features
+
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+* **landing:** add dsm to terrain switch BM-1271 ([#3496](https://github.com/linz/basemaps/issues/3496)) ([9a8fbc9](https://github.com/linz/basemaps/commit/9a8fbc92aa812a0b28fb31f1d93bbdd1aa31ce2e))
+
+
+### Bug Fixes
+
+* update dsm terrain icon BM-1271 ([#3518](https://github.com/linz/basemaps/issues/3518)) ([aadce30](https://github.com/linz/basemaps/commit/aadce300c75b424f7828704b4ab8f638a89d1837))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/cli-config bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/config bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+    
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+
+### Features
+
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+
+### Features
+
+* **geo:** implement support for all raster topo map series projections BM-1160 ([#3480](https://github.com/linz/basemaps/issues/3480)) ([8652578](https://github.com/linz/basemaps/commit/8652578380c8d9fb64bce3d3724b8fb99bd1612a))
+* **geo:** support tile matrixes that are not square ([#3484](https://github.com/linz/basemaps/issues/3484)) ([7720d02](https://github.com/linz/basemaps/commit/7720d02684874b17fb744b9cadff3557676f4d42))
+* **landing:** quick change cycles through more basemaps BM-1293 ([#3493](https://github.com/linz/basemaps/issues/3493)) ([4bfba36](https://github.com/linz/basemaps/commit/4bfba36d8a8f7691a67a703fa78e0b1da20b9eba))
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+
+### Features
+
+* **landing:** add dsm hillshade ([#3479](https://github.com/linz/basemaps/issues/3479)) ([8ea4218](https://github.com/linz/basemaps/commit/8ea4218e476488125b986e447a36c6cef1b384f9))
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
 
 **Note:** Version bump only for package @basemaps/landing
 
@@ -11,7 +95,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
+## [8.4.0](https://github.com/linz/basemaps/compare/v8.3.0...v8.4.0) (2025-06-25)
 
 **Note:** Version bump only for package @basemaps/landing
 
@@ -19,7 +103,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
 
 
 ### Bug Fixes
@@ -36,7 +120,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
 
 **Note:** Version bump only for package @basemaps/landing
 
@@ -44,7 +128,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
 
 **Note:** Version bump only for package @basemaps/landing
 
@@ -52,7 +136,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
 
 
 ### Bug Fixes
@@ -64,7 +148,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
+## [7.17.0](https://github.com/linz/basemaps/compare/v7.16.0...v7.17.0) (2025-04-08)
 
 
 ### Features
@@ -75,7 +159,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
 
 
 ### Bug Fixes

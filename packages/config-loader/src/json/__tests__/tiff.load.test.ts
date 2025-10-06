@@ -66,7 +66,64 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
-    assert.deepEqual(img.bands, ['uint8', 'uint8', 'uint8', 'uint8']);
+    assert.deepEqual(
+      img.bands?.map((m) => m.type),
+      ['uint8', 'uint8', 'uint8', 'uint8'],
+    );
+  });
+
+  it('should import a rgbi tiff', async () => {
+    const rgbiTiff = new URL('../../../../__tests__/static/rgbi16.stats.tiff', import.meta.url);
+    await fsa.write(new URL('source://source/rgbi/google.tiff'), await fsa.read(rgbiTiff));
+
+    const ts = {
+      id: 'ts_google',
+      type: 'raster',
+      title: 'GoogleExample',
+      layers: [{ 3857: 'source://source/rgbi/', title: 'google_title', name: 'google_name' }],
+    };
+
+    const cfgUrl = new URL('tmp://config/ts_google.json');
+    await fsa.write(cfgUrl, JSON.stringify(ts));
+
+    const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
+    const tsGoogle = await cfg.TileSet.get('ts_google');
+    assert.ok(tsGoogle);
+
+    const layerOne = tsGoogle?.layers[0];
+    assert.ok(layerOne);
+
+    const imgId = layerOne[3857];
+    assert.ok(imgId);
+
+    const img = await cfg.Imagery.get(imgId);
+
+    assert.ok(img?.bands);
+    assert.deepEqual(
+      img.bands.map((m) => m.type),
+      ['uint16', 'uint16', 'uint16', 'uint16'],
+    );
+    assert.deepEqual(
+      img.bands.map((m) => m.color),
+      ['red', 'green', 'blue', 'nir'],
+    );
+    assert.deepEqual(
+      img.bands.map((m) => m.stats?.max),
+      [255, 255, 255, 255],
+    );
+    assert.deepEqual(
+      img.bands.map((m) => m.stats?.min),
+      [2, 0, 0, 255],
+    );
+    assert.deepEqual(
+      img.bands.map((m) => m.stats?.mean),
+      [128, 95.75, 64.5, 255],
+    );
+
+    assert.deepEqual(
+      img.bands.map((m) => Math.round(m.stats?.stddev ?? 0)),
+      [126, 106, 110, 0],
+    );
   });
 
   it('should default to uint if data type is missing', async () => {
@@ -116,7 +173,11 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
-    assert.deepEqual(img.bands, ['uint8', 'uint8', 'uint8', 'uint8']);
+
+    assert.deepEqual(
+      img.bands?.map((m) => m.type),
+      ['uint8', 'uint8', 'uint8', 'uint8'],
+    );
   });
 
   it('should load a config with a stac collection', async () => {
@@ -154,7 +215,10 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
-    assert.deepEqual(img.bands, ['uint8', 'uint8', 'uint8', 'uint8']);
+    assert.deepEqual(
+      img.bands?.map((b) => b.type),
+      ['uint8', 'uint8', 'uint8', 'uint8'],
+    );
   });
 
   it('should load a one band float32 collection', async () => {
@@ -193,7 +257,14 @@ describe('tiff-loader', () => {
 
     assert.ok(img);
     assert.equal(img.files.length, 1);
-    assert.deepEqual(img.bands, ['float32']);
+
+    assert.deepEqual(
+      img.bands?.map((m) => m.type ?? ''),
+      ['float32'],
+    );
+
+    assert.ok(img.bands?.[0]?.stats?.min);
+    assert.ok(img.bands?.[0]?.stats?.max);
 
     cfg.createVirtualTileSets();
 

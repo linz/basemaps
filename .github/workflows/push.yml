@@ -17,6 +17,8 @@ jobs:
       NODE_OPTIONS: '--max-old-space-size=8192'
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
   build-deploy:
     runs-on: ubuntu-latest
@@ -28,6 +30,8 @@ jobs:
 
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Bundle
         run: |
@@ -51,28 +55,6 @@ jobs:
       - name: Check Dependencies
         run: node scripts/detect.unlinked.dep.mjs
 
-      - name: (Prod) Create tag
-        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
-          git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION}
-          git push --tags
-
-      - name: (Prod) Create github release
-        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx conventional-github-releaser -p angular
-        env:
-          CONVENTIONAL_GITHUB_RELEASER_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
-      - name: (Prod) Publish NPM
-        if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-        run: npx lerna publish from-git --yes
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{secrets.NPM_AUTH_TOKEN_LINZJS}}
-
   deploy-dev:
     runs-on: ubuntu-latest
     concurrency: deploy-dev-${{ github.ref }}
@@ -89,6 +71,8 @@ jobs:
 
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Build docs
         run: |
@@ -128,7 +112,7 @@ jobs:
       - name: (Dev) After Deploy Smoke Test
         run: |
           cd packages/smoke
-          node --test
+          npm run smoke
 
   deploy-prod:
     runs-on: ubuntu-latest
@@ -145,6 +129,8 @@ jobs:
       contents: write
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       - name: Build docs
         run: |
@@ -184,4 +170,4 @@ jobs:
       - name: (Prod) After Deploy Smoke Test
         run: |
           cd packages/smoke
-          BASEMAPS_HOST=https://basemaps.linz.govt.nz node --test
+          BASEMAPS_HOST=https://basemaps.linz.govt.nz npm run smoke

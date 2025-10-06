@@ -3,22 +3,21 @@ import { TileMatrixSetType } from '@linzjs/tile-matrix-set';
 import { TileMatrixSet } from '../tile.matrix.set.js';
 
 /**
- * **Warning** this is not a standard tile matrix it is used for debugging purposes only
+ * **Warning** This is a non-standard tile matrix for `EPSG:3793`.
  *
- * Created using ./scripts/debug.tile.matrix.ts
+ * Created using `packages/shared/src/scripts/debug.tile.matrix.ts`
  */
 const Citm2000Tmst: TileMatrixSetType & { $generated: unknown; $options: unknown } = {
   type: 'TileMatrixSetType',
   title: 'Debug tile matrix for EPSG:3793',
-  abstract: '',
   identifier: 'CITM2000Quad',
-  supportedCRS: 'https://www.opengis.net/def/crs/EPSG/0/3793',
   boundingBox: {
     type: 'BoundingBoxType',
     crs: 'https://www.opengis.net/def/crs/EPSG/0/3793',
     lowerCorner: [5051234.111622438, 3430154.3757978342],
     upperCorner: [5207777.145550478, 3586697.4097258747],
   },
+  supportedCRS: 'https://www.opengis.net/def/crs/EPSG/0/3793',
   tileMatrix: [
     {
       type: 'TileMatrixType',

@@ -8,14 +8,14 @@ export interface GdalCommand {
   /** Output file location */
   output: URL;
   /** GDAL command to use */
-  command: 'gdal_create' | 'gdalwarp' | 'gdalbuildvrt' | 'gdal_translate';
+  command: 'gdal_create' | 'gdalwarp' | 'gdalbuildvrt' | 'gdal_translate' | 'ogr2ogr';
   /** GDAL arguments to use */
   args: string[];
 }
 
 function getDockerContainer(): string {
   const containerPath = process.env['GDAL_DOCKER_CONTAINER'] ?? 'ghcr.io/osgeo/gdal';
-  const tag = process.env['GDAL_DOCKER_CONTAINER_TAG'] ?? 'ubuntu-small-3.8.0';
+  const tag = process.env['GDAL_DOCKER_CONTAINER_TAG'] ?? 'ubuntu-small-3.11.3';
   return `${containerPath}:${tag}`;
 }
 

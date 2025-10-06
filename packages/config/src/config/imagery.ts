@@ -11,13 +11,36 @@ import { ConfigBase } from './base.js';
 export type ImageryDataType = 'uint' | 'int' | 'float' | 'void' | 'unknown' | 'cint' | 'cfloat';
 
 // TODO add more band types
-export const ImageryBandParser = z.union([
+export const ImageryBandDataTypeParser = z.union([
   z.literal('float16'),
   z.literal('float32'),
   z.literal('uint8'),
   z.literal('uint16'),
 ]);
-export type ImageryBandType = z.infer<typeof ImageryBandParser>;
+export type ImageryBandDataType = z.infer<typeof ImageryBandDataTypeParser>;
+export type ImageryBandType = z.infer<typeof ConfigImageryBandParser>;
+
+export const ConfigImageryBandParser = z.object({
+  /** Band data type  */
+  type: ImageryBandDataTypeParser,
+  /**
+   * GDAL color interpretation for the band
+   *
+   * eg: red|green|blue|alpha|gray|undefined|pan|coastal|rededge|nir|swir|mwir|lwir|...
+   *
+   * @link https://gdal.org/en/stable/programs/gdal_translate.html#cmdoption-gdal_translate-colorinterp
+   */
+  color: z.string().optional(),
+  /** Optional GDAL stats about the imagery if the tiff was made with `-stats` */
+  stats: z
+    .object({
+      min: z.number(),
+      max: z.number(),
+      mean: z.number(),
+      stddev: z.number(),
+    })
+    .optional(),
+});
 
 export const ConfigImageryOverviewParser = z
   .object({
@@ -102,7 +125,7 @@ export const NamedBoundsParser = z.object({
 
 export type ConfigImageryOverview = z.infer<typeof ConfigImageryOverviewParser>;
 
-export const ConfigImageryParser = ConfigBase.extend({
+export const ConfigImageryBase = ConfigBase.extend({
   /**
    * Projection for the imagery
    */
@@ -119,7 +142,6 @@ export const ConfigImageryParser = ConfigBase.extend({
 
   /**
    * Human friendly title for the imagery
-   *
    */
   title: z.string(),
 
@@ -148,11 +170,6 @@ export const ConfigImageryParser = ConfigBase.extend({
   bounds: BoundingBoxParser,
 
   /**
-   * Information about the common bands for the datasets
-   */
-  bands: z.array(ImageryBandParser).optional(),
-
-  /**
    * Optional noData value for the source
    *
    * @example -9999
@@ -175,4 +192,33 @@ export const ConfigImageryParser = ConfigBase.extend({
   providers: z.array(ProvidersParser).optional(),
 });
 
-export type ConfigImagery = z.infer<typeof ConfigImageryParser>;
+export type ConfigImagery = z.infer<typeof ConfigImageryV2Parser>;
+
+export type ConfigImageryV1 = z.infer<typeof ConfigImageryV1Parser>;
+
+export type ConfigImageryAll = ConfigImagery | ConfigImageryV1;
+
+export const ConfigImageryV1Parser = ConfigImageryBase.extend({
+  v: z.undefined(),
+  /** Optional basic band data type information */
+  bands: z.array(ImageryBandDataTypeParser).optional(),
+  /**
+   * Optional Human friendly title for the imagery
+   */
+  title: z.string().optional(),
+});
+
+/**
+ * Version two of imagery configuration adds more information about the bands found inside the imagery
+ */
+export const ConfigImageryV2Parser = ConfigImageryBase.extend({
+  v: z.literal(2),
+
+  /** Human friendly title for the imagery */
+  title: z.string(),
+
+  /** Band information  */
+  bands: z.array(ConfigImageryBandParser),
+});
+
+export const ConfigImageryParser = z.discriminatedUnion('v', [ConfigImageryV1Parser, ConfigImageryV2Parser]);

@@ -42,7 +42,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
 
       - name: Setup tags
@@ -127,6 +127,11 @@ jobs:
 
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
+
+      - name: Check Dependencies
+        run: node scripts/detect.unlinked.dep.mjs
 
       - name: (Prod) Ensure tag exists
         if: github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
@@ -135,7 +140,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          CURRENT_VERSION=$(node -p "require('./lerna.json').version")
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
           git tag v${CURRENT_VERSION} -m v${CURRENT_VERSION} || true # Only create the tag if it doesn't exist
 
       - name: Bundle & Package all files

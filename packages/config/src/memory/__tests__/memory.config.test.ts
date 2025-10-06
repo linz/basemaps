@@ -5,19 +5,41 @@ import timers from 'node:timers/promises';
 import { ulid } from 'ulid';
 
 import { ConfigBase } from '../../config/base.js';
-import { ConfigImagery } from '../../config/imagery.js';
+import { ConfigImagery, ConfigImageryV1 } from '../../config/imagery.js';
 import { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory.config.js';
 
 describe('MemoryConfig', () => {
   const config = new ConfigProviderMemory();
   beforeEach(() => config.objects.clear());
-  const id = ulid();
+  // Generate a really old timestamp so any time comparisions are not affected by test execution time
+  const id = ulid(new Date('2021-01-01T00:00:00.000Z').getTime());
   const imId = `im_${id}`;
   const tsId = `ts_${id}`;
 
-  const baseImg = { id: imId, name: 'ōtorohanga_urban_2021_0-1m_RGB', projection: 3857 } as ConfigImagery;
+  const baseImg = {
+    id: imId,
+    name: 'ōtorohanga_urban_2021_0-1m_RGB',
+    projection: 3857,
+  } as ConfigImagery;
   const baseTs = { id: tsId, description: 'tileset' } as ConfigTileSetRaster;
+
+  it('should migrate imagery config to v2', () => {
+    const json = new ConfigProviderMemory().toJson();
+    json.imagery.push(structuredClone(baseImg));
+
+    // No bands present so no band information can be converted
+    const mem = ConfigProviderMemory.fromJson(json).toJson();
+    assert.equal(mem.v, 2);
+    assert.deepEqual(mem.imagery[0].v, 2);
+    assert.deepEqual(mem.imagery[0].bands, []);
+
+    (json.imagery[0] as unknown as ConfigImageryV1).bands = ['uint8', 'uint8', 'uint8'];
+    const memBands = ConfigProviderMemory.fromJson(json).toJson();
+    assert.equal(memBands.v, 2);
+    assert.deepEqual(memBands.imagery[0].v, 2);
+    assert.deepEqual(memBands.imagery[0].bands, [{ type: 'uint8' }, { type: 'uint8' }, { type: 'uint8' }]);
+  });
 
   it('should load correct objects from memory', async () => {
     config.put(baseTs);
@@ -193,5 +215,29 @@ describe('MemoryConfig', () => {
     assert.equal(target?.layers[0][3857], `im_${idLatest}`);
     assert.equal(target?.layers[0][2193], undefined);
     assert.equal(target?.name, 'ōtorohanga-urban-2021-0.1m');
+  });
+
+  it('virtual tileset aliases', async () => {
+    config.put({ ...baseTs, aliases: ['someAlias'] } as ConfigTileSetRaster);
+    config.createVirtualTileSets();
+    const ts = await config.TileSet.get('ts_someAlias');
+    assert.equal(ts?.id, 'ts_someAlias');
+  });
+
+  it('should not assign the outputs property to tilesets by default', async () => {
+    config.put(baseImg);
+    config.createVirtualTileSets();
+
+    const img = await config.Imagery.get(imId);
+    assert.equal(img?.id, imId);
+
+    const ts = await config.TileSet.get('ts_ōtorohanga-urban-2021-0.1m');
+    if (ts == null) throw new Error('failed to get tileset');
+
+    assert.equal(ts.layers.length, 1);
+    assert.equal(ts.layers[0][3857], imId);
+    assert.equal(ts.layers[0][2193], undefined);
+    assert.equal(ts.name, 'ōtorohanga-urban-2021-0.1m');
+    assert(!Object.hasOwn(ts, 'outputs'));
   });
 });

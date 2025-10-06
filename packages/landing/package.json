@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "8.5.0",
+  "version": "8.11.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -19,7 +19,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "node --test",
+    "test": "node --test \"build/**/*.test.js\"",
     "start": "TILE_HOST=${TILE_HOST:-https://dev.basemaps.linz.govt.nz} nodemon ../../scripts/bundle.mjs -e 'ts tsx html css' -i 'dist/*' -- package.json",
     "bundle": "../../scripts/bundle.mjs package.json",
     "deploy:deploy": "node scripts/deploy.mjs"
@@ -28,22 +28,19 @@
     "last 2 Chrome versions"
   ],
   "devDependencies": {
-    "@basemaps/attribution": "^8.3.0",
-    "@basemaps/cli-config": "^8.5.0",
-    "@basemaps/config": "^8.3.0",
-    "@basemaps/geo": "^8.3.0",
-    "@basemaps/infra": "^8.5.0",
-    "@basemaps/shared": "^8.5.0",
+    "@basemaps/attribution": "^8.9.0",
+    "@basemaps/cli-config": "^8.10.1",
+    "@basemaps/config": "^8.10.1",
+    "@basemaps/geo": "^8.9.0",
+    "@basemaps/shared": "^8.9.2",
     "@linzjs/geojson": "^8.0.0",
     "@linzjs/lui": "^21.46.0",
     "@servie/events": "^3.0.0",
     "@types/mime-types": "^2.1.4",
-    "@types/proj4": "^2.5.2",
     "@types/react-dom": "^18.0.6",
     "@types/react-modal": "^3.16.3",
     "maplibre-gl": "^4.5.0",
     "mime-types": "^2.1.35",
-    "proj4": "^2.8.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-modal": "^3.16.1",

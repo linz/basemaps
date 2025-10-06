@@ -29,49 +29,49 @@
       "name": "50098-nz-chatham-island-river-centrelines-topo-150k",
       "source": "s3://linz-lds-cache/50098/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 13, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "50896",
       "name": "50896-nz-snares-island-tini-heke-river-centrelines-topo-125k",
       "source": "s3://linz-lds-cache/50896/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "50911",
       "name": "50911-nz-kermadec-is-river-centrelines-topo-125k",
       "source": "s3://linz-lds-cache/50911/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "50934",
       "name": "50934-nz-campbell-island-motu-ihupuku-river-centrelines-topo-150k",
       "source": "s3://linz-lds-cache/50934/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "50962",
       "name": "50962-nz-auckland-island-river-centrelines-topo-150k",
       "source": "s3://linz-lds-cache/50962/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "50979",
       "name": "50979-nz-antipodes-island-river-centrelines-topo-125k",
       "source": "s3://linz-lds-cache/50979/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "52208",
       "name": "52208-cook-islands-river-centrelines-topo-150k-zone4",
       "source": "s3://linz-lds-cache/52208/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "52244",
@@ -85,14 +85,14 @@
       "name": "52264-cook-islands-river-centrelines-topo-125k-zone4",
       "source": "s3://linz-lds-cache/52264/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "52299",
       "name": "52299-cook-islands-river-centrelines-topo-125k-zone3",
       "source": "s3://linz-lds-cache/52299/",
       "tags": { "kind": "river" },
-      "style": { "minZoom": 8, "maxZoom": 15 }
+      "style": { "minZoom": 9, "maxZoom": 15 }
     },
     {
       "id": "50242",

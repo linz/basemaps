@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/tiler-sharp",
-  "version": "8.3.0",
+  "version": "8.10.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -19,13 +19,14 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test \"build/**/*.test.js\""
   },
   "dependencies": {
-    "@basemaps/config": "^8.3.0",
-    "@basemaps/geo": "^8.3.0",
-    "@basemaps/tiler": "^8.3.0",
+    "@basemaps/config": "^8.10.1",
+    "@basemaps/geo": "^8.9.0",
+    "@basemaps/tiler": "^8.10.1",
     "@linzjs/metrics": "^8.0.0",
+    "fzstd": "^0.1.1",
     "lerc": "^4.0.4"
   },
   "devDependencies": {

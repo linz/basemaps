@@ -4,6 +4,7 @@ import {
   ConfigTileSetRaster,
   DefaultColorRampOutput,
   DefaultTerrainRgbOutput,
+  ImageryBandDataType,
   ImageryBandType,
   ImageryDataType,
   sha256base58,
@@ -47,7 +48,7 @@ function getDataType(i: SampleFormat): ImageryDataType {
 }
 
 /** Summary of a collection of tiffs */
-interface TiffSummary {
+export interface TiffSummary {
   /** List of tiffs and their extents */
   files: NamedBounds[];
   /** Overall bounding box */
@@ -65,7 +66,8 @@ interface TiffSummary {
   /** URL to the base of the imagery */
   url: URL;
 
-  bands?: ImageryBandType[];
+  // Overwrite parent type to ensure this exists
+  bands: ImageryBandType[];
 }
 
 export type ConfigImageryTiff = ConfigImagery & TiffSummary;
@@ -105,8 +107,19 @@ function ensureBandsSimilar(
     const bA = existingBands[i];
     const bB = newBands[i];
     if (bA == null || bB == null) continue;
-    if (bA !== bB) {
-      throw new Error(`Band:${i} datatype mismatch: ${tiff.source.url.href} ${bA} vs ${bB}`);
+    if (bA.type !== bB.type) {
+      throw new Error(`Band:${i} datatype mismatch: ${tiff.source.url.href} ${bA.type} vs ${bB.type}`);
+    }
+
+    // Expand the stats across the all the bands in the imagery
+    if (bA.stats == null && bB.stats) {
+      bA.stats = bB.stats;
+    } else if (bA.stats && bB.stats) {
+      bA.stats.min = Math.min(bA.stats.min, bB.stats.min);
+      bA.stats.max = Math.max(bA.stats.max, bB.stats.max);
+      // TODO: this assumes the size of the imagery is the same
+      // it would be best to use the number of valid pixels to combine these
+      bA.stats.mean = (bA.stats.mean + bB.stats.mean) / 2;
     }
   }
 
@@ -141,11 +154,12 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     }
 
     // Validate the bands and data types of the tiff are somewhat consistent
-    const [dataType, bitsPerSample, noData] = await Promise.all([
+    const [dataType, bitsPerSample, noData, gdalMetadata] = await Promise.all([
       /** firstImage.fetch(TiffTag.Photometric), **/ // TODO enable RGB detection
       firstImage.fetch(TiffTag.SampleFormat),
       firstImage.fetch(TiffTag.BitsPerSample),
       firstImage.fetch(TiffTag.GdalNoData),
+      firstImage.fetch(TiffTag.GdalMetadata),
     ]);
 
     if (bitsPerSample == null) {
@@ -160,8 +174,10 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     for (let i = 0; i < bitsPerSample.length; i++) {
       const type = getDataType(dataType ? dataType[i] : SampleFormat.Uint);
       const bits = bitsPerSample[i];
-      imageBands.push(`${type}${bits}` as ImageryBandType);
+      imageBands.push({ type: `${type}${bits}` as ImageryBandDataType });
     }
+
+    parseGdalMetadata(gdalMetadata, imageBands);
 
     res.bands = ensureBandsSimilar(tiff, res.bands, imageBands);
 
@@ -209,6 +225,74 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
   if (res.projection == null) throw new Error(`Failed to extract imagery epsg from: ${target.href}`);
   if (res.files == null || res.files.length === 0) throw new Error(`Failed to extract imagery from: ${target.href}`);
   return res as TiffSummary;
+}
+
+interface GdalMetadataSummary {
+  color: string;
+  stats: { min: number; mean: number; max: number; stddev: number };
+}
+
+const MetadataSetter: Record<string, (val: string, meta: ImageryBandType) => void> = {
+  COLORINTERP: (val: string, meta: ImageryBandType) => (meta.color = val.toLowerCase()),
+  STATISTICS_MEAN: (val: string, meta: ImageryBandType) => {
+    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN, stddev: NaN };
+    meta.stats.mean = Number(val);
+  },
+  STATISTICS_MAXIMUM: (val: string, meta: ImageryBandType) => {
+    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN, stddev: NaN };
+    meta.stats.max = Number(val);
+  },
+  STATISTICS_MINIMUM: (val: string, meta: ImageryBandType) => {
+    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN, stddev: NaN };
+    meta.stats.min = Number(val);
+  },
+  // Ignored
+  STATISTICS_STDDEV: (val: string, meta: ImageryBandType) => {
+    meta.stats = meta.stats ?? { min: NaN, mean: NaN, max: NaN, stddev: NaN };
+    meta.stats.stddev = Number(val);
+  },
+  STATISTICS_VALIDPERCENT: () => {},
+};
+
+function parseGdalMetadata(dat: string | null, bands: ImageryBandType[], log?: LogType): void {
+  if (dat == null) return;
+
+  const items = dat
+    .split('\n')
+    .map((f) => f.trim())
+    .filter((f) => f.startsWith('<Item'));
+
+  for (const item of items) {
+    const name = item.match(/name="([A-Z_]+)"/);
+    if (name == null) continue;
+
+    const sample = item.match(/sample="([0-9]+)"/);
+    if (sample == null) continue;
+
+    const value = item.match(/>(.*)<\/Item>/);
+    if (value == null) continue;
+
+    const sampleId = Number(sample[1]);
+    if (isNaN(sampleId)) continue;
+
+    // Sample references unknown band, consider metadata broken
+    if (bands[sampleId] == null) {
+      log?.warn({ sampleId }, 'GdalMetadataParser:InvalidBand');
+      return;
+    }
+
+    MetadataSetter[name[1]]?.(value[1], bands[sampleId]);
+    if (MetadataSetter[name[1]] == null) {
+      log?.debug({ gdalConfigName: name[1] }, 'GdalMetadataParser:UnknownKey:' + name[1]);
+    }
+  }
+
+  for (const band of bands) {
+    if (band.stats == null) continue;
+    if (isNaN(band.stats?.max) || isNaN(band.stats.min) || isNaN(band.stats.mean)) {
+      delete (band as Partial<GdalMetadataSummary>).stats;
+    }
+  }
 }
 
 /**
@@ -371,6 +455,7 @@ export async function initImageryFromTiffUrl(
       params.projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.tryGet(params.projection);
 
     const imagery: ConfigImageryTiff = {
+      v: 2,
       id: `im_${sha256base58(target.href)}`,
       name: imageryName,
       title,
@@ -453,6 +538,7 @@ export async function initConfigFromUrls(
     category: 'Basemaps',
     type: TileSetType.Raster,
     layers: [],
+    outputs: [],
   };
 
   const elevationTileSet: ConfigTileSetRaster = {
@@ -501,7 +587,7 @@ export async function initConfigFromUrls(
  * @param img Imagery to check
  * @returns true if imagery looks like rgb(a), false otherwise
  */
-export function isRgbOrRgba(img: ConfigImagery): boolean {
+export function isRgbOrRgba(img: TiffSummary): boolean {
   // If no band information is provided assume its a RGBA image (TODO: is this actually expected)
   if (img.bands == null) return true;
   if (img.bands.length < 3) return false; // Not enough bands for RGB
@@ -509,7 +595,7 @@ export function isRgbOrRgba(img: ConfigImagery): boolean {
 
   // RGB/RGBA is expected to be 3 or 4 band uint8
   for (const b of img.bands) {
-    if (b !== 'uint8') return false;
+    if (b.type !== 'uint8') return false;
   }
   return true;
 }

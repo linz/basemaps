@@ -1,5 +1,5 @@
 import { isEmptyTiff } from '@basemaps/config-loader';
-import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets, TmsLoader } from '@basemaps/geo';
 import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { getLogger, logArguments, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
@@ -162,7 +162,7 @@ export const BasemapsCogifyCreateCommand = command({
         // Location to where the tiff should be stored
         const tiffPath = new URL(tileId + '.tiff', url);
         const itemStacPath = new URL(tileId + '.json', url);
-        const tileMatrix = TileMatrixSets.find(options.tileMatrix);
+        const tileMatrix = TileMatrixSets.find(options.tileMatrix) ?? (await TmsLoader.load(options.sourceEpsg));
         if (tileMatrix == null) throw new Error('Failed to find tileMatrix: ' + options.tileMatrix);
         const sourceFiles = getSources(item.links);
 
@@ -332,8 +332,14 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   if (tileMatrix == null) throw new Error('Failed to find tile matrix: ' + options.tileMatrix);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtSource');
+
+  let addAlpha = false;
+
+  if (options.presetBands?.includes('alpha') && options.presetBands.length > options.sourceBands.length) {
+    addAlpha = true;
+  }
   // Create the vrt of all the source files
-  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles);
+  const vrtSourceCommand = gdalBuildVrt(new URL(`${tileId}-source.vrt`, ctx.tempFolder), ctx.sourceFiles, addAlpha);
   await new GdalRunner(vrtSourceCommand).run(logger);
 
   logger?.debug({ tileId }, 'Cog:Create:VrtWarp');
@@ -373,10 +379,11 @@ async function createCog(ctx: CogCreationContext): Promise<URL> {
   await new GdalRunner(gdalCreateCommand).run(logger);
 
   // Create a vrt with the background tiff behind the source file vrt
-  const vrtMergeCommand = gdalBuildVrt(new URL(`${tileId}-merged.vrt`, ctx.tempFolder), [
-    gdalCreateCommand.output,
-    vrtWarpCommand.output,
-  ]);
+  const vrtMergeCommand = gdalBuildVrt(
+    new URL(`${tileId}-merged.vrt`, ctx.tempFolder),
+    [gdalCreateCommand.output, vrtWarpCommand.output],
+    false,
+  );
   await new GdalRunner(vrtMergeCommand).run(logger);
 
   // Create the COG from the merged vrt with a forced background

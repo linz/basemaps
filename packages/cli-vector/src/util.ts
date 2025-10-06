@@ -62,7 +62,7 @@ export function prepareTmpPaths(
   shortbreadLayer: string,
 ): TmpPaths {
   /** @example "tmp/create/layers/50248/" */
-  const LayersDir = new URL(`layers/${layerId}/`, tmpPath);
+  const LayersDir = new URL(`layers/${shortbreadLayer}/${layerId}/`, tmpPath);
   if (!existsSync(LayersDir)) {
     mkdirSync(LayersDir, { recursive: true });
   }
