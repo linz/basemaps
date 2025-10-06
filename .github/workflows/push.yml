@@ -1,173 +1,17 @@
 name: Build
 
 on:
-  merge_group:
-  pull_request:
   push:
-    branches:
-      - master
 
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest, windows-latest, ubuntu-latest]
     env:
       NODE_OPTIONS: '--max-old-space-size=8192'
     steps:
-      - uses: linz/action-typescript@v3
-        with:
-          node-version: 24.x
+      - uses: linz/action-typescript@master
 
-  build-deploy:
-    runs-on: ubuntu-latest
-    concurrency: deploy-${{ github.ref }}
-
-    permissions:
-      id-token: write
-      contents: write
-
-    steps:
-      - uses: linz/action-typescript@v3
-        with:
-          node-version: 24.x
-
-      - name: Bundle
-        run: |
-          npx lerna run bundle --stream
-
-      # TODO: running a giant copy command to import CSS and SVG files into the docs file in not super ideal
-      - name: Build docs
-        run: |
-          cp node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
-          docker run --rm -v ${PWD}:/docs ghcr.io/linz/basemaps-mkdocs:v1 build
-
-      - name: Store docs artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: docs
-          path: packages/landing/dist/docs
-
-      # pulls all tags (needed for lerna to correctly version)
-      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
-
-      - name: Check Dependencies
-        run: node scripts/detect.unlinked.dep.mjs
-
-  deploy-dev:
-    runs-on: ubuntu-latest
-    concurrency: deploy-dev-${{ github.ref }}
-    needs: [build-deploy]
-    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master'
-
-    environment:
-      name: nonprod
-      url: https://dev.basemaps.linz.govt.nz
-
-    permissions:
-      id-token: write
-      contents: write
-
-    steps:
-      - uses: linz/action-typescript@v3
-        with:
-          node-version: 24.x
-
-      - name: Build docs
-        run: |
-          # dist folder must exist or it will be owned by root
-          mkdir -p packages/landing/dist 
-          cp node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
-
-          docker run \
-            --rm \
-            -v ${PWD}:/docs \
-            -e GOOGLE_ANALYTICS \
-            -e BASEMAPS_DOCS_URL \
-            ghcr.io/linz/basemaps-mkdocs:v1 build
-        env:
-          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
-          BASEMAPS_DOCS_URL: https://dev.basemaps.linz.govt.nz/docs/
-
-      # pulls all tags (needed for lerna to correctly version)
-      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
-
-      - name: (Dev) Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-
-      - name: (Dev) Deploy
-        run: |
-          npx lerna run bundle --stream
-          npx lerna run deploy:deploy --stream
-        env:
-          BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
-          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
-          NODE_ENV: 'dev'
-
-      - name: (Dev) After Deploy Smoke Test
-        run: |
-          cd packages/smoke
-          npm run smoke
-
-  deploy-prod:
-    runs-on: ubuntu-latest
-    concurrency: deploy-prod-${{ github.ref }}
-    needs: [deploy-dev]
-    if: github.repository == 'linz/basemaps' && github.ref == 'refs/heads/master' && startsWith(github.event.head_commit.message, 'release:')
-
-    environment:
-      name: prod
-      url: https://basemaps.linz.govt.nz
-
-    permissions:
-      id-token: write
-      contents: write
-    steps:
-      - uses: linz/action-typescript@v3
-        with:
-          node-version: 24.x
-
-      - name: Build docs
-        run: |
-          # dist folder must exist or it will be owned by root
-          mkdir -p packages/landing/dist 
-          cp node_modules/@linzjs/lui/dist/assets/images/linz-motif.svg docs/
-
-          docker run \
-            --rm \
-            -v ${PWD}:/docs \
-            -e GOOGLE_ANALYTICS \
-            -e BASEMAPS_DOCS_URL \
-            ghcr.io/linz/basemaps-mkdocs:v1 build
-        env:
-          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
-          BASEMAPS_DOCS_URL: https://basemaps.linz.govt.nz/docs/
-
-      # pulls all tags (needed for lerna to correctly version)
-      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
-
-      - name: (Prod) Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
-        with:
-          aws-region: ap-southeast-2
-          mask-aws-account-id: true
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-
-      - name: (Prod) Deploy
-        run: |
-          npx lerna run bundle --stream
-          npx lerna run deploy:deploy --stream
-        env:
-          BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
-          GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
-          NODE_ENV: 'production'
-
-      - name: (Prod) After Deploy Smoke Test
-        run: |
-          cd packages/smoke
-          BASEMAPS_HOST=https://basemaps.linz.govt.nz npm run smoke
+ 
