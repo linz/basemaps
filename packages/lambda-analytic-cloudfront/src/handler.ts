@@ -81,7 +81,7 @@ export async function main(req: LambdaRequest): Promise<void> {
         }
 
         const startTime = performance.now();
-        req.log.trace({ prefix }, 'log:prefix:start');
+        req.log.debug({ prefix }, 'log:prefix:start');
         const logPrefix = new URL(`${CloudFrontId}.${prefix}`, SourceLocation);
 
         const stats = new Map<string, LogStats>();
@@ -99,7 +99,7 @@ export async function main(req: LambdaRequest): Promise<void> {
             const fileStartTime = performance.now();
 
             const fileLines = await FileProcess.process(lf, stats);
-            req.log.trace(
+            req.log.debug(
               {
                 prefix: prefix,
                 file: basename(lf.pathname),
