@@ -42,7 +42,6 @@ export async function main(req: LambdaRequest): Promise<void> {
     { source: SourceLocation.href, cacheLocation: CacheLocation.href, cloudFrontId: CloudFrontId },
     'log:index:start',
   );
-  if (CloudFrontId == null) throw new Error(`Missing $${Env.Analytics.CloudFrontId}`);
 
   // Limit hours to be processed 5 at a time and log files to 5 at a time, which gives upto 25 logs files concurrency
   // as often hours are skipped
