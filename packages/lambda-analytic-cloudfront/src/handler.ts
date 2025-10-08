@@ -23,8 +23,7 @@ const OldestDate = new Date('2020-01-01T00:00:00.000Z');
  * @returns parsed url from the environment
  */
 function getEnvUrl(env: string): URL {
-  const val = Env.get(env);
-  if (val == null) throw new Error(`$${env} is unset`);
+  const val = Env.getRequired(env);
   try {
     return fsa.toUrl(val);
   } catch (e) {
@@ -35,7 +34,7 @@ function getEnvUrl(env: string): URL {
 export async function main(req: LambdaRequest): Promise<void> {
   const SourceLocation = getEnvUrl(Env.Analytics.CloudFrontSourceBucket);
   const CacheLocation = getEnvUrl(Env.Analytics.CacheBucket);
-  const CloudFrontId = Env.get(Env.Analytics.CloudFrontId);
+  const CloudFrontId = Env.getRequired(Env.Analytics.CloudFrontId);
 
   const MaxToProcess = Env.getNumber(Env.Analytics.MaxRecords, 24 * 7 * 4); // Process 4 weeks of logs by default
 
