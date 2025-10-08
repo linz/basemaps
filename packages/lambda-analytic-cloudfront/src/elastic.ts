@@ -26,10 +26,9 @@ export class ElasticClient {
   get client(): Client {
     if (this._client != null) return this._client;
 
-    const id = Env.get(Env.Analytics.ElasticId);
-    const apiKey = Env.get(Env.Analytics.ElasticApiKey);
-    if (id == null) throw new Error(`$${Env.Analytics.ElasticId} is unset`);
-    if (apiKey == null) throw new Error(`$${Env.Analytics.ElasticApiKey} is unset`);
+    const id = Env.getRequired(Env.Analytics.ElasticId);
+    const apiKey = Env.getRequired(Env.Analytics.ElasticApiKey);
+
     this._client = new Client({ cloud: { id }, auth: { apiKey } });
     return this._client;
   }
