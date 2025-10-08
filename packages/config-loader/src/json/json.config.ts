@@ -179,7 +179,7 @@ export class ConfigJson {
     const imageryFetch: Promise<ConfigImagery>[] = [];
     if (ts.type === TileSetType.Raster) {
       for (const layer of ts.layers) {
-        const category = layer.category ?? ts.category ?? undefined;
+        const category = layer.category ?? ts.category;
         if (layer[2193] != null) {
           imageryFetch.push(this.loadImagery(stringToUrlFolder(layer[2193]), layer.name, layer.title, category));
         }
