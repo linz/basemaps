@@ -15,7 +15,8 @@ const isPowerOfTwo = (x: number): boolean => (x & (x - 1)) === 0;
  * of empty space is rendered at the edge of every mapsheet.
  *
  */
-const DefaultTrimPixelRight = 1.7; // 1.7 pixels to trim from the right side of the topo raster imagery
+const PixelTrimTop = 1;
+const PixelTrimRight = 4;
 
 export function gdalBuildVrt(targetVrt: URL, source: URL[], addalpha: boolean): GdalCommand {
   if (source.length === 0) throw new Error('No source files given for :' + targetVrt.href);
@@ -194,7 +195,7 @@ export function gdalBuildTopoRasterCommands(
       ['-q'], // Supress non-error output
       ['-stats'], // Force stats (re)computation
       ['-of', 'COG'], // Output format
-      ['-srcwin', '0', '0', `${width - DefaultTrimPixelRight}`, `${height}`],
+      ['-srcwin', 0, PixelTrimTop, width - PixelTrimRight, height - PixelTrimTop],
       ['-a_srs', `EPSG:${opt.sourceEpsg}`],
 
       // https://gdal.org/en/latest/drivers/raster/cog.html#creation-options

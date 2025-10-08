@@ -53,6 +53,31 @@ function createDecompressedInterleaved(
   width: number,
   height: number,
 ): DecompressedInterleaved {
+  // Only little endian typed arrays are supported by most modern systems
+  // if the tiff is big endian the data needs to be converted to little endian for processing
+  if (!tiff.isLittleEndian) {
+    const buf = new DataView(bytes);
+    switch (sampleType) {
+      case SampleFormat.Uint:
+        // Endianness does not affect single byte
+        if (sampleLength === 8) {
+          return { pixels: new Uint8ClampedArray(bytes), depth: 'uint8', channels, width, height };
+        }
+        if (sampleLength === 16) {
+          const out = {
+            pixels: new Uint16Array(channels * width * height),
+            depth: 'uint16',
+            channels,
+            width,
+            height,
+          } satisfies DecompressedInterleaved;
+          for (let i = 0; i < channels * width * height; i++) out.pixels[i] = buf.getUint16(i * 2, false);
+          return out;
+        }
+        throw new Error('Big endian tiff support is very limited: ' + tiff.source.url.href);
+    }
+  }
+
   switch (sampleType) {
     case SampleFormat.Float:
       if (sampleLength === 32) return { pixels: new Float32Array(bytes), depth: 'float32', channels, width, height };

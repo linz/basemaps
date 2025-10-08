@@ -3,6 +3,33 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.1](https://github.com/linz/basemaps/compare/v8.13.0...v8.13.1) (2025-10-05)
+
+
+### Bug Fixes
+
+* **landing:** keep gridless default ([#3536](https://github.com/linz/basemaps/issues/3536)) ([11f395e](https://github.com/linz/basemaps/commit/11f395e02d41878ba798349b6654e966d71e9e56))
+
+## [8.13.0](https://github.com/linz/basemaps/compare/v8.12.0...v8.13.0) (2025-10-02)
+
+
+### Features
+
+* **cli-raster:** update topo-raster processes to support 600 DPI gridded map sheets BM-1375 ([#3532](https://github.com/linz/basemaps/issues/3532)) ([887e43a](https://github.com/linz/basemaps/commit/887e43a2680c60daf56a17066533497954487473))
+* **landing:** new topo dropdowns BM-1376  ([#3533](https://github.com/linz/basemaps/issues/3533)) ([c6082e6](https://github.com/linz/basemaps/commit/c6082e69c8783592114814de5574b09180b3e626))
+
+
+### Bug Fixes
+
+* release-please release_created workaround ([#3530](https://github.com/linz/basemaps/issues/3530)) ([a7c7c40](https://github.com/linz/basemaps/commit/a7c7c40c3859bf2415efe27c84e8074d6c84ac7a))
+
+## [8.12.0](https://github.com/linz/basemaps/compare/v8.11.1...v8.12.0) (2025-09-24)
+
+
+### Bug Fixes
+
+* **config:** DynamoDB error caused by 'undefined' value in config tilesets BM-1373 ([#3528](https://github.com/linz/basemaps/issues/3528)) ([56e0db9](https://github.com/linz/basemaps/commit/56e0db934c19fd6fdbf41002fc71e53b7b6312d9))
+
 ## [8.11.1](https://github.com/linz/basemaps/compare/v8.11.0...v8.11.1) (2025-09-23)
 
 

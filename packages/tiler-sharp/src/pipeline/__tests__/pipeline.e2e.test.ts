@@ -153,4 +153,38 @@ describe('pipeline.e2e', () => {
     assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'color-ramp-custom');
     await tiff.source.close?.();
   });
+
+  it('should render a big endian tiff', async () => {
+    const tiff = await Tiff.create(fsa.source(TestTiff.Rgbi16Be));
+    const tiler = new Tiler(GoogleTms);
+
+    const layer0 = tiler.tile([tiff], 262144, 262144, 19) as CompositionTiff[];
+    const tileMaker = new TileMakerSharp(256);
+
+    const png = await tileMaker.compose({
+      layers: layer0,
+      format: 'png',
+      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
+      pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 3 }],
+      resizeKernel: { in: 'nearest', out: 'nearest' },
+    });
+
+    const newImage = PNG.sync.read(png.buffer);
+    if (WRITE_IMAGES) {
+      const fileName = getExpectedTileName(tile, 'big-endian');
+      writeFileSync(fileName, png.buffer);
+    }
+
+    const oldImage = getExpectedTile(tile, 'big-endian');
+
+    const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
+    if (missMatchedPixels > 0) {
+      const fileName = getExpectedTileName(tile, 'big-endian', true);
+      const output = new PNG({ width: tileSize, height: tileSize });
+      PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
+      writeFileSync(fileName, PNG.sync.write(output));
+    }
+    assert.equal(missMatchedPixels, 0);
+    await tiff.source.close?.();
+  });
 });

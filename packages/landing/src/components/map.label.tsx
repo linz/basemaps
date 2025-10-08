@@ -9,6 +9,7 @@ export const LabelsDisabledLayers = new Set([
   'topographic-v2',
   'topolite',
   'topolite-v2',
+  'topo-raster-gridded',
   'topo-raster',
 ]);
 
