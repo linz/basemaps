@@ -20,6 +20,9 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: preprod
+
     permissions:
       id-token: write
       contents: read
