@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.14.0](https://github.com/linz/basemaps/compare/v8.13.1...v8.14.0) (2025-10-09)
+
+
+### Features
+
+* add experiential big endian tiff support ([#3515](https://github.com/linz/basemaps/issues/3515)) ([2913aa2](https://github.com/linz/basemaps/commit/2913aa2aa39821cbf54908ec52b7fbe5a72544ab))
+* **cli-config:** Skip all the charts tileset from layer dropdown. BM-1381 ([#3535](https://github.com/linz/basemaps/issues/3535)) ([87172d8](https://github.com/linz/basemaps/commit/87172d8e654e1848287638386899b87220f45a69))
+
+
+### Bug Fixes
+
+* **lambda-analytics-cloudfront:** empty enviroment variables should fail startup ([#3542](https://github.com/linz/basemaps/issues/3542)) ([035ac9d](https://github.com/linz/basemaps/commit/035ac9d30890a19f0fc1960c59518c850e9323af))
+
 ## [8.13.1](https://github.com/linz/basemaps/compare/v8.13.0...v8.13.1) (2025-10-05)
 
 
