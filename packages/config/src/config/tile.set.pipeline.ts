@@ -16,7 +16,7 @@ const ColorParser = z.object({
 });
 
 export const PipelineTerrainRgbParser = z.object({ type: z.literal('terrain-rgb') });
-export const PipelineColorRampParser = z.object({ type: z.literal('color-ramp') });
+export const PipelineColorRampParser = z.object({ type: z.literal('color-ramp'), ramp: z.string().optional() });
 export const PipelineNdviParser = z.object({
   type: z.literal('ndvi'),
   nir: z.number(),
@@ -42,6 +42,7 @@ export const PipelineExtractParser = z.object({
 
 export type PipelineNdviArgs = z.infer<typeof PipelineNdviParser>;
 export type PipelineExtractArgs = z.infer<typeof PipelineExtractParser>;
+export type PipelineColorRampArgs = z.infer<typeof PipelineColorRampParser>;
 
 export const ConfigTileSetPipelineParser = z.discriminatedUnion('type', [
   PipelineExtractParser,
