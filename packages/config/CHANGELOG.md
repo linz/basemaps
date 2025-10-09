@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.0](https://github.com/linz/basemaps/compare/config-v8.10.1...config-v8.11.0) (2025-10-09)
+
+
+### Features
+
+* **cli-config:** Skip all the charts tileset from layer dropdown. BM-1381 ([#3535](https://github.com/linz/basemaps/issues/3535)) ([87172d8](https://github.com/linz/basemaps/commit/87172d8e654e1848287638386899b87220f45a69))
+
 ## [8.10.1](https://github.com/linz/basemaps/compare/config-v8.10.0...config-v8.10.1) (2025-09-24)
 
 
