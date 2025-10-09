@@ -1,19 +1,26 @@
-import { BasemapsConfigProvider, ConfigImagery, ConfigProviderMemory } from '@basemaps/config';
+import { BasemapsConfigProvider, ConfigImagery, ConfigProviderMemory, ConfigTileSet } from '@basemaps/config';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
-import { getPreviewUrl, V } from '@basemaps/shared';
+import { getPreviewUrl, V, VNodeElement } from '@basemaps/shared';
 
-async function getAllImagery(cfg: BasemapsConfigProvider): Promise<ConfigImagery[]> {
-  const allImagery: ConfigImagery[] = [];
+async function getAllImagery(
+  cfg: BasemapsConfigProvider,
+): Promise<{ imagery: ConfigImagery[]; tileSet: ConfigTileSet[] }> {
+  const imagery: ConfigImagery[] = [];
+  const tileSet: ConfigTileSet[] = [];
 
   if (ConfigProviderMemory.is(cfg)) {
-    for (const obj of cfg.objects.values()) if (cfg.Imagery.is(obj)) allImagery.push(obj);
+    for (const obj of cfg.objects.values()) {
+      if (cfg.Imagery.is(obj)) imagery.push(obj);
+      if (cfg.TileSet.is(obj)) tileSet.push(obj);
+    }
   }
-  return Promise.resolve(allImagery);
+  return Promise.resolve({ imagery: imagery, tileSet });
 }
 
-export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<string> {
-  const allImagery = await getAllImagery(mem);
-  if (allImagery.length === 0) return 'No imagery found';
+export async function createLayersHtmlDom(mem: BasemapsConfigProvider): Promise<VNodeElement> {
+  const ret = await getAllImagery(mem);
+  const allImagery = ret.imagery;
+  if (allImagery.length === 0) return V('html', 'No imagery found');
 
   allImagery.sort((a, b) => a.title.localeCompare(b.title));
   const showPreview = allImagery.length < 10;
@@ -24,13 +31,14 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
 
     const ts = ConfigProviderMemory.imageryToTileSet(img);
 
-    for (const o of ts.outputs ?? []) {
+    for (const o of ts.outputs ?? [{ name: 'rgba' }]) {
       const ret = getPreviewUrl({ imagery: img, pipeline: o.name });
 
       const els = [
         V('div', { class: `layer-header`, style: 'display:flex; justify-content: space-around;' }, [
           V('div', { class: 'layer-title' }, img.title),
           V('div', { class: 'layer-tile-matrix' }, `TileMatrix: ${img.tileMatrix}`),
+          V('div', { class: 'layer-pipeline' }, `Pipeline: ${o.name}`),
           V('div', { class: 'layer-tile-epsg' }, tileMatrix.projection.toEpsgString()),
         ]),
       ];
@@ -49,7 +57,10 @@ export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<str
     }
   }
 
-  const style = `
+  return V('html', [V('head', [V('style', '__STYLE_TEXT__')]), V('body', [V('div', { class: 'layer-grid' }, cards)])]);
+}
+
+const Style = `
 body {
     font-family: 'Fira Sans', 'Open Sans';
 }
@@ -80,7 +91,8 @@ body {
 }
 `;
 
-  return V('html', [V('head', [V('style', '__STYLE_TEXT__')]), V('body', [V('div', { class: 'layer-grid' }, cards)])])
-    .toString()
-    .replace('__STYLE_TEXT__', style); // CSS gets escaped be escaped
+export async function createLayersHtml(mem: BasemapsConfigProvider): Promise<string> {
+  return createLayersHtmlDom(mem).then((el) => {
+    return el.toString().replace('__STYLE_TEXT__', Style); // CSS gets escaped be escaped
+  });
 }
