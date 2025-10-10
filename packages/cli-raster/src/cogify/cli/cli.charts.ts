@@ -361,7 +361,7 @@ async function createCogs(
       items.push(item);
       // Create Cog for the chart map
       const cog = new URL(`${chartCode}-${index}.tif`, tmpFolder);
-      await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, cutlineFile, GoogleTms)).run(logger);
+      await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, cutlineFile, GoogleTms, metadata.gsd)).run(logger);
       await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(cog));
       index++;
     } else if (feature.geometry.type === 'MultiPolygon') {
@@ -384,7 +384,7 @@ async function createCogs(
         items.push(item);
         // Create Cog for the chart map
         const cog = new URL(`${chartCode}-${index}.tif`, tmpFolder);
-        await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, cutlineFile, GoogleTms)).run(logger);
+        await new GdalRunner(gdalBuildChartsCommand(cog, sourceTiff, cutlineFile, GoogleTms, metadata.gsd)).run(logger);
         await fsa.write(new URL(`${chartCode}-${index}.tif`, targetPath), fsa.readStream(cog));
         index++;
       }
