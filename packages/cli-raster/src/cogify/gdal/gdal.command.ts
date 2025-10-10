@@ -228,7 +228,13 @@ export function gdalBuildTopoRasterCommands(
  *
  * Reproject the charts tif with the cutline applied.
  */
-export function gdalBuildChartsCommand(target: URL, source: URL, cutline: URL, tileMatrix: TileMatrixSet): GdalCommand {
+export function gdalBuildChartsCommand(
+  target: URL,
+  source: URL,
+  cutline: URL,
+  tileMatrix: TileMatrixSet,
+  resolution: number,
+): GdalCommand {
   return {
     output: target,
     command: 'gdalwarp',
@@ -239,6 +245,7 @@ export function gdalBuildChartsCommand(target: URL, source: URL, cutline: URL, t
       ['-t_srs', tileMatrix.projection.toEpsgString()],
       ['-b', '1', '-b', '2', '-b', '3'], // Drop dummy band 4 if it exists
       ['-dstalpha'],
+      ['-tr', resolution, resolution],
       ['-cutline', urlToString(cutline)],
       ['-crop_to_cutline'],
       ['-co', 'BIGTIFF=NO'],
