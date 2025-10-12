@@ -65,7 +65,7 @@ export class MapSwitcher extends Component {
       return { layerId: 'hillshade-igor-dsm' };
     } else if (Config.map.layerId === 'elevation') {
       return { layerId: 'elevation' };
-    }  else if (Config.map.layerId === 'elevation-dsm') {
+    } else if (Config.map.layerId === 'elevation-dsm') {
       return { layerId: 'elevation-dsm' };
     } else {
       return { layerId: 'aerial' };
