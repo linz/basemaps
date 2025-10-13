@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.0](https://github.com/linz/basemaps/compare/config-v8.10.1...config-v8.11.0) (2025-10-13)
+
+
+### Features
+
+* **cli-config:** Skip all the charts tileset from layer dropdown. BM-1381 ([#3535](https://github.com/linz/basemaps/issues/3535)) ([87172d8](https://github.com/linz/basemaps/commit/87172d8e654e1848287638386899b87220f45a69))
+* support custom color ramps ([#3538](https://github.com/linz/basemaps/issues/3538)) ([bb258eb](https://github.com/linz/basemaps/commit/bb258eb48a7e31e13dcc12eaf222f2fda26947a4))
+
+
+### Bug Fixes
+
+* **server:** correctly show rgb(a) imagery in /layers route ([#3540](https://github.com/linz/basemaps/issues/3540)) ([f789ba4](https://github.com/linz/basemaps/commit/f789ba463cd5a4b19527cf598ca6e532e1c81248))
+
 ## [8.10.1](https://github.com/linz/basemaps/compare/config-v8.10.0...config-v8.10.1) (2025-09-24)
 
 

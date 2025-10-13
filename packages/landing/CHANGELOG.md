@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.2](https://github.com/linz/basemaps/compare/landing-v8.11.1...landing-v8.11.2) (2025-10-13)
+
+
+### Bug Fixes
+
+* **landing:** pass through imageFormat around and fix map switcher BM-1386 ([#3544](https://github.com/linz/basemaps/issues/3544)) ([11c02c9](https://github.com/linz/basemaps/commit/11c02c9cfb2fd8fdefa6c6685fc3b3f8ecce738e))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/cli-config bumped from ^8.10.1 to ^8.10.2
+    * @basemaps/config bumped from ^8.10.1 to ^8.11.0
+    * @basemaps/shared bumped from ^8.9.2 to ^8.9.3
+
 ## [8.11.1](https://github.com/linz/basemaps/compare/landing-v8.11.0...landing-v8.11.1) (2025-10-05)
 
 

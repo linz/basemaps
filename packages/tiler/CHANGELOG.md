@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.0](https://github.com/linz/basemaps/compare/tiler-v8.10.1...tiler-v8.11.0) (2025-10-13)
+
+
+### Features
+
+* add experiential big endian tiff support ([#3515](https://github.com/linz/basemaps/issues/3515)) ([2913aa2](https://github.com/linz/basemaps/commit/2913aa2aa39821cbf54908ec52b7fbe5a72544ab))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.10.1 to ^8.11.0
+
 ## [8.10.1](https://github.com/linz/basemaps/compare/tiler-v8.10.0...tiler-v8.10.1) (2025-09-24)
 
 
