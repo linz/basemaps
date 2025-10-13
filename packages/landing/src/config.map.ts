@@ -147,6 +147,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     this.layerId = layerId.startsWith('im_') ? layerId.slice(3) : layerId;
     this.tileMatrix = tileMatrix;
     this.pipeline = urlParams.get('pipeline');
+    this.imageFormat = urlParams.get('format') as ImageFormat;
     if (labels == null) {
       this.labels = layerId === 'aerial' && this.isDebug === false;
     } else {
@@ -169,6 +170,8 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     // We don't need to set terrain parameter for debug, as we got debug.terrain parameter to replace
     if (opts.terrain && !opts.isDebug) urlParams.append('terrain', opts.terrain);
     if (opts.labels) urlParams.append('labels', 'true');
+    if (opts.pipeline) urlParams.append('pipeline', opts.pipeline);
+    if (opts.imageFormat) urlParams.append('format', opts.imageFormat);
 
     ConfigDebug.toUrl(opts.debug, urlParams);
     return urlParams.toString();
