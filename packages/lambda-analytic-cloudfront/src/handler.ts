@@ -23,8 +23,7 @@ const OldestDate = new Date('2020-01-01T00:00:00.000Z');
  * @returns parsed url from the environment
  */
 function getEnvUrl(env: string): URL {
-  const val = Env.get(env);
-  if (val == null) throw new Error(`$${env} is unset`);
+  const val = Env.getRequired(env);
   try {
     return fsa.toUrl(val);
   } catch (e) {
@@ -35,7 +34,7 @@ function getEnvUrl(env: string): URL {
 export async function main(req: LambdaRequest): Promise<void> {
   const SourceLocation = getEnvUrl(Env.Analytics.CloudFrontSourceBucket);
   const CacheLocation = getEnvUrl(Env.Analytics.CacheBucket);
-  const CloudFrontId = Env.get(Env.Analytics.CloudFrontId);
+  const CloudFrontId = Env.getRequired(Env.Analytics.CloudFrontId);
 
   const MaxToProcess = Env.getNumber(Env.Analytics.MaxRecords, 24 * 7 * 4); // Process 4 weeks of logs by default
 
@@ -43,7 +42,6 @@ export async function main(req: LambdaRequest): Promise<void> {
     { source: SourceLocation.href, cacheLocation: CacheLocation.href, cloudFrontId: CloudFrontId },
     'log:index:start',
   );
-  if (CloudFrontId == null) throw new Error(`Missing $${Env.Analytics.CloudFrontId}`);
 
   // Limit hours to be processed 5 at a time and log files to 5 at a time, which gives upto 25 logs files concurrency
   // as often hours are skipped
@@ -81,7 +79,7 @@ export async function main(req: LambdaRequest): Promise<void> {
         }
 
         const startTime = performance.now();
-        req.log.trace({ prefix }, 'log:prefix:start');
+        req.log.debug({ prefix }, 'log:prefix:start');
         const logPrefix = new URL(`${CloudFrontId}.${prefix}`, SourceLocation);
 
         const stats = new Map<string, LogStats>();
@@ -99,7 +97,7 @@ export async function main(req: LambdaRequest): Promise<void> {
             const fileStartTime = performance.now();
 
             const fileLines = await FileProcess.process(lf, stats);
-            req.log.trace(
+            req.log.debug(
               {
                 prefix: prefix,
                 file: basename(lf.pathname),

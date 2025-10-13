@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.11.0](https://github.com/linz/basemaps/compare/config-loader-v8.10.1...config-loader-v8.11.0) (2025-10-13)
+
+
+### Features
+
+* **cli-config:** Skip all the charts tileset from layer dropdown. BM-1381 ([#3535](https://github.com/linz/basemaps/issues/3535)) ([87172d8](https://github.com/linz/basemaps/commit/87172d8e654e1848287638386899b87220f45a69))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.10.1 to ^8.11.0
+    * @basemaps/shared bumped from ^8.9.2 to ^8.9.3
+
 ## [8.10.1](https://github.com/linz/basemaps/compare/config-loader-v8.10.0...config-loader-v8.10.1) (2025-09-24)
 
 

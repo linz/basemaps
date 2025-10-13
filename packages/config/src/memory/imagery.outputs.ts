@@ -100,6 +100,7 @@ function getScale(band: ImageryBandType, color: string): number | undefined {
 }
 
 function getAlphaScale(band: ImageryBandType): number | undefined {
+  if (band == null) return undefined;
   if (band.type === 'uint8') return undefined;
   if (band.stats == null) return undefined;
   return Math.round(band.stats.max);

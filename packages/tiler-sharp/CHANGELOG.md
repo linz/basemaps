@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.0](https://github.com/linz/basemaps/compare/tiler-sharp-v8.10.1...tiler-sharp-v8.11.0) (2025-10-13)
+
+
+### Features
+
+* add experiential big endian tiff support ([#3515](https://github.com/linz/basemaps/issues/3515)) ([2913aa2](https://github.com/linz/basemaps/commit/2913aa2aa39821cbf54908ec52b7fbe5a72544ab))
+* support custom color ramps ([#3538](https://github.com/linz/basemaps/issues/3538)) ([bb258eb](https://github.com/linz/basemaps/commit/bb258eb48a7e31e13dcc12eaf222f2fda26947a4))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.10.1 to ^8.11.0
+    * @basemaps/tiler bumped from ^8.10.1 to ^8.11.0
+
 ## [8.10.1](https://github.com/linz/basemaps/compare/tiler-sharp-v8.10.0...tiler-sharp-v8.10.1) (2025-09-24)
 
 

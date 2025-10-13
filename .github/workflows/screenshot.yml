@@ -23,6 +23,10 @@ jobs:
     permissions:
       id-token: write
       contents: read
+
+    environment:
+      name: preprod
+
     steps:
       - uses: linz/action-typescript@v3
         with:
@@ -68,6 +72,10 @@ jobs:
     if: github.ref != 'refs/heads/master' && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
+    environment:
+      name: preprod
+
     steps:
       - name: AWS Configure
         uses: aws-actions/configure-aws-credentials@v4.0.2

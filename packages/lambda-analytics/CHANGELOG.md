@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.9.3](https://github.com/linz/basemaps/compare/lambda-analytics-v8.9.2...lambda-analytics-v8.9.3) (2025-10-13)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.10.1 to ^8.11.0
+    * @basemaps/shared bumped from ^8.9.2 to ^8.9.3
+
 ## [8.9.2](https://github.com/linz/basemaps/compare/lambda-analytics-v8.9.1...lambda-analytics-v8.9.2) (2025-09-24)
 
 
