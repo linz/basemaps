@@ -3,45 +3,6 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
-
-**Note:** Version bump only for package @basemaps/test
-
-
-
-
-
-# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
-
-**Note:** Version bump only for package @basemaps/test
-
-
-
-
-
-# [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
-
-
-### Features
-
-* **config:** load DEMs and create default output piplines ([#3166](https://github.com/linz/basemaps/issues/3166)) ([fa08983](https://github.com/linz/basemaps/commit/fa08983049c999c7010313d6fb37f057025f31b8))
-* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
-
-
-
-
-
-# [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
-
-
-### Features
-
-* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
-
-
-
-
-
 ## [8.2.0](https://github.com/linz/basemaps/compare/test-v8.1.0...test-v8.2.0) (2025-10-13)
 
 
@@ -57,6 +18,42 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 * add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
 * load gdal metadata for color interpretation ([#3510](https://github.com/linz/basemaps/issues/3510)) ([25ca54f](https://github.com/linz/basemaps/commit/25ca54fcd219c132153ef7bf3918ea634068a97a))
+
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+
+**Note:** Version bump only for package @basemaps/test
+
+
+
+
+
+## [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+
+**Note:** Version bump only for package @basemaps/test
+
+
+
+
+
+## [7.1.0](https://github.com/linz/basemaps/compare/v7.0.0...v7.1.0) (2024-03-25)
+
+
+### Features
+
+* **config:** load DEMs and create default output piplines ([#3166](https://github.com/linz/basemaps/issues/3166)) ([fa08983](https://github.com/linz/basemaps/commit/fa08983049c999c7010313d6fb37f057025f31b8))
+* upgrade to typescript 5 ([#3019](https://github.com/linz/basemaps/issues/3019)) ([53aeebb](https://github.com/linz/basemaps/commit/53aeebbf07f173ac01aab0300d6e430159817c7e))
+
+
+
+
+
+## [7.0.0](https://github.com/linz/basemaps/compare/v6.46.0...v7.0.0) (2023-11-27)
+
+
+### Features
+
+* **doc:** Improve the individual package documentations. BM-776 ([#2981](https://github.com/linz/basemaps/issues/2981)) ([5a4adcb](https://github.com/linz/basemaps/commit/5a4adcbbff15857a6f4c315d54280d542f785fec))
+
 
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
