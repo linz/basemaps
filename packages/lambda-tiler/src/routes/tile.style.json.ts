@@ -104,7 +104,7 @@ export function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: T
  */
 async function setStyleLabels(req: LambdaHttpRequest<StyleGet>, style: StyleJson): Promise<void> {
   const config = await ConfigLoader.load(req);
-  const labels = await config.Style.get('labels');
+  const labels = await config.Style.get('labels-v2');
 
   if (labels == null) {
     req.log.warn('LabelsStyle:Missing');

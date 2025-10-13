@@ -54,12 +54,12 @@ export class MapSwitcher extends Component {
 
   getStyleType(): { layerId: string; style?: string } {
     if (Config.map.layerId === 'aerial') {
-      return { layerId: 'topographic', style: 'topographic' };
-    } else if (Config.map.layerId === 'topographic' && Config.map.style === 'topographic') {
+      return { layerId: 'topographic-v2', style: 'topographic-v2' };
+    } else if (Config.map.layerId === 'topographic-v2' && Config.map.style === 'topographic-v2') {
       return { layerId: 'topo-raster', style: 'topo-raster' };
     } else if (Config.map.layerId === 'topo-raster') {
-      return { layerId: 'topographic', style: 'topolite' };
-    } else if (Config.map.layerId === 'topographic' && Config.map.style === 'topolite') {
+      return { layerId: 'topographic-v2', style: 'topolite-v2' };
+    } else if (Config.map.layerId === 'topographic-v2' && Config.map.style === 'topolite-v2') {
       return { layerId: 'hillshade-igor' };
     } else if (Config.map.layerId === 'hillshade-igor') {
       return { layerId: 'hillshade-igor-dsm' };

@@ -386,7 +386,7 @@ describe('/v1/styles', () => {
     config.put(TileSetAerial);
     config.put(TileSetElevation);
 
-    const fakeStyle = { id: 'st_labels', name: 'labels', style: fakeVectorStyleConfig };
+    const fakeStyle = { id: 'st_labels-v2', name: 'labels-v2', style: fakeVectorStyleConfig };
     config.put(fakeStyle);
 
     const request = mockUrlRequest('/v1/styles/aerial.json', `?terrain=LINZ-Terrain&labels=true`, Api.header);
@@ -403,11 +403,11 @@ describe('/v1/styles', () => {
   });
 
   it('should error when joining layers with duplicate ids', async () => {
-    const fakeStyle = { id: 'st_labels', name: 'labels', style: fakeVectorStyleConfig };
+    const fakeStyle = { id: 'st_labels-v2', name: 'labels-v2', style: fakeVectorStyleConfig };
     config.put(fakeStyle);
     config.put(TileSetAerial);
 
-    const request = mockUrlRequest('/v1/styles/labels.json', `?labels=true`, Api.header);
+    const request = mockUrlRequest('/v1/styles/labels-v2.json', `?labels=true`, Api.header);
     const res = await handler.router.handle(request);
     assert.equal(res.status, 400, res.statusDescription);
     assert.equal(res.statusDescription.includes('Background1'), true);
