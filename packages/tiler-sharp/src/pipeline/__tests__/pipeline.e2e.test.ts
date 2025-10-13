@@ -12,6 +12,27 @@ import { PNG } from 'pngjs';
 
 import { TileMakerSharp } from '../../index.js';
 
+const tileSize = 256;
+
+function assertTiffBuffer(buffer: Buffer, tile: Tile, pipeline: string): void {
+  const newImage = PNG.sync.read(buffer);
+  if (WriteImages) {
+    const fileName = getExpectedTileName(tile, pipeline);
+    writeFileSync(fileName, buffer);
+  }
+
+  const oldImage = getExpectedTile(tile, pipeline);
+
+  const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
+  if (missMatchedPixels > 0) {
+    const fileName = getExpectedTileName(tile, pipeline, true);
+    const output = new PNG({ width: tileSize, height: tileSize });
+    PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
+    writeFileSync(fileName, PNG.sync.write(output));
+  }
+  assert.equal(missMatchedPixels, 0);
+}
+
 function getExpectedTile(tile: Tile, pipeline: string): PNG {
   const url = getExpectedTileName(tile, pipeline);
   const bytes = readFileSync(url);
@@ -24,14 +45,117 @@ function getExpectedTileName(tile: Tile, pipeline: string, diff = false): URL {
     import.meta.url,
   );
 }
-const WRITE_IMAGES = false;
+const WriteImages = false;
 
 describe('pipeline.e2e', () => {
-  const tile = { x: 262144, y: 262144, z: 19 };
-  const tileSize = 256;
+  const tileRgbi16 = { x: 262144, y: 262144, z: 19 };
+
+  const tileMaker = new TileMakerSharp(tileSize);
+  const tiler = new Tiler(GoogleTms);
 
   it('should create a rgb tiff', async () => {
     const tiff = await Tiff.create(fsa.source(TestTiff.Rgbi16));
+
+    const layers = tiler.tile([tiff], tileRgbi16.x, tileRgbi16.y, tileRgbi16.z) as CompositionTiff[];
+
+    const png = await tileMaker.compose({
+      layers,
+      format: 'png',
+      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
+      pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 3 }],
+      resizeKernel: { in: 'nearest', out: 'nearest' },
+    });
+    assertTiffBuffer(png.buffer, tileRgbi16, 'rgb');
+    await tiff.source.close?.();
+  });
+
+  it('should create a false-color', async () => {
+    const tiff = await Tiff.create(fsa.source(TestTiff.Rgbi16));
+
+    const layers = tiler.tile([tiff], tileRgbi16.x, tileRgbi16.y, tileRgbi16.z) as CompositionTiff[];
+
+    const png = await tileMaker.compose({
+      layers,
+      format: 'png',
+      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
+      pipeline: [{ type: 'extract', r: 2, g: 1, b: 0, alpha: 3 }],
+      resizeKernel: { in: 'nearest', out: 'nearest' },
+    });
+
+    assertTiffBuffer(png.buffer, tileRgbi16, 'false-color');
+    await tiff.source.close?.();
+  });
+
+  it('should create a scaled ndvi', async () => {
+    const tiff = await Tiff.create(fsa.source(TestTiff.Rgbi16));
+
+    const layers = tiler.tile([tiff], tileRgbi16.x, tileRgbi16.y, tileRgbi16.z) as CompositionTiff[];
+
+    const png = await tileMaker.compose({
+      layers,
+      format: 'png',
+      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
+      pipeline: [{ type: 'ndvi', r: 0, nir: 3, alpha: 3, scale: { r: 1024, nir: 1024, alpha: 255 } }],
+      resizeKernel: { in: 'nearest', out: 'nearest' },
+    });
+
+    assertTiffBuffer(png.buffer, tileRgbi16, 'ndvi');
+    await tiff.source.close?.();
+  });
+
+  it('should create a color ramp', async () => {
+    const tiff = await Tiff.create(fsa.source(TestTiff.Float32Dem));
+
+    const layers = tiler.tile([tiff], 0, 0, 0) as CompositionTiff[];
+
+    const png = await tileMaker.compose({
+      layers,
+      format: 'png',
+      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
+      pipeline: [{ type: 'color-ramp' }],
+      resizeKernel: { in: 'nearest', out: 'nearest' },
+    });
+
+    assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'color-ramp');
+    await tiff.source.close?.();
+  });
+
+  it('should create a terrain-rgb', async () => {
+    const tiff = await Tiff.create(fsa.source(TestTiff.Float32Dem));
+
+    const layers = tiler.tile([tiff], 0, 0, 0) as CompositionTiff[];
+
+    const png = await tileMaker.compose({
+      layers,
+      format: 'png',
+      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
+      pipeline: [{ type: 'terrain-rgb' }],
+      resizeKernel: { in: 'nearest', out: 'nearest' },
+    });
+
+    assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'terrain-rgb');
+    await tiff.source.close?.();
+  });
+
+  it('should create a custom color-ramp', async () => {
+    const tiff = await Tiff.create(fsa.source(TestTiff.Float32Dem));
+
+    const layers = tiler.tile([tiff], 0, 0, 0) as CompositionTiff[];
+
+    const png = await tileMaker.compose({
+      layers,
+      format: 'png',
+      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
+      pipeline: [{ type: 'color-ramp', ramp: '0 128 128 255 255\n255 128 255 128 255' }],
+      resizeKernel: { in: 'nearest', out: 'nearest' },
+    });
+
+    assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'color-ramp-custom');
+    await tiff.source.close?.();
+  });
+
+  it('should render a big endian tiff', async () => {
+    const tiff = await Tiff.create(fsa.source(TestTiff.Rgbi16Be));
     const tiler = new Tiler(GoogleTms);
 
     const layer0 = tiler.tile([tiff], 262144, 262144, 19) as CompositionTiff[];
@@ -45,90 +169,7 @@ describe('pipeline.e2e', () => {
       resizeKernel: { in: 'nearest', out: 'nearest' },
     });
 
-    const newImage = PNG.sync.read(png.buffer);
-    if (WRITE_IMAGES) {
-      const fileName = getExpectedTileName(tile, 'rgb');
-      writeFileSync(fileName, png.buffer);
-    }
-
-    const oldImage = getExpectedTile(tile, 'rgb');
-
-    const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
-    if (missMatchedPixels > 0) {
-      const fileName = getExpectedTileName(tile, 'rgb', true);
-      const output = new PNG({ width: tileSize, height: tileSize });
-      PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
-      writeFileSync(fileName, PNG.sync.write(output));
-    }
-    assert.equal(missMatchedPixels, 0);
-    await tiff.source.close?.();
-  });
-
-  it('should create a false-color', async () => {
-    const tiff = await Tiff.create(fsa.source(TestTiff.Rgbi16));
-    const tiler = new Tiler(GoogleTms);
-
-    const layer0 = tiler.tile([tiff], 262144, 262144, 19) as CompositionTiff[];
-    const tileMaker = new TileMakerSharp(256);
-
-    const png = await tileMaker.compose({
-      layers: layer0,
-      format: 'png',
-      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
-      pipeline: [{ type: 'extract', r: 2, g: 1, b: 0, alpha: 3 }],
-      resizeKernel: { in: 'nearest', out: 'nearest' },
-    });
-
-    const newImage = PNG.sync.read(png.buffer);
-    if (WRITE_IMAGES) {
-      const fileName = getExpectedTileName(tile, 'false-color');
-      writeFileSync(fileName, png.buffer);
-    }
-
-    const oldImage = getExpectedTile(tile, 'false-color');
-
-    const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
-    if (missMatchedPixels > 0) {
-      const fileName = getExpectedTileName(tile, 'false-color', true);
-      const output = new PNG({ width: tileSize, height: tileSize });
-      PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
-      writeFileSync(fileName, PNG.sync.write(output));
-    }
-    assert.equal(missMatchedPixels, 0);
-    await tiff.source.close?.();
-  });
-
-  it('should create a scaled ndvi', async () => {
-    const tiff = await Tiff.create(fsa.source(TestTiff.Rgbi16));
-    const tiler = new Tiler(GoogleTms);
-
-    const layer0 = tiler.tile([tiff], 262144, 262144, 19) as CompositionTiff[];
-    const tileMaker = new TileMakerSharp(256);
-
-    const png = await tileMaker.compose({
-      layers: layer0,
-      format: 'png',
-      background: { r: 255, g: 0, b: 255, alpha: 0.3 },
-      pipeline: [{ type: 'ndvi', r: 0, nir: 3, alpha: 3, scale: { r: 1024, nir: 1024, alpha: 255 } }],
-      resizeKernel: { in: 'nearest', out: 'nearest' },
-    });
-
-    const newImage = PNG.sync.read(png.buffer);
-    if (WRITE_IMAGES) {
-      const fileName = getExpectedTileName(tile, 'ndvi');
-      writeFileSync(fileName, png.buffer);
-    }
-
-    const oldImage = getExpectedTile(tile, 'ndvi');
-
-    const missMatchedPixels = PixelMatch(oldImage.data, newImage.data, null, tileSize, tileSize);
-    if (missMatchedPixels > 0) {
-      const fileName = getExpectedTileName(tile, 'ndvi', true);
-      const output = new PNG({ width: tileSize, height: tileSize });
-      PixelMatch(oldImage.data, newImage.data, output.data, tileSize, tileSize);
-      writeFileSync(fileName, PNG.sync.write(output));
-    }
-    assert.equal(missMatchedPixels, 0);
+    assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'big-endian');
     await tiff.source.close?.();
   });
 });

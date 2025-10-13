@@ -70,6 +70,11 @@ describe('tiff-loader', () => {
       img.bands?.map((m) => m.type),
       ['uint8', 'uint8', 'uint8', 'uint8'],
     );
+
+    cfg.createVirtualTileSets();
+    const tsAll = await cfg.TileSet.get('ts_all');
+    assert.ok(tsAll, 'ts_all');
+    assert.equal(tsAll.layers.length, 1, 'ts_all');
   });
 
   it('should import a rgbi tiff', async () => {
@@ -343,5 +348,24 @@ describe('tiff-loader', () => {
     const cfgStr = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get(), new URL('tmp://cache/'));
     const tsOutStr = (await cfgStr.TileSet.get('ts_dem')) as ConfigTileSetRaster;
     assert.deepEqual(tsOutStr.background, { r: 255, g: 0, b: 255, alpha: 255 });
+  });
+
+  it('should ignore Charts category from the ts_all', async () => {
+    const ts = {
+      id: 'ts_google',
+      type: 'raster',
+      category: 'Charts',
+      title: 'GoogleExample',
+      layers: [{ 3857: 'source://source/rgba8/', title: 'google_title', name: 'google_name' }],
+    };
+    const cfgUrl = new URL('tmp://config/ts_google.json');
+    await fsa.write(cfgUrl, JSON.stringify(ts));
+    const cfg = await ConfigJson.fromUrl(cfgUrl, pLimit(10), LogConfig.get());
+    assert.equal(cfg.objects.size, 2, [...cfg.objects.values()].map((m) => m.id).join(', ')); // Should be a im_ and ts_
+
+    cfg.createVirtualTileSets();
+    const tsAll = await cfg.TileSet.get('ts_all');
+    assert.ok(tsAll, 'ts_all');
+    assert.equal(tsAll.layers.length, 0, 'ts_all');
   });
 });
