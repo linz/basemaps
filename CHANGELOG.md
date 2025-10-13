@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.14.0](https://github.com/linz/basemaps/compare/v8.13.1...v8.14.0) (2025-10-13)
+
+
+### Features
+
+* add experiential big endian tiff support ([#3515](https://github.com/linz/basemaps/issues/3515)) ([2913aa2](https://github.com/linz/basemaps/commit/2913aa2aa39821cbf54908ec52b7fbe5a72544ab))
+* **cli-config:** Skip all the charts tileset from layer dropdown. BM-1381 ([#3535](https://github.com/linz/basemaps/issues/3535)) ([87172d8](https://github.com/linz/basemaps/commit/87172d8e654e1848287638386899b87220f45a69))
+* support custom color ramps ([#3538](https://github.com/linz/basemaps/issues/3538)) ([bb258eb](https://github.com/linz/basemaps/commit/bb258eb48a7e31e13dcc12eaf222f2fda26947a4))
+
+
+### Bug Fixes
+
+* **lambda-analytics-cloudfront:** empty enviroment variables should fail startup ([#3542](https://github.com/linz/basemaps/issues/3542)) ([035ac9d](https://github.com/linz/basemaps/commit/035ac9d30890a19f0fc1960c59518c850e9323af))
+* **landing:** pass through imageFormat around and fix map switcher BM-1386 ([#3544](https://github.com/linz/basemaps/issues/3544)) ([11c02c9](https://github.com/linz/basemaps/commit/11c02c9cfb2fd8fdefa6c6685fc3b3f8ecce738e))
+* **server:** correctly show rgb(a) imagery in /layers route ([#3540](https://github.com/linz/basemaps/issues/3540)) ([f789ba4](https://github.com/linz/basemaps/commit/f789ba463cd5a4b19527cf598ca6e532e1c81248))
+
 ## [8.13.1](https://github.com/linz/basemaps/compare/v8.13.0...v8.13.1) (2025-10-05)
 
 

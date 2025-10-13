@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.9.3](https://github.com/linz/basemaps/compare/shared-v8.9.2...shared-v8.9.3) (2025-10-13)
+
+
+### Bug Fixes
+
+* **lambda-analytics-cloudfront:** empty enviroment variables should fail startup ([#3542](https://github.com/linz/basemaps/issues/3542)) ([035ac9d](https://github.com/linz/basemaps/commit/035ac9d30890a19f0fc1960c59518c850e9323af))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.10.1 to ^8.11.0
+
 ## [8.9.2](https://github.com/linz/basemaps/compare/shared-v8.9.1...shared-v8.9.2) (2025-09-24)
 
 
