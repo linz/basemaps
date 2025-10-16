@@ -395,7 +395,7 @@ function addDefaultLayers(output: Map<string, LayerInfo>): void {
       category: 'Basemaps',
     },
     {
-      id: 'topo-raster::topo-raster-gridded',
+      id: 'topo-raster-gridded::topo-raster-gridded',
       title: 'Topo Maps',
       projections: new Set([EpsgCode.Nztm2000, EpsgCode.Google]),
       category: 'Basemaps',
