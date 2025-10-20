@@ -230,7 +230,7 @@ Your Service/App URL:
      */
     if (Config.map.isVector) {
       children.push(
-        <div className="LuiDeprecatedForms">
+        <div key="MBTiles-Message" className="LuiDeprecatedForms">
           <label style={{ marginTop: '16px' }}>MBTiles</label>
           <p style={{ marginTop: '0px' }}>
             Request downloadable MBTiles for use in offline or mobile apps using the <b>Contact us</b> button below.
