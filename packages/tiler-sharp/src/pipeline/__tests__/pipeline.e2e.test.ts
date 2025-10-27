@@ -13,6 +13,7 @@ import { PNG } from 'pngjs';
 import { TileMakerSharp } from '../../index.js';
 
 const tileSize = 256;
+const WriteImages = false;
 
 function assertTiffBuffer(buffer: Buffer, tile: Tile, pipeline: string): void {
   const newImage = PNG.sync.read(buffer);
@@ -45,7 +46,6 @@ function getExpectedTileName(tile: Tile, pipeline: string, diff = false): URL {
     import.meta.url,
   );
 }
-const WriteImages = false;
 
 describe('pipeline.e2e', () => {
   const tileRgbi16 = { x: 262144, y: 262144, z: 19 };
