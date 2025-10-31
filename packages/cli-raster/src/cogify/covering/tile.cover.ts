@@ -1,4 +1,4 @@
-import { Rgba } from '@basemaps/config';
+import { ImageryBandType, Rgba } from '@basemaps/config';
 import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
@@ -75,17 +75,44 @@ function getTargetBaseZoom(tileMatrix: TileMatrixSet, resolution: number, target
   return Projection.getTiffResZoom(tileMatrix, resolution) + targetZoomOffset;
 }
 
-// The base zoom is 256x256 pixels at its resolution, we are trying to find a image that is <32k pixels wide/high
-// zooming out 7 levels converts a 256x256 image into 32k x 32k image
-// 256 * 2 ** 7 = 32,768 - 256x256 tile
-// 512 * 2 ** 6 = 32,768 - 512x512 tile
-// This math only works for highly compressed RGB imagery, for multispectrial imagery small tiles need to be made
 export const TargetZoomOffsetDefault = 7;
-// ZSTD files are generally larger than webp or LERC
-export const TargetZoomOffset: Partial<Record<PresetName, number>> = {
-  zstd_17: 6,
-  lzw: 6,
-};
+
+/**
+ * We are trying to find a zoom level that will create COGS that are optimally sized for the preset,
+ * We are looking for cogs that are around 1GB in size on average and keeping under 4GB when maximally filled
+ *
+ * There are lots of different presets and source imagery bands which affect the final size of the COGs,
+ * for examples:
+ * - RGB(A) `uint8` imagery compressed with webp this preset is approximately 7 levels from the base zoom level.
+ * - Elevation `float32` compressed with zstd is less effective the offset is reduced to 6 levels
+ *
+ * @param preset target compression preset
+ * @param targetBaseZoom the base zoom level to use
+ * @param sourceBands bands present in the source dataset
+ *
+ * @returns a zoom level offset to use for the covering
+ */
+export function findOptimialCoveringZoomOffset(preset: PresetName, sourceBands: ImageryBandType[]): number {
+  // Webp is very efficient at compressing RGB(A) imagery so we can keep the default offset
+  if (preset === 'webp') return TargetZoomOffsetDefault;
+  // LZW is not very effective at compressing most imagery so we reduce the offset by one
+  if (preset === 'lzw') return TargetZoomOffsetDefault - 1;
+
+  const sourceBandText = sourceBands.map((m) => m.type).join(',');
+  // Single band float32 imagery tends to be elevation data which compresses well with lossy lerc and less so with lossless zstd
+  if (sourceBandText === 'float32') {
+    if (preset === 'lerc_1mm' || preset === 'lerc_10mm') return TargetZoomOffsetDefault;
+    // all other compressors are lossless
+    return TargetZoomOffsetDefault - 1;
+  }
+
+  // Single band uint8 or uint16 compresses generally very effectively with most presets
+  if (sourceBandText === 'uint8') return TargetZoomOffsetDefault;
+  if (sourceBandText === 'uint16') return TargetZoomOffsetDefault;
+
+  // Unknown preset so assume one level offset is ok
+  return TargetZoomOffsetDefault - 1;
+}
 
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Ensure we have the projection loaded for the source imagery
@@ -94,10 +121,10 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 
   // Find the zoom level that is at least as good as the source imagery
   const targetBaseZoom = getTargetBaseZoom(ctx.tileMatrix, ctx.imagery.gsd, ctx.targetZoomOffset);
-
-  const targetZoomOffset = TargetZoomOffset[ctx.preset] ?? 7;
-
-  const optimalCoveringZoom = Math.max(1, targetBaseZoom - targetZoomOffset); // z12 from z19
+  const optimalCoveringZoom = Math.max(
+    1,
+    targetBaseZoom - findOptimialCoveringZoomOffset(ctx.preset, ctx.imagery.bands),
+  );
   ctx.logger?.debug({ targetBaseZoom, cogOverZoom: optimalCoveringZoom }, 'Imagery:ZoomLevel');
 
   const sourceBounds = projectPolygon(
