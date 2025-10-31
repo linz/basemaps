@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.10.0](https://github.com/linz/basemaps/compare/infra-v8.9.3...infra-v8.10.0) (2025-10-20)
+
+
+### Features
+
+* drop tiler log level ([#3548](https://github.com/linz/basemaps/issues/3548)) ([471ceca](https://github.com/linz/basemaps/commit/471ceca818ab8c06151b9d1b87593c09d0107251))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/lambda-tiler bumped from ^8.10.2 to ^8.11.0
+
 ## [8.9.3](https://github.com/linz/basemaps/compare/infra-v8.9.2...infra-v8.9.3) (2025-10-13)
 
 

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.0](https://github.com/linz/basemaps/compare/lambda-tiler-v8.10.2...lambda-tiler-v8.11.0) (2025-10-20)
+
+
+### Features
+
+* switch to v2 vector basemaps BM-1226 ([#3534](https://github.com/linz/basemaps/issues/3534)) ([0787449](https://github.com/linz/basemaps/commit/07874498f26f86c4a811399f310befa44279c667))
+
 ## [8.10.2](https://github.com/linz/basemaps/compare/lambda-tiler-v8.10.1...lambda-tiler-v8.10.2) (2025-10-13)
 
 

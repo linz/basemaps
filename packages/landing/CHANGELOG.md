@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.0](https://github.com/linz/basemaps/compare/landing-v8.11.2...landing-v8.12.0) (2025-10-20)
+
+
+### Features
+
+* **landing:** display downloadable mbtiles message for vector basemaps BM-1330 ([#3478](https://github.com/linz/basemaps/issues/3478)) ([3c0f5b5](https://github.com/linz/basemaps/commit/3c0f5b53c3de2f7cd317541222075ad098b17c82))
+* switch to v2 vector basemaps BM-1226 ([#3534](https://github.com/linz/basemaps/issues/3534)) ([0787449](https://github.com/linz/basemaps/commit/07874498f26f86c4a811399f310befa44279c667))
+
+
+### Bug Fixes
+
+* **landing:** add key to mbtiles message div BM-1330 ([#3549](https://github.com/linz/basemaps/issues/3549)) ([6a3bddc](https://github.com/linz/basemaps/commit/6a3bddc0a2a6727831d16d82a2633e062d5ee00e))
+* **landing:** correct topo maps layer ID BM-1408 ([#3547](https://github.com/linz/basemaps/issues/3547)) ([cc2753f](https://github.com/linz/basemaps/commit/cc2753fd0ab599678cd3fd6dc84f7f059e0836ab))
+* **landing:** map.switcher remove elevation from cycle ([#3546](https://github.com/linz/basemaps/issues/3546)) ([2ebe728](https://github.com/linz/basemaps/commit/2ebe728be2b678015fce7580475c7d2a13ddb7e5))
+
 ## [8.11.2](https://github.com/linz/basemaps/compare/landing-v8.11.1...landing-v8.11.2) (2025-10-13)
 
 

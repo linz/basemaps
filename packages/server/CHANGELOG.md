@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.10.5](https://github.com/linz/basemaps/compare/server-v8.10.4...server-v8.10.5) (2025-10-20)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/lambda-tiler bumped from ^8.10.2 to ^8.11.0
+    * @basemaps/landing bumped from ^8.11.2 to ^8.12.0
+  * optionalDependencies
+    * @basemaps/landing bumped from ^8.11.2 to ^8.12.0
+
 ## [8.10.4](https://github.com/linz/basemaps/compare/server-v8.10.3...server-v8.10.4) (2025-10-13)
 
 
