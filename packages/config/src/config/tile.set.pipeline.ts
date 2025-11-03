@@ -62,10 +62,19 @@ export const ConfigTileSetOutputParser = z.object({
   title: z.string(),
   /**
    * Common URL friendly name for the configuration
+   * This needs to be unique across all outputs for a tileset
    *
    * @example "terrain-rgb", "color-ramp"
    */
   name: z.string(),
+
+  /**
+   * Is this pipeline the default output for the tileset
+   *
+   * Only one output can be the default
+   * @default false
+   */
+  default: z.boolean().optional(),
   /**
    * Processing pipeline, for configuration on how to convert the source into a RGBA output
    */

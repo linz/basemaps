@@ -20,17 +20,55 @@ describe('/v1/styles', () => {
   before(() => {
     process.env[Env.PublicUrlBase] = host;
   });
+
   beforeEach(() => {
     sandbox.stub(ConfigLoader, 'getDefaultConfig').resolves(config);
   });
+
   afterEach(() => {
     sandbox.restore();
     config.objects.clear();
   });
+
   it('should not found style json', async () => {
     const request = mockRequest('/v1/tiles/topographic/Google/style/topographic.json', 'get', Api.header);
     const res = await handler.router.handle(request);
     assert.equal(res.status, 404);
+  });
+
+  it('should select default layers', async () => {
+    config.put(TileSetElevation);
+
+    const request = mockRequest('/v1/styles/elevation.json', 'get', Api.header);
+    const res = await handler.router.handle(request);
+    // No default set so this should 404
+    assert.equal(res.status, 404, res.statusDescription);
+
+    // Setting a default of color-ramp
+    const ts = structuredClone(TileSetElevation);
+    ts.outputs![1].default = true;
+    config.put(ts);
+
+    const resB = await handler.router.handle(request);
+    assert.equal(resB.status, 200, resB.statusDescription);
+    const body = JSON.parse(Buffer.from(resB.body, 'base64').toString()) as StyleJson;
+    assert.equal(body.layers[0].source, 'basemaps-elevation-color-ramp');
+  });
+
+  it.only('should select default layers', async () => {
+    config.put(TileSetElevation);
+
+    const request = mockRequest('/v1/styles/elevation.json', 'get', Api.header);
+
+    // Setting a default of color-ramp
+    const ts = structuredClone(TileSetElevation);
+    ts.outputs![0].default = true;
+    config.put(ts);
+
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 200, res.statusDescription);
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+    assert.equal(body.layers[0].source, 'basemaps-elevation-color-ramp');
   });
 
   const fakeStyle: StyleJson = {

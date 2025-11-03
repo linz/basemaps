@@ -142,7 +142,14 @@ export const Validate = {
    * Defaults to standard image format output if no outputs are defined on the tileset
    */
   pipeline(tileSet: ConfigTileSetRaster, tileType: string, pipeline?: string | null): ConfigTileSetRasterOutput | null {
-    // If there is only one pipeline force the use of it
+    if (pipeline == null && tileSet.outputs) {
+      // If no pipeline is specified find the default pipeline
+      const defaultOutput = tileSet.outputs.find((f) => f.default === true);
+      if (defaultOutput) pipeline = defaultOutput.name;
+      // If there is only one pipeline force the use of it
+      else if (pipeline == null && tileSet.outputs.length === 1) pipeline = tileSet.outputs[0].name;
+    }
+
     if (tileSet.outputs?.length === 1 && pipeline == null) pipeline = tileSet.outputs[0].name;
 
     if (pipeline != null && pipeline !== 'rgba') {
