@@ -410,10 +410,19 @@ async function prepareUrl(
   if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
 
   const center = getPreviewUrl({ imagery: configImagery });
+
   const urls = {
-    layer: `${PublicUrlBase}?config=${configPath}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
-    tag: `${PublicUrlBase}?config=${configPath}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
+    layer: `${PublicUrlBase}@${center.location.lat},${center.location.lon},z${center.location.zoom}?config=${configPath}&i=${center.name}&p=${tileMatrix.identifier}&debug`,
+    tag: `${PublicUrlBase}@${center.location.lat},${center.location.lon},z${center.location.zoom}?config=${configPath}&p=${tileMatrix.identifier}&debug`,
   };
+
+  if (configImagery.category?.toLowerCase() == 'elevation') {
+    const elevationParameters = `&pipeline=terrain-rgb&format=png`;
+
+    urls.layer += elevationParameters;
+    urls.tag += elevationParameters;
+  }
+
   return urls;
 }
 
