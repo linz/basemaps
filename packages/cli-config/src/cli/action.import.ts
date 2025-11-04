@@ -416,7 +416,7 @@ async function prepareUrl(
     tag: `${PublicUrlBase}@${center.location.lat},${center.location.lon},z${center.location.zoom}?config=${configPath}&p=${tileMatrix.identifier}&debug`,
   };
 
-  if (configImagery.category?.toLowerCase() == 'elevation') {
+  if (configImagery.category?.toLowerCase() === 'elevation') {
     const elevationParameters = `&pipeline=terrain-rgb&format=png`;
 
     urls.layer += elevationParameters;
