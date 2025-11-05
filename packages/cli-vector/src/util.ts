@@ -28,7 +28,7 @@ export interface TmpPaths {
   origin: URL;
 
   source: {
-    /** @example "tmp/create/layers/50248/50248.gpkg" */
+    /** @example "tmp/create/layers/schema/50248/50248.gpkg" */
     path: URL;
 
     /** @example "gpkg" */
