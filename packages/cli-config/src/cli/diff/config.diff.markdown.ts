@@ -54,7 +54,7 @@ function markdownProjectionLink(projection: EpsgCode, url: string): string {
 
 function createBasemapsUrl(
   diff: DiffTileSet,
-  tileSet: ConfigTileSetRaster,
+  _tileSet: ConfigTileSetRaster,
   layer: ConfigLayer,
   projection: EpsgCode,
 ): string | null {

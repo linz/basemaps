@@ -1,10 +1,4 @@
-import {
-  ConfigImagery,
-  ConfigLayer,
-  ConfigProviderMemory,
-  ConfigTileSetRaster,
-  ConfigTileSetVector,
-} from '@basemaps/config';
+import { ConfigLayer, ConfigProviderMemory, ConfigTileSetRaster, ConfigTileSetVector } from '@basemaps/config';
 import diff from 'deep-diff';
 
 import { IgnoredProperties } from '../config.diff.js';
@@ -81,7 +75,7 @@ export interface DiffTileSet {
   /** List of vector layers that have changed */
   vector: Diff<ConfigTileSetVector>[];
 
-  imagery: Diff<ConfigImagery>;
+  // imagery: Diff<ConfigImagery>;
 
   /** Old Configuration that was used for the comparison */
   before: ConfigProviderMemory;

@@ -403,7 +403,7 @@ async function prepareUrl(
   mem: BasemapsConfigProvider,
   tileMatrix: TileMatrixSet,
   configPath: string,
-): Promise<{ layers: string; tag: string }> {
+): Promise<{ layer: string; tag: string }> {
   const configImagery = await mem.Imagery.get(id);
   if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
 
