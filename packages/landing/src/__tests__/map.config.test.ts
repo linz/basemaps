@@ -48,6 +48,16 @@ describe('WindowUrl', () => {
     assert.equal(mc.isDebug, false);
   });
 
+  it('should support pipeline', () => {
+    mc.updateFromUrl('?pipeline=terrain-rgb');
+    assert.equal(mc.pipeline, 'terrain-rgb');
+  });
+
+  it('should support image format', () => {
+    mc.updateFromUrl('?format=png');
+    assert.equal(mc.imageFormat, 'png');
+  });
+
   it('should support NZTM tiles', () => {
     mc.updateFromUrl('?p=2193');
     assert.equal(mc.tileMatrix, Nztm2000QuadTms);

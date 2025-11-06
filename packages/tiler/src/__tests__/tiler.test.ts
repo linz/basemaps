@@ -17,7 +17,7 @@ describe('tiler.test', () => {
       const tiff = await Tiff.create(fsa.source(TestTiff.Google));
       const tiler = new Tiler(GoogleTms);
       const screenPx = GoogleTms.tileToPixels(0, 0);
-      const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, GoogleTms.tileSize, GoogleTms.tileSize);
+      const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, GoogleTms.tileWidth, GoogleTms.tileHeight);
 
       const z0 = tiler.getRasterTiffIntersection(tiff, screenBoundsPx, 0);
       Approx.bounds(z0?.tiff, { x: 64, y: 64, height: 128, width: 128 }, 'tiff');
@@ -35,7 +35,7 @@ describe('tiler.test', () => {
         const tile = QuadKey.toTile(qk);
 
         const screenPx = GoogleTms.tileToPixels(tile.x, tile.y);
-        const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, GoogleTms.tileSize, GoogleTms.tileSize);
+        const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, GoogleTms.tileWidth, GoogleTms.tileHeight);
 
         const intersection = tiler.getRasterTiffIntersection(tiff, screenBoundsPx, tile.z);
 

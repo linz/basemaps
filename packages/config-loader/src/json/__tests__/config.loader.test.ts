@@ -28,7 +28,7 @@ describe('config import', () => {
     assert.equal(imagery.name, 'tile-tiff-name');
     assert.deepEqual(imagery.files, [{ name: 'tiff-a.tiff', x: 0, y: -64, width: 64, height: 64 }]);
 
-    assert.deepEqual(imagery.bands, ['uint8', 'uint8', 'uint8', 'uint8']);
+    assert.deepEqual(imagery.bands, [{ type: 'uint8' }, { type: 'uint8' }, { type: 'uint8' }, { type: 'uint8' }]);
 
     assert.equal(imagery.noData, undefined);
   });

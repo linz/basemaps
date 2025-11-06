@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-analytics",
-  "version": "8.5.0",
+  "version": "8.9.3",
   "private": true,
   "repository": {
     "type": "git",
@@ -18,13 +18,13 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/config": "^8.3.0",
-    "@basemaps/geo": "^8.3.0",
-    "@basemaps/shared": "^8.5.0",
+    "@basemaps/config": "^8.11.0",
+    "@basemaps/geo": "^8.9.0",
+    "@basemaps/shared": "^8.9.3",
     "ua-parser-js": "^1.0.2"
   },
   "scripts": {
-    "test": "node --test",
+    "test": "node --test \"build/**/*.test.js\"",
     "bundle": "../../scripts/bundle.mjs package.json"
   },
   "devDependencies": {

@@ -75,6 +75,13 @@ export const Env = {
     ElasticIndexName: 'ELASTIC_INDEX_NAME',
   } as const,
 
+  /** Load a environment variable throw a exception if the value is empty */
+  getRequired(envName: string): string {
+    const value = Env.get(envName);
+    if (value == null || value === '') throw new Error(`Missing env $${envName}`);
+    return value;
+  },
+
   /** Load a environment var defaulting to defaultOutput if it does not exist  */
   get(envName: string): string | undefined {
     return process.env[envName];

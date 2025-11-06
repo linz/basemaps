@@ -225,6 +225,20 @@ Your Service/App URL:
       }
     }
 
+    /**
+     * Display downloadable MBTiles message for vector basemaps.
+     */
+    if (Config.map.isVector) {
+      children.push(
+        <div key="MBTiles-Message" className="LuiDeprecatedForms">
+          <label style={{ marginTop: '16px' }}>MBTiles</label>
+          <p style={{ marginTop: '0px' }}>
+            Request downloadable MBTiles for use in offline or mobile apps using the <b>Contact us</b> button below.
+          </p>
+        </div>,
+      );
+    }
+
     return <Fragment>{children}</Fragment>;
   }
 }

@@ -104,7 +104,7 @@ export function setStyleTerrain(style: StyleJson, terrain: string, tileMatrix: T
  */
 async function setStyleLabels(req: LambdaHttpRequest<StyleGet>, style: StyleJson): Promise<void> {
   const config = await ConfigLoader.load(req);
-  const labels = await config.Style.get('labels');
+  const labels = await config.Style.get('labels-v2');
 
   if (labels == null) {
     req.log.warn('LabelsStyle:Missing');
@@ -147,6 +147,15 @@ async function ensureTerrain(
     tileSize: 256,
     maxzoom: 18, // TODO: this should be configurable based on the elevation layer
     tiles: [convertRelativeUrl(`/v1/tiles/elevation/${tileMatrix.identifier}/{z}/{x}/{y}.png${elevationQuery}`)],
+  };
+
+  const dsmTerrain = await config.TileSet.get('elevation-dsm');
+  if (dsmTerrain == null) return;
+  style.sources['LINZ-Terrain-DSM'] = {
+    type: 'raster-dem', // MapLibre Style Spec doesn't have raster-dsm
+    tileSize: 256,
+    maxzoom: 18, // TODO: this should be configurable based on the elevation layer
+    tiles: [convertRelativeUrl(`/v1/tiles/elevation-dsm/${tileMatrix.identifier}/{z}/{x}/{y}.png${elevationQuery}`)],
   };
 }
 
@@ -229,11 +238,23 @@ export function tileSetOutputToStyle(
     }
   }
 
-  // Add first raster source as default layer
-  for (const source of Object.keys(sources)) {
-    if (sources[source].type === 'raster') {
-      layers.push({ id: styleId, type: 'raster', source });
-      break;
+  const [tileFormat] = Validate.getRequestedFormats(req) ?? ['webp'];
+  if (tileFormat == null) throw new LambdaHttpResponse(400, 'Invalid image format');
+
+  const pipeline = Validate.pipeline(tileSet, tileFormat, req.query.get('pipeline'));
+  const pipelineName = pipeline?.name === 'rgba' ? undefined : pipeline?.name;
+
+  if (pipelineName != null) {
+    const sourceId = `${styleId}-${pipelineName}`;
+    if (sources[sourceId] == null) throw new LambdaHttpResponse(404, 'Pipeline not found');
+    layers.push({ id: styleId, type: 'raster', source: `${styleId}-${pipelineName}` });
+  } else {
+    // Add first raster source as default layer
+    for (const source of Object.keys(sources)) {
+      if (sources[source].type === 'raster') {
+        layers.push({ id: styleId, type: 'raster', source });
+        break;
+      }
     }
   }
 

@@ -88,6 +88,7 @@ describe('config.diff', () => {
       const parts = splitUrlIntoParts(url);
 
       const imagery: ConfigImageryTiff = {
+        v: 2,
         id: `im_${sha256base58(url.href)}`,
         name: parts.name,
         title: parts.name,
@@ -98,6 +99,12 @@ describe('config.diff', () => {
         uri: url.href,
         url: url,
         bounds: { x: 0, y: 0, width: 0, height: 0 },
+        bands: [
+          { type: 'uint8', color: 'red' },
+          { type: 'uint8', color: 'green' },
+          { type: 'uint8', color: 'blue' },
+          { type: 'uint8', color: 'alpha' },
+        ],
         files: [],
       };
       return Promise.resolve(imagery);

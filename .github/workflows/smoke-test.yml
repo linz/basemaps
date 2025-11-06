@@ -20,12 +20,17 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    environment:
+      name: preprod
+
     permissions:
       id-token: write
       contents: read
 
     steps:
       - uses: linz/action-typescript@v3
+        with:
+          node-version: 24.x
 
       # Package all the files
       - name: Bundle & Package all files

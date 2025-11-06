@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/shared",
-  "version": "8.5.0",
+  "version": "8.9.3",
   "private": false,
   "repository": {
     "type": "git",
@@ -20,15 +20,15 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test \"build/**/*.test.js\""
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.470.0",
     "@aws-sdk/client-s3": "^3.472.0",
     "@aws-sdk/s3-request-presigner": "^3.472.0",
     "@aws-sdk/util-dynamodb": "^3.470.0",
-    "@basemaps/config": "^8.3.0",
-    "@basemaps/geo": "^8.3.0",
+    "@basemaps/config": "^8.11.0",
+    "@basemaps/geo": "^8.9.0",
     "@chunkd/fs": "^11.2.0",
     "@chunkd/fs-aws": "^11.3.0",
     "@chunkd/middleware": "^11.1.0",

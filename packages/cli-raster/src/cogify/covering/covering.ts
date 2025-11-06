@@ -133,8 +133,8 @@ export function createCovering(ctx: CoveringContext): Tile[] {
     const zDiff = tile.z - ctx.targetZoom;
 
     // Count the number of pixels in the output tiff that would be used
-    const tileScale = tileSource.width / ctx.tileMatrix.tileSize;
-    const pixelCount = (tileArea * areaPercent) / tileScale;
+    const tileScaleX = tileSource.width / ctx.tileMatrix.tileWidth;
+    const pixelCount = (tileArea * areaPercent) / tileScaleX;
 
     if (areaPercent < minCoveragePercent && zDiff < maxZoomDifference) {
       // Not enough coverage was found with this tile, use a more zoomed in tile and try again

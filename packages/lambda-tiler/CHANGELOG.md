@@ -3,7 +3,84 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-# [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
+## [8.11.0](https://github.com/linz/basemaps/compare/lambda-tiler-v8.10.2...lambda-tiler-v8.11.0) (2025-10-20)
+
+
+### Features
+
+* switch to v2 vector basemaps BM-1226 ([#3534](https://github.com/linz/basemaps/issues/3534)) ([0787449](https://github.com/linz/basemaps/commit/07874498f26f86c4a811399f310befa44279c667))
+
+## [8.10.2](https://github.com/linz/basemaps/compare/lambda-tiler-v8.10.1...lambda-tiler-v8.10.2) (2025-10-13)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.10.1 to ^8.11.0
+    * @basemaps/config-loader bumped from ^8.10.1 to ^8.11.0
+    * @basemaps/shared bumped from ^8.9.2 to ^8.9.3
+    * @basemaps/tiler bumped from ^8.10.1 to ^8.11.0
+    * @basemaps/tiler-sharp bumped from ^8.10.1 to ^8.11.0
+
+## [8.10.1](https://github.com/linz/basemaps/compare/lambda-tiler-v8.10.0...lambda-tiler-v8.10.1) (2025-09-24)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.10.0 to ^8.10.1
+    * @basemaps/config-loader bumped from ^8.10.0 to ^8.10.1
+    * @basemaps/shared bumped from ^8.9.1 to ^8.9.2
+    * @basemaps/tiler bumped from ^8.10.0 to ^8.10.1
+    * @basemaps/tiler-sharp bumped from ^8.10.0 to ^8.10.1
+
+## [8.10.0](https://github.com/linz/basemaps/compare/lambda-tiler-v8.9.0...lambda-tiler-v8.10.0) (2025-09-22)
+
+
+### Features
+
+* add ZSTD decompression and rgbi pipelines ([#3511](https://github.com/linz/basemaps/issues/3511)) ([5e27413](https://github.com/linz/basemaps/commit/5e2741373487c39d1d80418fff1f5c66a68f7006))
+* **landing:** add dsm to terrain switch BM-1271 ([#3496](https://github.com/linz/basemaps/issues/3496)) ([9a8fbc9](https://github.com/linz/basemaps/commit/9a8fbc92aa812a0b28fb31f1d93bbdd1aa31ce2e))
+* load gdal metadata for color interpretation ([#3510](https://github.com/linz/basemaps/issues/3510)) ([25ca54f](https://github.com/linz/basemaps/commit/25ca54fcd219c132153ef7bf3918ea634068a97a))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/config-loader bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/shared bumped from ^8.9.0 to ^8.9.1
+    * @basemaps/tiler bumped from ^8.9.0 to ^8.10.0
+    * @basemaps/tiler-sharp bumped from ^8.9.0 to ^8.10.0
+    
+## [8.9.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.9.0) (2025-09-09)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [8.8.0](https://github.com/linz/basemaps/compare/v8.7.0...v8.8.0) (2025-09-07)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [8.6.0](https://github.com/linz/basemaps/compare/v8.5.0...v8.6.0) (2025-08-06)
+
+**Note:** Version bump only for package @basemaps/lambda-tiler
+
+
+
+
+
+## [8.5.0](https://github.com/linz/basemaps/compare/v8.4.0...v8.5.0) (2025-07-15)
 
 
 ### Features
@@ -14,7 +91,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
+## [8.3.0](https://github.com/linz/basemaps/compare/v8.2.0...v8.3.0) (2025-06-17)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler
 
@@ -22,7 +99,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
+## [8.2.0](https://github.com/linz/basemaps/compare/v8.1.0...v8.2.0) (2025-06-12)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler
 
@@ -30,7 +107,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
+## [8.1.0](https://github.com/linz/basemaps/compare/v8.0.0...v8.1.0) (2025-05-18)
 
 
 ### Features
@@ -41,7 +118,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
+## [8.0.0](https://github.com/linz/basemaps/compare/v7.17.0...v8.0.0) (2025-05-11)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler
 
@@ -49,7 +126,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
+## [7.16.0](https://github.com/linz/basemaps/compare/v7.15.1...v7.16.0) (2025-04-07)
 
 
 ### Bug Fixes
@@ -65,7 +142,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
+## [7.15.0](https://github.com/linz/basemaps/compare/v7.14.0...v7.15.0) (2025-03-17)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler
 
@@ -73,7 +150,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
+## [7.14.0](https://github.com/linz/basemaps/compare/v7.13.0...v7.14.0) (2025-01-26)
 
 **Note:** Version bump only for package @basemaps/lambda-tiler
 
@@ -81,7 +158,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
+## [7.13.0](https://github.com/linz/basemaps/compare/v7.12.0...v7.13.0) (2025-01-06)
 
 
 ### Bug Fixes
@@ -92,7 +169,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
+## [7.12.0](https://github.com/linz/basemaps/compare/v7.11.1...v7.12.0) (2024-11-14)
 
 
 ### Bug Fixes
@@ -109,7 +186,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
+## [7.11.0](https://github.com/linz/basemaps/compare/v7.10.0...v7.11.0) (2024-09-29)
 
 
 ### Features
@@ -120,7 +197,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
+## [7.10.0](https://github.com/linz/basemaps/compare/v7.9.0...v7.10.0) (2024-09-16)
 
 
 ### Features
@@ -133,7 +210,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
+## [7.9.0](https://github.com/linz/basemaps/compare/v7.8.0...v7.9.0) (2024-08-26)
 
 
 ### Bug Fixes
@@ -152,7 +229,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
+## [7.7.0](https://github.com/linz/basemaps/compare/v7.6.0...v7.7.0) (2024-07-28)
 
 
 ### Bug Fixes
@@ -164,7 +241,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
+## [7.6.0](https://github.com/linz/basemaps/compare/v7.5.0...v7.6.0) (2024-07-11)
 
 
 ### Bug Fixes
@@ -180,7 +257,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
+## [7.5.0](https://github.com/linz/basemaps/compare/v7.4.0...v7.5.0) (2024-07-01)
 
 
 ### Bug Fixes
@@ -200,7 +277,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
+## [7.4.0](https://github.com/linz/basemaps/compare/v7.3.0...v7.4.0) (2024-06-13)
 
 
 ### Bug Fixes
@@ -216,7 +293,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
+## [7.3.0](https://github.com/linz/basemaps/compare/v7.2.0...v7.3.0) (2024-05-02)
 
 
 ### Bug Fixes
@@ -227,13 +304,14 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
-# [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
+## [7.2.0](https://github.com/linz/basemaps/compare/v7.1.1...v7.2.0) (2024-04-08)
 
 
 ### Bug Fixes
 
 * **lambda-tiler:** content type for jpg should be image/jpeg ([#3208](https://github.com/linz/basemaps/issues/3208)) ([26efdd5](https://github.com/linz/basemaps/commit/26efdd5732033235742a3148c63e4beff0a51cc8))
 * **lambda-tiler:** do not error when no layers are found ([#3209](https://github.com/linz/basemaps/issues/3209)) ([2e58255](https://github.com/linz/basemaps/commit/2e58255df9b22d525ee539aa8754fdb755ddc8c9))
+
 
 
 

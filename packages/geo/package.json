@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/geo",
-  "version": "8.3.0",
+  "version": "8.9.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -19,7 +19,7 @@
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test \"build/**/*.test.js\""
   },
   "publishConfig": {
     "access": "public"
@@ -28,12 +28,11 @@
     "build/"
   ],
   "devDependencies": {
-    "@types/geojson": "^7946.0.7",
-    "@types/proj4": "^2.5.2"
+    "@types/geojson": "^7946.0.7"
   },
   "dependencies": {
     "@linzjs/geojson": "^8.0.0",
     "@linzjs/tile-matrix-set": "^0.0.1",
-    "proj4": "^2.8.0"
+    "proj4": "^2.19.10"
   }
 }

@@ -59,7 +59,7 @@ export class LambdaTiler extends Construct {
      */
 
     this.lambdaNoVpc = new lambda.Function(this, 'TilerNoVpc', {
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       memorySize: 3072,
       timeout: Duration.seconds(60),
       handler: 'index.handler',
@@ -68,6 +68,7 @@ export class LambdaTiler extends Construct {
       environment,
       logRetention: RetentionDays.ONE_MONTH,
       loggingFormat: lambda.LoggingFormat.JSON,
+      systemLogLevelV2: lambda.SystemLogLevel.WARN,
     });
 
     this.functionUrl = new lambda.FunctionUrl(this, 'LambdaCogUrl', {

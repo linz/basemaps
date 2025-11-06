@@ -10,7 +10,14 @@ export { ensureBase58, sha256base58 } from './base58.node.js';
 export { parseHex, parseRgba, Rgba } from './color.js';
 export { ConfigBase as BaseConfig } from './config/base.js';
 export { ConfigBundle } from './config/config.bundle.js';
-export { ConfigImagery, ConfigImageryOverview, ImageryBandType, ImageryDataType } from './config/imagery.js';
+export {
+  ConfigImagery,
+  ConfigImageryOverview,
+  ConfigImageryV1,
+  ImageryBandDataType,
+  ImageryBandType,
+  ImageryDataType,
+} from './config/imagery.js';
 export { ConfigPrefix } from './config/prefix.js';
 export { ConfigProvider } from './config/provider.js';
 export {
@@ -23,7 +30,13 @@ export {
   TileSetType,
 } from './config/tile.set.js';
 export { DefaultColorRamp, DefaultColorRampOutput, DefaultTerrainRgbOutput } from './config/tile.set.output.js';
-export { ConfigTileSetOutputParser } from './config/tile.set.pipeline.js';
+export {
+  ConfigRasterPipeline,
+  ConfigTileSetOutputParser,
+  PipelineColorRampArgs,
+  PipelineExtractArgs,
+  PipelineNdviArgs,
+} from './config/tile.set.pipeline.js';
 export { ConfigVectorStyle, Layer, SourceRaster, Sources, SourceVector, StyleJson } from './config/vector.style.js';
 export { ConfigBundled, ConfigProviderMemory } from './memory/memory.config.js';
 export { standardizeLayerName } from './name.convertor.js';

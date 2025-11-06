@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/infra",
-  "version": "8.5.0",
+  "version": "8.10.0",
   "private": true,
   "repository": {
     "type": "git",
@@ -21,16 +21,16 @@
     "deploy:synth": "cdk synth",
     "deploy:diff": "cdk diff || true",
     "deploy:deploy": "cdk deploy '*' -y --require-approval never",
-    "test": "node --test"
+    "test": "node --test \"build/**/*.test.js\""
   },
   "devDependencies": {
     "@aws-sdk/client-acm": "^3.470.0",
     "@aws-sdk/client-cloudformation": "^3.470.0",
-    "@basemaps/lambda-tiler": "^8.5.0",
-    "@basemaps/shared": "^8.5.0",
+    "@basemaps/lambda-tiler": "^8.11.0",
+    "@basemaps/shared": "^8.9.3",
     "@linzjs/cdk-tags": "^1.7.0",
-    "aws-cdk": "2.162.x",
-    "aws-cdk-lib": "2.162.x",
+    "aws-cdk": "^2.1029.1",
+    "aws-cdk-lib": "^2.215.0",
     "constructs": "^10.4.2"
   }
 }

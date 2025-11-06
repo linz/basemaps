@@ -16,6 +16,13 @@ export interface DecompressedInterleavedFloat {
   width: number;
   height: number;
 }
+export interface DecompressedInterleavedUint16 {
+  pixels: Uint16Array | Uint8ClampedArray;
+  depth: 'uint16';
+  channels: number;
+  width: number;
+  height: number;
+}
 
 export interface DecompressedInterleavedUint8 {
   pixels: Uint8Array | Uint8ClampedArray;
@@ -29,17 +36,20 @@ export interface DecompressedInterleavedUint8 {
 export type DecompressedInterleaved =
   | DecompressedInterleavedFloat
   | DecompressedInterleavedUint8
+  | DecompressedInterleavedUint16
   | DecompressedInterleavedUint32;
 
+export type TiffTileId = { imageId: number; x: number; y: number };
 export interface Decompressor {
-  type: 'image/webp' | 'application/lerc';
-  bytes(source: Tiff, tile: ArrayBuffer): Promise<DecompressedInterleaved>;
+  type: 'image/webp' | 'application/lerc' | 'application/zstd';
+  bytes(source: Tiff, tile: TiffTileId, bytes: ArrayBuffer): Promise<DecompressedInterleaved>;
 }
 
-export interface Pipeline {
+export interface Pipeline<T = undefined> {
   type: string;
   process(
     source: CompositionTiff,
     bytes: DecompressedInterleaved,
+    ctx?: T,
   ): Promise<DecompressedInterleaved> | DecompressedInterleaved;
 }

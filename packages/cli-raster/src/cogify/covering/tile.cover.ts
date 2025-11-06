@@ -1,13 +1,13 @@
-import { Rgba } from '@basemaps/config';
+import { ImageryBandType, Rgba } from '@basemaps/config';
 import { ConfigImageryTiff } from '@basemaps/config-loader';
 import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
 import { fsa, LogType, urlToString } from '@basemaps/shared';
 import { CliDate, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { intersection, MultiPolygon, toFeatureCollection, union } from '@linzjs/geojson';
+import { intersection, MultiPolygon, multiPolygonToWgs84, toFeatureCollection, union } from '@linzjs/geojson';
 import { Metrics } from '@linzjs/metrics';
 import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { Presets } from '../../preset.js';
+import { GdalBandPreset, PresetName, Presets } from '../../preset.js';
 import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem, createFileStats } from '../stac.js';
 import { createCovering } from './covering.js';
 import { CutlineOptimizer } from './cutline.js';
@@ -26,7 +26,11 @@ export interface TileCoverContext {
   /** Optional logger to trace covering creation */
   logger?: LogType;
   /** GDAL configuration preset */
-  preset: string;
+  preset: PresetName;
+
+  /** GDAL Band configuration preset */
+  presetBands?: GdalBandPreset[];
+
   /** Optional color with which to replace all transparent COG pixels */
   background?: Rgba;
   /**
@@ -71,18 +75,56 @@ function getTargetBaseZoom(tileMatrix: TileMatrixSet, resolution: number, target
   return Projection.getTiffResZoom(tileMatrix, resolution) + targetZoomOffset;
 }
 
+export const TargetZoomOffsetDefault = 7;
+
+/**
+ * We are trying to find a zoom level that will create COGS that are optimally sized for the preset,
+ * We are looking for cogs that are around 1GB in size on average and keeping under 4GB when maximally filled
+ *
+ * There are lots of different presets and source imagery bands which affect the final size of the COGs,
+ * for examples:
+ * - RGB(A) `uint8` imagery compressed with webp this preset is approximately 7 levels from the base zoom level.
+ * - Elevation `float32` compressed with zstd is less effective the offset is reduced to 6 levels
+ *
+ * @param preset target compression preset
+ * @param targetBaseZoom the base zoom level to use
+ * @param sourceBands bands present in the source dataset
+ *
+ * @returns a zoom level offset to use for the covering
+ */
+export function findOptimialCoveringZoomOffset(preset: PresetName, sourceBands: ImageryBandType[]): number {
+  // Webp is very efficient at compressing RGB(A) imagery so we can keep the default offset
+  if (preset === 'webp') return TargetZoomOffsetDefault;
+  // LZW is not very effective at compressing most imagery so we reduce the offset by one
+  if (preset === 'lzw') return TargetZoomOffsetDefault - 1;
+
+  const sourceBandText = sourceBands.map((m) => m.type).join(',');
+  // Single band float32 imagery tends to be elevation data which compresses well with lossy lerc and less so with lossless zstd
+  if (sourceBandText === 'float32') {
+    if (preset === 'lerc_1mm' || preset === 'lerc_10mm') return TargetZoomOffsetDefault;
+    // all other compressors are lossless
+    return TargetZoomOffsetDefault - 1;
+  }
+
+  // Single band uint8 or uint16 compresses generally very effectively with most presets
+  if (sourceBandText === 'uint8') return TargetZoomOffsetDefault;
+  if (sourceBandText === 'uint16') return TargetZoomOffsetDefault;
+
+  // Unknown preset so assume one level offset is ok
+  return TargetZoomOffsetDefault - 1;
+}
+
 export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverResult> {
   // Ensure we have the projection loaded for the source imagery
   await ProjectionLoader.load(ctx.imagery.projection);
+  await ProjectionLoader.load(EpsgCode.Wgs84);
 
   // Find the zoom level that is at least as good as the source imagery
   const targetBaseZoom = getTargetBaseZoom(ctx.tileMatrix, ctx.imagery.gsd, ctx.targetZoomOffset);
-
-  // The base zoom is 256x256 pixels at its resolution, we are trying to find a image that is <32k pixels wide/high
-  // zooming out 7 levels converts a 256x256 image into 32k x 32k image
-  // 256 * 2 ** 7 = 32,768 - 256x256 tile
-  // 512 * 2 ** 6 = 32,768 - 512x512 tile
-  const optimalCoveringZoom = Math.max(1, targetBaseZoom - 7); // z12 from z19
+  const optimalCoveringZoom = Math.max(
+    1,
+    targetBaseZoom - findOptimialCoveringZoomOffset(ctx.preset, ctx.imagery.bands),
+  );
   ctx.logger?.debug({ targetBaseZoom, cogOverZoom: optimalCoveringZoom }, 'Imagery:ZoomLevel');
 
   const sourceBounds = projectPolygon(
@@ -129,11 +171,17 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
 
     // Scale the tile bounds slightly to ensure we get all relevant imagery
     const scaledBounds = bounds.scaleFromCenter(1.05);
-    const tileBounds = Projection.get(ctx.tileMatrix).projectMultipolygon(
-      [scaledBounds.toPolygon()],
+    const projection = Projection.get(ctx.tileMatrix);
+
+    // Ensure the bounds are slipped as multipolygons when crossing the antimeridian
+    const wsg84Bounds = multiPolygonToWgs84([scaledBounds.toPolygon()], projection.toWgs84, true);
+    // Covert the wsg84 bounds back to the source projection
+    const tileBounds = Projection.get(EpsgCode.Wgs84).projectMultipolygon(
+      wsg84Bounds,
       Projection.get(ctx.imagery.projection),
     ) as MultiPolygon;
 
+    // Find all the source imagery that intersects this tile
     const source = imageryBounds.filter((f) => intersection(tileBounds, f.polygon).length > 0);
 
     const feature = Projection.get(ctx.tileMatrix).boundsToGeoJsonFeature(bounds);
@@ -161,9 +209,11 @@ export async function createTileCover(ctx: TileCoverContext): Promise<TileCoverR
         'linz_basemaps:options': {
           preset: ctx.preset,
           ...Presets[ctx.preset].options,
+          presetBands: ctx.presetBands,
           tile,
           tileMatrix: ctx.tileMatrix.identifier,
           sourceEpsg: ctx.imagery.projection,
+          sourceBands: ctx.imagery.bands,
           zoomLevel: targetBaseZoom,
         },
         'linz_basemaps:generated': {

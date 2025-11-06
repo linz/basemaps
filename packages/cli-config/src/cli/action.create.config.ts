@@ -1,7 +1,6 @@
-import { base58, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
+import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { initImageryFromTiffUrl } from '@basemaps/config-loader';
-import { getLogger, isArgo, logArguments, Url, UrlFolder } from '@basemaps/shared';
-import { fsa, getPreviewUrl, urlToString } from '@basemaps/shared';
+import { fsa, getLogger, getPreviewUrl, isArgo, logArguments, Url, UrlFolder, urlToString } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, positional } from 'cmd-ts';
@@ -47,7 +46,7 @@ export const CreateConfigCommand = command({
 
     metrics.start('imagery:load');
     const im = await initImageryFromTiffUrl(args.path, q, undefined, logger);
-    const ts = ConfigProviderMemory.imageryToTileSet(im) as ConfigTileSetRaster;
+    const ts = ConfigProviderMemory.imageryToTileSet(im);
     provider.put(im);
     metrics.end('imagery:load');
 
