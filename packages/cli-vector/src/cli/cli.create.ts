@@ -55,14 +55,16 @@ export const CreateCommand = command({
 
     const q = PLimit(args.concurrency);
 
-    // download source files
-    logger.info({ items: items.length }, 'Download Source Files: Start');
-    await Promise.all(items.map((item) => q(() => downloadSourceFile(item, logger))));
-    logger.info({ items: items.length }, 'Download Source Files: End');
-
-    // generate ndjsons and mbtiles
+    // download source files and create mbtiles files
     logger.info({ items: items.length }, 'Create Mbtiles Files: Start');
-    await Promise.all(items.map((item) => q(() => createMbtilesFile(item, logger))));
+    await Promise.all(
+      items.map((item) =>
+        q(async () => {
+          await downloadSourceFile(item, logger);
+          await createMbtilesFile(item, logger);
+        }),
+      ),
+    );
     logger.info({ items: items.length }, 'Create Mbtiles Files: End');
 
     // if applicable, combine all mbtiles files into a single mbtiles file
@@ -147,6 +149,10 @@ async function downloadSourceFile(
       await fsa.write(tmpPaths.source.path, stream.pipe(createGunzip()), {
         contentType: tmpPaths.source.contentType,
       });
+      // validate file was downloaded
+      if (!(await fsa.exists(tmpPaths.source.path))) {
+        throw new Error(`Failed to download file: ${tmpPaths.source.path.href}`);
+      }
     }
 
     logger.info({ destination: tmpPaths.source.path, id: layer.id, name: layer.name }, 'DownloadSourceFile: End');
