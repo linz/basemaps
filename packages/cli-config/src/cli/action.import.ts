@@ -10,7 +10,7 @@ import {
   ConfigTileSetVector,
   TileSetType,
 } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import { EpsgCode, GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
 import {
   Env,
   fsa,
@@ -234,16 +234,29 @@ export async function outputChange(
     } else await outputNewLayers(mem, layer, inserts, configPath, true);
   }
 
-  if (inserts.length > 0) outputMarkdown.push('# 🟩🟩 Aerial Imagery Inserts 🟩🟩', ...inserts);
-  if (updates.length > 0) outputMarkdown.push('# 🟡🟡 Aerial Imagery Updates 🟡🟡', ...updates);
+  if (inserts.length > 0) {
+    outputMarkdown.push('<details>\n');
+    outputMarkdown.push('<summary><b>🟩🟩 Aerial Imagery Inserts 🟩🟩</b></summary>\n');
+    outputMarkdown.push(...inserts);
+    outputMarkdown.push('</details>\n');
+    outputMarkdown.push('---\n');
+  }
+  if (updates.length > 0) {
+    outputMarkdown.push('<details>\n');
+    outputMarkdown.push('<summary><b>🟡🟡 Aerial Imagery Updates 🟡🟡</b></summary>\n');
+    outputMarkdown.push(...updates);
+    outputMarkdown.push('</details>\n');
+    outputMarkdown.push('---\n');
+  }
 
   // Some layers were not removed from the old config so they no longer exist in the new config
   if (oldData.layers.length > 0) {
-    outputMarkdown.push(
-      '# 🚨🚨 Aerial Imagery Deletes 🚨🚨',
-      ' Basemaps layers will be removed for the following layers: ',
-      ...oldData.layers.map((m) => `- ${m.title}`),
-    );
+    outputMarkdown.push('<details>\n');
+    outputMarkdown.push('<summary><b>🚨🚨 Aerial Imagery Deletes 🚨🚨</b></summary>\n');
+    outputMarkdown.push('### Basemaps layers will be removed for the following layers:\n');
+    outputMarkdown.push(...oldData.layers.map((m) => `- ${m.title}`));
+    outputMarkdown.push('</details>\n');
+    outputMarkdown.push('---\n');
   }
 
   // Output for individual tileset config changes or inserts
@@ -262,8 +275,20 @@ export async function outputChange(
     else await outputNewLayers(mem, layer, individualInserts, configPath);
   }
 
-  if (individualInserts.length > 0) outputMarkdown.push('# Individual Inserts', ...individualInserts);
-  if (individualUpdates.length > 0) outputMarkdown.push('# Individual Updates', ...individualUpdates);
+  if (individualInserts.length > 0) {
+    outputMarkdown.push('<details>\n');
+    outputMarkdown.push('<summary><b>Individual Inserts</b></summary>\n');
+    outputMarkdown.push(...individualInserts);
+    outputMarkdown.push('</details>\n');
+    outputMarkdown.push('---\n');
+  }
+  if (individualUpdates.length > 0) {
+    outputMarkdown.push('<details>\n');
+    outputMarkdown.push('<summary><b>Individual Updates</b></summary>\n');
+    outputMarkdown.push(...individualUpdates);
+    outputMarkdown.push('</details>\n');
+    outputMarkdown.push('---\n');
+  }
 
   // Output for vector config changes
   const vectorUpdate = [];
@@ -307,8 +332,20 @@ export async function outputChange(
     }
   }
 
-  if (styleUpdate.length > 0) outputMarkdown.push('# Vector Style Update', ...styleUpdate);
-  if (vectorUpdate.length > 0) outputMarkdown.push('# Vector Data Update', ...vectorUpdate);
+  if (styleUpdate.length > 0) {
+    outputMarkdown.push('<details>\n');
+    outputMarkdown.push('<summary><b>Vector Style Update</b></summary>\n');
+    outputMarkdown.push(...styleUpdate);
+    outputMarkdown.push('</details>\n');
+    outputMarkdown.push('---\n');
+  }
+  if (vectorUpdate.length > 0) {
+    outputMarkdown.push('<details>\n');
+    outputMarkdown.push('<summary><b>Vector Data Update</b></summary>\n');
+    outputMarkdown.push(...vectorUpdate);
+    outputMarkdown.push('</details>\n');
+    outputMarkdown.push('---\n');
+  }
 
   return outputMarkdown.join('\n');
 }
@@ -326,18 +363,31 @@ async function outputNewLayers(
   layer: ConfigLayer,
   inserts: string[],
   configPath: string,
-  aerial?: boolean,
+  isAerial?: boolean,
 ): Promise<void> {
-  inserts.push(`\n### ${layer.name}\n`);
-  if (layer[2193]) {
-    const urls = await prepareUrl(layer[2193], mem, Nztm2000QuadTms, configPath);
-    inserts.push(` - [NZTM2000Quad](${urls.layer})`);
-    if (aerial) inserts.push(` - [Aerial](${urls.tag})`);
-  }
-  if (layer[3857]) {
-    const urls = await prepareUrl(layer[3857], mem, GoogleTms, configPath);
-    inserts.push(` - [WebMercatorQuad](${urls.layer})`);
-    if (aerial) inserts.push(` - [Aerial](${urls.tag})`);
+  inserts.push(`### ${layer.name}`);
+  inserts.push(layer.title);
+
+  for (const { code, tms } of [
+    { code: EpsgCode.Nztm2000, tms: Nztm2000QuadTms },
+    { code: EpsgCode.Google, tms: GoogleTms },
+  ]) {
+    if (layer[code] == null) continue;
+    inserts.push(`- ${code} (${tms.identifier})`);
+
+    const urls = await prepareUrls(layer[code], mem, tms, configPath);
+
+    // append URLs grouped by pipeline
+    for (const [pipeline, formats] of Object.entries(urls).sort()) {
+      inserts.push(`  - Pipeline: ${pipeline}`);
+
+      for (const [format, { aerial, individual }] of Object.entries(formats).sort()) {
+        inserts.push(`    - Format: ${format}`);
+
+        if (isAerial) inserts.push(`      - [Aerial](${aerial})`);
+        inserts.push(`      - [Individual](${individual})`);
+      }
+    }
   }
 }
 
@@ -356,62 +406,109 @@ async function outputUpdatedLayers(
   existing: ConfigLayer,
   updates: string[],
   configPath: string,
-  aerial?: boolean,
+  isAerial?: boolean,
 ): Promise<void> {
-  let zoom = undefined;
-  if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
-    zoom = ' - Zoom level updated.';
-    if (layer.minZoom !== existing.minZoom) zoom += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
-    if (layer.maxZoom !== existing.maxZoom) zoom += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
+  let zoomChanged = false;
+  const zoomChange: string[] = [];
+
+  if (layer.minZoom !== existing.minZoom) {
+    zoomChange.push(`min zoom ${existing.minZoom} -> ${layer.minZoom}`);
+    zoomChanged = true;
   }
 
-  const change: string[] = [`\n### ${layer.name}\n`];
-  if (layer[2193]) {
-    if (layer[2193] !== existing[2193]) {
-      const urls = await prepareUrl(layer[2193], mem, Nztm2000QuadTms, configPath);
-      change.push(`- Layer update [NZTM2000Quad](${urls.layer})`);
-      if (aerial) updates.push(` - [Aerial](${urls.tag})`);
-    }
-
-    if (zoom) {
-      const urls = await prepareUrl(layer[2193], mem, Nztm2000QuadTms, configPath);
-      zoom += ` [NZTM2000Quad](${urls.tag})`;
-    }
-  }
-  if (layer[3857]) {
-    if (layer[3857] !== existing[3857]) {
-      const urls = await prepareUrl(layer[3857], mem, GoogleTms, configPath);
-      change.push(`- Layer update [WebMercatorQuad](${urls.layer})`);
-      if (aerial) updates.push(` - [Aerial](${urls.tag})`);
-    }
-
-    if (zoom) {
-      const urls = await prepareUrl(layer[3857], mem, GoogleTms, configPath);
-      zoom += ` [WebMercatorQuad](${urls.tag})`;
-    }
+  if (layer.maxZoom !== existing.maxZoom) {
+    zoomChange.push(`max zoom ${existing.maxZoom} -> ${layer.maxZoom}`);
+    zoomChanged = true;
   }
 
-  if (zoom) change.push(`${zoom}\n`);
-  if (change.length > 1) updates.push(change.join(''));
+  const changes: string[] = [`### ${layer.name}`];
+  changes.push(layer.title);
+
+  for (const { code, tms } of [
+    { code: EpsgCode.Nztm2000, tms: Nztm2000QuadTms },
+    { code: EpsgCode.Google, tms: GoogleTms },
+  ]) {
+    if (layer[code] == null) continue;
+    changes.push(`- ${code} (${tms.identifier})`);
+
+    const urls = await prepareUrls(layer[code], mem, tms, configPath);
+
+    // append URLs grouped by pipeline
+    for (const [pipeline, formats] of Object.entries(urls).sort()) {
+      changes.push(`  - Pipeline: ${pipeline}`);
+
+      for (const [format, { aerial, individual }] of Object.entries(formats).sort()) {
+        changes.push(`    - Format: ${format}`);
+
+        if (isAerial) changes.push(`      - [Aerial](${aerial})`);
+        changes.push(`      - [Individual](${individual})`);
+
+        if (zoomChanged) zoomChange.push(`[${code}](${aerial})`);
+      }
+    }
+  }
+
+  if (zoomChange.length > 1) changes.push(`${zoomChange.join('\n')}\n`);
+  if (changes.length > 1) updates.push(changes.join('\n'));
 }
 
 /**
  * Prepare QA urls with center location
  */
-async function prepareUrl(
+async function prepareUrls(
   id: string,
   mem: BasemapsConfigProvider,
   tileMatrix: TileMatrixSet,
   configPath: string,
-): Promise<{ layer: string; tag: string }> {
+): Promise<{ [pipeline: string]: { [format: string]: { aerial: string; individual: string } } }> {
   const configImagery = await mem.Imagery.get(id);
   if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
 
   const center = getPreviewUrl({ imagery: configImagery });
-  const urls = {
-    layer: `${PublicUrlBase}?config=${configPath}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
-    tag: `${PublicUrlBase}?config=${configPath}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
-  };
+  const urls: { [pipeline: string]: { [format: string]: { aerial: string; individual: string } } } = {};
+
+  const tileset = ConfigProviderMemory.imageryToTileSet(configImagery);
+  const outputs = tileset.outputs;
+
+  const aerial = `${PublicUrlBase}@${center.location.lat},${center.location.lon},z${center.location.zoom}?c=${configPath}&p=${tileMatrix.identifier}&debug`;
+  const individual = `${PublicUrlBase}@${center.location.lat},${center.location.lon},z${center.location.zoom}?c=${configPath}&p=${tileMatrix.identifier}&i=${center.name}&debug`;
+
+  if (outputs == null) {
+    urls['default'] = {
+      default: {
+        aerial,
+        individual,
+      },
+    };
+
+    return urls;
+  }
+
+  for (const output of outputs) {
+    const pipeline = output.name;
+    const formats = output.format;
+
+    if (formats == null) {
+      urls[pipeline] = {
+        default: {
+          aerial: `${aerial}&pipeline=${pipeline}`,
+          individual: `${individual}&pipeline=${pipeline}`,
+        },
+      };
+
+      return urls;
+    }
+
+    urls[pipeline] = {};
+
+    for (const format of formats) {
+      urls[pipeline][format] = {
+        aerial: `${aerial}&pipeline=${pipeline}&format=${format}`,
+        individual: `${individual}&pipeline=${pipeline}&format=${format}`,
+      };
+    }
+  }
+
   return urls;
 }
 
