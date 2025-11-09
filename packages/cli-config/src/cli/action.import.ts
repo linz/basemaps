@@ -455,7 +455,7 @@ async function outputUpdatedLayers(
 /**
  * Prepare QA urls with center location
  */
-async function prepareUrls(
+export async function prepareUrls(
   id: string,
   mem: BasemapsConfigProvider,
   tileMatrix: TileMatrixSet,
