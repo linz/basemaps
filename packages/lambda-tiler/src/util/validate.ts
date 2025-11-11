@@ -16,7 +16,7 @@ export interface TileXyz {
   /** Output tile format */
   tileType: string;
   /** Optional processing pipeline to use */
-  pipeline?: string | null;
+  pipeline?: string;
 }
 
 export interface TileMatrixRequest {
@@ -118,15 +118,15 @@ export const Validate = {
     if (isNaN(x) || x < 0 || x > zoom.matrixWidth) throw new LambdaHttpResponse(404, `X not found: ${x}`);
     if (isNaN(y) || y < 0 || y > zoom.matrixHeight) throw new LambdaHttpResponse(404, `Y not found: ${y}`);
 
-    const pipeline = req.query.get('pipeline');
-    if (pipeline) req.set('pipeline', pipeline);
+    const pipeline = req.query.get('pipeline') ?? undefined;
+    req.set('pipeline', pipeline);
 
     const xyzData = {
       tile: { x, y, z },
       tileSet: req.params.tileSet,
       tileMatrix,
       tileType: req.params.tileType,
-      pipeline: req.query.get('pipeline'),
+      pipeline,
     };
     req.set('xyz', xyzData.tile);
 
@@ -137,49 +137,68 @@ export const Validate = {
   },
 
   /**
+   * Get the pipeline to use for a imagery set
+   *
+   * @param tileSet
+   * @param pipeline pipeline parameter if it exists
+   * @returns 'rgba' for any pipeline without a outputs, otherwise the provided pipeline or default output
+   */
+  pipelineName(tileSet: ConfigTileSetRaster, pipeline?: string | null): ConfigTileSetRasterOutput {
+    if (pipeline == null && tileSet.outputs) {
+      // If no pipeline is specified find the default pipeline
+      const defaultOutput = tileSet.outputs.find((f) => f.default === true);
+      if (defaultOutput) return defaultOutput;
+      // If there is only one pipeline force the use of it
+      else if (pipeline == null && tileSet.outputs.length === 1) return tileSet.outputs[0];
+      else {
+        // No default pipeline, and multiple pipelines exist one must be chosen
+        throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name).join(', '));
+      }
+    }
+
+    // No pipeline and no outputs default is RGBA
+    if (pipeline == null || pipeline === 'rgba') {
+      return {
+        title: `RGBA`,
+        name: 'rgba',
+        background: tileSet.background,
+      };
+    }
+
+    // Pipeline defined and pipeline not found
+    if (tileSet.outputs == null) throw new LambdaHttpResponse(404, `TileSet has no pipeline named "${pipeline}"`);
+
+    const output = tileSet.outputs.find((f) => f.name === pipeline);
+    if (output == null) throw new LambdaHttpResponse(404, `TileSet has no pipeline named "${pipeline}"`);
+    return output;
+  },
+
+  /**
    * Lookup the raster configuration pipeline for a output tile type
    *
    * Defaults to standard image format output if no outputs are defined on the tileset
    */
-  pipeline(tileSet: ConfigTileSetRaster, tileType: string, pipeline?: string | null): ConfigTileSetRasterOutput | null {
-    if (pipeline == null && tileSet.outputs) {
-      // If no pipeline is specified find the default pipeline
-      const defaultOutput = tileSet.outputs.find((f) => f.default === true);
-      if (defaultOutput) pipeline = defaultOutput.name;
-      // If there is only one pipeline force the use of it
-      else if (pipeline == null && tileSet.outputs.length === 1) pipeline = tileSet.outputs[0].name;
+  pipeline(
+    tileSet: ConfigTileSetRaster,
+    imageFormat?: string | null,
+    pipelineName?: string | null,
+  ): { output: ConfigTileSetRasterOutput; format: ImageFormat } {
+    const output = Validate.pipelineName(tileSet, pipelineName);
+
+    // Failed to parse the chosen image format
+    const chosenFormat = getImageFormat(imageFormat);
+    if (imageFormat != null && chosenFormat == null) {
+      throw new LambdaHttpResponse(400, `TileSet pipeline "${output.name}" cannot be output as ${imageFormat}`);
     }
 
-    if (tileSet.outputs?.length === 1 && pipeline == null) pipeline = tileSet.outputs[0].name;
+    // No requirement on image formats
+    if (output.format == null) return { output, format: chosenFormat ?? 'webp' };
+    if (chosenFormat == null) return { output, format: output.format[0] };
 
-    if (pipeline != null && pipeline !== 'rgba') {
-      if (tileSet.outputs == null) throw new LambdaHttpResponse(404, 'TileSet has no pipelines');
-      const output = tileSet.outputs.find((f) => f.name === pipeline);
-      if (output == null) throw new LambdaHttpResponse(404, `TileSet has no pipeline named "${pipeline}"`);
-
-      const validFormats = output.format ?? ['webp', 'png', 'jpeg', 'avif'];
-      if (!validFormats.includes(tileType as ImageFormat)) {
-        throw new LambdaHttpResponse(400, `TileSet pipeline "${pipeline}" cannot be output as ${tileType}`);
-      }
-      return output;
+    // Validate selected format works as expected
+    if (!output.format.includes(chosenFormat)) {
+      throw new LambdaHttpResponse(400, `TileSet pipeline "${output.name}" cannot be output as ${imageFormat}`);
     }
-
-    // If the tileset has multiple pipelines defined the user MUST specify which one
-    if (tileSet.outputs) {
-      throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name).join(', '));
-    }
-
-    // Generate a default RGBA configuration
-    const img = getImageFormat(tileType ?? 'webp');
-    if (img == null) return null;
-    return {
-      title: `RGBA ${tileType}`,
-      name: 'rgba',
-      output: {
-        type: [img],
-        lossless: img === 'png' ? true : false,
-        background: tileSet.background,
-      },
-    } as ConfigTileSetRasterOutput;
+    return { output, format: chosenFormat };
   },
 };

@@ -55,9 +55,7 @@ describe('/v1/styles', () => {
     assert.equal(body.layers[0].source, 'basemaps-elevation-color-ramp');
   });
 
-  it.only('should select default layers', async () => {
-    config.put(TileSetElevation);
-
+  it('should select default layers', async () => {
     const request = mockRequest('/v1/styles/elevation.json', 'get', Api.header);
 
     // Setting a default of color-ramp
@@ -68,7 +66,47 @@ describe('/v1/styles', () => {
     const res = await handler.router.handle(request);
     assert.equal(res.status, 200, res.statusDescription);
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
-    assert.equal(body.layers[0].source, 'basemaps-elevation-color-ramp');
+    assert.equal(body.layers[0].source, 'basemaps-elevation-terrain-rgb');
+    assert.deepEqual(Object.keys(body.sources), [
+      'basemaps-elevation-terrain-rgb',
+      'basemaps-elevation-terrain-rgb-dem',
+      'basemaps-elevation-color-ramp',
+      'LINZ-Terrain',
+    ]);
+  });
+
+  it('should request the tile format if possible', async () => {
+    const request = mockUrlRequest('/v1/styles/elevation.json', `?tileFormat=avif&api=${Api.key}`);
+
+    // Setting a default of color-ramp
+    const ts = structuredClone(TileSetElevation);
+    ts.outputs![1].default = true;
+    config.put(ts);
+
+    const res = await handler.router.handle(request);
+    assert.equal(res.status, 200, res.statusDescription);
+    const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+    const sources = Object.values(body.sources).map((s) =>
+      (s as SourceRaster).tiles?.[0].replace(`api=${Api.key}`, ''),
+    );
+
+    // Requested avif from a dataset that has terrain-rgb,
+    // terrain-rgb has to be served as png,
+    // but color-ramp can be served as avif
+    assert.deepEqual(sources, [
+      'https://tiles.test/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?&pipeline=terrain-rgb',
+      'https://tiles.test/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?&pipeline=terrain-rgb',
+      'https://tiles.test/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.avif?&pipeline=color-ramp',
+      'https://tiles.test/v1/tiles/elevation/WebMercatorQuad/{z}/{x}/{y}.png?&pipeline=terrain-rgb',
+    ]);
+
+    // as terrain rgb cannot be output as avif, if it is specifically requested error
+    const requestB = mockUrlRequest(
+      '/v1/styles/elevation.json',
+      `?tileFormat=avif&api=${Api.key}&pipeline=terrain-rgb`,
+    );
+    const resB = await handler.router.handle(requestB);
+    assert.equal(resB.status, 400, res.statusDescription);
   });
 
   const fakeStyle: StyleJson = {

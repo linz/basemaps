@@ -205,7 +205,7 @@ describe('/v1/tiles', () => {
     elevation.outputs = [{ title: 'Terrain RGB', name: 'terrain-rgb' }];
     config.put(elevation);
 
-    // JPEG is not lossless
+    // pbf is not a imagery format
     const resPbf = await handler.router.handle(
       mockUrlRequest('/v1/tiles/elevation/3857/11/2022/1283.pbf', '?pipeline=terrain-rgb', Api.header),
     );
