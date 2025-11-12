@@ -123,9 +123,7 @@ export const ImportCommand = command({
     const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
     for (const config of mem.objects.values()) {
       const objectType = ConfigId.getPrefix(config.id);
-      if (objectType) {
-        objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
-      }
+      if (objectType) objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
       update(config, cfg, commit);
     }
     await Promise.all(promises);
