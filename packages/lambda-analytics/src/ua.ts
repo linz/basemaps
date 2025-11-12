@@ -52,7 +52,7 @@ function isGis(userAgent: string): string | void {
   if (userAgent.startsWith('ArcGISRuntime-')) {
     const chunks = userAgent.split('/');
     const variant = chunks[0].replace('ArcGISRuntime-', '').toLowerCase();
-    const version = chunks[1].slice(0, chunks[1].indexOf('.'));
+    const version = chunks[1]?.split('.')[0] || 'unknown';
     return 'arcgis-' + variant + '_' + version;
   }
 

@@ -10,6 +10,7 @@ import { byDay, getOneHourAgo } from './date.js';
 import { Elastic } from './elastic.js';
 import { FileProcess, toFullDate } from './log.reader.js';
 import { LogStats } from './log.stats.js';
+import { ParserErrors } from './useragent/parser.js';
 
 const gzipPromise = promisify(gzip);
 
@@ -140,9 +141,16 @@ export async function main(req: LambdaRequest): Promise<void> {
 
     // If anything fails to index write the errors out to a log file at the cache location
     if (Elastic.errors.length > 0) {
-      const errorLocation = new URL(`./errors-${new Date().toISOString()}.json`, CacheLocation);
+      const errorLocation = new URL(`./errors/${new Date().toISOString()}-elastic.json`, CacheLocation);
       req.log.fatal({ errorLocation: errorLocation.href }, 'log:index:failed');
       await fsa.write(errorLocation, JSON.stringify(Elastic.errors));
+    }
+
+    // If any user agents cause a error when parsing, write them out
+    if (ParserErrors.size > 0) {
+      const errorLocation = new URL(`./errors/${new Date().toISOString()}-user-agent.json`, CacheLocation);
+      req.log.warn({ errorLocation: errorLocation.href }, 'log:parse:failed');
+      await fsa.write(errorLocation, JSON.stringify([...ParserErrors]));
     }
 
     let failed = false;

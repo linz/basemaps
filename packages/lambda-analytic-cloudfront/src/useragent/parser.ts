@@ -5,6 +5,9 @@ import { UserAgentInfo, UserAgentOs, UserAgentParser } from './parser.types.js';
 const OsMap: Record<string, UserAgentOs> = { ubuntu: 'linux' };
 const UaParser: ParserConfig = { name: 'ua-parser-js', hit: 0 };
 const Skipped: ParserConfig = { name: 'skipped', hit: 0 };
+const ParserError: ParserConfig = { name: 'error', hit: 0 };
+export const ParserErrors = new Set();
+
 interface ParserConfig {
   name: string;
   hit: number;
@@ -34,16 +37,25 @@ export class UserAgentParsers {
       existing.parser.hit++;
       return existing.value;
     }
-    const ret = this._parse(userAgent);
-    if (ret.value) {
-      if (ret.value.version == null) ret.value.version = 'unknown';
-      if (ret.value.variant == null) ret.value.variant = 'unknown';
-      if (ret.value.os == null) ret.value.os = 'unknown';
+
+    try {
+      const ret = this._parse(userAgent);
+      if (ret.value) {
+        if (ret.value.version == null) ret.value.version = 'unknown';
+        if (ret.value.variant == null) ret.value.variant = 'unknown';
+        if (ret.value.os == null) ret.value.os = 'unknown';
+      }
+      ret.hit++;
+      ret.parser.hit++;
+      this.cache.set(userAgent, ret);
+      return ret.value;
+    } catch (e) {
+      const val = { value: { name: 'error' }, parser: ParserError, hit: 0 };
+      ParserErrors.add(userAgent);
+      if (ParserErrors.size > 100) ParserErrors.clear(); // Only track last 100 Errors
+      this.cache.set(userAgent, val);
+      return val.value;
     }
-    ret.hit++;
-    ret.parser.hit++;
-    this.cache.set(userAgent, ret);
-    return ret.value;
   }
 
   _parse(userAgent: string | undefined): ParserCache {

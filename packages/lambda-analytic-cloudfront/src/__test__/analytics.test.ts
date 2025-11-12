@@ -125,7 +125,7 @@ describe('analytic lambda', () => {
     const files = [...memory.files.keys()];
     assert.equal(files.length, 2); // two files one input one output
 
-    assert.ok(files[1].startsWith(`mem://cache/errors-${new Date().toISOString().slice(0, 12)}`));
+    assert.ok(files[1].startsWith(`mem://cache/errors/${new Date().toISOString().slice(0, 12)}`));
 
     const data = await fsa.read(new URL(files[1]));
     assert.ok(data.toString().includes(JSON.stringify('Hello')));
