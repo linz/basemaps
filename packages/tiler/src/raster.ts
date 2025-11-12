@@ -73,7 +73,7 @@ export interface CompositionCotar {
 export const ImageFormatOrder: ImageFormat[] = ['jpeg', 'webp', 'png'];
 
 /** Guess the image format based on the file extension */
-export function getImageFormat(ext?: string): ImageFormat | null {
+export function getImageFormat(ext?: string | null): ImageFormat | null {
   if (ext == null) return null;
   const search = ext.toLowerCase();
   if (search === 'png') return 'png';

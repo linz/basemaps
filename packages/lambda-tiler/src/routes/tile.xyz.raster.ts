@@ -1,14 +1,14 @@
 import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
 import { Bounds, Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
-import { getImageFormat, Tiler } from '@basemaps/tiler';
+import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
 import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
-import { NotFound, NotModified } from '../util/response.js';
+import { NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
 import { TileXyz, Validate } from '../util/validate.js';
 
@@ -118,9 +118,8 @@ export const TileXyzRaster = {
   },
 
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetRaster, xyz: TileXyz): Promise<LambdaHttpResponse> {
-    const tileOutput = Validate.pipeline(tileSet, xyz.tileType, xyz.pipeline);
-    if (tileOutput == null) return NotFound();
-    req.set('pipeline', tileOutput.name);
+    const { output, format } = Validate.pipeline(tileSet, xyz.tileType, xyz.pipeline);
+    req.set('pipeline', output.name);
 
     const assetPaths = await this.getAssetsForTile(req, tileSet, xyz);
     const cacheKey = Etag.key(assetPaths);
@@ -131,15 +130,12 @@ export const TileXyzRaster = {
     const tiler = new Tiler(xyz.tileMatrix);
     const layers = tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z);
 
-    const format = getImageFormat(xyz.tileType);
-    if (format == null) return new LambdaHttpResponse(400, 'Invalid image format: ' + xyz.tileType);
-
     const res = await TileComposer.compose({
       layers,
-      pipeline: tileOutput.pipeline,
+      pipeline: output.pipeline,
       format,
-      background: tileOutput.background ?? tileSet.background ?? DefaultBackground,
-      resizeKernel: tileOutput.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
+      background: output.background ?? tileSet.background ?? DefaultBackground,
+      resizeKernel: output.resizeKernel ?? tileSet.resizeKernel ?? DefaultResizeKernel,
       metrics: req.timer,
       log: req.log,
     });
