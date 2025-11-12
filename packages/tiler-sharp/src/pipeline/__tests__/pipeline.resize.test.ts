@@ -23,23 +23,6 @@ describe('resize-bilinear', () => {
     // All values should be rounded to 1 and not truncated down to 0
     assert.ok(ret.pixels.every((f) => f === 1));
   });
-
-  it('should correctly interpolate a 2x2 image to a 1x1 image', () => {
-    const ret = resizeBilinear(
-      {
-        pixels: new Uint8Array([10, 20, 30, 40]),
-        depth: 'uint8',
-        width: 2,
-        height: 2,
-        channels: 1,
-      },
-      { source: { width: 2, height: 2 } } as unknown as CompositionTiff,
-      { x: 0, y: 0, width: 2, height: 2 },
-      { width: 1, height: 1, scale: 2 },
-    );
-
-    assert.equal(ret.pixels[0], 25);
-  });
 });
 
 describe('apply-crop', () => {

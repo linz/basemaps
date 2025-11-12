@@ -157,12 +157,10 @@ export function resizeBilinear(
   target: Size & { scale: number },
   noData?: number | null,
 ): DecompressedInterleaved {
-  const maxWidth = Math.min(comp.source.width, data.width);
-  const maxHeight = Math.min(comp.source.height, data.height);
+  const invScale = 1 / target.scale;
 
-  const scaleX = maxWidth / target.width;
-  const scaleY = maxHeight / target.height;
-
+  const maxWidth = Math.min(comp.source.width, data.width) - 2;
+  const maxHeight = Math.min(comp.source.height, data.height) - 2;
   const ret = getOutputBuffer(data, target);
   const outputBuffer = ret.pixels;
 
@@ -174,61 +172,49 @@ export function resizeBilinear(
   const needsRounding = !data.depth.startsWith('float');
 
   for (let y = 0; y < target.height; y++) {
-    const yS = (y + 0.5) * scaleY - 0.5 + source.y;
-
-    const yMin = Math.max(0, Math.floor(yS));
-    const yMax = Math.min(Math.ceil(yS), data.height - 1);
-    const yFraction = yS - yMin;
+    const sourceY = Math.min((y + 0.5) * invScale + source.y, maxHeight);
+    const minY = Math.floor(sourceY);
+    const maxY = minY + 1;
 
     for (let x = 0; x < target.width; x++) {
-      const xS = (x + 0.5) * scaleX - 0.5 + source.x;
-
-      const xMin = Math.max(0, Math.floor(xS));
-      const xMax = Math.min(Math.ceil(xS), data.width - 1);
-
-      // If the pixel maps exactly to a single pixel, no interpolation is needed
-      if (xMin === xMax && yMin === yMax) {
-        for (let i = 0; i < ret.channels; i++) {
-          const outPx = (y * target.width + x) * data.channels + i;
-          outputBuffer[outPx] = data.pixels[(yMin * data.width + xMin) * data.channels + i];
-        }
-        continue;
-      }
-      const xFraction = xS - xMin;
-
-      const ul = (yMin * data.width + xMin) * data.channels; // upper-left
-      const ur = (yMin * data.width + xMax) * data.channels; // upper-right
-      const ll = (yMax * data.width + xMin) * data.channels; // lower-left
-      const lr = (yMax * data.width + xMax) * data.channels; // lower-right
+      const sourceX = Math.min((x + 0.5) * invScale + source.x, maxWidth);
+      const minX = Math.floor(sourceX);
+      const maxX = minX + 1;
 
       for (let i = 0; i < ret.channels; i++) {
         const outPx = (y * target.width + x) * data.channels + i;
 
-        const ulPx = data.pixels[ul + i];
-        if (ulPx === noData) {
+        const minXMinY = data.pixels[(minY * data.width + minX) * data.channels + i];
+        if (minXMinY === noData) {
           outputBuffer[outPx] = noData;
           continue;
         }
-        const urPx = data.pixels[ur + i];
-        if (urPx === noData) {
+        const maxXMinY = data.pixels[(minY * data.width + maxX) * data.channels + i];
+        if (maxXMinY === noData) {
           outputBuffer[outPx] = noData;
           continue;
         }
-        const llPx = data.pixels[ll + i];
-        if (llPx === noData) {
+        const minXMaxY = data.pixels[(maxY * data.width + minX) * data.channels + i];
+        if (minXMaxY === noData) {
           outputBuffer[outPx] = noData;
           continue;
         }
-        const lrPx = data.pixels[lr + i];
-        if (lrPx === noData) {
+        const maxXMaxY = data.pixels[(maxY * data.width + maxX) * data.channels + i];
+        if (maxXMaxY === noData) {
           outputBuffer[outPx] = noData;
           continue;
         }
 
-        const top = ulPx + (urPx - ulPx) * xFraction;
-        const bottom = llPx + (lrPx - llPx) * xFraction;
-        const value = top + (bottom - top) * yFraction;
-        outputBuffer[outPx] = needsRounding ? Math.round(value) : value;
+        const xDiff = sourceX - minX;
+        const yDiff = sourceY - minY;
+        const weightA = (1 - xDiff) * (1 - yDiff);
+        const weightB = xDiff * (1 - yDiff);
+        const weightC = (1 - xDiff) * yDiff;
+        const weightD = xDiff * yDiff;
+
+        const pixel = minXMinY * weightA + maxXMinY * weightB + minXMaxY * weightC + maxXMaxY * weightD;
+
+        outputBuffer[outPx] = needsRounding ? Math.round(pixel) : pixel;
       }
     }
   }
