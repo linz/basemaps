@@ -76,6 +76,7 @@ describe('UserAgent', () => {
       ),
       'arcgis-ios_100',
     );
+    assert.equal(getUserAgent('ArcGISRuntime-iOS'), 'arcgis-ios_unknown');
   });
 
   it('should parse arcgis pro', () => {
