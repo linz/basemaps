@@ -2,6 +2,7 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { UaParser } from '../agent.js';
+import { ParserErrors } from '../parser.js';
 
 describe('UserAgents', () => {
   it('should parse common browsers', () => {
@@ -112,6 +113,19 @@ describe('UserAgents', () => {
       variant: 'pro',
       version: '2.8',
     });
+
+    assert.deepEqual(UaParser.parse('ArcGISRuntime-iOS'), {
+      name: 'arcgis',
+      variant: 'ios',
+      os: 'unknown',
+      version: 'unknown',
+    });
+  });
+
+  it('should return error on fatal errors', () => {
+    const ret = UaParser.parse('ArcGISRuntime-/');
+    assert.equal(ret?.name, 'error');
+    assert.equal([...ParserErrors], 'ArcGISRuntime-/');
   });
 
   it('should handle software', () => {

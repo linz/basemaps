@@ -13,6 +13,7 @@ const ArcGis: Record<string, UserAgentParser> = {
   'ArcGISRuntime-': (ua: string) => {
     const chunks = ua.split('/');
     const variant = chunks[0].slice('ArcGISRuntime-'.length).toLowerCase();
+    if (chunks.length === 1) return { name: 'arcgis', variant };
     const version = chunks[1].slice(0, chunks[1].indexOf('.'));
     const os = chunks[1].split(' ')[1].slice(1);
     if (isValidOs(os)) return { name: 'arcgis', variant, version, os };
