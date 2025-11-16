@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.1](https://github.com/linz/basemaps/compare/tiler-sharp-v8.11.0...tiler-sharp-v8.11.1) (2025-11-16)
+
+
+### Bug Fixes
+
+* revert bilinear changes in ([#3550](https://github.com/linz/basemaps/issues/3550)) ([#3558](https://github.com/linz/basemaps/issues/3558)) ([84c318b](https://github.com/linz/basemaps/commit/84c318b5847da2b356cc461d870fd04af6c1c315))
+* **tiler-sharp:** bilinear resampling was sometimes defaulting to nearest BM-1412 ([#3550](https://github.com/linz/basemaps/issues/3550)) ([4f9eaad](https://github.com/linz/basemaps/commit/4f9eaad84592aca9c842a0ae741ce8a1a776233b))
+
 ## [8.11.0](https://github.com/linz/basemaps/compare/tiler-sharp-v8.10.1...tiler-sharp-v8.11.0) (2025-10-13)
 
 

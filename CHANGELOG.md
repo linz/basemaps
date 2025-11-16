@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.15.1](https://github.com/linz/basemaps/compare/v8.15.0...v8.15.1) (2025-11-16)
+
+
+### Bug Fixes
+
+* analytics error due arcgis user agent parsing BM-1430 ([#3562](https://github.com/linz/basemaps/issues/3562)) ([e632987](https://github.com/linz/basemaps/commit/e6329876ec1575953d8b23d6acbae07588d9f869))
+* **cli-raster:** zstd covering with smaller tiles than expected for single band sources ([#3551](https://github.com/linz/basemaps/issues/3551)) ([198aa69](https://github.com/linz/basemaps/commit/198aa697514935bf694b3f787412e5b63621f321))
+* **cli-vector:** Fix ETL concurrency issue to process half downloaded data. BM-1406 ([#3557](https://github.com/linz/basemaps/issues/3557)) ([fbefe5f](https://github.com/linz/basemaps/commit/fbefe5fa6aa4a43ffe9b73c975e97394149ec831))
+* revert bilinear changes in ([#3550](https://github.com/linz/basemaps/issues/3550)) ([#3558](https://github.com/linz/basemaps/issues/3558)) ([84c318b](https://github.com/linz/basemaps/commit/84c318b5847da2b356cc461d870fd04af6c1c315))
+* **tiler-sharp:** bilinear resampling was sometimes defaulting to nearest BM-1412 ([#3550](https://github.com/linz/basemaps/issues/3550)) ([4f9eaad](https://github.com/linz/basemaps/commit/4f9eaad84592aca9c842a0ae741ce8a1a776233b))
+
 ## [8.15.0](https://github.com/linz/basemaps/compare/v8.14.0...v8.15.0) (2025-10-20)
 
 

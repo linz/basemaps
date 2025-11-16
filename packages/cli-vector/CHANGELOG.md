@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.10.3](https://github.com/linz/basemaps/compare/cli-vector-v8.10.2...cli-vector-v8.10.3) (2025-11-16)
+
+
+### Bug Fixes
+
+* **cli-vector:** Fix ETL concurrency issue to process half downloaded data. BM-1406 ([#3557](https://github.com/linz/basemaps/issues/3557)) ([fbefe5f](https://github.com/linz/basemaps/commit/fbefe5fa6aa4a43ffe9b73c975e97394149ec831))
+
 ## [8.10.2](https://github.com/linz/basemaps/compare/cli-vector-v8.10.1...cli-vector-v8.10.2) (2025-10-13)
 
 
