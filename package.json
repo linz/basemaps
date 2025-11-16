@@ -29,7 +29,7 @@
     "@types/sinon": "^17.0.2",
     "conventional-github-releaser": "^3.1.5",
     "cross-env": "^7.0.3",
-    "esbuild": "^0.19.8",
+    "esbuild": "^0.27.0",
     "lerna": "^8.2.4",
     "rimraf": "^5.0.5",
     "sinon": "^17.0.1"
