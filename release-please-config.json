@@ -13,7 +13,6 @@
     "packages/geo": {},
     "packages/_infra": {},
     "packages/lambda-analytic-cloudfront": {},
-    "packages/lambda-analytics": {},
     "packages/lambda-tiler": {},
     "packages/landing": {},
     "packages/linzjs-docker-command": {},

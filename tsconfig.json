@@ -16,7 +16,6 @@
     { "path": "./packages/config-loader/tsconfig.json" },
     { "path": "./packages/geo/tsconfig.json" },
     { "path": "./packages/lambda-analytic-cloudfront/tsconfig.json" },
-    { "path": "./packages/lambda-analytics/tsconfig.json" },
     { "path": "./packages/lambda-tiler/tsconfig.json" },
     { "path": "./packages/landing/tsconfig.json" },
     { "path": "./packages/server/tsconfig.json" },
