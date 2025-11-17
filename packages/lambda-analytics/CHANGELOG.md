@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.9.4](https://github.com/linz/basemaps/compare/lambda-analytics-v8.9.3...lambda-analytics-v8.9.4) (2025-11-16)
+
+
+### Bug Fixes
+
+* analytics error due arcgis user agent parsing BM-1430 ([#3562](https://github.com/linz/basemaps/issues/3562)) ([e632987](https://github.com/linz/basemaps/commit/e6329876ec1575953d8b23d6acbae07588d9f869))
+
 ## [8.9.3](https://github.com/linz/basemaps/compare/lambda-analytics-v8.9.2...lambda-analytics-v8.9.3) (2025-10-13)
 
 

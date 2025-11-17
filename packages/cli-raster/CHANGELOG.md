@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.2](https://github.com/linz/basemaps/compare/cli-raster-v8.11.1...cli-raster-v8.11.2) (2025-11-16)
+
+
+### Bug Fixes
+
+* **cli-raster:** zstd covering with smaller tiles than expected for single band sources ([#3551](https://github.com/linz/basemaps/issues/3551)) ([198aa69](https://github.com/linz/basemaps/commit/198aa697514935bf694b3f787412e5b63621f321))
+
 ## [8.11.1](https://github.com/linz/basemaps/compare/cli-raster-v8.11.0...cli-raster-v8.11.1) (2025-10-13)
 
 

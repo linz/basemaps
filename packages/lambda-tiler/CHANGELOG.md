@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.1](https://github.com/linz/basemaps/compare/lambda-tiler-v8.11.0...lambda-tiler-v8.11.1) (2025-11-16)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/tiler-sharp bumped from ^8.11.0 to ^8.11.1
+
 ## [8.11.0](https://github.com/linz/basemaps/compare/lambda-tiler-v8.10.2...lambda-tiler-v8.11.0) (2025-10-20)
 
 
