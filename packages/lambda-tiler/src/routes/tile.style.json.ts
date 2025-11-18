@@ -173,18 +173,22 @@ export async function tileSetToStyle(
   // If the style has outputs defined it has a different process for generating the stylejson
   if (tileSet.outputs) return tileSetOutputToStyle(req, tileSet, tileMatrix, apiKey);
 
-  const [tileFormat] = Validate.getRequestedFormats(req) ?? ['webp'];
-  if (tileFormat == null) throw new LambdaHttpResponse(400, 'Invalid image format');
-
-  const pipeline = Validate.pipeline(tileSet, tileFormat, req.query.get('pipeline'));
-  const pipelineName = pipeline?.name === 'rgba' ? undefined : pipeline?.name;
+  const { output, format } = Validate.pipeline(
+    tileSet,
+    Validate.getRequestedFormats(req)?.[0],
+    req.query.get('pipeline'),
+  );
 
   const configLocation = ConfigLoader.extract(req);
-  const query = toQueryString({ config: configLocation, api: apiKey, pipeline: pipelineName });
+  const query = toQueryString({
+    config: configLocation,
+    api: apiKey,
+    pipeline: output.name === 'rgba' ? undefined : '',
+  });
 
   const tileUrl =
     (Env.get(Env.PublicUrlBase) ?? '') +
-    `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${tileFormat}${query}`;
+    `/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${format}${query}`;
 
   const attribution = await createTileSetAttribution(config, tileSet, tileMatrix.projection);
 
@@ -221,12 +225,21 @@ export function tileSetOutputToStyle(
   const sources: Sources = {};
   const layers: Layer[] = [];
 
+  const requestedFormat = Validate.getRequestedFormats(req)?.[0];
+  const { output, format } = Validate.pipeline(tileSet, requestedFormat, req.query.get('pipeline'));
+
   for (const output of tileSet.outputs) {
-    const format = output.format?.[0] ?? 'webp';
+    let imageFormat = requestedFormat ?? 'webp';
+    // If a image format is requested, try and use the requested format
+    if (output.format) {
+      if (output.format.includes(format)) imageFormat = format;
+      else imageFormat = output.format[0];
+    }
+    // const imageFormat = output.format ?  output.format?.includes(format) ? format : output.format?.[0]
     const urlBase = Env.get(Env.PublicUrlBase) ?? '';
     const query = toQueryString({ config: configLocation, api: apiKey, pipeline: output.name });
 
-    const tileUrl = `${urlBase}/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${format}${query}`;
+    const tileUrl = `${urlBase}/v1/tiles/${tileSet.name}/${tileMatrix.identifier}/{z}/{x}/{y}.${imageFormat}${query}`;
 
     if (output.name === 'terrain-rgb') {
       // Add both raster source and dem raster source for terrain-rgb output
@@ -238,11 +251,7 @@ export function tileSetOutputToStyle(
     }
   }
 
-  const [tileFormat] = Validate.getRequestedFormats(req) ?? ['webp'];
-  if (tileFormat == null) throw new LambdaHttpResponse(400, 'Invalid image format');
-
-  const pipeline = Validate.pipeline(tileSet, tileFormat, req.query.get('pipeline'));
-  const pipelineName = pipeline?.name === 'rgba' ? undefined : pipeline?.name;
+  const pipelineName = output.name === 'rgba' ? undefined : output.name;
 
   if (pipelineName != null) {
     const sourceId = `${styleId}-${pipelineName}`;
