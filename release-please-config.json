@@ -2,29 +2,75 @@
   "bootstrap-sha": "55cd25b9f2c402fde88fcef9c43cec3f8eca9e60",
   "plugins": ["node-workspace"],
   "packages": {
-    "packages/attribution": {},
-    "packages/bathymetry": {},
-    "packages/cli": {},
-    "packages/cli-config": {},
-    "packages/cli-raster": {},
-    "packages/cli-vector": {},
-    "packages/config": {},
-    "packages/config-loader": {},
-    "packages/geo": {},
-    "packages/_infra": {},
-    "packages/lambda-analytic-cloudfront": {},
-    "packages/lambda-tiler": {},
-    "packages/landing": {},
-    "packages/linzjs-docker-command": {},
-    "packages/linzjs-geojson": {},
-    "packages/linzjs-metrics": {},
-    "packages/server": {},
-    "packages/shared": {},
-    "packages/smoke": {},
-    "packages/sprites": {},
-    "packages/__tests__": {},
-    "packages/tiler": {},
-    "packages/tiler-sharp": {},
+    "packages/attribution": {
+      "skip-github-release": true
+    },
+    "packages/bathymetry": {
+      "skip-github-release": true
+    },
+    "packages/cli": {
+      "skip-github-release": true
+    },
+    "packages/cli-config": {
+      "skip-github-release": true
+    },
+    "packages/cli-raster": {
+      "skip-github-release": true
+    },
+    "packages/cli-vector": {
+      "skip-github-release": true
+    },
+    "packages/config": {
+      "skip-github-release": true
+    },
+    "packages/config-loader": {
+      "skip-github-release": true
+    },
+    "packages/geo": {
+      "skip-github-release": true
+    },
+    "packages/_infra": {
+      "skip-github-release": true
+    },
+    "packages/lambda-analytic-cloudfront": {
+      "skip-github-release": true
+    },
+    "packages/lambda-tiler": {
+      "skip-github-release": true
+    },
+    "packages/landing": {
+      "skip-github-release": true
+    },
+    "packages/linzjs-docker-command": {
+      "skip-github-release": true
+    },
+    "packages/linzjs-geojson": {
+      "skip-github-release": true
+    },
+    "packages/linzjs-metrics": {
+      "skip-github-release": true
+    },
+    "packages/server": {
+      "skip-github-release": true
+    },
+    "packages/shared": {
+      "skip-github-release": true
+    },
+    "packages/smoke": {
+      "skip-github-release": true
+    },
+    "packages/sprites": {
+      "skip-github-release": true
+    },
+    "packages/__tests__": {
+      "skip-github-release": true
+    },
+    "packages/tiler": {
+      "skip-github-release": true
+    },
+    "packages/tiler-sharp": {
+      "skip-github-release": true
+    },
     ".": {
       "include-component-in-tag": false
     }
