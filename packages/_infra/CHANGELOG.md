@@ -3,6 +3,20 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.0](https://github.com/linz/basemaps/compare/v8.11.0...infra-v8.12.0) (2025-11-18)
+
+
+### Features
+
+* Disable lambda-analytic as it has been replaced by lambda-analytic-cloudfront ([#3564](https://github.com/linz/basemaps/issues/3564)) ([6891927](https://github.com/linz/basemaps/commit/6891927e9c4ebf8d2c6921060ea117e826615e8c))
+* drop tiler log level ([#3548](https://github.com/linz/basemaps/issues/3548)) ([471ceca](https://github.com/linz/basemaps/commit/471ceca818ab8c06151b9d1b87593c09d0107251))
+
+
+### Bug Fixes
+
+* **infra:** increase lambda tiler memory to 3072MB ([#3459](https://github.com/linz/basemaps/issues/3459)) ([786bb54](https://github.com/linz/basemaps/commit/786bb5406823fb7438cb1205e1c345c407406bc5))
+* parsing of blocked api keys ([#3448](https://github.com/linz/basemaps/issues/3448)) ([ab8bf72](https://github.com/linz/basemaps/commit/ab8bf7221df32eac59beb2d4e5cad78015c88395))
+
 ## [8.11.0](https://github.com/linz/basemaps/compare/infra-v8.10.1...infra-v8.11.0) (2025-11-18)
 
 
