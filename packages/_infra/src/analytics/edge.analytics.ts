@@ -9,7 +9,6 @@ import { Construct } from 'constructs';
 
 import { getConfig } from '../config.js';
 
-const CodePath = '../lambda-analytics/dist';
 const CodePathV2 = '../lambda-analytic-cloudfront/dist';
 
 export interface EdgeAnalyticsProps extends StackProps {
@@ -21,8 +20,6 @@ export interface EdgeAnalyticsProps extends StackProps {
  * Every hour create analytics based off the logs given to us from cloudwatch
  */
 export class EdgeAnalytics extends Stack {
-  public lambda: lambda.Function;
-
   public constructor(scope: Construct, id: string, props: EdgeAnalyticsProps) {
     super(scope, id, props);
 
@@ -33,29 +30,6 @@ export class EdgeAnalytics extends Stack {
     const cacheBucket = new Bucket(this, 'AnalyticCacheBucket', {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
     });
-
-    this.lambda = new lambda.Function(this, 'AnalyticLambda', {
-      runtime: lambda.Runtime.NODEJS_18_X,
-      memorySize: 2048,
-      timeout: Duration.minutes(10),
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset(CodePath),
-      environment: {
-        [Env.Analytics.CloudFrontId]: distributionId,
-        [Env.Analytics.CacheBucket]: `s3://${cacheBucket.bucketName}`,
-        [Env.Analytics.CloudFrontSourceBucket]: `s3://${logBucket.bucketName}`,
-        AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
-      },
-      logRetention: RetentionDays.ONE_MONTH,
-      loggingFormat: lambda.LoggingFormat.JSON,
-    });
-
-    cacheBucket.grantReadWrite(this.lambda);
-    logBucket.grantRead(this.lambda);
-
-    // Run this lambda function every hour
-    const rule = new Rule(this, 'AnalyticRule', { schedule: Schedule.rate(Duration.hours(1)) });
-    rule.addTarget(new LambdaFunction(this.lambda));
 
     const v2Lambda = new lambda.Function(this, 'AnalyticV2Lambda', {
       runtime: lambda.Runtime.NODEJS_LATEST,
