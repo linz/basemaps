@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.16.0](https://github.com/linz/basemaps/compare/v8.15.1...v8.16.0) (2025-11-18)
+
+
+### Features
+
+* Disable lambda-analytic as it has been replaced by lambda-analytic-cloudfront ([#3564](https://github.com/linz/basemaps/issues/3564)) ([6891927](https://github.com/linz/basemaps/commit/6891927e9c4ebf8d2c6921060ea117e826615e8c))
+
 ## [8.15.1](https://github.com/linz/basemaps/compare/v8.15.0...v8.15.1) (2025-11-16)
 
 

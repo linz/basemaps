@@ -1,6 +1,6 @@
 {
   "packages/__tests__": "8.2.0",
-  "packages/_infra": "8.10.1",
+  "packages/_infra": "8.11.0",
   "packages/attribution": "8.9.0",
   "packages/bathymetry": "8.9.3",
   "packages/cli": "8.10.4",
@@ -22,5 +22,5 @@
   "packages/sprites": "8.0.0",
   "packages/tiler": "8.11.0",
   "packages/tiler-sharp": "8.11.1",
-  ".": "8.15.1"
+  ".": "8.16.0"
 }
