@@ -1,13 +1,13 @@
 import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
 
-import { sha256base58 } from '@basemaps/config';
+import { ConfigImageryVersion, sha256base58 } from '@basemaps/config';
 import { fsa, LogType } from '@basemaps/shared';
 import { FileInfo } from '@chunkd/fs';
 
 import { ConfigImageryTiff } from './tiff.config.js';
 
-export const ConfigCacheVersion = `V1`; // TODO this could just be the config packageJson ?
+export const ConfigCacheVersion = `V1.` + ConfigImageryVersion; // TODO this could just be the config packageJson ?
 
 const gzipPromise = promisify(gzip);
 
@@ -17,7 +17,7 @@ const gzipPromise = promisify(gzip);
  * @example
  * ```
  * YYYY-MM/proto_hostname/hashKey.json.gz
- * 2034-04/s3_linz-imagery/Ci4chK59behxsGZq6TaUde5DoVb7jTxhyaZ44j4wBnCb.json.gz
+ * 2034-04/s3/linz-imagery/Ci4chK59behxsGZq6TaUde5DoVb7jTxhyaZ44j4wBnCb.json.gz
  * ```
  *
  * @param sourceFiles
@@ -26,13 +26,17 @@ const gzipPromise = promisify(gzip);
  * @returns a unique config location
  */
 function getCacheKey(sourceFiles: FileInfo[], cacheLocation: URL): URL {
+  // All source hosts used for the config
+  const sourceHosts = new Set(sourceFiles.map((m) => m.url.hostname));
+  const hostNames = [...sourceHosts.values()];
+  hostNames.sort();
+
   const configKey =
     ConfigCacheVersion + sourceFiles.map((m) => `${m.url.href}::${m.size}::${m.lastModified}`).join('\n');
-  // create a config hash based on the YYYY-MM/proto_hostname/hashKey.json.gz
 
-  const datePart = new Date().toISOString().slice(0, 7);
+  // create a config hash based on the /proto/hostname/hashKey.json.gz
   const protoPart = cacheLocation.protocol.replace(':', ''); // convert file: into file
-  const configKeyHash = [datePart, `${protoPart}_${sha256base58(configKey)}_.json.gz`].join('/');
+  const configKeyHash = [protoPart, hostNames.join('__'), `${sha256base58(configKey)}_.json.gz`].join('/');
   return new URL(configKeyHash, cacheLocation);
 }
 

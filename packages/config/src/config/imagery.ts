@@ -3,6 +3,8 @@ import { z } from 'zod';
 
 import { ConfigBase } from './base.js';
 
+export const ConfigImageryVersion = 2;
+
 /**
  * Taken from tiff's SampleFormat
  *
@@ -212,7 +214,7 @@ export const ConfigImageryV1Parser = ConfigImageryBase.extend({
  * Version two of imagery configuration adds more information about the bands found inside the imagery
  */
 export const ConfigImageryV2Parser = ConfigImageryBase.extend({
-  v: z.literal(2),
+  v: z.literal(ConfigImageryVersion),
 
   /** Human friendly title for the imagery */
   title: z.string(),
