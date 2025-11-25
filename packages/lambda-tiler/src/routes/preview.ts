@@ -64,23 +64,11 @@ export async function tilePreviewGet(req: LambdaHttpRequest<PreviewGet>): Promis
   // Only raster previews are supported
   if (tileSet.type !== TileSetType.Raster) return new LambdaHttpResponse(404, 'Preview invalid tile set type');
 
-  const pipeline = req.query.get('pipeline');
+  const { output, format } = Validate.pipeline(tileSet, req.params.outputType, req.query.get('pipeline'));
+  req.set('extension', format);
+  req.set('pipeline', output.name);
 
-  // Use the prefered output format from the pipeline if its defined
-  let defaultFormat = 'webp';
-  if (pipeline) {
-    const output = tileSet.outputs?.find((f) => f.name === pipeline);
-    defaultFormat = output?.format?.[0] ?? defaultFormat;
-  }
-
-  const outputFormat = req.params.outputType ?? defaultFormat;
-
-  const tileOutput = Validate.pipeline(tileSet, outputFormat, req.query.get('pipeline'));
-  if (tileOutput == null) return new LambdaHttpResponse(404, `Output format: ${outputFormat} not found`);
-  req.set('extension', outputFormat);
-  req.set('pipeline', tileOutput.name ?? 'rgba');
-
-  return renderPreview(req, { tileSet, tileMatrix, location, output: tileOutput, z });
+  return renderPreview(req, { tileSet, tileMatrix, location, output, z });
 }
 
 interface PreviewRenderContext {

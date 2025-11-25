@@ -57,6 +57,36 @@ const zLayerConfig = z
     },
   );
 
+const zTileSetOutputsParser = z
+  .array(ConfigTileSetOutputParser)
+  .optional()
+  .superRefine((items, ctx) => {
+    if (items == null) return;
+
+    const names = new Set<string>();
+    const defaults: number[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (names.has(item.name)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate output name "${item.name}"`,
+          path: [i, 'name'],
+        });
+      }
+      names.add(item.name);
+      if (item.default) defaults.push(i);
+    }
+
+    for (const index of defaults.slice(1)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Duplicate default outputs "${items[index].name}"`,
+        path: [index, 'default'],
+      });
+    }
+  });
+
 export const zTileSetConfig = z.object({
   type: z.nativeEnum(TileSetType),
   id: z.string(),
@@ -68,7 +98,7 @@ export const zTileSetConfig = z.object({
   minZoom: zZoom.optional(),
   maxZoom: zZoom.optional(),
   format: z.string().optional(),
-  outputs: z.array(ConfigTileSetOutputParser).optional(),
+  outputs: zTileSetOutputsParser,
   aliases: z.array(z.string()).optional(),
 });
 
