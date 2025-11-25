@@ -281,7 +281,7 @@ describe('config.diff', () => {
       assert.equal(secondDiff.type, 'updated');
       assert.deepEqual(
         secondDiff.changes.map((m) => m.path?.join('.')),
-        ['format'],
+        ['format', 'aliases'],
       );
     });
 
