@@ -141,19 +141,20 @@ export const Validate = {
    *
    * @param tileSet
    * @param pipeline pipeline parameter if it exists
-   * @returns 'rgba' for any pipeline without a outputs, otherwise the provided pipeline or default output
+   * @returns 'rgba' for any pipeline without outputs, otherwise the provided pipeline or default output
    */
   pipelineName(tileSet: ConfigTileSetRaster, pipeline?: string | null): ConfigTileSetRasterOutput {
     if (pipeline == null && tileSet.outputs) {
       // If no pipeline is specified find the default pipeline
       const defaultOutput = tileSet.outputs.find((f) => f.default === true);
       if (defaultOutput) return defaultOutput;
+
       // If there is only one pipeline force the use of it
-      else if (pipeline == null && tileSet.outputs.length === 1) return tileSet.outputs[0];
-      else {
-        // No default pipeline, and multiple pipelines exist one must be chosen
-        throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name).join(', '));
-      }
+      if (tileSet.outputs.length === 1) return tileSet.outputs[0];
+
+      // No default pipeline, and multiple pipelines exist one must be chosen
+      throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name).join(', '));
+      
     }
 
     // No pipeline and no outputs default is RGBA
