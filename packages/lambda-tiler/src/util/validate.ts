@@ -154,7 +154,6 @@ export const Validate = {
 
       // No default pipeline, and multiple pipelines exist one must be chosen
       throw new LambdaHttpResponse(404, 'TileSet needs pipeline: ' + tileSet.outputs.map((f) => f.name).join(', '));
-      
     }
 
     // No pipeline and no outputs default is RGBA
