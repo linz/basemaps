@@ -29,8 +29,8 @@
     "@basemaps/lambda-tiler": "^8.11.1",
     "@basemaps/shared": "^8.9.3",
     "@linzjs/cdk-tags": "^1.7.0",
-    "aws-cdk": "^2.1029.1",
-    "aws-cdk-lib": "^2.215.0",
-    "constructs": "^10.4.2"
+    "aws-cdk": "^2.1033.0",
+    "aws-cdk-lib": "^2.230.0",
+    "constructs": "^10.4.3"
   }
 }
