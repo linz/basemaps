@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ConfigId } from '../index.js';
+import { ConfigId } from '../base.config.js';
 
 /**
  * Ensure a ID is prefixed with one of the configuration objects

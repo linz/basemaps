@@ -14,6 +14,7 @@ export {
   ConfigImagery,
   ConfigImageryOverview,
   ConfigImageryV1,
+  ConfigImageryVersion,
   ImageryBandDataType,
   ImageryBandType,
   ImageryDataType,
