@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.17.0](https://github.com/linz/basemaps/compare/v8.16.0...v8.17.0) (2025-11-26)
+
+
+### Features
+
+* support default outputs pipelines for backwards compatibility ([#3561](https://github.com/linz/basemaps/issues/3561)) ([53e25b9](https://github.com/linz/basemaps/commit/53e25b90b266579ad4059359bfa6f17c5c8f7237))
+
+
+### Bug Fixes
+
+* revert disable github releases for individual packages [#3565](https://github.com/linz/basemaps/issues/3565) ([#3568](https://github.com/linz/basemaps/issues/3568)) ([65ec936](https://github.com/linz/basemaps/commit/65ec936daa55573572d73cd7e416fc47ed416430))
+
 ## [8.16.0](https://github.com/linz/basemaps/compare/v8.15.1...v8.16.0) (2025-11-18)
 
 
