@@ -32,7 +32,7 @@ export class EdgeAnalytics extends Stack {
     });
 
     const v2Lambda = new lambda.Function(this, 'AnalyticV2Lambda', {
-      runtime: lambda.Runtime.NODEJS_LATEST,
+      runtime: lambda.Runtime.NODEJS_24_X,
       memorySize: 2048,
       timeout: Duration.minutes(10),
       handler: 'index.handler',
