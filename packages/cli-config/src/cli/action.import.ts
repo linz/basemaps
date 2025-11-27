@@ -20,6 +20,7 @@ import {
   logArguments,
   LogType,
   setDefaultConfig,
+  Url,
 } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, flag, option, optional, string } from 'cmd-ts';
@@ -40,7 +41,7 @@ export const ImportCommand = command({
   args: {
     ...logArguments,
     config: option({
-      type: string,
+      type: Url,
       long: 'config',
       description: 'Path of config json, this can be both a local path or s3 location',
     }),
@@ -50,7 +51,7 @@ export const ImportCommand = command({
       description: 'Output a markdown file with the config changes',
     }),
     target: option({
-      type: optional(string),
+      type: optional(Url),
       long: 'target',
       description: 'Target config file to compare',
     }),
@@ -68,11 +69,9 @@ export const ImportCommand = command({
     const config = args.config;
 
     if (config == null) throw new Error('Please provide a config json');
-    if (commit && !config.startsWith('s3://') && Env.isProduction()) {
+    if (commit && Env.isProduction() && config.protocol !== 's3:') {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
     }
-
-    const configUrl = fsa.toUrl(config);
 
     const cfg = await getConfig(logger, args.target);
 
@@ -86,8 +85,8 @@ export const ImportCommand = command({
     }
 
     logger.info({ config }, 'Import:Load');
-    const configJson = await fsa.readJson<ConfigBundled>(configUrl);
-    const mem = ConfigProviderMemory.fromJson(configJson);
+    const configJson = await fsa.readJson<ConfigBundled>(config);
+    const mem = ConfigProviderMemory.fromJson(configJson, config);
     mem.createVirtualTileSets();
 
     const promises: Promise<boolean>[] = [];
@@ -134,7 +133,7 @@ export const ImportCommand = command({
       const configBundle: ConfigBundle = {
         id: cfg.ConfigBundle.id(configJson.hash),
         name: cfg.ConfigBundle.id(`config-${configJson.hash}.json`),
-        path: config,
+        path: config.href,
         hash: configJson.hash,
         assets: configJson.assets,
       };
@@ -177,11 +176,11 @@ export const ImportCommand = command({
   },
 });
 
-async function getConfig(logger: LogType, target?: string): Promise<BasemapsConfigProvider> {
+async function getConfig(logger: LogType, target?: URL): Promise<BasemapsConfigProvider> {
   if (target) {
     logger.info({ config: target }, 'Import:Target:Load');
-    const configJson = await fsa.readJson<ConfigBundled>(fsa.toUrl(target));
-    const mem = ConfigProviderMemory.fromJson(configJson);
+    const configJson = await fsa.readJson<ConfigBundled>(target);
+    const mem = ConfigProviderMemory.fromJson(configJson, target);
     mem.createVirtualTileSets();
 
     setDefaultConfig(mem);
@@ -206,7 +205,7 @@ async function getConfig(logger: LogType, target?: string): Promise<BasemapsConf
 export async function outputChange(
   mem: ConfigProviderMemory,
   cfg: BasemapsConfigProvider,
-  configPath: string,
+  configPath: URL,
   changes: BaseConfig[],
 ): Promise<string> {
   const outputMarkdown: string[] = [];
@@ -325,7 +324,7 @@ async function outputNewLayers(
   mem: ConfigProviderMemory,
   layer: ConfigLayer,
   inserts: string[],
-  configPath: string,
+  configPath: URL,
   aerial?: boolean,
 ): Promise<void> {
   inserts.push(`\n### ${layer.name}\n`);
@@ -355,7 +354,7 @@ async function outputUpdatedLayers(
   layer: ConfigLayer,
   existing: ConfigLayer,
   updates: string[],
-  configPath: string,
+  configPath: URL,
   aerial?: boolean,
 ): Promise<void> {
   let zoom = undefined;
@@ -402,15 +401,15 @@ async function prepareUrl(
   id: string,
   mem: BasemapsConfigProvider,
   tileMatrix: TileMatrixSet,
-  configPath: string,
+  configPath: URL,
 ): Promise<{ layer: string; tag: string }> {
   const configImagery = await mem.Imagery.get(id);
   if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
 
   const center = getPreviewUrl({ imagery: configImagery });
   const urls = {
-    layer: `${PublicUrlBase}?config=${configPath}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
-    tag: `${PublicUrlBase}?config=${configPath}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
+    layer: `${PublicUrlBase}?config=${configPath.href}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
+    tag: `${PublicUrlBase}?config=${configPath.href}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
   };
   return urls;
 }

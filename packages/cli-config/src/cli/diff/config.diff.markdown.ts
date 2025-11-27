@@ -57,6 +57,9 @@ function markdownProjectionText(projection: EpsgCode): string {
 function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, layer: ConfigLayer): string {
   const lines: string[] = [];
 
+  const configUrl = diff.after.source;
+  if (configUrl == null) throw new Error(`Failed to read config bundled file path. TileSet Id: ${tileSet.id}`);
+
   // grab layer by projection
   for (const projection of ProjectionLinkOrder) {
     const layerId = layer[projection];
@@ -78,7 +81,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
     if (outputs == null) {
       // generate no-pipeline link
       const url = `${PublicUrlBase}@${location}${toQueryString({
-        c: 'CONFIG',
+        c: configUrl.href,
         p: projection.toString(),
         debug: 'true',
       })}`;
@@ -93,7 +96,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
       if (formats == null) {
         // generate no-format link
         const url = `${PublicUrlBase}@${location}${toQueryString({
-          c: 'CONFIG',
+          c: configUrl.href,
           p: projection.toString(),
           pipeline: output.name,
           debug: 'true',
@@ -106,7 +109,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
       // generate links by format
       for (const format of formats) {
         const url = `${PublicUrlBase}@${location}${toQueryString({
-          c: 'CONFIG',
+          c: configUrl.href,
           p: projection.toString(),
           pipeline: output.name,
           format: format,

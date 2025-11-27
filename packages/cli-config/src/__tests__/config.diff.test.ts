@@ -111,6 +111,7 @@ describe('config.diff', () => {
     });
 
     const mem = await ConfigJson.fromUrl(new URL(source), pLimit(1), LogConfig.get());
+    mem.source = fsa.toUrl('s3://fake-source.json.gz');
     mem.createVirtualTileSets();
     return mem;
   }
