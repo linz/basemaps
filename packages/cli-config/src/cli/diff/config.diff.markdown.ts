@@ -138,7 +138,7 @@ function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUp
 
       // title
       if (showTitle) {
-        const symbol = change.type == 'new' ? '➕' : '🔄';
+        const symbol = change.type === 'new' ? '➕' : '🔄';
         lines.push(`- #### ${symbol} ${change.after.title}  (\`${change.after.name}\`)`);
 
         // links
@@ -176,7 +176,7 @@ function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): strin
     lines.push(`🗑️ ${raster.before.title} (\`${raster.id}\`) ` + links.join(' '));
   } else {
     // title
-    const symbol = raster.type == 'new' ? '➕' : '🔄';
+    const symbol = raster.type === 'new' ? '➕' : '🔄';
     lines.push(`#### ${symbol} ${raster.after.title} (\`${raster.id}\`)`);
 
     // links
