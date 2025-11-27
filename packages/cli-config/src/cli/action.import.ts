@@ -23,12 +23,14 @@ import {
   Url,
 } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, flag, option, optional, string } from 'cmd-ts';
+import { command, flag, option, optional } from 'cmd-ts';
 import fetch from 'node-fetch';
 
 import { getVectorVersion, invalidateCache } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { Q, Updater } from './config.update.js';
+import { configTileSetDiff } from './diff/config.diff.js';
+import { diffToMarkdown } from './diff/config.diff.markdown.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
@@ -46,7 +48,7 @@ export const ImportCommand = command({
       description: 'Path of config json, this can be both a local path or s3 location',
     }),
     output: option({
-      type: optional(string),
+      type: optional(Url),
       long: 'output',
       description: 'Output a markdown file with the config changes',
     }),
@@ -66,10 +68,8 @@ export const ImportCommand = command({
   async handler(args): Promise<void> {
     const logger = getLogger(this, args, 'cli-config');
     const commit = args.commit;
-    const config = args.config;
 
-    if (config == null) throw new Error('Please provide a config json');
-    if (commit && Env.isProduction() && config.protocol !== 's3:') {
+    if (commit && Env.isProduction() && args.config.protocol !== 's3:') {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
     }
 
@@ -84,9 +84,22 @@ export const ImportCommand = command({
       if (!res.ok) throw new Error('Cannot update basemaps is unhealthy');
     }
 
-    logger.info({ config }, 'Import:Load');
-    const configJson = await fsa.readJson<ConfigBundled>(config);
-    const mem = ConfigProviderMemory.fromJson(configJson, config);
+    logger.info({ config: args.config.href }, 'Import:Load');
+
+    if (args.target != null) {
+      const beforeConfig = await fsa.readJson<ConfigBundled>(args.target);
+      const beforeMem = ConfigProviderMemory.fromJson(beforeConfig, args.target);
+
+      const afterConfig = await fsa.readJson<ConfigBundled>(args.config);
+      const afterMem = ConfigProviderMemory.fromJson(afterConfig, args.config);
+
+      const diff = configTileSetDiff(beforeMem, afterMem);
+      const markdown = diffToMarkdown(diff);
+      await fsa.write(new URL('update-markdown-changes' + '.md', args.output), markdown);
+    }
+
+    const configJson = await fsa.readJson<ConfigBundled>(args.config);
+    const mem = ConfigProviderMemory.fromJson(configJson, args.config);
     mem.createVirtualTileSets();
 
     const promises: Promise<boolean>[] = [];
@@ -118,7 +131,7 @@ export const ImportCommand = command({
       promises.push(promise);
     }
 
-    logger.info({ config }, 'Import:Start');
+    logger.info({ config: args.config.href }, 'Import:Start');
     const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
     for (const config of mem.objects.values()) {
       const objectType = ConfigId.getPrefix(config.id);
@@ -133,11 +146,11 @@ export const ImportCommand = command({
       const configBundle: ConfigBundle = {
         id: cfg.ConfigBundle.id(configJson.hash),
         name: cfg.ConfigBundle.id(`config-${configJson.hash}.json`),
-        path: config.href,
+        path: args.config.href,
         hash: configJson.hash,
         assets: configJson.assets,
       };
-      logger.info({ config }, 'Import:ConfigBundle');
+      logger.info({ config: args.config.href }, 'Import:ConfigBundle');
 
       if (cfg.ConfigBundle.isWriteable()) {
         // Insert a cb_hash record for reference
@@ -164,11 +177,10 @@ export const ImportCommand = command({
       if (!res.ok) throw new Error('Basemaps is unhealthy');
     }
 
-    const output = args.output;
-    if (output != null) {
-      const doc = await outputChange(mem, cfg, config, changes);
+    if (args.output != null) {
+      const doc = await outputChange(mem, cfg, args.config, changes);
       if (doc.length > 0) {
-        await fsa.write(fsa.toUrl(output), doc);
+        await fsa.write(args.output, doc);
       }
     }
 
