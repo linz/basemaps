@@ -74,7 +74,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
     // determine imagery center
     const center = getPreviewUrl({ imagery: configImagery as ConfigImagery });
     const location = `${center.location.lat},${center.location.lon},z${center.location.zoom}`;
-    const queries = `c=${configUrl.href}&i=${layer.name}&p=${projection.toString()}&debug=true`;
+    const queries = `c=${configUrl.href}&i=${center.name}&p=${projection.toString()}&debug=true`;
 
     const baseUrl = `${PublicUrlBase}@${location}?${queries}`;
 
@@ -108,7 +108,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
   return lines.join('\n');
 }
 
-function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUpdated, showLinks = false): string[] {
+function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUpdated, showLinks = true): string[] {
   if (raster.layers.length === 0) return [];
 
   const lines: string[] = [];
