@@ -276,7 +276,7 @@ export async function outputChange(
         for (const style of VectorStyles) {
           const styleId = version ? `${style}-${version}` : style;
           vectorUpdate.push(
-            `* [${style} - NZTM2000Quad](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&p=NZTM2000Quad&debug)\n`,
+            `* [${style} - NZTM2000Quad](${PublicUrlBase}?config=${configPath.href}&i=${id}&s=${styleId}&p=NZTM2000Quad&debug)\n`,
           );
         }
       }
@@ -284,7 +284,7 @@ export async function outputChange(
         for (const style of VectorStyles) {
           const styleId = version ? `${style}-${version}` : style;
           vectorUpdate.push(
-            `* [${style} - WebMercatorQuad](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&p=WebMercatorQuad&debug)\n`,
+            `* [${style} - WebMercatorQuad](${PublicUrlBase}?config=${configPath.href}&i=${id}&s=${styleId}&p=WebMercatorQuad&debug)\n`,
           );
         }
       }
@@ -302,7 +302,7 @@ export async function outputChange(
       const tileSetId = version ? `topographic-${version}` : 'topographic';
       styleUpdate.push(`## Vector Style updated for ${change.id}`);
       const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
-      styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${configPath}&i=${tileSetId}&s=${style}&debug)\n`);
+      styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${configPath.href}&i=${tileSetId}&s=${style}&debug)\n`);
     }
   }
 
