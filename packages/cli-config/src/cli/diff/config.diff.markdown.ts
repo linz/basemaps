@@ -1,6 +1,6 @@
 import { ConfigImagery, ConfigLayer, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
 import { EpsgCode, TileMatrixSets } from '@basemaps/geo';
-import { Env, getPreviewUrl, toQueryString } from '@basemaps/shared';
+import { Env, getPreviewUrl } from '@basemaps/shared';
 import type { Diff } from 'deep-diff';
 
 import { DiffTileSet, DiffTileSetRaster, DiffTileSetRasterUpdated } from './config.diff.js';
@@ -74,19 +74,16 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
     // determine imagery center
     const center = getPreviewUrl({ imagery: configImagery as ConfigImagery });
     const location = `${center.location.lat},${center.location.lon},z${center.location.zoom}`;
+    const queries = `c=${configUrl.href}&i=${layer.name}&p=${projection.toString()}&debug=true`;
+
+    const baseUrl = `${PublicUrlBase}@${location}?${queries}`;
 
     // grab outputs
     const outputs = tileSet.outputs;
 
     if (outputs == null) {
       // generate no-pipeline link
-      const url = `${PublicUrlBase}@${location}${toQueryString({
-        c: configUrl.href,
-        p: projection.toString(),
-        debug: 'true',
-      })}`;
-
-      lines.push(`  - [rgba](${url})`);
+      lines.push(`  - [rgba](${baseUrl})`);
       continue;
     }
 
@@ -95,27 +92,14 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
 
       if (formats == null) {
         // generate no-format link
-        const url = `${PublicUrlBase}@${location}${toQueryString({
-          c: configUrl.href,
-          p: projection.toString(),
-          pipeline: output.name,
-          debug: 'true',
-        })}`;
-
+        const url = `${baseUrl}&pipeline=${output.name}`;
         lines.push(`  - [${output.name}](${url})`);
         continue;
       }
 
       // generate links by format
       for (const format of formats) {
-        const url = `${PublicUrlBase}@${location}${toQueryString({
-          c: configUrl.href,
-          p: projection.toString(),
-          pipeline: output.name,
-          format: format,
-          debug: 'true',
-        })}`;
-
+        const url = `${baseUrl}&pipeline=${output.name}&format=${format}`;
         lines.push(`  - [${output.name}: ${format}](${url})`);
       }
     }
