@@ -1,4 +1,10 @@
-import { ConfigLayer, ConfigProviderMemory, ConfigTileSetRaster, ConfigTileSetVector } from '@basemaps/config';
+import {
+  ConfigLayer,
+  ConfigProviderMemory,
+  ConfigTileSetRaster,
+  ConfigTileSetVector,
+  TileSetType,
+} from '@basemaps/config';
 import diff from 'deep-diff';
 
 import { IgnoredProperties } from '../config.diff.js';
@@ -7,9 +13,9 @@ function getAllTileSets(cfg: ConfigProviderMemory): Map<string, ConfigTileSetRas
   const tileSets: Map<string, ConfigTileSetRaster> = new Map();
 
   for (const obj of cfg.objects.values()) {
-    if (!cfg.TileSet.is(obj)) continue;
+    if (!cfg.TileSet.is(obj) || obj.type !== TileSetType.Raster) continue;
     if (tileSets.has(obj.id)) throw new Error(`Duplicate tileSet id ${obj.id}`);
-    tileSets.set(obj.id, obj as ConfigTileSetRaster);
+    tileSets.set(obj.id, obj);
   }
 
   return tileSets;
