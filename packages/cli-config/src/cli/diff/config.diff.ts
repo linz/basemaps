@@ -1,6 +1,7 @@
 import {
   ConfigLayer,
   ConfigProviderMemory,
+  ConfigTileSet,
   ConfigTileSetRaster,
   ConfigTileSetVector,
   TileSetType,
@@ -9,11 +10,11 @@ import diff from 'deep-diff';
 
 import { IgnoredProperties } from '../config.diff.js';
 
-function getAllTileSets(cfg: ConfigProviderMemory): Map<string, ConfigTileSetRaster> {
-  const tileSets: Map<string, ConfigTileSetRaster> = new Map();
+function getAllTileSets(cfg: ConfigProviderMemory): Map<string, ConfigTileSet> {
+  const tileSets: Map<string, ConfigTileSet> = new Map();
 
   for (const obj of cfg.objects.values()) {
-    if (!cfg.TileSet.is(obj) || obj.type !== TileSetType.Raster) continue;
+    if (!cfg.TileSet.is(obj)) continue;
     if (tileSets.has(obj.id)) throw new Error(`Duplicate tileSet id ${obj.id}`);
     tileSets.set(obj.id, obj);
   }
@@ -69,6 +70,10 @@ function tileSetDiffRaster(before?: ConfigTileSetRaster, after?: ConfigTileSetRa
   };
 }
 
+// function tileSetDiffVector() {}
+
+// function tileSetDiff(before?: ConfigTileSet, after: ConfigTileSet): DiffTileSet
+
 export type DiffTileSetRasterUpdated = DiffUpdated<ConfigTileSetRaster> & { layers: Diff<ConfigLayer>[] };
 export type DiffTileSetRaster =
   | DiffNew<ConfigTileSetRaster>
@@ -102,21 +107,41 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
 
   const seen = new Set<string>();
 
-  const diffs: DiffTileSetRaster[] = [];
+  const rasterDiffs: DiffTileSet['raster'] = [];
+  const vectorDiffs: DiffTileSet['vector'] = [];
 
   for (const tsBefore of tileSetBefore.values()) {
-    const diff = tileSetDiffRaster(tsBefore, tileSetAfter.get(tsBefore.id));
     seen.add(tsBefore.id);
-    if (diff) diffs.push(diff);
+    const tsAfter = tileSetAfter.get(tsBefore.id);
+    // Changing from raster to vector or vector to raster
+    if (tsAfter != null && tsAfter.type != tsBefore.type) {
+      throw new Error(`TileSet type conversion not allowed: ${tsAfter.id} ${tsBefore.type} -> ${tsAfter.type}`);
+    }
+
+    if (tsBefore.type === TileSetType.Raster) {
+      const diff = tileSetDiffRaster(tsBefore, tsAfter as ConfigTileSetRaster);
+      if (diff) rasterDiffs.push(diff);
+    } else if (tsBefore.type === TileSetType.Vector) {
+      // FIXME: add tileSetDiffVector
+    } else {
+      // Warning ??
+    }
   }
 
   for (const tsAfter of tileSetAfter.values()) {
     if (seen.has(tsAfter.id)) continue;
-    const diff = tileSetDiffRaster(undefined, tsAfter);
-    if (diff) diffs.push(diff);
+
+    if (tsAfter.type === TileSetType.Raster) {
+      const diff = tileSetDiffRaster(undefined, tsAfter);
+      if (diff) rasterDiffs.push(diff);
+    } else if (tsAfter.type === TileSetType.Vector) {
+      // TODO add vector changes
+    } else {
+      // Warning ??
+    }
   }
 
-  return { raster: diffs, vector: [], before, after };
+  return { raster: rasterDiffs, vector: [], before, after };
 }
 
 export type DiffNew<T> = { type: 'new'; id: string; after: T };

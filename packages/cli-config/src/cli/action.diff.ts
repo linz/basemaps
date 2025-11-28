@@ -42,148 +42,121 @@ export const ImportCommand = command({
   description: 'Given a valid bundle config json, import them into dynamodb',
   args: {
     ...logArguments,
-    config: option({
+    before: option({
       type: Url,
-      long: 'config',
+      long: 'before',
       description: 'Path of config json, this can be both a local path or s3 location',
     }),
-    output: option({
-      type: optional(Url),
-      long: 'output',
+    after: option({
+      type: Url,
+      long: 'after',
       description: 'Output a markdown file with the config changes',
-    }),
-    target: option({
-      type: optional(Url),
-      long: 'target',
-      description: 'Target config file to compare',
-    }),
-    commit: flag({
-      long: 'commit',
-      description: 'Actually start the import',
-      defaultValue: () => false,
-      defaultValueIsSerializable: true,
     }),
   },
 
   async handler(args): Promise<void> {
     const logger = getLogger(this, args, 'cli-config');
-    const commit = args.commit;
 
-    if (commit && Env.isProduction() && args.config.protocol !== 's3:') {
-      throw new Error('To actually import into dynamo has to use the config file from s3.');
-    }
+    logger.info({ configBefore: args.before.href, configAfter: args.after.href }, 'Import:Load');
 
-    const cfg = await getConfig(logger, args.target);
+    const beforeConfig = await fsa.readJson<ConfigBundled>(args.before);
+    const beforeMem = ConfigProviderMemory.fromJson(beforeConfig, args.before);
 
-    const healthEndpoint = new URL('/v1/health', PublicUrlBase);
+    const afterConfig = await fsa.readJson<ConfigBundled>(args.after);
+    const afterMem = ConfigProviderMemory.fromJson(afterConfig, args.after);
 
-    logger.info({ url: healthEndpoint }, 'Import:ValidateHealth');
-    if (commit) {
-      const res = await fetch(healthEndpoint);
-      if (!res.ok) throw new Error('Cannot update basemaps is unhealthy');
-    }
+    const diff = configTileSetDiff(beforeMem, afterMem);
+    const markdown = diffToMarkdown(diff);
+    await fsa.write(new URL('changes.md'), markdown);
+    // }
 
-    logger.info({ config: args.config.href }, 'Import:Load');
+    // const configJson = await fsa.readJson<ConfigBundled>(args.config);
+    // const mem = ConfigProviderMemory.fromJson(configJson, args.config);
+    // mem.createVirtualTileSets();
 
-    if (args.target != null) {
-      const beforeConfig = await fsa.readJson<ConfigBundled>(args.target);
-      const beforeMem = ConfigProviderMemory.fromJson(beforeConfig, args.target);
+    // const promises: Promise<boolean>[] = [];
+    // /** List of paths to invalidate at the end of the request */
+    // const invalidations: string[] = [];
 
-      const afterConfig = await fsa.readJson<ConfigBundled>(args.config);
-      const afterMem = ConfigProviderMemory.fromJson(afterConfig, args.config);
+    // /** List of changed config */
+    // const changes: BaseConfig[] = [];
 
-      const diff = configTileSetDiff(beforeMem, afterMem);
-      const markdown = diffToMarkdown(diff);
-      await fsa.write(new URL('update-markdown-changes' + '.md', args.output), markdown);
-    }
+    // /** List of paths to invalidate at the end of the request */
+    // const backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
 
-    const configJson = await fsa.readJson<ConfigBundled>(args.config);
-    const mem = ConfigProviderMemory.fromJson(configJson, args.config);
-    mem.createVirtualTileSets();
+    // function update(config: BaseConfig, oldConfig: BasemapsConfigProvider, commit: boolean): void {
+    //   const promise = Q(async (): Promise<boolean> => {
+    //     const updater = new Updater(config, oldConfig, commit);
 
-    const promises: Promise<boolean>[] = [];
-    /** List of paths to invalidate at the end of the request */
-    const invalidations: string[] = [];
+    //     const hasChanges = await updater.reconcile();
+    //     if (hasChanges) {
+    //       changes.push(config);
+    //       invalidations.push(updater.invalidatePath());
+    //       const oldData = await updater.getOldData();
+    //       if (oldData != null) backupConfig.put(oldData); // No need to backup anything if there is new insert
+    //     } else {
+    //       backupConfig.put(config);
+    //     }
+    //     return true;
+    //   });
 
-    /** List of changed config */
-    const changes: BaseConfig[] = [];
+    //   promises.push(promise);
+    // }
 
-    /** List of paths to invalidate at the end of the request */
-    const backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
+    // logger.info({ config: args.config.href }, 'Import:Start');
+    // const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
+    // for (const config of mem.objects.values()) {
+    //   const objectType = ConfigId.getPrefix(config.id);
+    //   if (objectType) objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
+    //   update(config, cfg, commit);
+    // }
+    // await Promise.all(promises);
 
-    function update(config: BaseConfig, oldConfig: BasemapsConfigProvider, commit: boolean): void {
-      const promise = Q(async (): Promise<boolean> => {
-        const updater = new Updater(config, oldConfig, commit);
+    // logger.info({ objects: mem.objects.size, types: objectTypes }, 'Import:Compare:Done');
 
-        const hasChanges = await updater.reconcile();
-        if (hasChanges) {
-          changes.push(config);
-          invalidations.push(updater.invalidatePath());
-          const oldData = await updater.getOldData();
-          if (oldData != null) backupConfig.put(oldData); // No need to backup anything if there is new insert
-        } else {
-          backupConfig.put(config);
-        }
-        return true;
-      });
+    // if (commit) {
+    //   const configBundle: ConfigBundle = {
+    //     id: cfg.ConfigBundle.id(configJson.hash),
+    //     name: cfg.ConfigBundle.id(`config-${configJson.hash}.json`),
+    //     path: args.config.href,
+    //     hash: configJson.hash,
+    //     assets: configJson.assets,
+    //   };
+    //   logger.info({ config: args.config.href }, 'Import:ConfigBundle');
 
-      promises.push(promise);
-    }
+    //   if (cfg.ConfigBundle.isWriteable()) {
+    //     // Insert a cb_hash record for reference
+    //     await cfg.ConfigBundle.put(configBundle);
+    //     // Update the cb_latest record
+    //     configBundle.id = cfg.ConfigBundle.id('latest');
+    //     await cfg.ConfigBundle.put(configBundle);
+    //   } else {
+    //     logger.error('Import:NotWriteable');
+    //   }
+    // }
 
-    logger.info({ config: args.config.href }, 'Import:Start');
-    const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
-    for (const config of mem.objects.values()) {
-      const objectType = ConfigId.getPrefix(config.id);
-      if (objectType) objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
-      update(config, cfg, commit);
-    }
-    await Promise.all(promises);
+    // if (commit && invalidations.length > 0) {
+    //   // Lots of invalidations just invalidate everything
+    //   if (invalidations.length > 10) {
+    //     await invalidateCache('/*', commit);
+    //   } else {
+    //     await invalidateCache(invalidations, commit);
+    //   }
 
-    logger.info({ objects: mem.objects.size, types: objectTypes }, 'Import:Compare:Done');
+    //   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    if (commit) {
-      const configBundle: ConfigBundle = {
-        id: cfg.ConfigBundle.id(configJson.hash),
-        name: cfg.ConfigBundle.id(`config-${configJson.hash}.json`),
-        path: args.config.href,
-        hash: configJson.hash,
-        assets: configJson.assets,
-      };
-      logger.info({ config: args.config.href }, 'Import:ConfigBundle');
+    //   const res = await fetch(healthEndpoint);
+    //   if (!res.ok) throw new Error('Basemaps is unhealthy');
+    // }
 
-      if (cfg.ConfigBundle.isWriteable()) {
-        // Insert a cb_hash record for reference
-        await cfg.ConfigBundle.put(configBundle);
-        // Update the cb_latest record
-        configBundle.id = cfg.ConfigBundle.id('latest');
-        await cfg.ConfigBundle.put(configBundle);
-      } else {
-        logger.error('Import:NotWriteable');
-      }
-    }
+    // if (args.output != null) {
+    //   const doc = await outputChange(mem, cfg, args.config, changes);
+    //   if (doc.length > 0) {
+    //     await fsa.write(args.output, doc);
+    //   }
+    // }
 
-    if (commit && invalidations.length > 0) {
-      // Lots of invalidations just invalidate everything
-      if (invalidations.length > 10) {
-        await invalidateCache('/*', commit);
-      } else {
-        await invalidateCache(invalidations, commit);
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const res = await fetch(healthEndpoint);
-      if (!res.ok) throw new Error('Basemaps is unhealthy');
-    }
-
-    if (args.output != null) {
-      const doc = await outputChange(mem, cfg, args.config, changes);
-      if (doc.length > 0) {
-        await fsa.write(args.output, doc);
-      }
-    }
-
-    if (commit !== true) logger.info('DryRun:Done');
+    // if (commit !== true) logger.info('DryRun:Done');
   },
 });
 

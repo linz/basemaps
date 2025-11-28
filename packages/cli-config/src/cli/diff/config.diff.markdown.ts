@@ -108,7 +108,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
   return lines.join('\n');
 }
 
-function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUpdated, showLinks = true): string[] {
+function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUpdated): string[] {
   if (raster.layers.length === 0) return [];
 
   const lines: string[] = [];
@@ -126,9 +126,7 @@ function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUp
         lines.push(`- #### ${symbol} ${change.after.title}  (\`${change.after.name}\`)`);
 
         // links
-        if (showLinks) {
-          lines.push(markdownBasemapsLinks(diff, raster.after, change.after));
-        }
+        lines.push(markdownBasemapsLinks(diff, raster.after, change.after));
       }
 
       // changes
@@ -222,6 +220,16 @@ export function diffToMarkdown(diff: DiffTileSet): string {
       lines.push(...changed);
     }
   }
+
+  // FIXME: todo add simple vector diff +
+  // IF vector layer has changed
+  /*
+        const featureChanges = await diffVectorUpdate(change, existingTileSet);
+      vectorUpdate.push(`## Feature updates for ${change.id}`);
+      vectorUpdate.push(...featureChanges);
+      const reportMarkdown = await outputAnalyseReports(change);
+      */
+
   if (lines.length > 0) {
     const configHeader = [`# Configuration changes detected`, '', `**Key**: 🗑️ Deleted 🔄 Updated ➕ New`];
     lines.unshift(configHeader.join('\n') + '\n');
