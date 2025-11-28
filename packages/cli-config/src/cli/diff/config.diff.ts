@@ -109,6 +109,7 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
 
   const rasterDiffs: DiffTileSet['raster'] = [];
   const vectorDiffs: DiffTileSet['vector'] = [];
+  console.log(vectorDiffs); // FIXME: Added to allow compilation. Remove this!
 
   for (const tsBefore of tileSetBefore.values()) {
     seen.add(tsBefore.id);

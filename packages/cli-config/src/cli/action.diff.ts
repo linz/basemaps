@@ -1,7 +1,6 @@
 import {
   BaseConfig,
   BasemapsConfigProvider,
-  ConfigBundle,
   ConfigBundled,
   ConfigId,
   ConfigLayer,
@@ -11,24 +10,12 @@ import {
   TileSetType,
 } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
-import {
-  Env,
-  fsa,
-  getDefaultConfig,
-  getLogger,
-  getPreviewUrl,
-  logArguments,
-  LogType,
-  setDefaultConfig,
-  Url,
-} from '@basemaps/shared';
+import { Env, fsa, getLogger, getPreviewUrl, logArguments, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, flag, option, optional } from 'cmd-ts';
-import fetch from 'node-fetch';
+import { command, option } from 'cmd-ts';
 
-import { getVectorVersion, invalidateCache } from '../util.js';
+import { getVectorVersion } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
-import { Q, Updater } from './config.update.js';
 import { configTileSetDiff } from './diff/config.diff.js';
 import { diffToMarkdown } from './diff/config.diff.markdown.js';
 
@@ -160,18 +147,19 @@ export const ImportCommand = command({
   },
 });
 
-async function getConfig(logger: LogType, target?: URL): Promise<BasemapsConfigProvider> {
-  if (target) {
-    logger.info({ config: target }, 'Import:Target:Load');
-    const configJson = await fsa.readJson<ConfigBundled>(target);
-    const mem = ConfigProviderMemory.fromJson(configJson, target);
-    mem.createVirtualTileSets();
+// FIXME: Commented out to allow compilation. Might need!
+// async function getConfig(logger: LogType, target?: URL): Promise<BasemapsConfigProvider> {
+//   if (target) {
+//     logger.info({ config: target }, 'Import:Target:Load');
+//     const configJson = await fsa.readJson<ConfigBundled>(target);
+//     const mem = ConfigProviderMemory.fromJson(configJson, target);
+//     mem.createVirtualTileSets();
 
-    setDefaultConfig(mem);
-    return mem;
-  }
-  return getDefaultConfig();
-}
+//     setDefaultConfig(mem);
+//     return mem;
+//   }
+//   return getDefaultConfig();
+// }
 
 /**
  * This function compared new config with existing and output a markdown document to highlight the inserts and changes
