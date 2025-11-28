@@ -108,14 +108,13 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
   const seen = new Set<string>();
 
   const rasterDiffs: DiffTileSet['raster'] = [];
-  const vectorDiffs: DiffTileSet['vector'] = [];
-  console.log(vectorDiffs); // FIXME: Added to allow compilation. Remove this!
+  // const vectorDiffs: DiffTileSet['vector'] = [];
 
   for (const tsBefore of tileSetBefore.values()) {
     seen.add(tsBefore.id);
     const tsAfter = tileSetAfter.get(tsBefore.id);
     // Changing from raster to vector or vector to raster
-    if (tsAfter != null && tsAfter.type != tsBefore.type) {
+    if (tsAfter != null && tsAfter.type !== tsBefore.type) {
       throw new Error(`TileSet type conversion not allowed: ${tsAfter.id} ${tsBefore.type} -> ${tsAfter.type}`);
     }
 

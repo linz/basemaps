@@ -84,8 +84,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
     const configImagery = diff.after.objects.get(diff.after.Imagery.id(layerId));
     if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${layerId}`);
 
-    // determine imagery center
-    let baseUrl = getBaseUrl(configUrl, epsg, configImagery as ConfigImagery);
+    const baseUrl = getBaseUrl(configUrl, epsg, configImagery as ConfigImagery);
 
     // grab outputs
     const outputs = tileSet.outputs;
@@ -108,7 +107,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
       if (formats == null) {
         if (obj[pipeline]['default'] == null) obj[pipeline]['default'] = {};
 
-        let url = fsa.toUrl(`${baseUrl}&pipeline=${pipeline}`);
+        const url = fsa.toUrl(`${baseUrl.href}&pipeline=${pipeline}`);
         obj[output.name]['default'][epsg] = [markdownProjectionText(epsg), url];
 
         continue;
@@ -118,7 +117,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
       for (const format of formats.sort((a, b) => a.localeCompare(b))) {
         if (obj[output.name][format] == null) obj[output.name][format] = {};
 
-        let url = fsa.toUrl(`${baseUrl}&pipeline=${pipeline}&format=${format}`);
+        const url = fsa.toUrl(`${baseUrl.href}&pipeline=${pipeline}&format=${format}`);
         obj[output.name][format][epsg] = [markdownProjectionText(epsg), url];
       }
     }
@@ -138,7 +137,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
       if (byEpsg[epsg] == null) continue;
 
       const [key, url] = byEpsg[epsg];
-      line.push(`[${key}](${url})`);
+      line.push(`[${key}](${url.href})`);
     }
 
     return line.join(' | ');
@@ -160,7 +159,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
   for (const [pipeline, byFormat] of Object.entries(obj)) {
     const line: string[] = [];
 
-    if (pipeline != 'default') {
+    if (pipeline !== 'default') {
       lines.push('\n');
       line.push(`- ${markdownPipelineText(pipeline as ConfigRasterPipeline['type'])}:`);
     }
@@ -174,7 +173,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
         if (byEpsg[epsg] == null) continue;
 
         const [key, url] = byEpsg[epsg];
-        links.push(`[${key}${formatStr}](${url})`);
+        links.push(`[${key}${formatStr}](${url.href})`);
       }
 
       line.push(links.join(' | '));
