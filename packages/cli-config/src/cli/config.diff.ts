@@ -4,7 +4,7 @@ import { fsa, LogType } from '@basemaps/shared';
 import c from 'ansi-colors';
 import diff from 'deep-diff';
 
-export const IgnoredProperties = new Set(['id', 'createdAt', 'updatedAt', 'year', 'resolution']);
+export const IgnoredProperties = new Set(['id', 'createdAt', 'updatedAt', 'year', 'resolution', 'virtual']);
 
 interface StacLinkLds extends StacLink {
   'lds:id': string;

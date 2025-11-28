@@ -77,6 +77,8 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   id?: string;
   /** Optional hash of the config if the config was loaded from JSON */
   hash?: string;
+  /** Optional source bundled config URL */
+  source?: URL;
 
   Imagery = new MemoryConfigObject<ConfigImagery>(this, ConfigPrefix.Imagery);
   Style = new MemoryConfigObject<ConfigVectorStyle>(this, ConfigPrefix.Style);
@@ -245,7 +247,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
   }
 
   /** Load a bundled configuration creating virtual tilesets for all imagery */
-  static fromJson(cfg: ConfigBundled): ConfigProviderMemory {
+  static fromJson(cfg: ConfigBundled, sourceUrl?: URL): ConfigProviderMemory {
     if (cfg.id == null || ConfigId.getPrefix(cfg.id) !== ConfigPrefix.ConfigBundle) {
       throw new Error('Provided configuration file is not a basemaps config bundle.');
     }
@@ -267,6 +269,7 @@ export class ConfigProviderMemory extends BasemapsConfigProvider {
     mem.assets = cfg.assets;
     mem.id = cfg.id;
     mem.hash = cfg.hash;
+    mem.source = sourceUrl;
 
     return mem;
   }
