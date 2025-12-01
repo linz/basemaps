@@ -5,6 +5,8 @@ import type { Diff } from 'deep-diff';
 
 import { DiffTileSet, DiffTileSetRaster, DiffTileSetRasterUpdated } from './config.diff.js';
 
+const UsePlaceholderUrls = false;
+
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
 const EmojiProjection: Partial<Record<EpsgCode, string>> = {
@@ -51,12 +53,39 @@ function changeDiff(change: Diff<unknown>): string {
 
 const ProjectionLinkOrder = [EpsgCode.Google, EpsgCode.Nztm2000, EpsgCode.Citm2000];
 
+/**
+ * @example 🌏
+ * @example "WebMercatorQuad"
+ *
+ * @param projection
+ * @returns
+ */
 function markdownProjectionText(projection: EpsgCode): string {
   const tileMatrix = TileMatrixSets.get(projection);
 
-  return `${EmojiProjection[projection] ?? ''} ${tileMatrix.identifier}`;
+  return EmojiProjection[projection] ?? tileMatrix.identifier;
 }
 
+/**
+ * @example [🌏](https://... "WebMercatorQuad")
+ *
+ * @param projection
+ * @param url
+ * @returns
+ */
+function markdownProjectionLink(projection: EpsgCode, url: URL): string {
+  const tileMatrix = TileMatrixSets.get(projection);
+
+  return `[${markdownProjectionText(projection)}](${UsePlaceholderUrls ? 'url' : url} "${tileMatrix.identifier}")`;
+}
+
+/**
+ * @example 🎨
+ * @example ⛰️
+ *
+ * @param type
+ * @returns
+ */
 function markdownPipelineText(type: ConfigRasterPipeline['type']): string {
   return `${EmojiPipeline[type]} ${type === 'extract' ? 'rgb' : type}`;
 }
@@ -69,11 +98,32 @@ function getBaseUrl(configUrl: URL, epsg: EpsgCode, configImagery: ConfigImagery
   return fsa.toUrl(`${PublicUrlBase}@${location}?${queries}`);
 }
 
-function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, layer: ConfigLayer): string {
+/**
+ * single-line: one pipeline
+ *
+ * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+ *
+ * multi-line: more than one pipeline
+ *
+ * @example \n
+ * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+ * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+ *
+ * @param diff
+ * @param tileSet
+ * @param layer
+ * @returns
+ */
+function markdownBasemapsLinks(
+  diff: DiffTileSet,
+  tileSet: ConfigTileSetRaster,
+  layer: ConfigLayer,
+  indent = '',
+): string {
   const configUrl = diff.after.source;
   if (configUrl == null) throw new Error(`Failed to read config bundled file path. TileSet Id: ${tileSet.id}`);
 
-  const obj: { [pipeline: string]: { [format: string]: { [epsg: string]: [string, URL] } } } = {};
+  const obj: { [pipeline: string]: { [format: string]: { [epsg: string]: string } } } = {};
 
   // grab layer by epsg
   for (const epsg of ProjectionLinkOrder) {
@@ -93,7 +143,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
       if (obj['default'] == null) obj['default'] = {};
       if (obj['default']['default'] == null) obj['default']['default'] = {};
 
-      obj['default']['default'][epsg] = [markdownProjectionText(epsg), baseUrl];
+      obj['default']['default'][epsg] = markdownProjectionLink(epsg, baseUrl);
       continue;
     }
 
@@ -108,7 +158,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
         if (obj[pipeline]['default'] == null) obj[pipeline]['default'] = {};
 
         const url = fsa.toUrl(`${baseUrl.href}&pipeline=${pipeline}`);
-        obj[output.name]['default'][epsg] = [markdownProjectionText(epsg), url];
+        obj[output.name]['default'][epsg] = markdownProjectionLink(epsg, url);
 
         continue;
       }
@@ -118,7 +168,7 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
         if (obj[output.name][format] == null) obj[output.name][format] = {};
 
         const url = fsa.toUrl(`${baseUrl.href}&pipeline=${pipeline}&format=${format}`);
-        obj[output.name][format][epsg] = [markdownProjectionText(epsg), url];
+        obj[output.name][format][epsg] = markdownProjectionLink(epsg, url);
       }
     }
   }
@@ -136,8 +186,8 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
     for (const epsg of ProjectionLinkOrder) {
       if (byEpsg[epsg] == null) continue;
 
-      const [key, url] = byEpsg[epsg];
-      line.push(`[${key}](${url.href})`);
+      const link = byEpsg[epsg];
+      line.push(link);
     }
 
     return line.join(' | ');
@@ -160,20 +210,24 @@ function markdownBasemapsLinks(diff: DiffTileSet, tileSet: ConfigTileSetRaster, 
     const line: string[] = [];
 
     if (pipeline !== 'default') {
-      lines.push('\n');
-      line.push(`- ${markdownPipelineText(pipeline as ConfigRasterPipeline['type'])}:`);
+      line.push(`\n${indent}- ${markdownPipelineText(pipeline as ConfigRasterPipeline['type'])}:`);
     }
 
-    for (const [format, byEpsg] of Object.entries(byFormat)) {
-      const formatStr = Object.keys(byFormat).length > 1 ? ` \`${format}\`` : '';
+    const showFormat = Object.keys(byFormat).length > 1;
 
+    for (const [format, byEpsg] of Object.entries(byFormat)) {
       const links: string[] = [];
 
       for (const epsg of ProjectionLinkOrder) {
         if (byEpsg[epsg] == null) continue;
 
-        const [key, url] = byEpsg[epsg];
-        links.push(`[${key}${formatStr}](${url.href})`);
+        const link = byEpsg[epsg];
+
+        if (showFormat && format !== 'default') {
+          links.push(`${link} \`${format}\``);
+        } else {
+          links.push(link);
+        }
       }
 
       line.push(links.join(' | '));
@@ -212,7 +266,7 @@ function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUp
         line.push(`- #### ${symbol} ${change.after.title}  (\`${change.after.name}\`)`);
 
         // links
-        line.push(markdownBasemapsLinks(diff, raster.after, change.after));
+        line.push(markdownBasemapsLinks(diff, raster.after, change.after, '  '));
 
         lines.push(line.join(' '));
       }
@@ -244,7 +298,7 @@ function tileSetProjections(t: ConfigTileSet): EpsgCode[] {
  * @param raster
  * @returns
  */
-function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): string[] {
+function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): string {
   const lines: string[] = [];
   const projections = raster.type === 'removed' ? tileSetProjections(raster.before) : tileSetProjections(raster.after);
 
@@ -262,9 +316,18 @@ function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): strin
     const symbol = raster.type === 'new' ? '➕' : '🔄';
     line.push(`#### ${symbol} ${raster.after.title} (\`${raster.id}\`)`);
 
-    // links
+    /**
+     * links
+     *
+     * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+     */
     line.push(markdownBasemapsLinks(diff, raster.after, raster.after.layers[0]));
 
+    /**
+     * line
+     *
+     * @example 🔄 Aerial Imagery Basemap (ts_aerial) [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+     */
     lines.push(line.join(' '));
 
     // changes
@@ -274,11 +337,15 @@ function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): strin
         lines.push(`- ${changeDiff(change)}`);
       }
 
-      lines.push(...markdownDiffRasterLayers(diff, raster));
+      const layersMarkdown = markdownDiffRasterLayers(diff, raster);
+
+      if (layersMarkdown.length > 0) {
+        lines.push('\n', layersMarkdown.join('\n'));
+      }
     }
   }
 
-  return lines;
+  return lines.join('');
 }
 
 export function diffToMarkdown(diff: DiffTileSet): string {
@@ -292,7 +359,7 @@ export function diffToMarkdown(diff: DiffTileSet): string {
     if (aerialLayer.type === 'removed') {
       lines.push(`# 🚨🚨 "ts_aerial" layer Removed 🚨🚨`);
     } else {
-      lines.push(...markdownDiffRaster(diff, aerialLayer));
+      lines.push(markdownDiffRaster(diff, aerialLayer));
     }
   }
 
@@ -318,10 +385,14 @@ export function diffToMarkdown(diff: DiffTileSet): string {
     const changes = changesByType[changeType];
     const e = EmojiChange[changeType];
     if (changes.length > 0) lines.push(`### ${e} ${changeType.slice(0, 1).toUpperCase()}${changeType.slice(1)} \n`);
+
+    const linesByTileset: string[] = [];
+
     for (const raster of changes) {
-      const changed = markdownDiffRaster(diff, raster);
-      lines.push(...changed);
+      linesByTileset.push(markdownDiffRaster(diff, raster));
     }
+
+    lines.push(linesByTileset.join('\n\n<br />\n\n'));
   }
 
   // FIXME: todo add simple vector diff +
