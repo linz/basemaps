@@ -13,7 +13,7 @@ export const TileMatrixSets = {
   /** Default mapping of EPSG code to Tile matrix set */
   Defaults: new Map([
     [Epsg.Google.code, GoogleTms],
-    [Epsg.Nztm2000.code, Nztm2000Tms],
+    [Epsg.Nztm2000.code, Nztm2000QuadTms],
     [Epsg.Citm2000.code, Citm2000Tms],
   ]),
 
