@@ -249,6 +249,7 @@ function markdownBasemapsLinks(
 function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUpdated): string[] {
   if (raster.layers.length === 0) return [];
 
+  const indent = '  ';
   const lines: string[] = [];
 
   for (const change of raster.layers) {
@@ -266,14 +267,14 @@ function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUp
         line.push(`- #### ${symbol} ${change.after.title}  (\`${change.after.name}\`)`);
 
         // links
-        line.push(markdownBasemapsLinks(diff, raster.after, change.after, '  '));
+        line.push(markdownBasemapsLinks(diff, raster.after, change.after, indent));
 
         lines.push(line.join(' '));
       }
 
       // changes
       if (change.type === 'updated') {
-        for (const c of change.changes ?? []) lines.push(`- ${changeDiff(c)}`);
+        for (const c of change.changes) lines.push(`${indent}- ${changeDiff(c)}`);
       }
     }
   }
