@@ -3,14 +3,13 @@ import {
   BasemapsConfigProvider,
   ConfigBundled,
   ConfigId,
-  ConfigLayer,
   ConfigPrefix,
   ConfigProviderMemory,
   ConfigTileSetVector,
   TileSetType,
 } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
-import { Env, fsa, getLogger, getPreviewUrl, logArguments, Url } from '@basemaps/shared';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { Env, fsa, getLogger, logArguments, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, option } from 'cmd-ts';
 
@@ -18,15 +17,16 @@ import { getVectorVersion } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { configTileSetDiff } from './diff/config.diff.js';
 import { diffToMarkdown } from './diff/config.diff.markdown.js';
+import { Q, Updater } from './config.update.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
 const VectorStyles = ['topographic', 'topolite']; // Vector styles that we want to review if vector data changes.
 
-export const ImportCommand = command({
-  name: 'import',
+export const DiffCommand = command({
+  name: 'diff',
   version: CliInfo.version,
-  description: 'Given a valid bundle config json, import them into dynamodb',
+  description: 'Output the raster and vector differences between two config jsons as a markdown file.',
   args: {
     ...logArguments,
     before: option({
@@ -37,7 +37,12 @@ export const ImportCommand = command({
     after: option({
       type: Url,
       long: 'after',
-      description: 'Output a markdown file with the config changes',
+      description: 'Path of config json, this can be both a local path or s3 location',
+    }),
+    output: option({
+      type: Url,
+      long: 'output',
+      description: 'File name and path for saving the markdown file',
     }),
   },
 
@@ -52,193 +57,92 @@ export const ImportCommand = command({
     const afterConfig = await fsa.readJson<ConfigBundled>(args.after);
     const afterMem = ConfigProviderMemory.fromJson(afterConfig, args.after);
 
+    /**
+     * capture raster changes
+     */
     const diff = configTileSetDiff(beforeMem, afterMem);
-    const markdown = diffToMarkdown(diff);
-    await fsa.write(new URL('changes.md'), markdown);
-    // }
+    const rasterMarkdown = diffToMarkdown(diff);
 
-    // const configJson = await fsa.readJson<ConfigBundled>(args.config);
-    // const mem = ConfigProviderMemory.fromJson(configJson, args.config);
-    // mem.createVirtualTileSets();
+    /**
+     * capture vector changes
+     *
+     * TODO: We have ported the following code from the `import` command
+     * to capture vector changes. The following code should be re-worked
+     * to follow the new 'diffing' strategy used to capture raster changes.
+     */
+    afterMem.createVirtualTileSets();
 
-    // const promises: Promise<boolean>[] = [];
-    // /** List of paths to invalidate at the end of the request */
-    // const invalidations: string[] = [];
+    const promises: Promise<boolean>[] = [];
 
-    // /** List of changed config */
-    // const changes: BaseConfig[] = [];
+    /** List of changed configs */
+    const changes: BaseConfig[] = [];
 
-    // /** List of paths to invalidate at the end of the request */
-    // const backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
+    /** List of paths to invalidate at the end of the request */
+    const backupConfig: ConfigProviderMemory = new ConfigProviderMemory();
 
-    // function update(config: BaseConfig, oldConfig: BasemapsConfigProvider, commit: boolean): void {
-    //   const promise = Q(async (): Promise<boolean> => {
-    //     const updater = new Updater(config, oldConfig, commit);
+    function update(config: BaseConfig, oldConfig: BasemapsConfigProvider): void {
+      const promise = Q(async (): Promise<boolean> => {
+        const updater = new Updater(config, oldConfig, false);
 
-    //     const hasChanges = await updater.reconcile();
-    //     if (hasChanges) {
-    //       changes.push(config);
-    //       invalidations.push(updater.invalidatePath());
-    //       const oldData = await updater.getOldData();
-    //       if (oldData != null) backupConfig.put(oldData); // No need to backup anything if there is new insert
-    //     } else {
-    //       backupConfig.put(config);
-    //     }
-    //     return true;
-    //   });
+        const hasChanges = await updater.reconcile();
+        if (hasChanges) {
+          changes.push(config);
+          const oldData = await updater.getOldData();
+          if (oldData != null) backupConfig.put(oldData); // No need to backup anything if there is new insert
+        } else {
+          backupConfig.put(config);
+        }
+        return true;
+      });
 
-    //   promises.push(promise);
-    // }
+      promises.push(promise);
+    }
 
-    // logger.info({ config: args.config.href }, 'Import:Start');
-    // const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
-    // for (const config of mem.objects.values()) {
-    //   const objectType = ConfigId.getPrefix(config.id);
-    //   if (objectType) objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
-    //   update(config, cfg, commit);
-    // }
-    // await Promise.all(promises);
+    logger.info({ after: args.after.href }, 'Import:Start');
+    const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
 
-    // logger.info({ objects: mem.objects.size, types: objectTypes }, 'Import:Compare:Done');
+    for (const config of afterMem.objects.values()) {
+      const objectType = ConfigId.getPrefix(config.id);
+      if (objectType) objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
+      update(config, beforeMem);
+    }
 
-    // if (commit) {
-    //   const configBundle: ConfigBundle = {
-    //     id: cfg.ConfigBundle.id(configJson.hash),
-    //     name: cfg.ConfigBundle.id(`config-${configJson.hash}.json`),
-    //     path: args.config.href,
-    //     hash: configJson.hash,
-    //     assets: configJson.assets,
-    //   };
-    //   logger.info({ config: args.config.href }, 'Import:ConfigBundle');
+    await Promise.all(promises);
+    logger.info({ objects: afterMem.objects.size, types: objectTypes }, 'Import:Compare:Done');
 
-    //   if (cfg.ConfigBundle.isWriteable()) {
-    //     // Insert a cb_hash record for reference
-    //     await cfg.ConfigBundle.put(configBundle);
-    //     // Update the cb_latest record
-    //     configBundle.id = cfg.ConfigBundle.id('latest');
-    //     await cfg.ConfigBundle.put(configBundle);
-    //   } else {
-    //     logger.error('Import:NotWriteable');
-    //   }
-    // }
+    logger.info({ markdown: args.output.href }, 'Markdown:Start');
+    const vectorMarkdown = await outputChange(afterMem, beforeMem, args.before, changes);
 
-    // if (commit && invalidations.length > 0) {
-    //   // Lots of invalidations just invalidate everything
-    //   if (invalidations.length > 10) {
-    //     await invalidateCache('/*', commit);
-    //   } else {
-    //     await invalidateCache(invalidations, commit);
-    //   }
-
-    //   await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    //   const res = await fetch(healthEndpoint);
-    //   if (!res.ok) throw new Error('Basemaps is unhealthy');
-    // }
-
-    // if (args.output != null) {
-    //   const doc = await outputChange(mem, cfg, args.config, changes);
-    //   if (doc.length > 0) {
-    //     await fsa.write(args.output, doc);
-    //   }
-    // }
-
-    // if (commit !== true) logger.info('DryRun:Done');
+    await fsa.write(args.output, `${rasterMarkdown}\n${vectorMarkdown}`);
+    logger.info('Markdown:Done');
   },
 });
 
-// FIXME: Commented out to allow compilation. Might need!
-// async function getConfig(logger: LogType, target?: URL): Promise<BasemapsConfigProvider> {
-//   if (target) {
-//     logger.info({ config: target }, 'Import:Target:Load');
-//     const configJson = await fsa.readJson<ConfigBundled>(target);
-//     const mem = ConfigProviderMemory.fromJson(configJson, target);
-//     mem.createVirtualTileSets();
-
-//     setDefaultConfig(mem);
-//     return mem;
-//   }
-//   return getDefaultConfig();
-// }
-
 /**
- * This function compared new config with existing and output a markdown document to highlight the inserts and changes
- * Changes includes
+ * This function compared new config with existing and output a markdown document to highlight the inserts and changes.
+ *
+ * Changes include:
  * - aerial config
  * - vector config
  * - vector style
  * - individual config
  *
- * @param output a string of output markdown location
  * @param mem new config data read from config bundle file
  * @param cfg existing config data
  * @param configPath path of config json
+ * @param changes list of changed configs
  */
-export async function outputChange(
+async function outputChange(
   mem: ConfigProviderMemory,
   cfg: BasemapsConfigProvider,
   configPath: URL,
   changes: BaseConfig[],
 ): Promise<string> {
-  const outputMarkdown: string[] = [];
-  // Output for aerial config changes
-  const inserts: string[] = [];
-  const updates: string[] = [];
-  const aerialId = 'ts_aerial';
-  const newData = await mem.TileSet.get(aerialId);
-  const oldData = await cfg.TileSet.get(aerialId);
-
-  const aerialLayers: Set<string> = new Set<string>();
-  if (newData == null || oldData == null) throw new Error('Failed to fetch aerial config data.');
-
-  for (const layer of newData.layers) {
-    // if (aerialLayers.has(layer.name)) continue;
-
-    aerialLayers.add(layer.name);
-
-    // There are duplicates layers inside the config this makes it hard to know what has changed
-    // so only allow comparisons to one layer at a time
-    const index = oldData.layers.findIndex((l) => l.name === layer.name);
-    if (index > -1) {
-      const [el] = oldData.layers.splice(index, 1);
-      await outputUpdatedLayers(mem, layer, el, updates, configPath, true);
-    } else await outputNewLayers(mem, layer, inserts, configPath, true);
-  }
-
-  if (inserts.length > 0) outputMarkdown.push('# 🟩🟩 Aerial Imagery Inserts 🟩🟩', ...inserts);
-  if (updates.length > 0) outputMarkdown.push('# 🟡🟡 Aerial Imagery Updates 🟡🟡', ...updates);
-
-  // Some layers were not removed from the old config so they no longer exist in the new config
-  if (oldData.layers.length > 0) {
-    outputMarkdown.push(
-      '# 🚨🚨 Aerial Imagery Deletes 🚨🚨',
-      ' Basemaps layers will be removed for the following layers: ',
-      ...oldData.layers.map((m) => `- ${m.title}`),
-    );
-  }
-
-  // Output for individual tileset config changes or inserts
-  const individualInserts: string[] = [];
-  const individualUpdates: string[] = [];
-  for (const config of mem.objects.values()) {
-    if (!mem.TileSet.is(config)) continue;
-    if (config.id === 'ts_aerial') continue;
-
-    if (aerialLayers.has(config.name)) continue;
-    if (config.type === TileSetType.Vector) continue;
-    if (config.layers.length > 1) continue; // Not an individual layer
-    const existing = await cfg.TileSet.get(config.id);
-    const layer = config.layers[0];
-    if (existing) await outputUpdatedLayers(mem, layer, existing.layers[0], individualUpdates, configPath);
-    else await outputNewLayers(mem, layer, individualInserts, configPath);
-  }
-
-  if (individualInserts.length > 0) outputMarkdown.push('# Individual Inserts', ...individualInserts);
-  if (individualUpdates.length > 0) outputMarkdown.push('# Individual Updates', ...individualUpdates);
-
   // Output for vector config changes
+  const outputMarkdown: string[] = [];
   const vectorUpdate = [];
   const styleUpdate = [];
+
   for (const change of changes) {
     if (mem.TileSet.is(change) && change.type === TileSetType.Vector) {
       vectorUpdate.push(`## Vector data updates for ${change.id}`);
@@ -285,114 +189,7 @@ export async function outputChange(
 }
 
 /**
- * This function prepare for the markdown lines with preview urls for new inserted config layers
- * @param mem new config data read from config bundle file
- * @param layer new config tileset layer
- * @param inserts string array to save all the lines for markdown output
- * @param configPath path of config json
- * @param aerial output preview link for aerial map
- */
-async function outputNewLayers(
-  mem: ConfigProviderMemory,
-  layer: ConfigLayer,
-  inserts: string[],
-  configPath: URL,
-  aerial?: boolean,
-): Promise<void> {
-  inserts.push(`\n### ${layer.name}\n`);
-  if (layer[2193]) {
-    const urls = await prepareUrl(layer[2193], mem, Nztm2000QuadTms, configPath);
-    inserts.push(` - [NZTM2000Quad](${urls.layer})`);
-    if (aerial) inserts.push(` - [Aerial](${urls.tag})`);
-  }
-  if (layer[3857]) {
-    const urls = await prepareUrl(layer[3857], mem, GoogleTms, configPath);
-    inserts.push(` - [WebMercatorQuad](${urls.layer})`);
-    if (aerial) inserts.push(` - [Aerial](${urls.tag})`);
-  }
-}
-
-/**
- * This function compared new config tileset layer with existing one, then output the markdown lines for updates and preview urls.
- * @param mem new config data read from config bundle file
- * @param layer new config tileset layer
- * @param existing existing config tileset layer
- * @param updates string array to save all the lines for markdown output
- * @param configPath path of config json
- * @param aerial output preview link for aerial map
- */
-async function outputUpdatedLayers(
-  mem: ConfigProviderMemory,
-  layer: ConfigLayer,
-  existing: ConfigLayer,
-  updates: string[],
-  configPath: URL,
-  aerial?: boolean,
-): Promise<void> {
-  let zoom = undefined;
-  if (layer.minZoom !== existing.minZoom || layer.maxZoom !== existing.maxZoom) {
-    zoom = ' - Zoom level updated.';
-    if (layer.minZoom !== existing.minZoom) zoom += ` min zoom ${existing.minZoom} -> ${layer.minZoom}`;
-    if (layer.maxZoom !== existing.maxZoom) zoom += ` max zoom ${existing.maxZoom} -> ${layer.maxZoom}`;
-  }
-
-  const change: string[] = [`\n### ${layer.name}\n`];
-  if (layer[2193]) {
-    if (layer[2193] !== existing[2193]) {
-      const urls = await prepareUrl(layer[2193], mem, Nztm2000QuadTms, configPath);
-      change.push(`- Layer update [NZTM2000Quad](${urls.layer})`);
-      if (aerial) updates.push(` - [Aerial](${urls.tag})`);
-    }
-
-    if (zoom) {
-      const urls = await prepareUrl(layer[2193], mem, Nztm2000QuadTms, configPath);
-      zoom += ` [NZTM2000Quad](${urls.tag})`;
-    }
-  }
-  if (layer[3857]) {
-    if (layer[3857] !== existing[3857]) {
-      const urls = await prepareUrl(layer[3857], mem, GoogleTms, configPath);
-      change.push(`- Layer update [WebMercatorQuad](${urls.layer})`);
-      if (aerial) updates.push(` - [Aerial](${urls.tag})`);
-    }
-
-    if (zoom) {
-      const urls = await prepareUrl(layer[3857], mem, GoogleTms, configPath);
-      zoom += ` [WebMercatorQuad](${urls.tag})`;
-    }
-  }
-
-  if (zoom) change.push(`${zoom}\n`);
-  if (change.length > 1) updates.push(change.join(''));
-}
-
-/**
- * Prepare QA urls with center location
- */
-async function prepareUrl(
-  id: string,
-  mem: BasemapsConfigProvider,
-  tileMatrix: TileMatrixSet,
-  configPath: URL,
-): Promise<{ layer: string; tag: string }> {
-  const configImagery = await mem.Imagery.get(id);
-  if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
-
-  const center = getPreviewUrl({ imagery: configImagery });
-  const urls = {
-    layer: `${PublicUrlBase}?config=${configPath.href}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
-    tag: `${PublicUrlBase}?config=${configPath.href}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
-  };
-  return urls;
-}
-
-/**
- * This function prepare for the vector tile analyse reports for markdown output
- * @param mem new config data read from config bundle file
- * @param layer new config tileset layer
- * @param inserts string array to save all the lines for markdown output
- * @param configPath path of config json
- * @param aerial output preview link for aerial map
+ * This function prepare for the vector tile analyse reports for markdown output.
  */
 async function outputAnalyseReports(change: ConfigTileSetVector): Promise<string[]> {
   const reportMarkdown: string[] = [];
