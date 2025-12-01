@@ -435,7 +435,7 @@ async function outputAnalyseReports(change: ConfigTileSetVector): Promise<string
     if (await fsa.exists(fsa.toUrl(reportPath))) {
       const reportFile = await fsa.read(fsa.toUrl(reportPath));
       reportMarkdown.push(
-        `## Vector Tile Anaylse Report for ${tms.identifier}`,
+        `## Vector Tile Analyse Report for ${tms.identifier}`,
         `<details><summary>🟩 ${tms.identifier}(Click to Expand) 🟩</summary>`,
         reportFile.toString(),
         '</details>\n',
