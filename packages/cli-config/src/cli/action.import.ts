@@ -20,17 +20,14 @@ import {
   logArguments,
   LogType,
   setDefaultConfig,
-  Url,
 } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { command, flag, option, optional } from 'cmd-ts';
+import { command, flag, option, optional, string } from 'cmd-ts';
 import fetch from 'node-fetch';
 
 import { getVectorVersion, invalidateCache } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { Q, Updater } from './config.update.js';
-import { configTileSetDiff } from './diff/config.diff.js';
-import { diffToMarkdown } from './diff/config.diff.markdown.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
@@ -43,17 +40,17 @@ export const ImportCommand = command({
   args: {
     ...logArguments,
     config: option({
-      type: Url,
+      type: string,
       long: 'config',
       description: 'Path of config json, this can be both a local path or s3 location',
     }),
     output: option({
-      type: optional(Url),
+      type: optional(string),
       long: 'output',
       description: 'Output a markdown file with the config changes',
     }),
     target: option({
-      type: optional(Url),
+      type: optional(string),
       long: 'target',
       description: 'Target config file to compare',
     }),
@@ -68,14 +65,19 @@ export const ImportCommand = command({
   async handler(args): Promise<void> {
     const logger = getLogger(this, args, 'cli-config');
     const commit = args.commit;
+    const config = args.config;
 
-    if (commit && Env.isProduction() && args.config.protocol !== 's3:') {
+    if (config == null) throw new Error('Please provide a config json');
+    if (commit && !config.startsWith('s3://') && Env.isProduction()) {
       throw new Error('To actually import into dynamo has to use the config file from s3.');
     }
 
+    const configUrl = fsa.toUrl(config);
+
     const cfg = await getConfig(logger, args.target);
 
-    const healthEndpoint = new URL('/v1/health', PublicUrlBase);
+    const HostPrefix = Env.isProduction() ? '' : 'dev.';
+    const healthEndpoint = `https://${HostPrefix}basemaps.linz.govt.nz/v1/health`;
 
     logger.info({ url: healthEndpoint }, 'Import:ValidateHealth');
     if (commit) {
@@ -83,22 +85,9 @@ export const ImportCommand = command({
       if (!res.ok) throw new Error('Cannot update basemaps is unhealthy');
     }
 
-    logger.info({ config: args.config.href }, 'Import:Load');
-
-    if (args.target != null) {
-      const beforeConfig = await fsa.readJson<ConfigBundled>(args.target);
-      const beforeMem = ConfigProviderMemory.fromJson(beforeConfig, args.target);
-
-      const afterConfig = await fsa.readJson<ConfigBundled>(args.config);
-      const afterMem = ConfigProviderMemory.fromJson(afterConfig, args.config);
-
-      const diff = configTileSetDiff(beforeMem, afterMem);
-      const markdown = diffToMarkdown(diff);
-      await fsa.write(new URL('update-markdown-changes' + '.md', args.output), markdown);
-    }
-
-    const configJson = await fsa.readJson<ConfigBundled>(args.config);
-    const mem = ConfigProviderMemory.fromJson(configJson, args.config);
+    logger.info({ config }, 'Import:Load');
+    const configJson = await fsa.readJson<ConfigBundled>(configUrl);
+    const mem = ConfigProviderMemory.fromJson(configJson);
     mem.createVirtualTileSets();
 
     const promises: Promise<boolean>[] = [];
@@ -130,11 +119,13 @@ export const ImportCommand = command({
       promises.push(promise);
     }
 
-    logger.info({ config: args.config.href }, 'Import:Start');
+    logger.info({ config }, 'Import:Start');
     const objectTypes: Partial<Record<ConfigPrefix, number>> = {};
     for (const config of mem.objects.values()) {
       const objectType = ConfigId.getPrefix(config.id);
-      if (objectType) objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
+      if (objectType) {
+        objectTypes[objectType] = (objectTypes[objectType] ?? 0) + 1;
+      }
       update(config, cfg, commit);
     }
     await Promise.all(promises);
@@ -145,11 +136,11 @@ export const ImportCommand = command({
       const configBundle: ConfigBundle = {
         id: cfg.ConfigBundle.id(configJson.hash),
         name: cfg.ConfigBundle.id(`config-${configJson.hash}.json`),
-        path: args.config.href,
+        path: config,
         hash: configJson.hash,
         assets: configJson.assets,
       };
-      logger.info({ config: args.config.href }, 'Import:ConfigBundle');
+      logger.info({ config }, 'Import:ConfigBundle');
 
       if (cfg.ConfigBundle.isWriteable()) {
         // Insert a cb_hash record for reference
@@ -176,10 +167,11 @@ export const ImportCommand = command({
       if (!res.ok) throw new Error('Basemaps is unhealthy');
     }
 
-    if (args.output != null) {
-      const doc = await outputChange(mem, cfg, args.config, changes);
+    const output = args.output;
+    if (output != null) {
+      const doc = await outputChange(mem, cfg, config, changes);
       if (doc.length > 0) {
-        await fsa.write(args.output, doc);
+        await fsa.write(fsa.toUrl(output), doc);
       }
     }
 
@@ -187,11 +179,11 @@ export const ImportCommand = command({
   },
 });
 
-async function getConfig(logger: LogType, target?: URL): Promise<BasemapsConfigProvider> {
+async function getConfig(logger: LogType, target?: string): Promise<BasemapsConfigProvider> {
   if (target) {
     logger.info({ config: target }, 'Import:Target:Load');
-    const configJson = await fsa.readJson<ConfigBundled>(target);
-    const mem = ConfigProviderMemory.fromJson(configJson, target);
+    const configJson = await fsa.readJson<ConfigBundled>(fsa.toUrl(target));
+    const mem = ConfigProviderMemory.fromJson(configJson);
     mem.createVirtualTileSets();
 
     setDefaultConfig(mem);
@@ -216,7 +208,7 @@ async function getConfig(logger: LogType, target?: URL): Promise<BasemapsConfigP
 export async function outputChange(
   mem: ConfigProviderMemory,
   cfg: BasemapsConfigProvider,
-  configPath: URL,
+  configPath: string,
   changes: BaseConfig[],
 ): Promise<string> {
   const outputMarkdown: string[] = [];
@@ -287,7 +279,7 @@ export async function outputChange(
         for (const style of VectorStyles) {
           const styleId = version ? `${style}-${version}` : style;
           vectorUpdate.push(
-            `* [${style} - NZTM2000Quad](${PublicUrlBase}?config=${configPath.href}&i=${id}&s=${styleId}&p=NZTM2000Quad&debug)\n`,
+            `* [${style} - NZTM2000Quad](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&p=NZTM2000Quad&debug)\n`,
           );
         }
       }
@@ -295,7 +287,7 @@ export async function outputChange(
         for (const style of VectorStyles) {
           const styleId = version ? `${style}-${version}` : style;
           vectorUpdate.push(
-            `* [${style} - WebMercatorQuad](${PublicUrlBase}?config=${configPath.href}&i=${id}&s=${styleId}&p=WebMercatorQuad&debug)\n`,
+            `* [${style} - WebMercatorQuad](${PublicUrlBase}?config=${configPath}&i=${id}&s=${styleId}&p=WebMercatorQuad&debug)\n`,
           );
         }
       }
@@ -313,7 +305,7 @@ export async function outputChange(
       const tileSetId = version ? `topographic-${version}` : 'topographic';
       styleUpdate.push(`## Vector Style updated for ${change.id}`);
       const style = ConfigId.unprefix(ConfigPrefix.Style, change.id);
-      styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${configPath.href}&i=${tileSetId}&s=${style}&debug)\n`);
+      styleUpdate.push(`* [${style}](${PublicUrlBase}?config=${configPath}&i=${tileSetId}&s=${style}&debug)\n`);
     }
   }
 
@@ -335,7 +327,7 @@ async function outputNewLayers(
   mem: ConfigProviderMemory,
   layer: ConfigLayer,
   inserts: string[],
-  configPath: URL,
+  configPath: string,
   aerial?: boolean,
 ): Promise<void> {
   inserts.push(`\n### ${layer.name}\n`);
@@ -365,7 +357,7 @@ async function outputUpdatedLayers(
   layer: ConfigLayer,
   existing: ConfigLayer,
   updates: string[],
-  configPath: URL,
+  configPath: string,
   aerial?: boolean,
 ): Promise<void> {
   let zoom = undefined;
@@ -412,15 +404,15 @@ async function prepareUrl(
   id: string,
   mem: BasemapsConfigProvider,
   tileMatrix: TileMatrixSet,
-  configPath: URL,
+  configPath: string,
 ): Promise<{ layer: string; tag: string }> {
   const configImagery = await mem.Imagery.get(id);
   if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${id}`);
 
   const center = getPreviewUrl({ imagery: configImagery });
   const urls = {
-    layer: `${PublicUrlBase}?config=${configPath.href}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
-    tag: `${PublicUrlBase}?config=${configPath.href}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
+    layer: `${PublicUrlBase}?config=${configPath}&i=${center.name}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
+    tag: `${PublicUrlBase}?config=${configPath}&p=${tileMatrix.identifier}&debug#@${center.location.lat},${center.location.lon},z${center.location.zoom}`,
   };
   return urls;
 }
