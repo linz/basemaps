@@ -58,7 +58,6 @@ const ProjectionLinkOrder = [EpsgCode.Google, EpsgCode.Nztm2000, EpsgCode.Citm20
 
 /**
  * @example 🌏
- * @example "WebMercatorQuad"
  *
  * @param projection
  * @returns
@@ -79,7 +78,7 @@ function markdownProjectionText(projection: EpsgCode): string {
 function markdownProjectionLink(projection: EpsgCode, url: URL): string {
   const tileMatrix = TileMatrixSets.get(projection);
 
-  return `[${markdownProjectionText(projection)}](${UsePlaceholderUrls ? 'url' : url} "${tileMatrix.identifier}")`;
+  return `[${markdownProjectionText(projection)}](${UsePlaceholderUrls ? 'url' : url.href} "${tileMatrix.identifier}")`;
 }
 
 /**
@@ -93,6 +92,14 @@ function markdownPipelineText(type: ConfigRasterPipeline['type']): string {
   return `${EmojiPipeline[type]} ${type === 'extract' ? 'rgb' : type}`;
 }
 
+/**
+ * @example https://dev.basemaps.linz.govt.nz/@...c=s3://...json.gz&i=gebco-2020-305.75m&p=3857&debug=true
+ *
+ * @param configUrl
+ * @param epsg
+ * @param configImagery
+ * @returns
+ */
 function getBaseUrl(configUrl: URL, epsg: EpsgCode, configImagery: ConfigImagery): URL {
   const center = getPreviewUrl({ imagery: configImagery });
   const location = `${center.location.lat},${center.location.lon},z${center.location.zoom}`;
@@ -102,7 +109,7 @@ function getBaseUrl(configUrl: URL, epsg: EpsgCode, configImagery: ConfigImagery
 }
 
 /**
- * single-line: one pipeline
+ * single-line: no pipelines or one pipeline
  *
  * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
  *
@@ -261,12 +268,8 @@ function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUp
 
       if (showTitle) {
         const line: string[] = [];
-
-        // title
         const symbol = change.type === 'new' ? '➕' : '🔄';
         line.push(`- #### ${symbol} ${change.after.title}  (\`${change.after.name}\`)`);
-
-        // links
         line.push(markdownBasemapsLinks(diff, raster.after, change.after, indent));
 
         lines.push(line.join(' '));
@@ -305,30 +308,13 @@ function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): strin
 
   if (raster.type === 'removed') {
     const links = [...projections].map((m) => `~~${markdownProjectionText(m)}~~`);
-    lines.push(`🗑️ ${raster.before.title} (\`${raster.id}\`) ` + links.join(' '));
+    lines.push(`#### 🗑️ ${raster.before.title} (\`${raster.id}\`) ` + links.join(' '));
   } else {
     const line: string[] = [];
-
-    /**
-     * title
-     *
-     * @example 🔄 Aerial Imagery Basemap (ts_aerial)
-     */
     const symbol = raster.type === 'new' ? '➕' : '🔄';
     line.push(`#### ${symbol} ${raster.after.title} (\`${raster.id}\`)`);
-
-    /**
-     * links
-     *
-     * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
-     */
     line.push(markdownBasemapsLinks(diff, raster.after, raster.after.layers[0]));
 
-    /**
-     * line
-     *
-     * @example 🔄 Aerial Imagery Basemap (ts_aerial) [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
-     */
     lines.push(line.join(' '));
 
     // changes
@@ -339,7 +325,6 @@ function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): strin
       }
 
       const layersMarkdown = markdownDiffRasterLayers(diff, raster);
-
       if (layersMarkdown.length > 0) {
         lines.push('\n', layersMarkdown.join('\n'));
       }
@@ -393,6 +378,7 @@ export function diffToMarkdown(diff: DiffTileSet): string {
       linesByTileset.push(markdownDiffRaster(diff, raster));
     }
 
+    // ensure a wider gap between tileset listings for clarity
     lines.push(linesByTileset.join('\n\n<br />\n\n'));
   }
 

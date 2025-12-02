@@ -15,9 +15,9 @@ import { command, option } from 'cmd-ts';
 
 import { getVectorVersion } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
+import { Q, Updater } from './config.update.js';
 import { configTileSetDiff } from './diff/config.diff.js';
 import { diffToMarkdown } from './diff/config.diff.markdown.js';
-import { Q, Updater } from './config.update.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
