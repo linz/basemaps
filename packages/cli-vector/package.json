@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli-vector",
-  "version": "8.10.3",
+  "version": "8.10.4",
   "private": false,
   "repository": {
     "type": "git",
@@ -49,9 +49,9 @@
     "dist/"
   ],
   "dependencies": {
-    "@basemaps/config": "^8.11.0",
+    "@basemaps/config": "^8.12.0",
     "@basemaps/geo": "^8.9.0",
-    "@basemaps/shared": "^8.9.3",
+    "@basemaps/shared": "^8.9.4",
     "@cotar/builder": "^6.0.1",
     "@cotar/core": "^6.0.1",
     "@linzjs/docker-command": "^7.5.0",
