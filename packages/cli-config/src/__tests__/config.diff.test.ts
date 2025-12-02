@@ -50,7 +50,7 @@ function formatJson(url: URL, bytes: Buffer): string | Buffer {
   return bytes;
 }
 
-const ShouldDumpState: boolean = true;
+const ShouldDumpState: boolean = false;
 async function dumpState(name: string, diff: DiffTileSet, markdown = diffToMarkdown(diff)): Promise<void> {
   if (ShouldDumpState === false) return;
   const testName = `${name.replaceAll(' > ', '/')}`;
