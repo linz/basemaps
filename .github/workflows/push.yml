@@ -44,7 +44,7 @@ jobs:
           docker run --rm -v ${PWD}:/docs ghcr.io/linz/basemaps-mkdocs:v1 build
 
       - name: Store docs artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: docs
           path: packages/landing/dist/docs
