@@ -254,7 +254,7 @@ function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUp
 
   for (const change of raster.layers) {
     if (change.type === 'removed') {
-      lines.push(`- 🗑️ ${change.before.title} (\`${change.before.name}\`)`);
+      lines.push(`- #### 🗑️ ${change.before.title} (\`${change.before.name}\`)`);
     } else {
       // Only one layer, that is the same title as this layer
       const showTitle = raster.after.layers.length !== 1 || raster.after.layers[0].title !== raster.after.title;
