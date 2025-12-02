@@ -260,15 +260,16 @@ function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUp
   const lines: string[] = [];
 
   for (const change of raster.layers) {
+    const symbol = EmojiChange[change.type];
+
     if (change.type === 'removed') {
-      lines.push(`- #### 🗑️ ${change.before.title} (\`${change.before.name}\`)`);
+      lines.push(`- #### ${symbol} ${change.before.title} (\`${change.before.name}\`)`);
     } else {
       // Only one layer, that is the same title as this layer
       const showTitle = raster.after.layers.length !== 1 || raster.after.layers[0].title !== raster.after.title;
 
       if (showTitle) {
         const line: string[] = [];
-        const symbol = change.type === 'new' ? '➕' : '🔄';
         line.push(`- #### ${symbol} ${change.after.title}  (\`${change.after.name}\`)`);
         line.push(markdownBasemapsLinks(diff, raster.after, change.after, indent));
 
@@ -305,13 +306,13 @@ function tileSetProjections(t: ConfigTileSet): EpsgCode[] {
 function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): string {
   const lines: string[] = [];
   const projections = raster.type === 'removed' ? tileSetProjections(raster.before) : tileSetProjections(raster.after);
+  const symbol = EmojiChange[raster.type];
 
   if (raster.type === 'removed') {
     const links = [...projections].map((m) => `~~${markdownProjectionText(m)}~~`);
-    lines.push(`#### 🗑️ ${raster.before.title} (\`${raster.id}\`) ` + links.join(' '));
+    lines.push(`#### ${symbol} ${raster.before.title} (\`${raster.id}\`) ` + links.join(' '));
   } else {
     const line: string[] = [];
-    const symbol = raster.type === 'new' ? '➕' : '🔄';
     line.push(`#### ${symbol} ${raster.after.title} (\`${raster.id}\`)`);
     line.push(markdownBasemapsLinks(diff, raster.after, raster.after.layers[0]));
 
@@ -321,7 +322,7 @@ function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): strin
     if (raster.type === 'updated') {
       // Changes to the top level config, eg name or title changes
       for (const change of raster.changes ?? []) {
-        lines.push(`- ${changeDiff(change)}`);
+        lines.push(`\n- ${changeDiff(change)}`);
       }
 
       const layersMarkdown = markdownDiffRasterLayers(diff, raster);
