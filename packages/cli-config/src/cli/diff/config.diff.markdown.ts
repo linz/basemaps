@@ -1,5 +1,5 @@
 import { ConfigImagery, ConfigLayer, ConfigRasterPipeline, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
-import { EpsgCode, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, getPreviewUrl } from '@basemaps/shared';
 import type { Diff } from 'deep-diff';
 
@@ -76,7 +76,7 @@ function markdownProjectionText(projection: EpsgCode): string {
  * @returns
  */
 function markdownProjectionLink(projection: EpsgCode, url: URL): string {
-  const tileMatrix = TileMatrixSets.get(projection);
+  const tileMatrix = projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.get(projection);
 
   return `[${markdownProjectionText(projection)}](${UsePlaceholderUrls ? 'url' : url.href} "${tileMatrix.identifier}")`;
 }
