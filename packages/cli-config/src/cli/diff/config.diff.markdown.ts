@@ -5,13 +5,16 @@ import type { Diff } from 'deep-diff';
 
 import { DiffTileSet, DiffTileSetRaster, DiffTileSetRasterUpdated } from './config.diff.js';
 
+// useful for local testing of the markdown structure
 const UsePlaceholderUrls = false;
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
 const EmojiProjection: Partial<Record<EpsgCode, string>> = {
-  [EpsgCode.Nztm2000]: '🗺️',
+  [EpsgCode.Citm2000]: '🌅',
   [EpsgCode.Google]: '🌏',
+  [EpsgCode.Nztm2000]: '🗺️',
+  [EpsgCode.Wgs84]: '🌐',
 };
 
 export const EmojiChange: Record<DiffTileSetRaster['type'], string> = {
@@ -123,7 +126,8 @@ function markdownBasemapsLinks(
   const configUrl = diff.after.source;
   if (configUrl == null) throw new Error(`Failed to read config bundled file path. TileSet Id: ${tileSet.id}`);
 
-  const obj: { [pipeline: string]: { [format: string]: { [epsg: string]: string } } } = {};
+  const defaultLinks: { [epsg: string]: string } = {};
+  const pipelineLinks: { [pipeline: string]: { [format: string]: { [epsg: string]: string } } } = {};
 
   // grab layer by epsg
   for (const epsg of ProjectionLinkOrder) {
@@ -140,35 +144,32 @@ function markdownBasemapsLinks(
     const outputs = tileSet.outputs;
 
     if (outputs == null) {
-      if (obj['default'] == null) obj['default'] = {};
-      if (obj['default']['default'] == null) obj['default']['default'] = {};
-
-      obj['default']['default'][epsg] = markdownProjectionLink(epsg, baseUrl);
+      defaultLinks[epsg] = markdownProjectionLink(epsg, baseUrl);
       continue;
     }
 
     // generate links by output
     for (const output of outputs.sort((a, b) => a.name.localeCompare(b.name))) {
       const pipeline = output.name as ConfigRasterPipeline['type'];
-      if (obj[pipeline] == null) obj[pipeline] = {};
+      if (pipelineLinks[pipeline] == null) pipelineLinks[pipeline] = {};
 
       const formats = output.format;
 
       if (formats == null) {
-        if (obj[pipeline]['default'] == null) obj[pipeline]['default'] = {};
+        if (pipelineLinks[pipeline]['default'] == null) pipelineLinks[pipeline]['default'] = {};
 
         const url = fsa.toUrl(`${baseUrl.href}&pipeline=${pipeline}`);
-        obj[output.name]['default'][epsg] = markdownProjectionLink(epsg, url);
+        pipelineLinks[output.name]['default'][epsg] = markdownProjectionLink(epsg, url);
 
         continue;
       }
 
       // generate links by format
       for (const format of formats.sort((a, b) => a.localeCompare(b))) {
-        if (obj[output.name][format] == null) obj[output.name][format] = {};
+        if (pipelineLinks[output.name][format] == null) pipelineLinks[output.name][format] = {};
 
         const url = fsa.toUrl(`${baseUrl.href}&pipeline=${pipeline}&format=${format}`);
-        obj[output.name][format][epsg] = markdownProjectionLink(epsg, url);
+        pipelineLinks[output.name][format][epsg] = markdownProjectionLink(epsg, url);
       }
     }
   }
@@ -178,15 +179,13 @@ function markdownBasemapsLinks(
    *
    * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
    */
-  const byEpsg = obj['default']?.['default'];
-
-  if (byEpsg != null) {
+  if (Object.keys(defaultLinks).length > 0) {
     const line: string[] = [];
 
     for (const epsg of ProjectionLinkOrder) {
-      if (byEpsg[epsg] == null) continue;
+      if (defaultLinks[epsg] == null) continue;
 
-      const link = byEpsg[epsg];
+      const link = defaultLinks[epsg];
       line.push(link);
     }
 
@@ -204,16 +203,17 @@ function markdownBasemapsLinks(
    * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
    * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
    */
+  const numPipelines = Object.keys(pipelineLinks).length;
   const lines: string[] = [];
 
-  for (const [pipeline, byFormat] of Object.entries(obj)) {
+  for (const [pipeline, byFormat] of Object.entries(pipelineLinks)) {
     const line: string[] = [];
 
-    if (pipeline !== 'default') {
+    if (numPipelines > 1) {
       line.push(`\n${indent}- ${markdownPipelineText(pipeline as ConfigRasterPipeline['type'])}:`);
     }
 
-    const showFormat = Object.keys(byFormat).length > 1;
+    const numFormats = Object.keys(byFormat).length;
 
     for (const [format, byEpsg] of Object.entries(byFormat)) {
       const links: string[] = [];
@@ -223,7 +223,7 @@ function markdownBasemapsLinks(
 
         const link = byEpsg[epsg];
 
-        if (showFormat && format !== 'default') {
+        if (numFormats > 1 && format !== 'default') {
           links.push(`${link} \`${format}\``);
         } else {
           links.push(link);
