@@ -1,5 +1,5 @@
 import { ConfigBundled, ConfigId, ConfigPrefix, ConfigProviderMemory, ConfigTileSetVector } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { EpsgCode, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env, fsa, getLogger, logArguments, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, option } from 'cmd-ts';
@@ -7,7 +7,7 @@ import { command, option } from 'cmd-ts';
 import { getVectorVersion } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { configTileSetDiff, Diff } from './diff/config.diff.js';
-import { diffToMarkdown } from './diff/config.diff.markdown.js';
+import { diffToMarkdown, markdownProjectionLink } from './diff/config.diff.markdown.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
@@ -83,13 +83,23 @@ async function outputChange(mem: ConfigProviderMemory, diffs: Diff<ConfigTileSet
 
       vectorUpdate.push(`## Vector data updates for \`${id}\``);
 
-      for (const projection of ['WebMercatorQuad', 'NZTM2000Quad']) {
-        for (const style of VectorStyles) {
+      for (const style of VectorStyles) {
+        const links: string[] = [];
+
+        for (const projection of [EpsgCode.Google, EpsgCode.Nztm2000]) {
           const styleId = version ? `${style}-${version}` : style;
-          vectorUpdate.push(
-            `* [${style} - ${projection}](${PublicUrlBase}?config=${mem.source.href}&i=${id}&s=${styleId}&p=${projection}&debug=true)\n`,
-          );
+
+          const url = new URL(PublicUrlBase);
+          url.searchParams.set('c', mem.source.href); // config
+          url.searchParams.set('i', id); // layer id
+          url.searchParams.set('s', styleId); // style id
+          url.searchParams.set('p', projection.toString()); // projection
+          url.searchParams.set('debug', 'true'); // debug mode
+
+          links.push(markdownProjectionLink(projection, url));
         }
+
+        vectorUpdate.push(`- #### ${style}: ${links.join(' | ')}`);
       }
 
       const featureChanges = await diffVectorUpdate(diff.after, diff.before);

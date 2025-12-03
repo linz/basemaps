@@ -1,6 +1,6 @@
 import { ConfigImagery, ConfigLayer, ConfigRasterPipeline, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
 import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
-import { Env, fsa, getPreviewUrl } from '@basemaps/shared';
+import { Env, getPreviewUrl } from '@basemaps/shared';
 import type { Diff } from 'deep-diff';
 
 import { DiffTileSet, DiffTileSetRaster, DiffTileSetRasterUpdated } from './config.diff.js';
@@ -75,7 +75,7 @@ function markdownProjectionText(projection: EpsgCode): string {
  * @param url
  * @returns
  */
-function markdownProjectionLink(projection: EpsgCode, url: URL): string {
+export function markdownProjectionLink(projection: EpsgCode, url: URL): string {
   const tileMatrix = projection === EpsgCode.Nztm2000 ? Nztm2000QuadTms : TileMatrixSets.get(projection);
 
   return `[${markdownProjectionText(projection)}](${UsePlaceholderUrls ? 'url' : url.href} "${tileMatrix.identifier}")`;
@@ -93,19 +93,24 @@ function markdownPipelineText(type: ConfigRasterPipeline['type']): string {
 }
 
 /**
- * @example https://dev.basemaps.linz.govt.nz/@...c=s3://...json.gz&i=gebco-2020-305.75m&p=3857&debug=true
+ * @example https://dev.basemaps.linz.govt.nz/@[location]?c=[config]&i=[layerId]m&p=[projection]&debug=true
  *
  * @param configUrl
- * @param epsg
+ * @param projection
  * @param configImagery
  * @returns
  */
-function getBaseUrl(configUrl: URL, epsg: EpsgCode, configImagery: ConfigImagery): URL {
+function getBaseUrl(configUrl: URL, projection: EpsgCode, configImagery: ConfigImagery): URL {
   const center = getPreviewUrl({ imagery: configImagery });
-  const location = `${center.location.lat},${center.location.lon},z${center.location.zoom}`;
-  const queries = `c=${configUrl.href}&i=${center.name}&p=${epsg.toString()}&debug=true`;
 
-  return fsa.toUrl(`${PublicUrlBase}@${location}?${queries}`);
+  const url = new URL(PublicUrlBase); // host
+  url.pathname = center.slug; // location
+  url.searchParams.set('c', configUrl.href); // config
+  url.searchParams.set('i', center.name); // layer id
+  url.searchParams.set('p', projection.toString()); // projection
+  url.searchParams.set('debug', 'true'); // debug mode
+
+  return url;
 }
 
 /**
@@ -165,7 +170,8 @@ function markdownBasemapsLinks(
       if (formats == null) {
         if (pipelineLinks[pipeline]['default'] == null) pipelineLinks[pipeline]['default'] = {};
 
-        const url = fsa.toUrl(`${baseUrl.href}&pipeline=${pipeline}`);
+        const url = new URL(baseUrl);
+        url.searchParams.set('pipeline', pipeline);
         pipelineLinks[output.name]['default'][epsg] = markdownProjectionLink(epsg, url);
 
         continue;
@@ -175,7 +181,9 @@ function markdownBasemapsLinks(
       for (const format of formats.sort((a, b) => a.localeCompare(b))) {
         if (pipelineLinks[output.name][format] == null) pipelineLinks[output.name][format] = {};
 
-        const url = fsa.toUrl(`${baseUrl.href}&pipeline=${pipeline}&format=${format}`);
+        const url = new URL(baseUrl);
+        url.searchParams.set('pipeline', pipeline);
+        url.searchParams.set('format', format);
         pipelineLinks[output.name][format][epsg] = markdownProjectionLink(epsg, url);
       }
     }
