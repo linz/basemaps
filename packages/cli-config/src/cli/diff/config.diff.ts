@@ -70,7 +70,53 @@ function tileSetDiffRaster(before?: ConfigTileSetRaster, after?: ConfigTileSetRa
   };
 }
 
-// function tileSetDiffVector() {}
+function tileSetDiffVectorLayers(before: ConfigTileSetVector, after: ConfigTileSetVector): Diff<ConfigLayer>[] | null {
+  const layerChanges: Diff<ConfigLayer>[] = [];
+  const beforeLayers = [...before.layers];
+
+  for (const layer of after.layers) {
+    // There are duplicates layers inside the config this makes it hard to know what has changed
+    // so only allow comparisons to one layer at a time
+    const index = beforeLayers.findIndex((l) => l.name === layer.name);
+    if (index > -1) {
+      const [el] = beforeLayers.splice(index, 1);
+      const layerDiff = diff.diff(el, layer);
+      if (layerDiff) layerChanges.push({ type: 'updated', id: el.name, before: el, after: layer, changes: layerDiff });
+    } else {
+      layerChanges.push({ type: 'new', id: layer.name, after: layer });
+    }
+  }
+
+  for (const beforeLayer of beforeLayers) {
+    layerChanges.push({ type: 'removed', id: beforeLayer.name, before: beforeLayer });
+  }
+
+  return layerChanges.length > 0 ? layerChanges : null;
+}
+
+function tileSetDiffVector(before?: ConfigTileSetVector, after?: ConfigTileSetVector): DiffTileSetVector | null {
+  if (before == null && after == null) return null;
+  if (before == null) return { type: 'new', id: after?.id as string, after: after as ConfigTileSetVector };
+  if (after == null) return { type: 'removed', id: before.id, before };
+
+  // Layers are diffed further down so ignore them from a top level diff
+  const topLevelChanges = diff.diff(
+    { ...before, layers: undefined },
+    { ...after, layers: undefined },
+    (_path: string[], key: string) => IgnoredProperties.has(key),
+  );
+
+  const layerChanges = tileSetDiffVectorLayers(before, after);
+  if (topLevelChanges == null && layerChanges == null) return null;
+  return {
+    type: 'updated',
+    id: before.id,
+    before,
+    after,
+    changes: topLevelChanges as diff.Diff<ConfigTileSetVector>[],
+    layers: layerChanges ?? [],
+  };
+}
 
 // function tileSetDiff(before?: ConfigTileSet, after: ConfigTileSet): DiffTileSet
 
@@ -79,6 +125,12 @@ export type DiffTileSetRaster =
   | DiffNew<ConfigTileSetRaster>
   | DiffRemoved<ConfigTileSetRaster>
   | DiffTileSetRasterUpdated;
+
+export type DiffTileSetVectorUpdated = DiffUpdated<ConfigTileSetVector> & { layers: Diff<ConfigLayer>[] };
+export type DiffTileSetVector =
+  | DiffNew<ConfigTileSetVector>
+  | DiffRemoved<ConfigTileSetVector>
+  | DiffTileSetVectorUpdated;
 
 export interface DiffTileSet {
   /** List of raster layers that have changed */
@@ -108,7 +160,7 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
   const seen = new Set<string>();
 
   const rasterDiffs: DiffTileSet['raster'] = [];
-  // const vectorDiffs: DiffTileSet['vector'] = [];
+  const vectorDiffs: DiffTileSet['vector'] = [];
 
   for (const tsBefore of tileSetBefore.values()) {
     seen.add(tsBefore.id);
@@ -122,9 +174,10 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
       const diff = tileSetDiffRaster(tsBefore, tsAfter as ConfigTileSetRaster);
       if (diff) rasterDiffs.push(diff);
     } else if (tsBefore.type === TileSetType.Vector) {
-      // FIXME: add tileSetDiffVector
+      const diff = tileSetDiffVector(tsBefore, tsAfter as ConfigTileSetVector);
+      if (diff) vectorDiffs.push(diff);
     } else {
-      // Warning ??
+      throw new Error('Tileset type not supported.');
     }
   }
 
@@ -135,13 +188,14 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
       const diff = tileSetDiffRaster(undefined, tsAfter);
       if (diff) rasterDiffs.push(diff);
     } else if (tsAfter.type === TileSetType.Vector) {
-      // TODO add vector changes
+      const diff = tileSetDiffVector(undefined, tsAfter);
+      if (diff) vectorDiffs.push(diff);
     } else {
-      // Warning ??
+      throw new Error('Tileset type not supported.');
     }
   }
 
-  return { raster: rasterDiffs, vector: [], before, after };
+  return { raster: rasterDiffs, vector: vectorDiffs, before, after };
 }
 
 export type DiffNew<T> = { type: 'new'; id: string; after: T };
