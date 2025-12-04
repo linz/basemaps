@@ -22,7 +22,10 @@ function getAllTileSets(cfg: ConfigProviderMemory): Map<string, ConfigTileSet> {
   return tileSets;
 }
 
-function tileSetDiffRasterLayers(before: ConfigTileSetRaster, after: ConfigTileSetRaster): Diff<ConfigLayer>[] | null {
+function tileSetDiffLayers<T extends ConfigTileSetRaster | ConfigTileSetVector>(
+  before: T,
+  after: T,
+): Diff<ConfigLayer>[] | null {
   const layerChanges: Diff<ConfigLayer>[] = [];
   const beforeLayers = [...before.layers];
 
@@ -46,10 +49,16 @@ function tileSetDiffRasterLayers(before: ConfigTileSetRaster, after: ConfigTileS
   return layerChanges.length > 0 ? layerChanges : null;
 }
 
-function tileSetDiffRaster(before?: ConfigTileSetRaster, after?: ConfigTileSetRaster): DiffTileSetRaster | null {
-  if (before == null && after == null) return null;
-  if (before == null) return { type: 'new', id: after?.id as string, after: after as ConfigTileSetRaster };
-  if (after == null) return { type: 'removed', id: before.id, before };
+function tileSetDiff<T extends ConfigTileSetRaster | ConfigTileSetVector>(
+  before?: T,
+  after?: T,
+): DiffTileSetGeneric<T> | null {
+  if (before == null || after == null) {
+    if (after != null) return { type: 'new', id: after.id, after };
+    if (before != null) return { type: 'removed', id: before.id, before };
+
+    return null;
+  }
 
   // Layers are diffed further down so ignore them from a top level diff
   const topLevelChanges = diff.diff(
@@ -58,67 +67,19 @@ function tileSetDiffRaster(before?: ConfigTileSetRaster, after?: ConfigTileSetRa
     (_path: string[], key: string) => IgnoredProperties.has(key),
   );
 
-  const layerChanges = tileSetDiffRasterLayers(before, after);
+  const layerChanges = tileSetDiffLayers(before, after);
   if (topLevelChanges == null && layerChanges == null) return null;
   return {
     type: 'updated',
     id: before.id,
     before,
     after,
-    changes: topLevelChanges as diff.Diff<ConfigTileSetRaster>[],
-    layers: tileSetDiffRasterLayers(before, after) ?? [],
+    changes: topLevelChanges as diff.Diff<T>[],
+    layers: tileSetDiffLayers(before, after) ?? [],
   };
 }
 
-function tileSetDiffVectorLayers(before: ConfigTileSetVector, after: ConfigTileSetVector): Diff<ConfigLayer>[] | null {
-  const layerChanges: Diff<ConfigLayer>[] = [];
-  const beforeLayers = [...before.layers];
-
-  for (const layer of after.layers) {
-    // There are duplicates layers inside the config this makes it hard to know what has changed
-    // so only allow comparisons to one layer at a time
-    const index = beforeLayers.findIndex((l) => l.name === layer.name);
-    if (index > -1) {
-      const [el] = beforeLayers.splice(index, 1);
-      const layerDiff = diff.diff(el, layer);
-      if (layerDiff) layerChanges.push({ type: 'updated', id: el.name, before: el, after: layer, changes: layerDiff });
-    } else {
-      layerChanges.push({ type: 'new', id: layer.name, after: layer });
-    }
-  }
-
-  for (const beforeLayer of beforeLayers) {
-    layerChanges.push({ type: 'removed', id: beforeLayer.name, before: beforeLayer });
-  }
-
-  return layerChanges.length > 0 ? layerChanges : null;
-}
-
-function tileSetDiffVector(before?: ConfigTileSetVector, after?: ConfigTileSetVector): DiffTileSetVector | null {
-  if (before == null && after == null) return null;
-  if (before == null) return { type: 'new', id: after?.id as string, after: after as ConfigTileSetVector };
-  if (after == null) return { type: 'removed', id: before.id, before };
-
-  // Layers are diffed further down so ignore them from a top level diff
-  const topLevelChanges = diff.diff(
-    { ...before, layers: undefined },
-    { ...after, layers: undefined },
-    (_path: string[], key: string) => IgnoredProperties.has(key),
-  );
-
-  const layerChanges = tileSetDiffVectorLayers(before, after);
-  if (topLevelChanges == null && layerChanges == null) return null;
-  return {
-    type: 'updated',
-    id: before.id,
-    before,
-    after,
-    changes: topLevelChanges as diff.Diff<ConfigTileSetVector>[],
-    layers: layerChanges ?? [],
-  };
-}
-
-// function tileSetDiff(before?: ConfigTileSet, after: ConfigTileSet): DiffTileSet
+export type DiffTileSetGeneric<T> = DiffNew<T> | DiffRemoved<T> | (DiffUpdated<T> & { layers: Diff<ConfigLayer>[] });
 
 export type DiffTileSetRasterUpdated = DiffUpdated<ConfigTileSetRaster> & { layers: Diff<ConfigLayer>[] };
 export type DiffTileSetRaster =
@@ -136,7 +97,7 @@ export interface DiffTileSet {
   /** List of raster layers that have changed */
   raster: DiffTileSetRaster[];
   /** List of vector layers that have changed */
-  vector: Diff<ConfigTileSetVector>[];
+  vector: DiffTileSetVector[];
 
   // imagery: Diff<ConfigImagery>;
 
@@ -171,10 +132,10 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
     }
 
     if (tsBefore.type === TileSetType.Raster) {
-      const diff = tileSetDiffRaster(tsBefore, tsAfter as ConfigTileSetRaster);
+      const diff = tileSetDiff(tsBefore, tsAfter as ConfigTileSetRaster);
       if (diff) rasterDiffs.push(diff);
     } else if (tsBefore.type === TileSetType.Vector) {
-      const diff = tileSetDiffVector(tsBefore, tsAfter as ConfigTileSetVector);
+      const diff = tileSetDiff(tsBefore, tsAfter as ConfigTileSetVector);
       if (diff) vectorDiffs.push(diff);
     } else {
       throw new Error('Tileset type not supported.');
@@ -185,10 +146,10 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
     if (seen.has(tsAfter.id)) continue;
 
     if (tsAfter.type === TileSetType.Raster) {
-      const diff = tileSetDiffRaster(undefined, tsAfter);
+      const diff = tileSetDiff(undefined, tsAfter);
       if (diff) rasterDiffs.push(diff);
     } else if (tsAfter.type === TileSetType.Vector) {
-      const diff = tileSetDiffVector(undefined, tsAfter);
+      const diff = tileSetDiff(undefined, tsAfter);
       if (diff) vectorDiffs.push(diff);
     } else {
       throw new Error('Tileset type not supported.');
