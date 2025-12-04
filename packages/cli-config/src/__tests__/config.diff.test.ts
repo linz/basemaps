@@ -13,8 +13,8 @@ import {
   configTileSetDiff,
   DiffNew,
   DiffRemoved,
-  DiffTileSet,
-  DiffTileSetRasterUpdated,
+  DiffTileSetResult,
+  DiffTileSetUpdated,
 } from '../cli/diff/config.diff.js';
 import { diffToMarkdown } from '../cli/diff/config.diff.markdown.js';
 import { TsAerial, TsElevation, TsIndividual } from './config.diff.data.js';
@@ -51,7 +51,7 @@ function formatJson(url: URL, bytes: Buffer): string | Buffer {
 }
 
 const ShouldDumpState: boolean = false;
-async function dumpState(name: string, diff: DiffTileSet, markdown = diffToMarkdown(diff)): Promise<void> {
+async function dumpState(name: string, diff: DiffTileSetResult, markdown = diffToMarkdown(diff)): Promise<void> {
   if (ShouldDumpState === false) return;
   const testName = `${name.replaceAll(' > ', '/')}`;
   const output = fsa.toUrl(`./configs/${testName}/`);
@@ -160,8 +160,8 @@ describe('config.diff', () => {
       const diff = configTileSetDiff(before, after);
       await dumpState(t.fullName, diff);
 
-      const diffAll = diff.raster.find((f) => f.id === 'ts_all') as DiffTileSetRasterUpdated;
-      const diffAerial = diff.raster.find((f) => f.id === 'ts_aerial') as DiffTileSetRasterUpdated;
+      const diffAll = diff.raster.find((f) => f.id === 'ts_all') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const diffAerial = diff.raster.find((f) => f.id === 'ts_aerial') as DiffTileSetUpdated<ConfigTileSetRaster>;
       const diffLayer = diff.raster.find((f) => f.id === 'ts_' + rem?.name) as DiffRemoved<ConfigTileSetRaster>;
 
       assert.equal(diffAll?.type, 'updated');
@@ -189,8 +189,8 @@ describe('config.diff', () => {
       const diff = configTileSetDiff(before, after);
       await dumpState(t.fullName, diff);
 
-      const diffAll = diff.raster.find((f) => f.id === 'ts_all') as DiffTileSetRasterUpdated;
-      const diffAerial = diff.raster.find((f) => f.id === 'ts_aerial') as DiffTileSetRasterUpdated;
+      const diffAll = diff.raster.find((f) => f.id === 'ts_all') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const diffAerial = diff.raster.find((f) => f.id === 'ts_aerial') as DiffTileSetUpdated<ConfigTileSetRaster>;
       const diffLayer = diff.raster.find((f) => f.id === 'ts_test-layer') as DiffNew<ConfigTileSetRaster>;
 
       assert.equal(diffAll?.type, 'updated');
@@ -223,9 +223,9 @@ describe('config.diff', () => {
       const diff = configTileSetDiff(before, after);
       await dumpState(t.fullName, diff);
 
-      const allDiff = diff.raster.find((m) => m.id === 'ts_all') as DiffTileSetRasterUpdated;
-      const aerialDiff = diff.raster.find((m) => m.id === 'ts_aerial') as DiffTileSetRasterUpdated;
-      const layerDiff = diff.raster.find((m) => m.id === 'ts_' + layer.name) as DiffTileSetRasterUpdated;
+      const allDiff = diff.raster.find((m) => m.id === 'ts_all') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const aerialDiff = diff.raster.find((m) => m.id === 'ts_aerial') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const layerDiff = diff.raster.find((m) => m.id === 'ts_' + layer.name) as DiffTileSetUpdated<ConfigTileSetRaster>;
       assert.equal(allDiff?.type, 'updated', 'ts_all should have updated');
       assert.equal(aerialDiff?.type, 'updated', 'ts_aerial should have updated');
       assert.equal(layerDiff?.type, 'updated', `ts_${layer.name} should have updated`);
@@ -264,7 +264,7 @@ describe('config.diff', () => {
       const diff = configTileSetDiff(before, after);
       await dumpState(t.fullName, diff);
 
-      const firstDiff = diff.raster[0] as DiffTileSetRasterUpdated;
+      const firstDiff = diff.raster[0] as DiffTileSetUpdated<ConfigTileSetRaster>;
       assert.ok(firstDiff, 'should have a diff');
       // Aerial Layer should be updated
       assert.equal(firstDiff.id, 'ts_aerial');
@@ -277,7 +277,7 @@ describe('config.diff', () => {
       // Virtual layers do not add a default "format: webp"
       // When reading a tileset it adds the default of "format: webp"
       // so it triggers a diff
-      const secondDiff = diff.raster[1] as DiffTileSetRasterUpdated;
+      const secondDiff = diff.raster[1] as DiffTileSetUpdated<ConfigTileSetRaster>;
       assert.equal(secondDiff.id, 'ts_grey-2025-0.075m');
       assert.equal(secondDiff.type, 'updated');
       assert.deepEqual(
@@ -301,9 +301,11 @@ describe('config.diff', () => {
       const diff = configTileSetDiff(before, after);
       await dumpState(t.fullName, diff);
 
-      const diffAll = diff.raster.find((m) => m.id === 'ts_all') as DiffTileSetRasterUpdated;
-      const diffAerial = diff.raster.find((m) => m.id === 'ts_aerial') as DiffTileSetRasterUpdated;
-      const diffLayer = diff.raster.find((m) => m.id === 'ts_' + removed.name) as DiffTileSetRasterUpdated;
+      const diffAll = diff.raster.find((m) => m.id === 'ts_all') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const diffAerial = diff.raster.find((m) => m.id === 'ts_aerial') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const diffLayer = diff.raster.find(
+        (m) => m.id === 'ts_' + removed.name,
+      ) as DiffTileSetUpdated<ConfigTileSetRaster>;
 
       assert.equal(diffAll?.type, 'updated', 'ts_all should have updated');
       assert.equal(diffAerial?.type, 'updated', 'ts_aerial should have updated');
@@ -337,9 +339,9 @@ describe('config.diff', () => {
 
       const diff = configTileSetDiff(before, after);
       await dumpState(t.fullName, diff);
-      const diffAll = diff.raster.find((m) => m.id === 'ts_all') as DiffTileSetRasterUpdated;
-      const diffAerial = diff.raster.find((m) => m.id === 'ts_aerial') as DiffTileSetRasterUpdated;
-      const diffLayer = diff.raster.find((m) => m.id === TsIndividual.id) as DiffTileSetRasterUpdated;
+      const diffAll = diff.raster.find((m) => m.id === 'ts_all') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const diffAerial = diff.raster.find((m) => m.id === 'ts_aerial') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const diffLayer = diff.raster.find((m) => m.id === TsIndividual.id) as DiffTileSetUpdated<ConfigTileSetRaster>;
       assert.equal(diffAerial, undefined); // No changes to aerial layer
       assert.equal(diffLayer.type, 'new');
       assert.deepEqual(
@@ -359,9 +361,9 @@ describe('config.diff', () => {
       const diff = configTileSetDiff(before, after);
       await dumpState(t.fullName, diff);
 
-      const diffAll = diff.raster.find((m) => m.id === 'ts_all') as DiffTileSetRasterUpdated;
-      const diffAerial = diff.raster.find((m) => m.id === 'ts_aerial') as DiffTileSetRasterUpdated;
-      const diffLayer = diff.raster.find((m) => m.id === TsIndividual.id) as DiffTileSetRasterUpdated;
+      const diffAll = diff.raster.find((m) => m.id === 'ts_all') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const diffAerial = diff.raster.find((m) => m.id === 'ts_aerial') as DiffTileSetUpdated<ConfigTileSetRaster>;
+      const diffLayer = diff.raster.find((m) => m.id === TsIndividual.id) as DiffTileSetUpdated<ConfigTileSetRaster>;
       assert.equal(diffAerial, undefined); // No changes to aerial layer
       assert.equal(diffLayer.type, 'removed');
       assert.deepEqual(
@@ -385,7 +387,7 @@ describe('config.diff', () => {
 
       const diff = configTileSetDiff(before, after);
 
-      const allDiff = diff.raster.find((f) => f.id === 'ts_all') as DiffTileSetRasterUpdated;
+      const allDiff = diff.raster.find((f) => f.id === 'ts_all') as DiffTileSetUpdated<ConfigTileSetRaster>;
 
       // Three new layers added to the all layer
       assert.equal(allDiff?.type, 'updated');
@@ -415,7 +417,7 @@ describe('config.diff', () => {
       assert.equal(diff.raster[0].id, 'ts_elevation');
       assert.equal(diff.raster[0].type, 'updated');
 
-      const rasterDiff = diff.raster[0] as DiffTileSetRasterUpdated;
+      const rasterDiff = diff.raster[0] as DiffTileSetUpdated<ConfigTileSetRaster>;
       assert.equal(rasterDiff.layers.length, 0); // No layers changed
       // One change to the outputs
       assert.deepEqual(

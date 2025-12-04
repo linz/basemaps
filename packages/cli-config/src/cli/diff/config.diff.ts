@@ -22,10 +22,7 @@ function getAllTileSets(cfg: ConfigProviderMemory): Map<string, ConfigTileSet> {
   return tileSets;
 }
 
-function tileSetDiffLayers<T extends ConfigTileSetRaster | ConfigTileSetVector>(
-  before: T,
-  after: T,
-): Diff<ConfigLayer>[] | null {
+function tileSetDiffLayers<T extends ConfigTileSet>(before: T, after: T): Diff<ConfigLayer>[] | null {
   const layerChanges: Diff<ConfigLayer>[] = [];
   const beforeLayers = [...before.layers];
 
@@ -49,10 +46,7 @@ function tileSetDiffLayers<T extends ConfigTileSetRaster | ConfigTileSetVector>(
   return layerChanges.length > 0 ? layerChanges : null;
 }
 
-function tileSetDiff<T extends ConfigTileSetRaster | ConfigTileSetVector>(
-  before?: T,
-  after?: T,
-): DiffTileSetGeneric<T> | null {
+function tileSetDiff<T extends ConfigTileSet>(before?: T, after?: T): DiffTileSet<T> | null {
   if (before == null || after == null) {
     if (after != null) return { type: 'new', id: after.id, after };
     if (before != null) return { type: 'removed', id: before.id, before };
@@ -79,27 +73,14 @@ function tileSetDiff<T extends ConfigTileSetRaster | ConfigTileSetVector>(
   };
 }
 
-export type DiffTileSetGeneric<T> = DiffNew<T> | DiffRemoved<T> | (DiffUpdated<T> & { layers: Diff<ConfigLayer>[] });
+export type DiffTileSetUpdated<T> = DiffUpdated<T> & { layers: Diff<ConfigLayer>[] };
+export type DiffTileSet<T> = DiffNew<T> | DiffRemoved<T> | DiffTileSetUpdated<T>;
 
-export type DiffTileSetRasterUpdated = DiffUpdated<ConfigTileSetRaster> & { layers: Diff<ConfigLayer>[] };
-export type DiffTileSetRaster =
-  | DiffNew<ConfigTileSetRaster>
-  | DiffRemoved<ConfigTileSetRaster>
-  | DiffTileSetRasterUpdated;
-
-export type DiffTileSetVectorUpdated = DiffUpdated<ConfigTileSetVector> & { layers: Diff<ConfigLayer>[] };
-export type DiffTileSetVector =
-  | DiffNew<ConfigTileSetVector>
-  | DiffRemoved<ConfigTileSetVector>
-  | DiffTileSetVectorUpdated;
-
-export interface DiffTileSet {
+export interface DiffTileSetResult {
   /** List of raster layers that have changed */
-  raster: DiffTileSetRaster[];
+  raster: DiffTileSet<ConfigTileSetRaster>[];
   /** List of vector layers that have changed */
-  vector: DiffTileSetVector[];
-
-  // imagery: Diff<ConfigImagery>;
+  vector: DiffTileSet<ConfigTileSetVector>[];
 
   /** Old Configuration that was used for the comparison */
   before: ConfigProviderMemory;
@@ -114,14 +95,14 @@ export interface DiffTileSet {
  * @param after  the new configuration
  * @returns
  */
-export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigProviderMemory): DiffTileSet {
+export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigProviderMemory): DiffTileSetResult {
   const tileSetBefore = getAllTileSets(before);
   const tileSetAfter = getAllTileSets(after);
 
   const seen = new Set<string>();
 
-  const rasterDiffs: DiffTileSet['raster'] = [];
-  const vectorDiffs: DiffTileSet['vector'] = [];
+  const rasterDiffs: DiffTileSet<ConfigTileSetRaster>[] = [];
+  const vectorDiffs: DiffTileSet<ConfigTileSetVector>[] = [];
 
   for (const tsBefore of tileSetBefore.values()) {
     seen.add(tsBefore.id);
@@ -163,3 +144,4 @@ export type DiffNew<T> = { type: 'new'; id: string; after: T };
 export type DiffRemoved<T> = { type: 'removed'; id: string; before: T };
 export type DiffUpdated<T> = { type: 'updated'; id: string; before: T; after: T; changes: diff.Diff<T>[] };
 export type Diff<T> = DiffNew<T> | DiffRemoved<T> | DiffUpdated<T>;
+export type DiffType = Diff<unknown>['type'];

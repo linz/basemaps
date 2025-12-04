@@ -1,9 +1,9 @@
 import { ConfigImagery, ConfigLayer, ConfigRasterPipeline, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
 import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, getPreviewUrl } from '@basemaps/shared';
-import type { Diff } from 'deep-diff';
+import { Diff } from 'deep-diff';
 
-import { DiffTileSet, DiffTileSetRaster, DiffTileSetRasterUpdated } from './config.diff.js';
+import { DiffTileSet, DiffTileSetResult, DiffTileSetUpdated, DiffType } from './config.diff.js';
 
 // useful for local testing of the markdown structure
 const UsePlaceholderUrls = false;
@@ -17,7 +17,7 @@ const EmojiProjection: Partial<Record<EpsgCode, string>> = {
   [EpsgCode.Wgs84]: '🌐',
 };
 
-export const EmojiChange: Record<DiffTileSetRaster['type'], string> = {
+export const EmojiChange: Record<DiffType, string> = {
   updated: '🔄',
   new: '➕',
   removed: '🗑️',
@@ -130,7 +130,7 @@ function getBaseUrl(configUrl: URL, projection: EpsgCode, configImagery: ConfigI
  * @returns
  */
 function markdownBasemapsLinks(
-  diff: DiffTileSet,
+  diff: DiffTileSetResult,
   tileSet: ConfigTileSetRaster,
   layer: ConfigLayer,
   indent = '',
@@ -261,7 +261,7 @@ function markdownBasemapsLinks(
  * @param raster
  * @returns
  */
-function markdownDiffRasterLayers(diff: DiffTileSet, raster: DiffTileSetRasterUpdated): string[] {
+function markdownDiffRasterLayers(diff: DiffTileSetResult, raster: DiffTileSetUpdated<ConfigTileSetRaster>): string[] {
   if (raster.layers.length === 0) return [];
 
   const indent = '  ';
@@ -311,7 +311,7 @@ function tileSetProjections(t: ConfigTileSet): EpsgCode[] {
  * @param raster
  * @returns
  */
-function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): string {
+function markdownDiffRaster(diff: DiffTileSetResult, raster: DiffTileSet<ConfigTileSetRaster>): string {
   const lines: string[] = [];
   const projections = raster.type === 'removed' ? tileSetProjections(raster.before) : tileSetProjections(raster.after);
   const symbol = EmojiChange[raster.type];
@@ -343,7 +343,7 @@ function markdownDiffRaster(diff: DiffTileSet, raster: DiffTileSetRaster): strin
   return lines.join('');
 }
 
-export function diffToMarkdown(diff: DiffTileSet): string {
+export function diffToMarkdown(diff: DiffTileSetResult): string {
   const lines = [];
 
   // Aerial layer changes go first
@@ -358,7 +358,7 @@ export function diffToMarkdown(diff: DiffTileSet): string {
     }
   }
 
-  const changesByType: Record<DiffTileSetRaster['type'], DiffTileSetRaster[]> = {
+  const changesByType: Record<DiffType, DiffTileSet<ConfigTileSetRaster>[]> = {
     removed: [],
     updated: [],
     new: [],
