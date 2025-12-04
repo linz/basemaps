@@ -90,10 +90,10 @@ async function outputChange(mem: ConfigProviderMemory, diffs: Diff<ConfigTileSet
           const styleId = version ? `${style}-${version}` : style;
 
           const url = new URL(PublicUrlBase);
-          url.searchParams.set('c', mem.source.href); // config
+          url.searchParams.set('config', mem.source.href);
           url.searchParams.set('i', id); // layer id
-          url.searchParams.set('s', styleId); // style id
-          url.searchParams.set('p', projection.toString()); // projection
+          url.searchParams.set('style', styleId);
+          url.searchParams.set('projection', projection.toString());
           url.searchParams.set('debug', 'true'); // debug mode
 
           links.push(markdownProjectionLink(projection, url));
