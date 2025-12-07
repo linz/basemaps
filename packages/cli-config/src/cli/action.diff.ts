@@ -7,7 +7,7 @@ import { command, option } from 'cmd-ts';
 import { getVectorVersion } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
 import { configTileSetDiff, Diff } from './diff/config.diff.js';
-import { diffToMarkdown, markdownProjectionLink } from './diff/config.diff.markdown.js';
+import { diffToMarkdown, EmojiChange, markdownProjectionLink } from './diff/config.diff.markdown.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';
 
@@ -54,43 +54,53 @@ export const DiffCommand = command({
     logger.info('Markdown:Start');
 
     const rasterMarkdown = diffToMarkdown(diff);
-    const vectorMarkdown = await outputChange(afterMem, diff.vector);
-    await fsa.write(args.output, `${rasterMarkdown}\n${vectorMarkdown}`);
+
+    if (afterMem.source == null) throw new Error('Source URL not set for the new bundled config.');
+    const vectorMarkdown = await vectorDiffToMarkdown(afterMem.source, diff.vector);
+
+    const combinedMarkdown = [rasterMarkdown, vectorMarkdown].filter((s) => s != null).join('\n');
+    await fsa.write(args.output, combinedMarkdown);
 
     logger.info({ markdown: args.output.href }, 'Markdown:Done');
   },
 });
 
 /**
- * This function compared new config with existing and output a markdown document to highlight the inserts and changes.
+ * Generates markdown for a list of changed vector tilesets.
  *
- * @param mem new config data read from config bundle file
+ * @param configUrl bundled config url
  * @param diffs list of changed vector tilesets
  */
-async function outputChange(mem: ConfigProviderMemory, diffs: Diff<ConfigTileSetVector>[]): Promise<string> {
-  if (mem.source == null) {
-    throw new Error('Source URL not set for the new bundled config.');
+async function vectorDiffToMarkdown(configUrl: URL, diffs: Diff<ConfigTileSetVector>[]): Promise<string | null> {
+  // Output for vector config changes
+  const lines: string[] = [];
+
+  lines.push('# Vector Data Update');
+  if (diffs.length === 0) {
+    return null;
+  } else {
+    lines.push('## Tilesets');
   }
 
-  // Output for vector config changes
-  const outputMarkdown: string[] = [];
-  const vectorUpdate = [];
-
   for (const diff of diffs) {
-    if (diff.type === 'updated') {
-      const id = ConfigId.unprefix(ConfigPrefix.TileSet, diff.id);
-      const version = getVectorVersion(id);
+    const id = ConfigId.unprefix(ConfigPrefix.TileSet, diff.id);
+    const version = getVectorVersion(id);
 
-      vectorUpdate.push(`## Vector data updates for \`${id}\``);
+    const projections = [EpsgCode.Google];
+    if (version != null) projections.push(EpsgCode.Nztm2000); // topographic (v1) does not support 2193
 
+    const symbol = EmojiChange[diff.type];
+    lines.push(`### ${symbol} ${id}`);
+
+    if (diff.type === 'new' || diff.type === 'updated') {
+      // style previews
       for (const style of VectorStyles) {
+        const styleId = version ? `${style}-${version}` : style;
         const links: string[] = [];
 
-        for (const projection of [EpsgCode.Google, EpsgCode.Nztm2000]) {
-          const styleId = version ? `${style}-${version}` : style;
-
+        for (const projection of projections) {
           const url = new URL(PublicUrlBase);
-          url.searchParams.set('config', mem.source.href);
+          url.searchParams.set('config', configUrl.href);
           url.searchParams.set('i', id); // layer id
           url.searchParams.set('style', styleId);
           url.searchParams.set('projection', projection.toString());
@@ -99,31 +109,31 @@ async function outputChange(mem: ConfigProviderMemory, diffs: Diff<ConfigTileSet
           links.push(markdownProjectionLink(projection, url));
         }
 
-        vectorUpdate.push(`- #### ${style}: ${links.join(' | ')}`);
+        lines.push(`- ${styleId}: ${links.join(' | ')}`);
       }
 
-      const featureChanges = await diffVectorUpdate(diff.after, diff.before);
+      // feature changes
+      const featureChanges = await diffVectorUpdate(diff.after, diff.type === 'new' ? null : diff.before);
 
-      vectorUpdate.push(`## Feature updates for \`${id}\``);
-      vectorUpdate.push(...featureChanges);
+      lines.push(`## Feature updates for \`${id}\``);
+      lines.push(...featureChanges);
 
       const reportMarkdown = await outputAnalyseReports(diff.after);
-      if (reportMarkdown.length > 0) vectorUpdate.push(...reportMarkdown);
+      if (reportMarkdown.length > 0) lines.push(...reportMarkdown);
     }
-    // FIXME: Re-introduce logic for capturing style config changes.
   }
 
-  if (vectorUpdate.length > 0) outputMarkdown.push('# Vector Data Update', ...vectorUpdate);
+  // FIXME: Re-introduce logic for capturing style config changes.
 
-  return outputMarkdown.join('\n');
+  return lines.join('\n');
 }
 
 /**
- * This function prepare for the vector tile analyse reports for markdown output.
+ * Prepares the vector tile analyse reports for markdown output.
  */
-async function outputAnalyseReports(change: ConfigTileSetVector): Promise<string[]> {
+async function outputAnalyseReports(diff: ConfigTileSetVector): Promise<string[]> {
   const reportMarkdown: string[] = [];
-  const layer = change.layers[0];
+  const layer = diff.layers[0];
 
   for (const tms of [GoogleTms, Nztm2000QuadTms]) {
     const layerPath = layer[tms.projection.code];
