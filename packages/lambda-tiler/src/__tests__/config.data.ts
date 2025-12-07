@@ -55,8 +55,8 @@ export const TileSetElevation: ConfigTileSetRaster = {
   category: 'Elevation',
   layers: [
     {
-      2193: 'im_01FYWKAJ86W9P7RWM1VB62KD0H',
-      3857: 'im_01FYWKATAEK2ZTJQ2PX44Y0XNT',
+      2193: 'im_01FYWKAJ86W9P7RWM1VB62KDEM',
+      3857: 'im_01FYWKATAEK2ZTJQ2PX44Y0DEM',
       title: 'New Zealand 8m DEM (2012)',
       name: 'new-zealand_2012_dem_8m',
     },
@@ -80,6 +80,44 @@ export const TileSetHillshadeElevation: ConfigTileSetRaster = {
     },
   ],
   outputs: [DefaultColorRampOutput],
+};
+
+export const Imagery2193Elevation: ConfigImagery = {
+  v: 2,
+  id: 'im_01FYWKAJ86W9P7RWM1VB62KDEM',
+  name: 'ōtorohanga_urban_2021_0-1m_DEM',
+  title: 'Ōtorohanga 0.1m DEM (2021)',
+  category: 'Elevation',
+  projection: 2193,
+  tileMatrix: 'NZTM2000Quad',
+  uri: 's3://linz-basemaps/2193/ōtorohanga_urban_2021_0-1m_DEM/im_01FYWKAJ86W9P7RWM1VB62KDEM',
+  bounds: {
+    x: 1757351.3044652338,
+    y: 5766358.996410044,
+    width: 40970.247160854284,
+    height: 26905.833956381306,
+  },
+  files: [],
+  bands: [{ type: 'float32' }],
+};
+
+export const Imagery3857Elevation: ConfigImagery = {
+  v: 2,
+  id: 'im_01FYWKATAEK2ZTJQ2PX44Y0DEM',
+  name: 'ōtorohanga_urban_2021_0-1m_DEM',
+  title: 'Ōtorohanga 0.1m Urban DEM (2021)',
+  category: 'Elevation',
+  projection: 3857,
+  tileMatrix: 'WebMercatorQuad',
+  uri: 's3://linz-basemaps/3857/ōtorohanga_urban_2021_0-1m_DEM/im_01FYWKATAEK2ZTJQ2PX44Y0DEM',
+  bounds: {
+    x: 1757351.3044652338,
+    y: 5766358.996410044,
+    width: 40970.247160854284,
+    height: 26905.833956381306,
+  },
+  files: [],
+  bands: [{ type: 'float32' }],
 };
 
 export const Imagery2193: ConfigImagery = {

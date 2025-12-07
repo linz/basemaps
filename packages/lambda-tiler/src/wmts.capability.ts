@@ -1,4 +1,11 @@
-import { ConfigImagery, ConfigLayer, ConfigTileSet, standardizeLayerName } from '@basemaps/config';
+import {
+  ConfigImagery,
+  ConfigLayer,
+  ConfigTileSet,
+  ConfigTileSetRasterOutput,
+  standardizeLayerName,
+  TileSetType,
+} from '@basemaps/config';
 import { BoundingBox, Bounds, GoogleTms, ImageFormat, Projection, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { toQueryString, V, VNodeElement } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
@@ -74,7 +81,13 @@ export class WmtsBuilder {
     for (const format of formats) this.formats.push(format);
   }
 
-  getFormats(): ImageFormat[] {
+  getFormats(restrictTo?: ImageFormat[]): ImageFormat[] {
+    if (restrictTo) {
+      if (this.formats.length === 0) return restrictTo;
+      const filtered = this.formats.filter((f) => restrictTo.includes(f));
+      if (filtered.length === 0) return restrictTo;
+      return filtered;
+    }
     if (this.formats.length) return this.formats;
     return ImageFormatOrder;
   }
@@ -154,17 +167,17 @@ export class WmtsBuilder {
     return V('Style', { isDefault: 'true' }, [V('ows:Title', 'Default Style'), V('ows:Identifier', 'default')]);
   }
 
-  buildResourceUrl(tileSetId: string, suffix: string): VNodeElement {
+  buildResourceUrl(tileSetId: string, suffix: string, pipeline?: string): VNodeElement {
     return V('ResourceURL', {
       format: 'image/' + suffix,
       resourceType: 'tile',
-      template: this.buildTileUrl(tileSetId, suffix),
+      template: this.buildTileUrl(tileSetId, suffix, pipeline),
     });
   }
 
-  buildTileUrl(tileSetId: string, suffix: string): string {
+  buildTileUrl(tileSetId: string, suffix: string, pipeline?: string): string {
     // TODO this should restrict the output formats to supported formats in pipelines
-    const query = { api: this.apiKey, config: this.config, pipeline: this.pipeline };
+    const query = { api: this.apiKey, config: this.config, pipeline };
 
     return [
       this.httpBase,
@@ -176,10 +189,6 @@ export class WmtsBuilder {
       '{TileCol}',
       `{TileRow}.${suffix}${toQueryString(query)}`,
     ].join('/');
-  }
-
-  buildFormats(): VNodeElement[] {
-    return this.getFormats().map((fmt) => V('Format', 'image/' + fmt));
   }
 
   buildTileMatrixLink(tileSet: ConfigTileSet): VNodeElement[] {
@@ -319,7 +328,7 @@ export class WmtsCapabilities extends WmtsBuilder {
     ];
   }
 
-  toLayerVNode(tileSet: ConfigTileSet): VNodeElement {
+  toLayerVNode(tileSet: ConfigTileSet): VNodeElement[] {
     const matrixSets = this.getMatrixSets(tileSet);
     const matrixSetList = [...matrixSets.values()];
     const firstMatrix = matrixSetList[0];
@@ -334,19 +343,43 @@ export class WmtsCapabilities extends WmtsBuilder {
       bounds.push(Bounds.fromJson(img.bounds));
     }
 
+    const layers: VNodeElement[] = [];
+
+    const pipelines = this.getPipelines(tileSet, this.pipeline);
+
     const layerNameId = standardizeLayerName(tileSet.name);
-    return V('Layer', [
-      V('ows:Title', tileSet.title),
-      V('ows:Abstract', tileSet.description ?? ''),
-      V('ows:Identifier', layerNameId),
-      this.buildKeywords(tileSet),
-      ...[...matrixSets.values()].map((tms) => this.buildBoundingBoxFromImagery(tms, tileSet.layers)),
-      this.buildWgs84BoundingBox(webMercatorOrFirst, bounds),
-      this.buildStyle(),
-      ...this.buildFormats(),
-      ...this.buildTileMatrixLink(tileSet),
-      ...this.getFormats().map((fmt) => this.buildResourceUrl(layerNameId, fmt)),
-    ]);
+
+    for (const pipeline of pipelines) {
+      const formats = this.getFormats(pipeline.format);
+      const layerId = pipeline.default ? layerNameId : `${layerNameId}_${pipeline.name}`;
+      const layerTitle = pipeline.default ? tileSet.title : `${tileSet.title} ${pipeline.title}`;
+
+      const layer = V('Layer', [
+        V('ows:Title', layerTitle),
+        V('ows:Abstract', tileSet.description ?? ''),
+        V('ows:Identifier', layerId),
+        this.buildKeywords(tileSet),
+        ...[...matrixSets.values()].map((tms) => this.buildBoundingBoxFromImagery(tms, tileSet.layers)),
+        this.buildWgs84BoundingBox(webMercatorOrFirst, bounds),
+        this.buildStyle(),
+        ...formats.map((fmt) => V('Format', 'image/' + fmt)),
+        ...this.buildTileMatrixLink(tileSet),
+        ...formats.map((fmt) => this.buildResourceUrl(layerNameId, fmt, pipeline.default ? undefined : pipeline.name)),
+      ]);
+      layers.push(layer);
+    }
+
+    return layers;
+  }
+
+  getPipelines(tileSet: ConfigTileSet, pipeline?: string): ConfigTileSetRasterOutput[] {
+    if (tileSet.type !== TileSetType.Raster) return [];
+
+    if (tileSet.outputs == null) return [{ name: 'rgba', title: 'RGBA', default: true }];
+
+    if (pipeline) return tileSet.outputs.filter((f) => f.name === pipeline);
+
+    return tileSet.outputs;
   }
 
   toAllImageryLayersVNode(configLayers?: ConfigLayer[]): VNodeElement[] {
@@ -393,7 +426,7 @@ export class WmtsCapabilities extends WmtsBuilder {
 
     // Build TileSet Layer VNodes
     const layers: VNodeElement[] = [];
-    layers.push(this.toLayerVNode(this.tileSet));
+    layers.push(...this.toLayerVNode(this.tileSet));
     const contents = layers.concat(this.toAllImageryLayersVNode(this.configLayers));
 
     // Build TileMatrix Sets vNodes
