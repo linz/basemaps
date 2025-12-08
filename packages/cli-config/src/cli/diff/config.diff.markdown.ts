@@ -141,6 +141,17 @@ function markdownBasemapsLinks(
   const defaultLinks: { [epsg: string]: string } = {};
   const pipelineLinks: { [pipeline: string]: { [format: string]: { [epsg: string]: string } } } = {};
 
+  /**
+   * **Stage 1: Build links**
+   *
+   * First, we iterate over the layer by projection. This gives us access to imagery by layer ID.
+   * From that, we can extract each layer's pipelines (outputs) and formats.
+   *
+   * We don't render markdown yet. Since we're iterating by projections at the top level, generating
+   * the markdown inline is tricky. Instead, we only collect the data needed to render the links
+   * in the next stage.
+   */
+
   // grab layer by epsg
   for (const epsg of ProjectionLinkOrder) {
     const layerId = layer[epsg];
@@ -188,6 +199,15 @@ function markdownBasemapsLinks(
       }
     }
   }
+
+  /**
+   * **Stage 2: Render markdown**
+   *
+   * With the pipelines (outputs) and formats collected, we can generate the markdown efficiently.
+   *
+   * - If the layer has no pipelines, or, exactly one pipeline, we render a single-line of links.
+   * - Otherwise, if the layer has multiple pipelines, we render one line per pipeline.
+   */
 
   /**
    * single-line: no pipelines
