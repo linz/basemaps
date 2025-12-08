@@ -4,7 +4,15 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 
-import { Imagery2193, Imagery3857, Provider, TileSetAerial, TileSetElevation } from '../../__tests__/config.data.js';
+import {
+  Imagery2193,
+  Imagery2193Elevation,
+  Imagery3857,
+  Imagery3857Elevation,
+  Provider,
+  TileSetAerial,
+  TileSetElevation,
+} from '../../__tests__/config.data.js';
 import { Api, mockUrlRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
 import { ConfigLoader } from '../../util/config.loader.js';
@@ -33,6 +41,8 @@ describe('WMTSRouting', () => {
       return process.env[arg];
     });
     config.put(TileSetElevation);
+    config.put(Imagery2193Elevation);
+    config.put(Imagery3857Elevation);
     t.mock.method(ConfigLoader, 'load', () => Promise.resolve(config));
     const req = mockUrlRequest(
       '/v1/tiles/elevation/WebMercatorQuad/WMTSCapabilities.xml',
@@ -42,9 +52,10 @@ describe('WMTSRouting', () => {
 
     assert.equal(res.status, 200);
     const lines = Buffer.from(res.body, 'base64').toString().split('\n');
-    const resourceUrl = lines.find((f) => f.includes('ResourceURL'))?.trim();
+    const resourceUrls = lines.filter((f) => f.includes('ResourceURL'));
 
-    assert.ok(resourceUrl);
+    const resourceUrl = resourceUrls[0].trim();
+    assert.equal(resourceUrls.length, 1);
     assert.ok(resourceUrl.includes('amp;pipeline=terrain-rgb'), `includes pipeline=terrain-rgb in ${resourceUrl}`);
     assert.ok(resourceUrl.includes('.png'), `includes .png in ${resourceUrl}`);
   });

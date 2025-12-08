@@ -7,7 +7,15 @@ import { V, VNodeElement } from '@basemaps/shared';
 import { roundNumbersInString } from '@basemaps/test/build/rounding.js';
 
 import { WmtsCapabilities } from '../wmts.capability.js';
-import { Imagery2193, Imagery3857, Provider, TileSetAerial } from './config.data.js';
+import {
+  Imagery2193,
+  Imagery2193Elevation,
+  Imagery3857,
+  Imagery3857Elevation,
+  Provider,
+  TileSetAerial,
+  TileSetElevation,
+} from './config.data.js';
 
 function tags(node: VNodeElement | null | undefined, tag: string): VNodeElement[] {
   if (node == null) return [];
@@ -88,7 +96,7 @@ describe('WmtsCapabilities', () => {
   });
 
   it('should support unicorns and rainbows', () => {
-    const tileSet = { ...TileSetAerial };
+    const tileSet = structuredClone(TileSetAerial);
     tileSet.name = '🦄_🌈_2022_0-5m';
     tileSet.title = '🦄 🌈 Imagery (2022)';
     tileSet.description = '🦄 🌈 Description';
@@ -512,6 +520,14 @@ describe('WmtsCapabilities', () => {
     const rawB = wmtsB.toVNode();
     const layersB = tags(rawB, 'Layer');
     assert.equal(layersB.length, 1);
+    assert.deepEqual(
+      layersB.map((l) => l.find('ows:Identifier')?.textContent),
+      ['aerial'],
+    );
+    assert.deepEqual(
+      layersB.map((l) => l.find('ows:Title')?.textContent),
+      ['Aerial Imagery'],
+    );
   });
 
   it('should cover the entire WebMercatorBounds', () => {
@@ -527,7 +543,7 @@ describe('WmtsCapabilities', () => {
     imageBottomRight.bounds = { x: 0, y: -halfSize, width: halfSize, height: halfSize };
     imagery.set(imageBottomRight.id, imageBottomRight);
 
-    const tileSet = { ...TileSetAerial };
+    const tileSet = structuredClone(TileSetAerial);
     tileSet.layers = [
       { 3857: imageTopLeft.id, name: 'a_top_left', title: 'A Top Left' },
       { 3857: imageBottomRight.id, name: 'b_bottom_right', title: 'B Bottom Right' },
@@ -573,7 +589,7 @@ describe('WmtsCapabilities', () => {
     imageBottomRight.bounds = { x: halfSize / 2, y: -halfSize, width: halfSize, height: halfSize };
     imagery.set(imageBottomRight.id, imageBottomRight);
 
-    const tileSet = { ...TileSetAerial };
+    const tileSet = structuredClone(TileSetAerial);
     tileSet.layers = [{ 3857: imageBottomRight.id, name: 'b_bottom_right', title: 'B Bottom Right' }];
 
     const wmts = new WmtsCapabilities({
@@ -627,5 +643,42 @@ describe('WmtsCapabilities', () => {
     ]);
     assert.equal(bboxC.children[0].textContent, '-180 -49.929855');
     assert.equal(bboxC.children[1].textContent, '180 2.938603');
+  });
+
+  it('should export a layer per pipeline', () => {
+    const tileSet = structuredClone(TileSetElevation);
+
+    const wmts = new WmtsCapabilities({ httpBase: '' });
+    wmts.fromParams({
+      provider: Provider,
+      tileMatrix: [GoogleTms],
+      tileSet,
+      imagery: new Map([
+        [Imagery2193Elevation.id, Imagery2193Elevation],
+        [Imagery3857Elevation.id, Imagery3857Elevation],
+      ]),
+      formats: ['webp'],
+    });
+
+    const raw = wmts.toVNode();
+    const layers = [...(raw.find('Contents')?.tags('Layer') ?? [])];
+
+    assert.equal(layers.length, 2);
+    assert.deepEqual(
+      layers.map((l) => l.find('ows:Identifier')?.textContent),
+      ['elevation_terrain-rgb', 'elevation_color-ramp'],
+    );
+    assert.deepEqual(
+      layers.map((l) => l.find('ows:Title')?.textContent),
+      ['Elevation Imagery TerrainRGB', 'Elevation Imagery Color ramp'],
+    );
+
+    assert.deepEqual(
+      layers.map((l) => tags(l, 'Format').map((m) => m.textContent)),
+      [
+        ['image/png'], // Terrain RGB can only be used as PNG
+        ['image/webp'],
+      ],
+    );
   });
 });
