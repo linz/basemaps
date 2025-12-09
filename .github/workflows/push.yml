@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-deploy:
-    runs-on: [self-hosted, ubuntu-codebuild-medium]
+    runs-on: [self-hosted, ubuntu-codebuild-medium-test]
     concurrency: deploy-${{ github.ref }}
 
     permissions:
