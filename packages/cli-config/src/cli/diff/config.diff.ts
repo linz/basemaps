@@ -104,6 +104,15 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
   const rasterDiffs: DiffTileSet<ConfigTileSetRaster>[] = [];
   const vectorDiffs: DiffTileSet<ConfigTileSetVector>[] = [];
 
+  function addDiff<T extends ConfigTileSet>(before?: T, after?: T): void {
+    const type = before?.type ?? after?.type;
+    const diff = tileSetDiff(before, after);
+    if (diff == null) return;
+    if (type === TileSetType.Raster) rasterDiffs.push(diff as DiffTileSet<ConfigTileSetRaster>);
+    else if (type === TileSetType.Vector) vectorDiffs.push(diff as DiffTileSet<ConfigTileSetVector>);
+    else throw new Error(`Tileset: ${after?.id ?? before?.id} type: ${type} not supported.`);
+  }
+
   for (const tsBefore of tileSetBefore.values()) {
     seen.add(tsBefore.id);
     const tsAfter = tileSetAfter.get(tsBefore.id);
@@ -112,29 +121,12 @@ export function configTileSetDiff(before: ConfigProviderMemory, after: ConfigPro
       throw new Error(`TileSet type conversion not allowed: ${tsAfter.id} ${tsBefore.type} -> ${tsAfter.type}`);
     }
 
-    if (tsBefore.type === TileSetType.Raster) {
-      const diff = tileSetDiff(tsBefore, tsAfter as ConfigTileSetRaster);
-      if (diff) rasterDiffs.push(diff);
-    } else if (tsBefore.type === TileSetType.Vector) {
-      const diff = tileSetDiff(tsBefore, tsAfter as ConfigTileSetVector);
-      if (diff) vectorDiffs.push(diff);
-    } else {
-      throw new Error('Tileset type not supported.');
-    }
+    addDiff(tsBefore, tsAfter as typeof tsBefore);
   }
 
   for (const tsAfter of tileSetAfter.values()) {
     if (seen.has(tsAfter.id)) continue;
-
-    if (tsAfter.type === TileSetType.Raster) {
-      const diff = tileSetDiff(undefined, tsAfter);
-      if (diff) rasterDiffs.push(diff);
-    } else if (tsAfter.type === TileSetType.Vector) {
-      const diff = tileSetDiff(undefined, tsAfter);
-      if (diff) vectorDiffs.push(diff);
-    } else {
-      throw new Error('Tileset type not supported.');
-    }
+    addDiff(undefined, tsAfter);
   }
 
   return { raster: rasterDiffs, vector: vectorDiffs, before, after };

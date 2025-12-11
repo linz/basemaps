@@ -72,15 +72,13 @@ export const DiffCommand = command({
  * @param diffs list of changed vector tilesets
  */
 async function vectorDiffToMarkdown(configUrl: URL, diffs: Diff<ConfigTileSetVector>[]): Promise<string | null> {
+  if (diffs.length === 0) return null;
+
   // Output for vector config changes
   const lines: string[] = [];
 
   lines.push('# Vector Data Update');
-  if (diffs.length === 0) {
-    return null;
-  } else {
-    lines.push('## Tilesets');
-  }
+  lines.push('## Tilesets');
 
   for (const diff of diffs) {
     const id = ConfigId.unprefix(ConfigPrefix.TileSet, diff.id);
