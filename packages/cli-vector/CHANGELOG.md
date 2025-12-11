@@ -1,5 +1,15 @@
 # Changelog
 
+## [8.10.4](https://github.com/linz/basemaps/compare/cli-vector-v8.10.3...cli-vector-v8.10.4) (2025-12-11)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.11.0 to ^8.12.0
+    * @basemaps/shared bumped from ^8.9.3 to ^8.9.4
+
 ## [8.10.3](https://github.com/linz/basemaps/compare/cli-vector-v8.10.2...cli-vector-v8.10.3) (2025-11-16)
 
 

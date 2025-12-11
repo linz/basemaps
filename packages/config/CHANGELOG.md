@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.0](https://github.com/linz/basemaps/compare/config-v8.11.0...config-v8.12.0) (2025-12-11)
+
+
+### Features
+
+* improve diffing between tilesets ([#3555](https://github.com/linz/basemaps/issues/3555)) ([f77cda7](https://github.com/linz/basemaps/commit/f77cda7bf252e9375234b713c49972ce4af5c869))
+* support default outputs pipelines for backwards compatibility ([#3561](https://github.com/linz/basemaps/issues/3561)) ([53e25b9](https://github.com/linz/basemaps/commit/53e25b90b266579ad4059359bfa6f17c5c8f7237))
+
+
+### Bug Fixes
+
+* use the configuration version not time to reset cache ([#3553](https://github.com/linz/basemaps/issues/3553)) ([a3f49c2](https://github.com/linz/basemaps/commit/a3f49c2cb23cb5022a0ba175407a405483081de0))
+
 ## [8.11.0](https://github.com/linz/basemaps/compare/config-v8.10.1...config-v8.11.0) (2025-10-13)
 
 

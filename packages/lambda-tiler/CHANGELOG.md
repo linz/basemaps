@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.0](https://github.com/linz/basemaps/compare/lambda-tiler-v8.11.1...lambda-tiler-v8.12.0) (2025-12-11)
+
+
+### Features
+
+* **lambda-tiler:** expose all pipelines in WMTSCapabilities BM-1455 ([#3586](https://github.com/linz/basemaps/issues/3586)) ([1fc339c](https://github.com/linz/basemaps/commit/1fc339c3fb5b85cb8aaf0b235e58a76ab42ad7db))
+* support default outputs pipelines for backwards compatibility ([#3561](https://github.com/linz/basemaps/issues/3561)) ([53e25b9](https://github.com/linz/basemaps/commit/53e25b90b266579ad4059359bfa6f17c5c8f7237))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.11.0 to ^8.12.0
+    * @basemaps/config-loader bumped from ^8.11.0 to ^8.12.0
+    * @basemaps/shared bumped from ^8.9.3 to ^8.9.4
+    * @basemaps/tiler bumped from ^8.11.0 to ^8.12.0
+    * @basemaps/tiler-sharp bumped from ^8.11.1 to ^8.11.2
+
 ## [8.11.1](https://github.com/linz/basemaps/compare/lambda-tiler-v8.11.0...lambda-tiler-v8.11.1) (2025-11-16)
 
 
