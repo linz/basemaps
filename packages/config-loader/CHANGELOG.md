@@ -1,5 +1,25 @@
 # Changelog
 
+## [8.12.0](https://github.com/linz/basemaps/compare/config-loader-v8.11.0...config-loader-v8.12.0) (2025-12-11)
+
+
+### Features
+
+* support default outputs pipelines for backwards compatibility ([#3561](https://github.com/linz/basemaps/issues/3561)) ([53e25b9](https://github.com/linz/basemaps/commit/53e25b90b266579ad4059359bfa6f17c5c8f7237))
+
+
+### Bug Fixes
+
+* use the configuration version not time to reset cache ([#3553](https://github.com/linz/basemaps/issues/3553)) ([a3f49c2](https://github.com/linz/basemaps/commit/a3f49c2cb23cb5022a0ba175407a405483081de0))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.11.0 to ^8.12.0
+    * @basemaps/shared bumped from ^8.9.3 to ^8.9.4
+
 ## [8.11.0](https://github.com/linz/basemaps/compare/config-loader-v8.10.1...config-loader-v8.11.0) (2025-10-13)
 
 
