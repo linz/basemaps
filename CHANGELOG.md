@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.17.0](https://github.com/linz/basemaps/compare/v8.16.0...v8.17.0) (2025-12-11)
+
+
+### Features
+
+* improve diffing between tilesets ([#3555](https://github.com/linz/basemaps/issues/3555)) ([f77cda7](https://github.com/linz/basemaps/commit/f77cda7bf252e9375234b713c49972ce4af5c869))
+* **lambda-tiler:** expose all pipelines in WMTSCapabilities BM-1455 ([#3586](https://github.com/linz/basemaps/issues/3586)) ([1fc339c](https://github.com/linz/basemaps/commit/1fc339c3fb5b85cb8aaf0b235e58a76ab42ad7db))
+* support default outputs pipelines for backwards compatibility ([#3561](https://github.com/linz/basemaps/issues/3561)) ([53e25b9](https://github.com/linz/basemaps/commit/53e25b90b266579ad4059359bfa6f17c5c8f7237))
+
+
+### Bug Fixes
+
+* revert disable github releases for individual packages [#3565](https://github.com/linz/basemaps/issues/3565) ([#3568](https://github.com/linz/basemaps/issues/3568)) ([65ec936](https://github.com/linz/basemaps/commit/65ec936daa55573572d73cd7e416fc47ed416430))
+* use the configuration version not time to reset cache ([#3553](https://github.com/linz/basemaps/issues/3553)) ([a3f49c2](https://github.com/linz/basemaps/commit/a3f49c2cb23cb5022a0ba175407a405483081de0))
+
 ## [8.16.0](https://github.com/linz/basemaps/compare/v8.15.1...v8.16.0) (2025-11-18)
 
 
