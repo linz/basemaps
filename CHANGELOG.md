@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.17.1](https://github.com/linz/basemaps/compare/v8.17.0...v8.17.1) (2025-12-15)
+
+
+### Bug Fixes
+
+* use npm trusted publishing ([#3587](https://github.com/linz/basemaps/issues/3587)) ([3d58f47](https://github.com/linz/basemaps/commit/3d58f47a14278d3e56775a91a0bef6f51cf90d20))
+
 ## [8.17.0](https://github.com/linz/basemaps/compare/v8.16.0...v8.17.0) (2025-12-11)
 
 
