@@ -20,7 +20,7 @@ jobs:
   publish-release:
     permissions:
       id-token: write # Required for OIDC
-      contents: write
+      contents: read
     needs: release-please
     runs-on: ubuntu-latest
     environment:
