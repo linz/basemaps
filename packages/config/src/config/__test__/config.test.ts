@@ -11,6 +11,10 @@ describe('BaseConfig', () => {
     const raw: BaseConfig = { id: 'foo', name: 'bar' };
     assert.throws(() => ConfigBase.parse(raw));
   });
+  it('should fail with an unsupported id prefix', () => {
+    const raw: BaseConfig = { id: 'zz_foo', name: 'bar' };
+    assert.throws(() => ConfigBase.parse(raw));
+  });
   it('should parse a config', () => {
     const raw: BaseConfig = { id: 'ts_foo', name: 'bar' };
     const obj = ConfigBase.parse(raw);
