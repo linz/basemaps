@@ -3,20 +3,12 @@ on:
     branches:
       - master
 
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-
 name: release-please
-
 jobs:
   release-please:
     runs-on: ubuntu-latest
-
     environment:
       name: prod
-
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
     steps:
@@ -26,14 +18,14 @@ jobs:
           token: ${{ secrets.LI_GITHUB_ACTION_TOKEN }}
 
   publish-release:
-    needs: [release-please]
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read
+    needs: release-please
     runs-on: ubuntu-latest
-
-    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
-
     environment:
       name: prod
-
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
     steps:
       - uses: linz/action-typescript@v3
         with:
