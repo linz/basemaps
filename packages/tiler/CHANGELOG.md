@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.1](https://github.com/linz/basemaps/compare/tiler-v8.12.0...tiler-v8.12.1) (2025-12-17)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.12.0 to ^8.13.0
+
 ## [8.12.0](https://github.com/linz/basemaps/compare/tiler-v8.11.0...tiler-v8.12.0) (2025-12-11)
 
 

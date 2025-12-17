@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.0](https://github.com/linz/basemaps/compare/config-v8.12.0...config-v8.13.0) (2025-12-17)
+
+
+### Features
+
+* **config:** test for supported id prefix BM-1462 ([#3590](https://github.com/linz/basemaps/issues/3590)) ([d349343](https://github.com/linz/basemaps/commit/d3493433f67ad4bfeee89dea25333c3c07fc9ece))
+
 ## [8.12.0](https://github.com/linz/basemaps/compare/config-v8.11.0...config-v8.12.0) (2025-12-11)
 
 
