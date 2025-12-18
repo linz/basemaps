@@ -1,5 +1,16 @@
 # Changelog
 
+## [8.11.2](https://github.com/linz/basemaps/compare/cli-config-v8.11.1...cli-config-v8.11.2) (2025-12-18)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.13.0 to ^8.13.1
+    * @basemaps/config-loader bumped from ^8.12.1 to ^8.12.2
+    * @basemaps/shared bumped from ^8.9.5 to ^8.9.6
+
 ## [8.11.1](https://github.com/linz/basemaps/compare/cli-config-v8.11.0...cli-config-v8.11.1) (2025-12-17)
 
 

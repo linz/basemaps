@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli-raster",
-  "version": "8.11.4",
+  "version": "8.11.5",
   "private": false,
   "repository": {
     "type": "git",
@@ -40,10 +40,10 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "devDependencies": {
-    "@basemaps/config": "^8.13.0",
-    "@basemaps/config-loader": "^8.12.1",
+    "@basemaps/config": "^8.13.1",
+    "@basemaps/config-loader": "^8.12.2",
     "@basemaps/geo": "^8.9.0",
-    "@basemaps/shared": "^8.9.5",
+    "@basemaps/shared": "^8.9.6",
     "@linzjs/geojson": "^8.0.0",
     "@linzjs/metrics": "^8.0.0",
     "cmd-ts": "^0.12.1",

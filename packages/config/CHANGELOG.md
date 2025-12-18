@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.1](https://github.com/linz/basemaps/compare/config-v8.13.0...config-v8.13.1) (2025-12-18)
+
+
+### Bug Fixes
+
+* add tests for pipeline creation ([#3594](https://github.com/linz/basemaps/issues/3594)) ([ca09f51](https://github.com/linz/basemaps/commit/ca09f516483895df413cdc53d7081c1ce66e1995))
+
 ## [8.13.0](https://github.com/linz/basemaps/compare/config-v8.12.0...config-v8.13.0) (2025-12-17)
 
 
