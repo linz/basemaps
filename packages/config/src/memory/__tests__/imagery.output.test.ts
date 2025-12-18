@@ -36,7 +36,7 @@ describe('MemoryConfig', () => {
     delete ts.outputs;
   });
 
-  it('should expand 1 band gray scale into 4 band rgba', async () => {
+  it('should expand 1 band gray scale into 4 band rgba', () => {
     const img = structuredClone(im);
     img.bands = [{ type: 'uint8', color: 'gray' }];
 
@@ -51,7 +51,7 @@ describe('MemoryConfig', () => {
     ]);
   });
 
-  it('should convert 1 band elevation scale into 4 band rgba', async () => {
+  it('should convert 1 band elevation scale into 4 band rgba', () => {
     const img = structuredClone(im);
     img.bands = [{ type: 'float32' }];
 
