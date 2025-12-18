@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-tiler",
-  "version": "8.12.1",
+  "version": "8.12.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -22,12 +22,12 @@
   "types": "./build/index.d.ts",
   "license": "MIT",
   "dependencies": {
-    "@basemaps/config": "^8.13.0",
-    "@basemaps/config-loader": "^8.12.1",
+    "@basemaps/config": "^8.13.1",
+    "@basemaps/config-loader": "^8.12.2",
     "@basemaps/geo": "^8.9.0",
-    "@basemaps/shared": "^8.9.5",
-    "@basemaps/tiler": "^8.12.1",
-    "@basemaps/tiler-sharp": "^8.11.3",
+    "@basemaps/shared": "^8.9.6",
+    "@basemaps/tiler": "^8.12.2",
+    "@basemaps/tiler-sharp": "^8.11.4",
     "@linzjs/geojson": "^8.0.0",
     "@linzjs/lambda": "^4.2.0",
     "@mapbox/vector-tile": "^2.0.3",
