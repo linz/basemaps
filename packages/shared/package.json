@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/shared",
-  "version": "8.9.5",
+  "version": "8.9.6",
   "private": false,
   "repository": {
     "type": "git",
@@ -27,7 +27,7 @@
     "@aws-sdk/client-s3": "^3.472.0",
     "@aws-sdk/s3-request-presigner": "^3.472.0",
     "@aws-sdk/util-dynamodb": "^3.470.0",
-    "@basemaps/config": "^8.13.0",
+    "@basemaps/config": "^8.13.1",
     "@basemaps/geo": "^8.9.0",
     "@chunkd/fs": "^11.2.0",
     "@chunkd/fs-aws": "^11.3.0",

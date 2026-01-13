@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.10.7](https://github.com/linz/basemaps/compare/cli-v8.10.6...cli-v8.10.7) (2025-12-18)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/cli-config bumped from ^8.11.1 to ^8.11.2
+    * @basemaps/cli-raster bumped from ^8.11.4 to ^8.11.5
+    * @basemaps/cli-vector bumped from ^8.10.5 to ^8.10.6
+    * @basemaps/shared bumped from ^8.9.5 to ^8.9.6
+
 ## [8.10.6](https://github.com/linz/basemaps/compare/cli-v8.10.5...cli-v8.10.6) (2025-12-17)
 
 
