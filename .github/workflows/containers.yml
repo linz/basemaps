@@ -58,7 +58,7 @@ jobs:
 
       - name: Create Image Tags
         id: tags
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             // Images to create tags for
