@@ -1,5 +1,5 @@
 import { ConfigImagery, ConfigLayer, ConfigRasterPipeline, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
-import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, getPreviewUrl } from '@basemaps/shared';
 import { Diff } from 'deep-diff';
 
@@ -96,18 +96,18 @@ function markdownPipelineText(type: ConfigRasterPipeline['type']): string {
  * @example https://dev.basemaps.linz.govt.nz/@[location]?c=[config]&i=[layerId]m&p=[projection]&debug=true
  *
  * @param configUrl
- * @param projection
+ * @param tileMatrix
  * @param configImagery
  * @returns
  */
-function getBaseUrl(configUrl: URL, projection: EpsgCode, configImagery: ConfigImagery): URL {
+function getBaseUrl(configUrl: URL, tileMatrix: TileMatrixSet, configImagery: ConfigImagery): URL {
   const center = getPreviewUrl({ imagery: configImagery });
 
   const url = new URL(PublicUrlBase); // host
   url.pathname = center.slug; // location
-  url.searchParams.set('c', configUrl.href); // config
+  url.searchParams.set('config', configUrl.href);
   url.searchParams.set('i', center.name); // layer id
-  url.searchParams.set('p', projection.toString()); // projection
+  url.searchParams.set('tileMatrix', tileMatrix.identifier);
   url.searchParams.set('debug', 'true'); // debug mode
 
   return url;
@@ -161,7 +161,8 @@ function markdownBasemapsLinks(
     const configImagery = diff.after.objects.get(diff.after.Imagery.id(layerId));
     if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${layerId}`);
 
-    const baseUrl = getBaseUrl(configUrl, epsg, configImagery as ConfigImagery);
+    const tileMatrix = TileMatrixSets.get(epsg);
+    const baseUrl = getBaseUrl(configUrl, tileMatrix, configImagery as ConfigImagery);
 
     // grab outputs
     const outputs = tileSet.outputs;
