@@ -1,5 +1,5 @@
 import { ConfigImagery, ConfigLayer, ConfigRasterPipeline, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
-import { EpsgCode, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, getPreviewUrl } from '@basemaps/shared';
 import { Diff } from 'deep-diff';
 
