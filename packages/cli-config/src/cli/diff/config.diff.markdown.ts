@@ -1,5 +1,5 @@
 import { ConfigImagery, ConfigLayer, ConfigRasterPipeline, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
-import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, getPreviewUrl } from '@basemaps/shared';
 import { Diff } from 'deep-diff';
 
@@ -93,13 +93,31 @@ function markdownPipelineText(type: ConfigRasterPipeline['type']): string {
 }
 
 /**
- * @example https://dev.basemaps.linz.govt.nz/@[location]?c=[config]&i=[layerId]m&p=[projection]&debug=true
+ * @example `https://dev.basemaps.linz.govt.nz/?c=[config]&i=[tilesetName]&tileMatrix=[tileMatrix]&debug=true`
+ *
+ * @param configUrl
+ * @param configTileset
+ * @param tileMatrix
+ * @returns
+ */
+function getTilesetBaseUrl(configUrl: URL, configTileset: ConfigTileSet, tileMatrix: TileMatrixSet): URL {
+  const url = new URL(PublicUrlBase); // host
+  url.searchParams.set('config', configUrl.href);
+  url.searchParams.set('i', configTileset.name); // tileset name
+  url.searchParams.set('tileMatrix', tileMatrix.identifier);
+  url.searchParams.set('debug', 'true'); // debug mode
+
+  return url;
+}
+
+/**
+ * @example `https://dev.basemaps.linz.govt.nz/@[location]?c=[config]&i=[layerId]&tileMatrix=[tileMatrix]&debug=true`
  *
  * @param configUrl
  * @param configImagery
  * @returns
  */
-function getBaseUrl(configUrl: URL, configImagery: ConfigImagery): URL {
+function getLayerBaseUrl(configUrl: URL, configImagery: ConfigImagery): URL {
   const center = getPreviewUrl({ imagery: configImagery });
 
   const url = new URL(PublicUrlBase); // host
@@ -115,23 +133,24 @@ function getBaseUrl(configUrl: URL, configImagery: ConfigImagery): URL {
 /**
  * single-line: no pipelines or one pipeline
  *
- * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+ * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
  *
  * multi-line: more than one pipeline
  *
  * @example \n
- * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
- * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+ * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
+ * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
  *
  * @param diff
  * @param tileSet
  * @param layer
+ * @param indent
  * @returns
  */
 function markdownBasemapsLinks(
   diff: DiffTileSetResult,
   tileSet: ConfigTileSetRaster,
-  layer: ConfigLayer,
+  layer?: ConfigLayer,
   indent = '',
 ): string {
   const configUrl = diff.after.source;
@@ -151,16 +170,32 @@ function markdownBasemapsLinks(
    * in the next stage.
    */
 
-  // grab layer by epsg
-  for (const epsg of ProjectionLinkOrder) {
-    const layerId = layer[epsg];
-    if (layerId == null) continue;
+  // determine all of the projections for which the tileset's layers define imagery
+  const supportedEpsgs: Set<EpsgCode> = new Set();
 
-    // grab imagery config
-    const configImagery = diff.after.objects.get(diff.after.Imagery.id(layerId));
-    if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${layerId}`);
+  for (const layer of tileSet.layers) {
+    for (const epsg of ProjectionLinkOrder) {
+      const layerId = layer[epsg];
+      if (layerId != null) supportedEpsgs.add(epsg);
+    }
+  }
 
-    const baseUrl = getBaseUrl(configUrl, configImagery as ConfigImagery);
+  for (const epsg of ProjectionLinkOrder.filter((epsg) => supportedEpsgs.has(epsg))) {
+    // generate base url
+    let baseUrl: URL;
+
+    if (layer != null) {
+      const layerId = layer[epsg];
+      if (layerId == null) continue;
+
+      const configImagery = diff.after.objects.get(diff.after.Imagery.id(layerId)) as ConfigImagery;
+      if (configImagery == null)
+        throw new Error(`Failed to find imagery config from config bundle file. Layer Id: ${layerId}`);
+
+      baseUrl = getLayerBaseUrl(configUrl, configImagery);
+    } else {
+      baseUrl = getTilesetBaseUrl(configUrl, tileSet, TileMatrixSets.get(epsg));
+    }
 
     // grab outputs
     const outputs = tileSet.outputs;
@@ -199,6 +234,10 @@ function markdownBasemapsLinks(
     }
   }
 
+  if (Object.keys(defaultLinks).length === 0 && Object.keys(pipelineLinks).length === 0) {
+    throw new Error(`Failed to capture any links. Tileset id: ${tileSet.id}`);
+  }
+
   /**
    * **Stage 2: Render markdown**
    *
@@ -211,7 +250,7 @@ function markdownBasemapsLinks(
   /**
    * single-line: no pipelines
    *
-   * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+   * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
    */
   if (Object.keys(defaultLinks).length > 0) {
     const line: string[] = [];
@@ -229,13 +268,13 @@ function markdownBasemapsLinks(
   /**
    * single-line: one pipeline
    *
-   * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+   * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
    *
    * multi-line: more than one pipeline
    *
    * @example \n
-   * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
-   * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+   * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
+   * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
    */
   const numPipelines = Object.keys(pipelineLinks).length;
   const lines: string[] = [];
@@ -341,7 +380,7 @@ function markdownDiffRaster(diff: DiffTileSetResult, raster: DiffTileSet<ConfigT
   } else {
     const line: string[] = [];
     line.push(`#### ${symbol} ${raster.after.title} (\`${raster.id}\`)`);
-    line.push(markdownBasemapsLinks(diff, raster.after, raster.after.layers[0]));
+    line.push(markdownBasemapsLinks(diff, raster.after));
 
     lines.push(line.join(' '));
 
