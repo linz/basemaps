@@ -1,5 +1,5 @@
 import { ConfigBundled, ConfigId, ConfigPrefix, ConfigProviderMemory, ConfigTileSetVector } from '@basemaps/config';
-import { EpsgCode, GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env, fsa, getLogger, logArguments, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, option } from 'cmd-ts';
@@ -84,8 +84,8 @@ async function vectorDiffToMarkdown(configUrl: URL, diffs: Diff<ConfigTileSetVec
     const id = ConfigId.unprefix(ConfigPrefix.TileSet, diff.id);
     const version = getVectorVersion(id);
 
-    const projections = [EpsgCode.Google];
-    if (version != null) projections.push(EpsgCode.Nztm2000); // topographic (v1) does not support 2193
+    const tileMatrices = [GoogleTms];
+    if (version != null) tileMatrices.push(Nztm2000QuadTms); // topographic (v1) does not support NZTM2000Quad
 
     const symbol = EmojiChange[diff.type];
     lines.push(`### ${symbol} ${id}`);
@@ -96,15 +96,15 @@ async function vectorDiffToMarkdown(configUrl: URL, diffs: Diff<ConfigTileSetVec
         const styleId = version ? `${style}-${version}` : style;
         const links: string[] = [];
 
-        for (const projection of projections) {
+        for (const tileMatrix of tileMatrices) {
           const url = new URL(PublicUrlBase);
           url.searchParams.set('config', configUrl.href);
           url.searchParams.set('i', id); // layer id
           url.searchParams.set('style', styleId);
-          url.searchParams.set('projection', projection.toString());
+          url.searchParams.set('tileMatrix', tileMatrix.identifier);
           url.searchParams.set('debug', 'true'); // debug mode
 
-          links.push(markdownProjectionLink(projection, url));
+          links.push(markdownProjectionLink(tileMatrix.projection.code, url));
         }
 
         lines.push(`- ${styleId}: ${links.join(' | ')}`);
