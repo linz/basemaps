@@ -242,7 +242,7 @@ function markdownBasemapsLinks(
    * - Otherwise, if the layer has multiple pipelines, we render one line per pipeline.
    */
 
-  const lines: string[] = [];
+  const text: string[] = [];
 
   /**
    * single-line: no pipelines
@@ -259,7 +259,7 @@ function markdownBasemapsLinks(
       line.push(link);
     }
 
-    lines.push(line.join(' | '));
+    text.push(line.join(' | '));
   }
 
   /**
@@ -308,11 +308,11 @@ function markdownBasemapsLinks(
       line.push(links.join(' | '));
     }
 
-    lines.push(line.join(' '));
+    text.push(line.join(' '));
   }
-  if (numPipelines > 1) lines.push('\n\n --- '); // add gap between pipelines and diff
+  if (numPipelines > 1) text.push('\n\n --- '); // add gap between pipelines and diff
 
-  return lines.join('');
+  return text.join('');
 }
 
 /**
