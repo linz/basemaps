@@ -82,17 +82,6 @@ export function markdownProjectionLink(projection: EpsgCode, url: URL): string {
 }
 
 /**
- * @example 🎨
- * @example ⛰️
- *
- * @param type
- * @returns
- */
-function markdownPipelineText(type: ConfigRasterPipeline['type'], title: string, name: string): string {
-  return `${EmojiPipeline[type]} ${title} (\`${name}\`)`;
-}
-
-/**
  * @example `https://dev.basemaps.linz.govt.nz/?c=[config]&i=[tilesetName]&tileMatrix=[tileMatrix]&debug=true`
  *
  * @param configUrl
@@ -211,6 +200,11 @@ function markdownBasemapsLinks(
       const pipelineName = output.name;
       if (pipelineLinks[pipelineName] == null) pipelineLinks[pipelineName] = {};
 
+      if (outputs.length === 1 || output.default === true) {
+        // single output, or default output, add to default links
+        defaultLinks[epsg] = markdownProjectionLink(epsg, baseUrl);
+      }
+
       const formats = output.format;
 
       if (formats == null) {
@@ -248,6 +242,8 @@ function markdownBasemapsLinks(
    * - Otherwise, if the layer has multiple pipelines, we render one line per pipeline.
    */
 
+  const lines: string[] = [];
+
   /**
    * single-line: no pipelines
    *
@@ -263,7 +259,7 @@ function markdownBasemapsLinks(
       line.push(link);
     }
 
-    return line.join(' | ');
+    lines.push(line.join(' | '));
   }
 
   /**
@@ -278,7 +274,6 @@ function markdownBasemapsLinks(
    * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
    */
   const numPipelines = Object.keys(pipelineLinks).length;
-  const lines: string[] = [];
 
   for (const [pipelineName, byFormat] of Object.entries(pipelineLinks)) {
     const line: string[] = [];
@@ -288,8 +283,9 @@ function markdownBasemapsLinks(
       const pipeline = tileSet.outputs?.find((o) => o.name === pipelineName);
       if (pipeline == null) throw new Error(`Failed to find pipeline output for name ${pipelineName}`);
       const pipelineType = pipeline.pipeline?.[0].type ?? 'extract';
+      const defaultText = pipeline.default ? '⭐' : '';
 
-      line.push(`\n${indent}- ${markdownPipelineText(pipelineType, pipeline.title, pipeline.name)}:`);
+      line.push(`\n${indent}- ${EmojiPipeline[pipelineType]}${defaultText} ${pipeline.title} (\`${pipeline.name}\`):`);
     }
 
     const numFormats = Object.keys(byFormat).length;
@@ -314,6 +310,7 @@ function markdownBasemapsLinks(
 
     lines.push(line.join(' '));
   }
+  if (numPipelines > 1) lines.push('\n\n --- '); // add gap between pipelines and diff
 
   return lines.join('');
 }
