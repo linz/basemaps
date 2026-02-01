@@ -189,8 +189,9 @@ function markdownBasemapsLinks(
       if (layerId == null) continue;
 
       const configImagery = diff.after.objects.get(diff.after.Imagery.id(layerId)) as ConfigImagery;
-      if (configImagery == null)
+      if (configImagery == null) {
         throw new Error(`Failed to find imagery config from config bundle file. Layer Id: ${layerId}`);
+      }
 
       baseUrl = getLayerBaseUrl(configUrl, configImagery);
     } else {
