@@ -88,8 +88,8 @@ export function markdownProjectionLink(projection: EpsgCode, url: URL): string {
  * @param type
  * @returns
  */
-function markdownPipelineText(type: ConfigRasterPipeline['type']): string {
-  return `${EmojiPipeline[type]} ${type === 'extract' ? 'rgb' : type}`;
+function markdownPipelineText(type: ConfigRasterPipeline['type'], title: string, name: string): string {
+  return `${EmojiPipeline[type]} ${title} (\`${name}\`)`;
 }
 
 /**
@@ -208,16 +208,16 @@ function markdownBasemapsLinks(
 
     // generate links by output
     for (const output of outputs.sort((a, b) => a.name.localeCompare(b.name))) {
-      const pipeline = output.name as ConfigRasterPipeline['type'];
-      if (pipelineLinks[pipeline] == null) pipelineLinks[pipeline] = {};
+      const pipelineName = output.name;
+      if (pipelineLinks[pipelineName] == null) pipelineLinks[pipelineName] = {};
 
       const formats = output.format;
 
       if (formats == null) {
-        if (pipelineLinks[pipeline]['default'] == null) pipelineLinks[pipeline]['default'] = {};
+        if (pipelineLinks[pipelineName]['default'] == null) pipelineLinks[pipelineName]['default'] = {};
 
         const url = new URL(baseUrl);
-        url.searchParams.set('pipeline', pipeline);
+        url.searchParams.set('pipeline', pipelineName);
         pipelineLinks[output.name]['default'][epsg] = markdownProjectionLink(epsg, url);
 
         continue;
@@ -228,7 +228,7 @@ function markdownBasemapsLinks(
         if (pipelineLinks[output.name][format] == null) pipelineLinks[output.name][format] = {};
 
         const url = new URL(baseUrl);
-        url.searchParams.set('pipeline', pipeline);
+        url.searchParams.set('pipeline', pipelineName);
         url.searchParams.set('format', format);
         pipelineLinks[output.name][format][epsg] = markdownProjectionLink(epsg, url);
       }
@@ -280,11 +280,16 @@ function markdownBasemapsLinks(
   const numPipelines = Object.keys(pipelineLinks).length;
   const lines: string[] = [];
 
-  for (const [pipeline, byFormat] of Object.entries(pipelineLinks)) {
+  for (const [pipelineName, byFormat] of Object.entries(pipelineLinks)) {
     const line: string[] = [];
 
     if (numPipelines > 1) {
-      line.push(`\n${indent}- ${markdownPipelineText(pipeline as ConfigRasterPipeline['type'])}:`);
+      // pipelineName can be any human string, find the first actual pipeline type for the emoji
+      const pipeline = tileSet.outputs?.find((o) => o.name === pipelineName);
+      if (pipeline == null) throw new Error(`Failed to find pipeline output for name ${pipelineName}`);
+      const pipelineType = pipeline.pipeline?.[0].type ?? 'extract';
+
+      line.push(`\n${indent}- ${markdownPipelineText(pipelineType, pipeline.title, pipeline.name)}:`);
     }
 
     const numFormats = Object.keys(byFormat).length;
