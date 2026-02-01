@@ -35,13 +35,18 @@ export function formatPath(change: Diff<unknown>): string {
   return change.path.map((p) => `.${p}`).join('') + ': ';
 }
 
+function formatDiff(obj: unknown): string {
+  if (typeof obj === 'object') return '\n```json\n' + JSON.stringify(obj, null, 2) + '\n```';
+  return `\`${JSON.stringify(obj)}\``;
+}
+
 function changeDiff(change: Diff<unknown>): string {
   if (change.kind === 'E') {
     return `🔄 ${formatPath(change)} \`${JSON.stringify(change.lhs)}\` -> \`${JSON.stringify(change.rhs)}\``;
   } else if (change.kind === 'N') {
-    return `➕ ${formatPath(change)} \`${JSON.stringify(change.rhs)}\``;
+    return `➕ ${formatPath(change)} ${formatDiff(change.rhs)}`;
   } else if (change.kind === 'D') {
-    return `🗑️ ${formatPath(change)} \`${JSON.stringify(change.lhs)}\``;
+    return `🗑️ ${formatPath(change)} ${formatDiff(change.lhs)}`;
   }
 
   // Array index change
