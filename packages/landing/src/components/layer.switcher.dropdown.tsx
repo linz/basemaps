@@ -160,6 +160,7 @@ export class LayerSwitcherDropdown extends Component<unknown, LayerSwitcherDropd
           classNamePrefix="layer-selector"
           id="layer-selector"
           maxMenuHeight={520}
+          aria-label="Layer selector"
         />
         <div
           className="lui-input-group-wrapper"
