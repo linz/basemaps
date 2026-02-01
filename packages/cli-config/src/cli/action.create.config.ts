@@ -69,11 +69,14 @@ export const CreateConfigCommand = command({
     url.searchParams.set('tileMatrix', im.tileMatrix);
     url.searchParams.set('debug', 'true'); // debug mode
 
+    const urlPreview = new URL(center.url, args.host);
+
     logger.info(
       {
         imageryId: im.id,
         configUrl: outputPath,
         url,
+        urlPreview, // used for slack alert images
         config: configPath,
         title: im.title,
         tileMatrix: im.tileMatrix,
