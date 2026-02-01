@@ -48,7 +48,12 @@ export class Header extends Component<unknown, HeaderState> {
         <div className="LuiHeaderV2-row">
           <div className="LuiHeaderV2-col">
             <div className="LuiHeaderV2-logo">
-              <img className="LuiHeaderV2-linz-motif" src="/assets/logo-linz.svg" alt="Toitū Te Whenua - Land Information New Zealand" width="150px" />
+              <img
+                className="LuiHeaderV2-linz-motif"
+                src="/assets/logo-linz.svg"
+                alt="Toitū Te Whenua - Land Information New Zealand"
+                width="150px"
+              />
             </div>
             <div className="LuiHeaderV2-title">
               <h1>Basemaps</h1>
