@@ -131,7 +131,12 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     const terrain = urlParams.get('t') ?? urlParams.get('terrain');
     const labels = urlParams.get('labels');
 
-    const projectionParam = (urlParams.get('p') ?? urlParams.get('tileMatrix') ?? GoogleTms.identifier).toLowerCase();
+    const projectionParam = (
+      urlParams.get('p') ??
+      urlParams.get('projection') ??
+      urlParams.get('tileMatrix') ??
+      GoogleTms.identifier
+    ).toLowerCase();
     let tileMatrix = TileMatrixSets.All.find((f) => f.identifier.toLowerCase() === projectionParam);
     if (tileMatrix == null) tileMatrix = TileMatrixSets.get(Epsg.parse(projectionParam) ?? Epsg.Google);
     if (tileMatrix.identifier === Nztm2000Tms.identifier) tileMatrix = Nztm2000QuadTms;

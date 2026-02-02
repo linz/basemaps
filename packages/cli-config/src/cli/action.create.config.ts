@@ -29,7 +29,7 @@ export const CreateConfigCommand = command({
       defaultValueIsSerializable: true,
     }),
     host: option({
-      type: optional(Url),
+      type: Url,
       long: 'host',
       description: 'Which host to use as the base for for preview generation links',
       defaultValue: () => new URL('https://basemaps.linz.govt.nz'),
@@ -61,17 +61,22 @@ export const CreateConfigCommand = command({
 
     // previews default to webp, so find the first output that supports web to make our life easier
     const output = ts.outputs?.find((f) => f.format == null || f.format.includes('webp'));
-    const p = getPreviewUrl({ imagery: im, config: configPath, pipeline: output?.name });
+    const center = getPreviewUrl({ imagery: im, config: configPath, pipeline: output?.name });
 
-    const url = new URL(`/${p.slug}?style=${p.name}&tileMatrix=${im.tileMatrix}&debug&config=${configPath}`, args.host);
-    const urlPreview = new URL(p.url, args.host);
+    const url = new URL(args.host); // host
+    url.pathname = center.slug; // location
+    url.searchParams.set('style', center.name);
+    url.searchParams.set('tileMatrix', im.tileMatrix);
+    url.searchParams.set('debug', 'true'); // debug mode
+
+    const urlPreview = new URL(center.url, args.host);
 
     logger.info(
       {
         imageryId: im.id,
         configUrl: outputPath,
         url,
-        urlPreview,
+        urlPreview, // used for slack alert images
         config: configPath,
         title: im.title,
         tileMatrix: im.tileMatrix,

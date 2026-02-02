@@ -1,5 +1,5 @@
 import { ConfigImagery, ConfigLayer, ConfigRasterPipeline, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
-import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
+import { EpsgCode, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { Env, getPreviewUrl } from '@basemaps/shared';
 import { Diff } from 'deep-diff';
 
@@ -35,13 +35,18 @@ export function formatPath(change: Diff<unknown>): string {
   return change.path.map((p) => `.${p}`).join('') + ': ';
 }
 
+function formatDiff(obj: unknown): string {
+  if (typeof obj === 'object') return '\n```json\n' + JSON.stringify(obj, null, 2) + '\n```';
+  return `\`${JSON.stringify(obj)}\``;
+}
+
 function changeDiff(change: Diff<unknown>): string {
   if (change.kind === 'E') {
     return `🔄 ${formatPath(change)} \`${JSON.stringify(change.lhs)}\` -> \`${JSON.stringify(change.rhs)}\``;
   } else if (change.kind === 'N') {
-    return `➕ ${formatPath(change)} \`${JSON.stringify(change.rhs)}\``;
+    return `➕ ${formatPath(change)} ${formatDiff(change.rhs)}`;
   } else if (change.kind === 'D') {
-    return `🗑️ ${formatPath(change)} \`${JSON.stringify(change.lhs)}\``;
+    return `🗑️ ${formatPath(change)} ${formatDiff(change.lhs)}`;
   }
 
   // Array index change
@@ -82,32 +87,38 @@ export function markdownProjectionLink(projection: EpsgCode, url: URL): string {
 }
 
 /**
- * @example 🎨
- * @example ⛰️
+ * @example `https://dev.basemaps.linz.govt.nz/?c=[config]&i=[tilesetName]&tileMatrix=[tileMatrix]&debug=true`
  *
- * @param type
+ * @param configUrl
+ * @param configTileset
+ * @param tileMatrix
  * @returns
  */
-function markdownPipelineText(type: ConfigRasterPipeline['type']): string {
-  return `${EmojiPipeline[type]} ${type === 'extract' ? 'rgb' : type}`;
+function getTilesetBaseUrl(configUrl: URL, configTileset: ConfigTileSet, tileMatrix: TileMatrixSet): URL {
+  const url = new URL(PublicUrlBase); // host
+  url.searchParams.set('config', configUrl.href);
+  url.searchParams.set('i', configTileset.name); // tileset name
+  url.searchParams.set('tileMatrix', tileMatrix.identifier);
+  url.searchParams.set('debug', 'true'); // debug mode
+
+  return url;
 }
 
 /**
- * @example https://dev.basemaps.linz.govt.nz/@[location]?c=[config]&i=[layerId]m&p=[projection]&debug=true
+ * @example `https://dev.basemaps.linz.govt.nz/@[location]?c=[config]&i=[layerId]&tileMatrix=[tileMatrix]&debug=true`
  *
  * @param configUrl
- * @param projection
  * @param configImagery
  * @returns
  */
-function getBaseUrl(configUrl: URL, projection: EpsgCode, configImagery: ConfigImagery): URL {
+function getLayerBaseUrl(configUrl: URL, configImagery: ConfigImagery): URL {
   const center = getPreviewUrl({ imagery: configImagery });
 
   const url = new URL(PublicUrlBase); // host
   url.pathname = center.slug; // location
-  url.searchParams.set('c', configUrl.href); // config
+  url.searchParams.set('config', configUrl.href);
   url.searchParams.set('i', center.name); // layer id
-  url.searchParams.set('p', projection.toString()); // projection
+  url.searchParams.set('tileMatrix', configImagery.tileMatrix);
   url.searchParams.set('debug', 'true'); // debug mode
 
   return url;
@@ -116,23 +127,24 @@ function getBaseUrl(configUrl: URL, projection: EpsgCode, configImagery: ConfigI
 /**
  * single-line: no pipelines or one pipeline
  *
- * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+ * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
  *
  * multi-line: more than one pipeline
  *
  * @example \n
- * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
- * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+ * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
+ * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
  *
  * @param diff
  * @param tileSet
  * @param layer
+ * @param indent
  * @returns
  */
 function markdownBasemapsLinks(
   diff: DiffTileSetResult,
   tileSet: ConfigTileSetRaster,
-  layer: ConfigLayer,
+  layer?: ConfigLayer,
   indent = '',
 ): string {
   const configUrl = diff.after.source;
@@ -152,16 +164,33 @@ function markdownBasemapsLinks(
    * in the next stage.
    */
 
-  // grab layer by epsg
-  for (const epsg of ProjectionLinkOrder) {
-    const layerId = layer[epsg];
-    if (layerId == null) continue;
+  // determine all of the projections for which the tileset's layers define imagery
+  const supportedEpsgs: Set<EpsgCode> = new Set();
 
-    // grab imagery config
-    const configImagery = diff.after.objects.get(diff.after.Imagery.id(layerId));
-    if (configImagery == null) throw new Error(`Failed to find imagery config from config bundle file. Id: ${layerId}`);
+  for (const layer of tileSet.layers) {
+    for (const epsg of ProjectionLinkOrder) {
+      const layerId = layer[epsg];
+      if (layerId != null) supportedEpsgs.add(epsg);
+    }
+  }
 
-    const baseUrl = getBaseUrl(configUrl, epsg, configImagery as ConfigImagery);
+  for (const epsg of ProjectionLinkOrder.filter((epsg) => supportedEpsgs.has(epsg))) {
+    // generate base url
+    let baseUrl: URL;
+
+    if (layer != null) {
+      const layerId = layer[epsg];
+      if (layerId == null) continue;
+
+      const configImagery = diff.after.objects.get(diff.after.Imagery.id(layerId)) as ConfigImagery;
+      if (configImagery == null) {
+        throw new Error(`Failed to find imagery config from config bundle file. Layer Id: ${layerId}`);
+      }
+
+      baseUrl = getLayerBaseUrl(configUrl, configImagery);
+    } else {
+      baseUrl = getTilesetBaseUrl(configUrl, tileSet, TileMatrixSets.get(epsg));
+    }
 
     // grab outputs
     const outputs = tileSet.outputs;
@@ -173,16 +202,21 @@ function markdownBasemapsLinks(
 
     // generate links by output
     for (const output of outputs.sort((a, b) => a.name.localeCompare(b.name))) {
-      const pipeline = output.name as ConfigRasterPipeline['type'];
-      if (pipelineLinks[pipeline] == null) pipelineLinks[pipeline] = {};
+      const pipelineName = output.name;
+      if (pipelineLinks[pipelineName] == null) pipelineLinks[pipelineName] = {};
+
+      if (outputs.length === 1 || output.default === true) {
+        // single output, or default output, add to default links
+        defaultLinks[epsg] = markdownProjectionLink(epsg, baseUrl);
+      }
 
       const formats = output.format;
 
       if (formats == null) {
-        if (pipelineLinks[pipeline]['default'] == null) pipelineLinks[pipeline]['default'] = {};
+        if (pipelineLinks[pipelineName]['default'] == null) pipelineLinks[pipelineName]['default'] = {};
 
         const url = new URL(baseUrl);
-        url.searchParams.set('pipeline', pipeline);
+        url.searchParams.set('pipeline', pipelineName);
         pipelineLinks[output.name]['default'][epsg] = markdownProjectionLink(epsg, url);
 
         continue;
@@ -193,11 +227,15 @@ function markdownBasemapsLinks(
         if (pipelineLinks[output.name][format] == null) pipelineLinks[output.name][format] = {};
 
         const url = new URL(baseUrl);
-        url.searchParams.set('pipeline', pipeline);
+        url.searchParams.set('pipeline', pipelineName);
         url.searchParams.set('format', format);
         pipelineLinks[output.name][format][epsg] = markdownProjectionLink(epsg, url);
       }
     }
+  }
+
+  if (Object.keys(defaultLinks).length === 0 && Object.keys(pipelineLinks).length === 0) {
+    throw new Error(`Failed to capture any links. Tileset id: ${tileSet.id}`);
   }
 
   /**
@@ -209,10 +247,12 @@ function markdownBasemapsLinks(
    * - Otherwise, if the layer has multiple pipelines, we render one line per pipeline.
    */
 
+  const text: string[] = [];
+
   /**
    * single-line: no pipelines
    *
-   * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+   * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
    */
   if (Object.keys(defaultLinks).length > 0) {
     const line: string[] = [];
@@ -224,28 +264,33 @@ function markdownBasemapsLinks(
       line.push(link);
     }
 
-    return line.join(' | ');
+    text.push(line.join(' | '));
   }
 
   /**
    * single-line: one pipeline
    *
-   * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+   * @example [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
    *
    * multi-line: more than one pipeline
    *
    * @example \n
-   * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
-   * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000]()
+   * - 🎨 color-ramp:  [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
+   * - ⛰️ terrain-rgb: [🌏 WebMercatorQuad]() | [🗺️ NZTM2000Quad]()
    */
   const numPipelines = Object.keys(pipelineLinks).length;
-  const lines: string[] = [];
 
-  for (const [pipeline, byFormat] of Object.entries(pipelineLinks)) {
+  for (const [pipelineName, byFormat] of Object.entries(pipelineLinks)) {
     const line: string[] = [];
 
     if (numPipelines > 1) {
-      line.push(`\n${indent}- ${markdownPipelineText(pipeline as ConfigRasterPipeline['type'])}:`);
+      // pipelineName can be any human string, find the first actual pipeline type for the emoji
+      const pipeline = tileSet.outputs?.find((o) => o.name === pipelineName);
+      if (pipeline == null) throw new Error(`Failed to find pipeline output for name ${pipelineName}`);
+      const pipelineType = pipeline.pipeline?.[0].type ?? 'extract';
+      const defaultText = pipeline.default ? '⭐' : '';
+
+      line.push(`\n${indent}- ${EmojiPipeline[pipelineType]}${defaultText} ${pipeline.title} (\`${pipeline.name}\`):`);
     }
 
     const numFormats = Object.keys(byFormat).length;
@@ -268,10 +313,11 @@ function markdownBasemapsLinks(
       line.push(links.join(' | '));
     }
 
-    lines.push(line.join(' '));
+    text.push(line.join(' '));
   }
+  if (numPipelines > 1) text.push('\n\n --- '); // add gap between pipelines and diff
 
-  return lines.join('');
+  return text.join('');
 }
 
 /**
@@ -342,7 +388,7 @@ function markdownDiffRaster(diff: DiffTileSetResult, raster: DiffTileSet<ConfigT
   } else {
     const line: string[] = [];
     line.push(`#### ${symbol} ${raster.after.title} (\`${raster.id}\`)`);
-    line.push(markdownBasemapsLinks(diff, raster.after, raster.after.layers[0]));
+    line.push(markdownBasemapsLinks(diff, raster.after));
 
     lines.push(line.join(' '));
 
