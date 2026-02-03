@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/core",
-  "version": "8.18.1",
+  "version": "8.18.2",
   "private": true,
   "repository": "git@github.com:linz/basemaps.git",
   "author": {

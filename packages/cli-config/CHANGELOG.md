@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.11.3](https://github.com/linz/basemaps/compare/cli-config-v8.11.2...cli-config-v8.11.3) (2026-02-03)
+
+
+### Bug Fixes
+
+* **cli-config:** QA preview URLs BM-1502 ([#3595](https://github.com/linz/basemaps/issues/3595)) ([3396e4b](https://github.com/linz/basemaps/commit/3396e4b95410e567599e92e909d0e912433b92c5))
+
 ## [8.11.2](https://github.com/linz/basemaps/compare/cli-config-v8.11.1...cli-config-v8.11.2) (2025-12-18)
 
 
