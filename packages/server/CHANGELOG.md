@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.10.10](https://github.com/linz/basemaps/compare/server-v8.10.9...server-v8.10.10) (2026-02-03)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/landing bumped from ^8.12.3 to ^8.12.4
+  * optionalDependencies
+    * @basemaps/landing bumped from ^8.12.3 to ^8.12.4
+
 ## [8.10.9](https://github.com/linz/basemaps/compare/server-v8.10.8...server-v8.10.9) (2025-12-18)
 
 

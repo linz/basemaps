@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.4](https://github.com/linz/basemaps/compare/landing-v8.12.3...landing-v8.12.4) (2026-02-03)
+
+
+### Bug Fixes
+
+* **cli-config:** QA preview URLs BM-1502 ([#3595](https://github.com/linz/basemaps/issues/3595)) ([3396e4b](https://github.com/linz/basemaps/commit/3396e4b95410e567599e92e909d0e912433b92c5))
+* **landing:** add alt text to landing logos BM-1503 ([#3596](https://github.com/linz/basemaps/issues/3596)) ([aa7bc8c](https://github.com/linz/basemaps/commit/aa7bc8cb27f8a81d394dd2f8a7ef62de1707f1b5))
+* **landing:** layer drop down label BM-1504 ([#3597](https://github.com/linz/basemaps/issues/3597)) ([0c7dba6](https://github.com/linz/basemaps/commit/0c7dba6b17129d31be51c517defb0366b41eed52))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/cli-config bumped from ^8.11.2 to ^8.11.3
+
 ## [8.12.3](https://github.com/linz/basemaps/compare/landing-v8.12.2...landing-v8.12.3) (2025-12-18)
 
 
