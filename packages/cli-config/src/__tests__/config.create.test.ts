@@ -8,7 +8,7 @@ import { pathToFileURL } from 'url';
 
 import { CreateConfigCommand } from '../cli/action.create.config.js';
 
-describe('action.config.create', async () => {
+describe('action.config.create', () => {
   const fsMem = new FsMemory();
 
   const baseArgs = {
