@@ -5,7 +5,6 @@ import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, positional } from 'cmd-ts';
 import pLimit from 'p-limit';
-import { pathToFileURL } from 'url';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
 

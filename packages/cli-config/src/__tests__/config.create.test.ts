@@ -1,13 +1,12 @@
 import { before, describe, it } from 'node:test';
 
-import { ensureBase58, sha256base58 } from '@basemaps/config';
+import { ensureBase58 } from '@basemaps/config';
 import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import assert from 'assert';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { pathToFileURL } from 'url';
 
 import { CreateConfigCommand } from '../cli/action.create.config.js';
-import { TsAerial } from './config.diff.data.js';
 
 describe('action.config.create', async () => {
   const fsMem = new FsMemory();
