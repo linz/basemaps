@@ -27,7 +27,7 @@ describe('action.config.create', () => {
   before(() => {
     fsa.register('source://', fsMem);
     fsa.register('target://', fsMem);
-    fsa.register('file:///tmp/', fsMem);
+    fsa.register(fsa.toUrl('/tmp/').href, fsMem);
 
     LogConfig.get().level = 'silent';
   });
