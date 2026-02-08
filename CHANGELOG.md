@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.18.3](https://github.com/linz/basemaps/compare/v8.18.2...v8.18.3) (2026-02-08)
+
+
+### Bug Fixes
+
+* **cli-config:** ensure config urls are created correctly ([#3599](https://github.com/linz/basemaps/issues/3599)) ([eb9f74e](https://github.com/linz/basemaps/commit/eb9f74e02c3304d25c7801f6669e3d4623d31841))
+
 ## [8.18.2](https://github.com/linz/basemaps/compare/v8.18.1...v8.18.2) (2026-02-03)
 
 

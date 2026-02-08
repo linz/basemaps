@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.11.4](https://github.com/linz/basemaps/compare/cli-config-v8.11.3...cli-config-v8.11.4) (2026-02-08)
+
+
+### Bug Fixes
+
+* **cli-config:** ensure config urls are created correctly ([#3599](https://github.com/linz/basemaps/issues/3599)) ([eb9f74e](https://github.com/linz/basemaps/commit/eb9f74e02c3304d25c7801f6669e3d4623d31841))
+
 ## [8.11.3](https://github.com/linz/basemaps/compare/cli-config-v8.11.2...cli-config-v8.11.3) (2026-02-03)
 
 

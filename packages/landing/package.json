@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/landing",
-  "version": "8.12.4",
+  "version": "8.12.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/linz/basemaps.git",
@@ -29,7 +29,7 @@
   ],
   "devDependencies": {
     "@basemaps/attribution": "^8.9.0",
-    "@basemaps/cli-config": "^8.11.3",
+    "@basemaps/cli-config": "^8.11.4",
     "@basemaps/config": "^8.13.1",
     "@basemaps/geo": "^8.9.0",
     "@basemaps/shared": "^8.9.6",
