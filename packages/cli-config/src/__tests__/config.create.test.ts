@@ -10,6 +10,7 @@ import { CreateConfigCommand } from '../cli/action.create.config.js';
 
 describe('action.config.create', () => {
   const fsMem = new FsMemory();
+  const basePath = fsa.toUrl('/tmp/cogify/');
 
   const baseArgs = {
     concurrency: 1,
@@ -35,10 +36,10 @@ describe('action.config.create', () => {
     await fsMem.write(new URL('source://imagery/westland_2024_0.075m/cog1.tif'), fsa.readStream(TestTiff.Float32Dem));
     await CreateConfigCommand.handler(baseArgs);
 
-    const configPath = String(await fsMem.read(new URL('file:///tmp/cogify/config-path')));
+    const configPath = String(await fsMem.read(new URL('config-path', basePath)));
     assert.ok(configPath.startsWith('target://imagery/basemaps-config-'));
 
-    const configUrl = new URL(await fsMem.read(new URL('file:///tmp/cogify/config-url')));
+    const configUrl = new URL(await fsMem.read(new URL('config-url', basePath)));
     assert.equal(configUrl.searchParams.get('pipeline'), 'color-ramp');
     assert.equal(configUrl.searchParams.get('config'), ensureBase58(configPath));
     assert.equal(configUrl.searchParams.get('tileMatrix'), null); // web mercator quad is the default
@@ -47,7 +48,7 @@ describe('action.config.create', () => {
 
     assert.equal(configUrl.host, 'basemaps.linz.govt.nz');
 
-    const configUrlPreview = new URL(await fsMem.read(new URL('file:///tmp/cogify/config-url-preview')));
+    const configUrlPreview = new URL(await fsMem.read(new URL('config-url-preview', basePath)));
     assert.equal(configUrlPreview.searchParams.get('pipeline'), 'color-ramp');
     assert.equal(configUrlPreview.searchParams.get('config'), ensureBase58(configPath));
     assert.equal(configUrlPreview.host, 'basemaps.linz.govt.nz');
@@ -59,10 +60,10 @@ describe('action.config.create', () => {
     await fsMem.write(new URL('source://imagery/westland_2024_0.075m/cog1.tif'), fsa.readStream(TestTiff.Rgbi16));
     await CreateConfigCommand.handler(baseArgs);
 
-    const configPath = String(await fsMem.read(new URL('file:///tmp/cogify/config-path')));
+    const configPath = String(await fsMem.read(new URL('config-path', basePath)));
     assert.ok(configPath.startsWith('target://imagery/basemaps-config-'));
 
-    const configUrl = new URL(await fsMem.read(new URL('file:///tmp/cogify/config-url')));
+    const configUrl = new URL(await fsMem.read(new URL('config-url', basePath)));
     assert.equal(configUrl.searchParams.get('pipeline'), 'rgb');
     assert.equal(configUrl.searchParams.get('config'), ensureBase58(configPath));
     assert.equal(configUrl.searchParams.get('tileMatrix'), null); // web mercator quad is the default
@@ -71,7 +72,7 @@ describe('action.config.create', () => {
 
     assert.equal(configUrl.host, 'basemaps.linz.govt.nz');
 
-    const configUrlPreview = new URL(await fsMem.read(new URL('file:///tmp/cogify/config-url-preview')));
+    const configUrlPreview = new URL(await fsMem.read(new URL('config-url-preview', basePath)));
     assert.equal(configUrlPreview.searchParams.get('pipeline'), 'rgb');
     assert.equal(configUrlPreview.searchParams.get('config'), ensureBase58(configPath));
     assert.equal(configUrlPreview.host, 'basemaps.linz.govt.nz');
@@ -83,10 +84,10 @@ describe('action.config.create', () => {
     await fsMem.write(new URL('source://imagery/westland_2024_0.075m/cog1.tif'), fsa.readStream(TestTiff.Nztm2000));
     await CreateConfigCommand.handler(baseArgs);
 
-    const configPath = String(await fsMem.read(new URL('file:///tmp/cogify/config-path')));
+    const configPath = String(await fsMem.read(new URL('config-path', basePath)));
     assert.ok(configPath.startsWith('target://imagery/basemaps-config-'));
 
-    const configUrl = new URL(await fsMem.read(new URL('file:///tmp/cogify/config-url')));
+    const configUrl = new URL(await fsMem.read(new URL('config-url', basePath)));
     assert.equal(configUrl.searchParams.get('config'), ensureBase58(configPath));
     assert.equal(configUrl.searchParams.get('tileMatrix'), 'NZTM2000Quad');
     assert.equal(configUrl.searchParams.get('debug'), 'true');
@@ -94,7 +95,7 @@ describe('action.config.create', () => {
 
     assert.equal(configUrl.host, 'basemaps.linz.govt.nz');
 
-    const configUrlPreview = new URL(await fsMem.read(new URL('file:///tmp/cogify/config-url-preview')));
+    const configUrlPreview = new URL(await fsMem.read(new URL('config-url-preview', basePath)));
     assert.equal(configUrlPreview.searchParams.get('config'), ensureBase58(configPath));
     assert.equal(configUrlPreview.host, 'basemaps.linz.govt.nz');
 
