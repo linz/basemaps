@@ -35,6 +35,11 @@ export const CreateConfigCommand = command({
       defaultValue: () => new URL('https://basemaps.linz.govt.nz'),
       defaultValueIsSerializable: true,
     }),
+    output: option({
+      type: optional(UrlFolder),
+      long: 'output',
+      description: 'Where to write the create-config-output locations to',
+    }),
     path: positional({ type: UrlFolder, displayName: 'path', description: 'Path to imagery' }),
   },
 
@@ -63,10 +68,10 @@ export const CreateConfigCommand = command({
     const output = ts.outputs?.find((f) => f.format == null || f.format.includes('webp'));
     const center = getPreviewUrl({ imagery: im, config: configPath, pipeline: output?.name });
 
-    const url = new URL(args.host); // host
+    const url = new URL(center.url, args.host); // host
     url.pathname = center.slug; // location
     url.searchParams.set('style', center.name);
-    url.searchParams.set('tileMatrix', im.tileMatrix);
+    if (im.tileMatrix !== 'WebMercatorQuad') url.searchParams.set('tileMatrix', im.tileMatrix);
     url.searchParams.set('debug', 'true'); // debug mode
 
     const urlPreview = new URL(center.url, args.host);
@@ -85,11 +90,14 @@ export const CreateConfigCommand = command({
       'ImageryConfig:Done',
     );
 
-    if (isArgo()) {
+    if (isArgo() || args.output != null) {
+      const target = args.output ?? fsa.toUrl('/tmp/cogify/');
       // Path to where the config is located
-      await fsa.write(fsa.toUrl('/tmp/cogify/config-path'), urlToString(outputPath));
+      await fsa.write(new URL('config-path', target), urlToString(outputPath));
       // A URL to where the imagery can be viewed
-      await fsa.write(fsa.toUrl('/tmp/cogify/config-url'), urlToString(url));
+      await fsa.write(new URL('config-url', target), urlToString(url));
+      // A URL to the preview image
+      await fsa.write(new URL('config-url-preview', target), urlToString(urlPreview));
     }
 
     logger.info({ metrics: metrics.metrics }, 'ImageryConfig:Metrics');
