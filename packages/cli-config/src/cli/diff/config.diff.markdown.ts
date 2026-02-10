@@ -5,10 +5,9 @@ import {
   ConfigRasterPipeline,
   ConfigTileSet,
   ConfigTileSetRaster,
-  getAllImagery,
 } from '@basemaps/config';
 import { EpsgCode, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Env, getPreviewUrl } from '@basemaps/shared';
+import { Env, getImageryCenterZoom, getPreviewUrl, toSlug } from '@basemaps/shared';
 import { Diff } from 'deep-diff';
 
 import { DiffTileSet, DiffTileSetResult, DiffTileSetUpdated, DiffType } from './config.diff.js';
@@ -114,9 +113,9 @@ function getTilesetBaseUrl(
   url.searchParams.set('tileMatrix', tileMatrix.identifier);
   url.searchParams.set('debug', 'true'); // debug mode
 
-  if (imagery.length < 5 && imagery.length > 0) {
-    const center = getPreviewUrl({ imagery: imagery[0] });
-    url.pathname = center.slug;
+  if (imagery.length > 0) {
+    const center = getImageryCenterZoom(imagery);
+    url.pathname = toSlug(center);
   }
 
   return url;
