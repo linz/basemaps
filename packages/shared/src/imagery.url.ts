@@ -1,9 +1,15 @@
 import { ConfigImagery, standardizeLayerName } from '@basemaps/config';
-import { Projection, Size, TileMatrixSets } from '@basemaps/geo';
+import { BoundingBox, Bounds, Projection, Size, TileMatrixSets } from '@basemaps/geo';
 
 export const PreviewSize = { width: 1200, height: 630 };
 
-export function getImageryCenterZoom(im: ConfigImagery, previewSize: Size): { lat: number; lon: number; zoom: number } {
+export function getImageryListCenterZoom(imageryList: ConfigImagery[], previewSize: Size): { lat: number; lon: number; zoom: number } {
+  if (imageryList.length === 0) throw new Error('No imagery provided');
+  const bounds = Bounds.union(imageryList.map((i) => Bounds.fromJson(i.bounds)));
+  return getImageryCenterZoom({ bounds, tileMatrix: imageryList[0].tileMatrix }, previewSize);
+}
+
+export function getImageryCenterZoom(im: { bounds: BoundingBox, tileMatrix: string }, previewSize: Size): { lat: number; lon: number; zoom: number } {
   const center = { x: im.bounds.x + im.bounds.width / 2, y: im.bounds.y + im.bounds.height / 2 };
 
   // Find a approximate GSD needed to show most of the imagery
