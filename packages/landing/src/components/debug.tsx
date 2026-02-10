@@ -67,7 +67,7 @@ function upperCaseFirstChar(c: string): string {
   return c[0].toUpperCase() + c.slice(1);
 }
 
-function debugSlider(label: 'osm' | 'linz-topographic' | 'linz-aerial', onInput: FormEventHandler): ReactNode {
+function debugSlider(label: 'osm' | 'linz-labels' | 'linz-aerial', onInput: FormEventHandler): ReactNode {
   return (
     <input
       className="debug__slider"
@@ -148,7 +148,7 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     this.debugMap.setPurple(Config.map.debug['debug.background'] === 'magenta');
     this.debugMap.adjustRaster(this.props.map, 'osm', Config.map.debug['debug.layer.osm']);
     this.debugMap.adjustRaster(this.props.map, 'linz-aerial', Config.map.debug['debug.layer.linz-aerial']);
-    void this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-topographic']);
+    void this.debugMap.adjustVector(this.props.map, Config.map.debug['debug.layer.linz-labels']);
     this.setVectorShown(Config.map.debug['debug.source'], debugTypes.source);
     this.setVectorShown(Config.map.debug['debug.cog'], debugTypes.cog);
     this.setVectorShown(Config.map.debug['debug.capture-area'], debugTypes['capture-area']);
@@ -565,10 +565,16 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
     // Only 3857 currently works with OSM/Topographic map
     if (Config.map.tileMatrix.identifier !== GoogleTms.identifier) {
       return (
-        <div className="debug__info">
-          <label className="debug__label">LINZ Aerial</label>
-          {debugSlider('linz-aerial', this.debugMap.adjustLinzAerial)}
-        </div>
+        <Fragment>
+          <div className="debug__info">
+            <label className="debug__label">Labels</label>
+            {debugSlider('linz-labels', this.debugMap.adjustTopographicLabels)}
+          </div>
+          <div className="debug__info">
+            <label className="debug__label">LINZ Aerial</label>
+            {debugSlider('linz-aerial', this.debugMap.adjustLinzAerial)}
+          </div>
+        </Fragment>
       );
     }
 
@@ -579,8 +585,8 @@ export class Debug extends Component<{ map: maplibregl.Map }, DebugState> {
           {debugSlider('osm', this.debugMap.adjustOsm)}
         </div>
         <div className="debug__info">
-          <label className="debug__label">Topographic</label>
-          {debugSlider('linz-topographic', this.debugMap.adjustTopographic)}
+          <label className="debug__label">Labels</label>
+          {debugSlider('linz-labels', this.debugMap.adjustTopographicLabels)}
         </div>
         <div className="debug__info">
           <label className="debug__label">LINZ Aerial</label>

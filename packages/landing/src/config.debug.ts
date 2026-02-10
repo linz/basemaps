@@ -14,10 +14,10 @@ export interface DebugState {
   'debug.screenshot': boolean;
   /** What opacity is the aerial layer, 0 is off */
   'debug.layer.linz-aerial': number;
-  /** What opacity is the topographic layer, 0 is off */
-  'debug.layer.linz-topographic': number;
   /** What opacity is the open streetmap layer, 0 is off*/
   'debug.layer.osm': number;
+  /** Should the label layer be shown */
+  'debug.layer.linz-labels': number;
   /** Should the date range slider be shown */
   'debug.date': boolean;
   /** Should the terrain ben shown */
@@ -37,7 +37,7 @@ export const DebugDefaults: DebugState = {
   'debug.capture-area': false,
   'debug.screenshot': false,
   'debug.layer.linz-aerial': 0,
-  'debug.layer.linz-topographic': 0,
+  'debug.layer.linz-labels': 0,
   'debug.layer.osm': 0,
   'debug.date': false,
   'debug.terrain': null,
@@ -77,7 +77,7 @@ export class ConfigDebug {
     isChanged = setKey(opt, 'debug.capture-area', url.get('debug.capture-area') != null) || isChanged;
     isChanged = setKey(opt, 'debug.screenshot', url.get('debug.screenshot') != null) || isChanged;
     isChanged = setNum(opt, 'debug.layer.linz-aerial', url.get('debug.layer.linz-aerial')) || isChanged;
-    isChanged = setNum(opt, 'debug.layer.linz-topographic', url.get('debug.layer.linz-topographic')) || isChanged;
+    isChanged = setNum(opt, 'debug.layer.linz-labels', url.get('debug.layer.linz-labels')) || isChanged;
     isChanged = setNum(opt, 'debug.layer.osm', url.get('debug.layer.osm')) || isChanged;
     isChanged = setKey(opt, 'debug.date', url.get('debug.date') != null) || isChanged;
     isChanged = setKey(opt, 'debug.terrain', url.get('debug.terrain')) || isChanged;
