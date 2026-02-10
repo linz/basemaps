@@ -83,7 +83,7 @@ describe('config.diff', () => {
     LogConfig.get().level = 'silent';
   });
 
-  async function stubLoadConfig(t: TestContext, source: string): Promise<ConfigProviderMemory> {
+  async function stubLoadConfig(t: TestContext, source: string, createVirtual = true): Promise<ConfigProviderMemory> {
     t.mock.method(ConfigJson.prototype, 'initImageryFromTiffUrl', (url: URL) => {
       const parts = splitUrlIntoParts(url);
 
@@ -98,7 +98,7 @@ describe('config.diff', () => {
         gsd: parts.gsd,
         uri: url.href,
         url: url,
-        bounds: { x: 0, y: 0, width: 0, height: 0 },
+        bounds: { x: 0, y: 0, width: 100, height: 100 },
         bands: [
           { type: 'uint8', color: 'red' },
           { type: 'uint8', color: 'green' },
@@ -112,7 +112,7 @@ describe('config.diff', () => {
 
     const mem = await ConfigJson.fromUrl(new URL(source), pLimit(1), LogConfig.get());
     mem.source = fsa.toUrl('s3://fake-source.json.gz');
-    mem.createVirtualTileSets();
+    if (createVirtual) mem.createVirtualTileSets();
     return mem;
   }
 
@@ -348,6 +348,22 @@ describe('config.diff', () => {
         diffAll.layers.map((m) => [m.type, m.id].join(':')),
         ['new:top-of-the-south-flood-2022-0.15m'],
       );
+    });
+
+    it('should show a center location when a individual dataset is modified', async (t) => {
+      const before = await stubLoadConfig(t, 'before://config/', false);
+      await fsa.write(
+        fsa.toUrl('after://config/tileset/' + TsIndividual.layers[0].name + '.json'),
+        JSON.stringify(TsIndividual),
+      );
+      const after = await stubLoadConfig(t, 'after://config/', false);
+      const diff = configTileSetDiff(before, after);
+
+      const md = diffToMarkdown(diff).split('\n');
+
+      const newLine = md.find((l) => l.includes('top-of-the-south-flood-2022-0.15m'));
+      assert.ok(newLine);
+      assert.ok(newLine.includes(`/@0.0004492,0.0004492,z12`));
     });
 
     it('should show a diff when a individual layer is removed', async (t) => {

@@ -1,6 +1,13 @@
-import { ConfigImagery, ConfigLayer, ConfigRasterPipeline, ConfigTileSet, ConfigTileSetRaster } from '@basemaps/config';
+import {
+  ConfigImagery,
+  ConfigLayer,
+  ConfigProviderMemory,
+  ConfigRasterPipeline,
+  ConfigTileSet,
+  ConfigTileSetRaster,
+} from '@basemaps/config';
 import { EpsgCode, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Env, getPreviewUrl } from '@basemaps/shared';
+import { Env, getImageryCenterZoom, getPreviewUrl, toSlug } from '@basemaps/shared';
 import { Diff } from 'deep-diff';
 
 import { DiffTileSet, DiffTileSetResult, DiffTileSetUpdated, DiffType } from './config.diff.js';
@@ -94,12 +101,22 @@ export function markdownProjectionLink(projection: EpsgCode, url: URL): string {
  * @param tileMatrix
  * @returns
  */
-function getTilesetBaseUrl(configUrl: URL, configTileset: ConfigTileSet, tileMatrix: TileMatrixSet): URL {
+function getTilesetBaseUrl(
+  configUrl: URL,
+  configTileset: ConfigTileSet,
+  tileMatrix: TileMatrixSet,
+  imagery: ConfigImagery[],
+): URL {
   const url = new URL(PublicUrlBase); // host
   url.searchParams.set('config', configUrl.href);
   url.searchParams.set('i', configTileset.name); // tileset name
   url.searchParams.set('tileMatrix', tileMatrix.identifier);
   url.searchParams.set('debug', 'true'); // debug mode
+
+  if (imagery.length > 0) {
+    const center = getImageryCenterZoom(imagery);
+    url.pathname = toSlug(center);
+  }
 
   return url;
 }
@@ -122,6 +139,23 @@ function getLayerBaseUrl(configUrl: URL, configImagery: ConfigImagery): URL {
   url.searchParams.set('debug', 'true'); // debug mode
 
   return url;
+}
+
+function getAllImagery(mem: ConfigProviderMemory, layers: ConfigLayer[], epsgs: EpsgCode[]): ConfigImagery[] {
+  const imagery = new Map<string, ConfigImagery>();
+
+  for (const layer of layers) {
+    for (const epsg of epsgs) {
+      const layerId = layer[epsg];
+      if (layerId == null) continue;
+      if (imagery.has(layerId)) continue;
+
+      const configImagery = mem.objects.get(mem.Imagery.id(layerId)) as ConfigImagery;
+      if (configImagery == null) continue;
+      imagery.set(layerId, configImagery);
+    }
+  }
+  return [...imagery.values()];
 }
 
 /**
@@ -189,7 +223,8 @@ function markdownBasemapsLinks(
 
       baseUrl = getLayerBaseUrl(configUrl, configImagery);
     } else {
-      baseUrl = getTilesetBaseUrl(configUrl, tileSet, TileMatrixSets.get(epsg));
+      const tileSetImagery = getAllImagery(diff.after, tileSet.layers, [epsg]);
+      baseUrl = getTilesetBaseUrl(configUrl, tileSet, TileMatrixSets.get(epsg), tileSetImagery);
     }
 
     // grab outputs
