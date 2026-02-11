@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.3](https://github.com/linz/basemaps/compare/lambda-tiler-v8.12.2...lambda-tiler-v8.12.3) (2026-02-11)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config-loader bumped from ^8.12.2 to ^8.12.3
+    * @basemaps/shared bumped from ^8.9.6 to ^8.9.7
+
 ## [8.12.2](https://github.com/linz/basemaps/compare/lambda-tiler-v8.12.1...lambda-tiler-v8.12.2) (2025-12-18)
 
 
