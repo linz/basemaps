@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.19.0](https://github.com/linz/basemaps/compare/v8.18.3...v8.19.0) (2026-02-11)
+
+
+### Features
+
+* support NZTM2000 labels in debug view ([#3602](https://github.com/linz/basemaps/issues/3602)) ([ac04281](https://github.com/linz/basemaps/commit/ac042813cbee68ea48a8e0e23a8ef03160c140f6))
+
+
+### Bug Fixes
+
+* create a center URL for tilesets ([#3601](https://github.com/linz/basemaps/issues/3601)) ([8f49a3e](https://github.com/linz/basemaps/commit/8f49a3e0f64f84b32dfa7d5f31f842d0058f8544))
+
 ## [8.18.3](https://github.com/linz/basemaps/compare/v8.18.2...v8.18.3) (2026-02-08)
 
 
