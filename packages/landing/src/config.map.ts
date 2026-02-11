@@ -226,6 +226,7 @@ export class MapConfig extends Emitter<MapConfigEvents> {
     ) {
       return;
     }
+
     this.location.lat = l.lat;
     this.location.lon = l.lon;
     this.location.zoom = l.zoom;
@@ -299,8 +300,9 @@ export class MapConfig extends Emitter<MapConfigEvents> {
  * @param b location B/
  * @returns true if the extents are exactly the same false otherwise
  */
-function sameExtent(a: MapLocation, b: MapLocation): boolean {
-  if (a.extent == null && b.extent == null) return true;
+function sameExtent(srcA: MapLocation, srcB: MapLocation): boolean {
+  const a = srcA.extent;
+  const b = srcB.extent;
   if (Array.isArray(a) && Array.isArray(b) && a.length === b.length) {
     for (let i = 0; i < a.length; i++) {
       if (a[i] !== b[i]) return false;

@@ -16,6 +16,11 @@ export interface DebugType {
   fill: boolean;
 }
 
+interface StyleSpecificationPrefix extends StyleSpecification {
+  /** random prefix applied to layers and sources */
+  prefix: string;
+}
+
 export const debugTypes = {
   source: {
     name: 'source',
@@ -36,6 +41,29 @@ export const debugTypes = {
     fill: false,
   },
 };
+
+/**
+ * Attempt to create a unique prefix for the style to allow multiple debug maps to be shown on the same map without conflicts in source/layer names. This is done by prefixing all source and layer names with a random string.
+ * @param inputStyle
+ * @returns
+ */
+function prefixStyleJson(inputStyle: StyleSpecification): StyleSpecificationPrefix {
+  const outputStyle = structuredClone(inputStyle) as StyleSpecificationPrefix;
+  const prefix = Math.random().toString(16).slice(2, 8);
+  outputStyle.prefix = prefix;
+  outputStyle.sources = {};
+  for (const [key, val] of Object.entries(inputStyle.sources)) {
+    outputStyle.sources[`${prefix}__${key}`] = val;
+  }
+
+  for (const layer of outputStyle.layers) {
+    layer.id = `${prefix}__${layer.id}`;
+    if (layer.type === 'background') continue;
+    layer.source = `${prefix}__${layer.source}`;
+  }
+
+  return outputStyle;
+}
 
 export class DebugMap {
   _layerLoading: Map<string, Promise<void>> = new Map();
@@ -90,81 +118,78 @@ export class DebugMap {
     return existing;
   }
 
-  _styleJson: Promise<StyleSpecification> | null = null;
-  get styleJson(): Promise<StyleSpecification> {
-    if (this._styleJson == null) {
-      this._styleJson = fetch(
-        WindowUrl.toTileUrl({
-          urlType: MapOptionType.Style,
-          tileMatrix: Config.map.tileMatrix,
-          layerId: 'topographic-v2',
-          style: 'topographic-v2',
-        }),
-      ).then((f) => f.json());
-    }
-    return this._styleJson;
+  _styleJson: Map<string, Promise<StyleSpecificationPrefix>> = new Map();
+  get styleJson(): Promise<StyleSpecificationPrefix> {
+    const style = this._styleJson.get(Config.map.tileMatrix.identifier);
+    if (style != null) return style;
+    const promise = fetch(
+      WindowUrl.toTileUrl({
+        urlType: MapOptionType.Style,
+        tileMatrix: Config.map.tileMatrix,
+        layerId: 'topographic-v2',
+        style: 'labels-v2',
+      }),
+    )
+      .then((f) => f.json() as Promise<StyleSpecificationPrefix>)
+      .then((style) => prefixStyleJson(style));
+    this._styleJson.set(Config.map.tileMatrix.identifier, promise);
+    return promise;
   }
 
   async adjustVector(map: maplibregl.Map, value: number): Promise<void> {
     const styleJson = await this.styleJson;
+    const layers = styleJson.layers?.filter((f) => f.type !== 'background') ?? [];
 
-    const hasTopographic = map.getSource('LINZ Basemaps');
-    if (hasTopographic == null) {
-      if (value === 0) return; // Going to remove it anyway so just abort early
-      const source = styleJson.sources?.['LINZ Basemaps'];
-      if (source == null) return;
-      map.addSource('LINZ Basemaps', source);
-      map.setStyle({ ...map.getStyle(), glyphs: styleJson.glyphs, sprite: styleJson.sprite });
-      // Setting glyphs/sprites forces a full map refresh, wait for the refresh before adjusting the style
-      void map.once('style.load', () => {
-        void this.adjustVector(map, value);
-      });
-      return;
-    }
-
-    const layers = styleJson.layers?.filter((f) => f.type !== 'background' && f.source === 'LINZ Basemaps') ?? [];
-
-    // Do not hide topographic layers when trying to inspect the topographic layer
-    if (Config.map.isVector) return;
-    // Force all the layers to be invisible to start, otherwise the map will "flash" on then off
-    for (const layer of layers) {
-      const paint = (layer.paint ?? {}) as Record<string, unknown>;
-      if (layer.type === 'symbol') {
-        paint['icon-opacity'] = 0;
-        paint['text-opacity'] = 0;
-      } else {
-        paint[`${layer.type}-opacity`] = 0;
-      }
-      layer.paint = paint;
-    }
-
+    // Remove layers if opacity is set to zero
     if (value === 0) {
       for (const layer of layers) {
         if (map.getLayer(layer.id) == null) continue;
         map.removeLayer(layer.id);
       }
+      for (const key of Object.keys(styleJson.sources)) {
+        if (map.getSource(key) == null) continue;
+        map.removeSource(key);
+      }
       return;
     }
 
-    // Ensure all the layers are loaded before styling
-    if (map.getLayer(layers[0].id) == null) {
-      if (value === 0) return;
-      for (const layer of layers) map.addLayer(layer);
+    let newSource = false;
+    for (const key of Object.keys(styleJson.sources)) {
+      if (map.getSource(key) == null) newSource = true;
+    }
+    for (const layer of layers) {
+      if (map.getLayer(layer.id) == null) newSource = true;
+    }
+
+    if (newSource) {
+      const currentStyle = map.getStyle();
+      map.setStyle({
+        ...currentStyle,
+        sources: { ...currentStyle.sources, ...styleJson.sources },
+        glyphs: styleJson.glyphs,
+        sprite: styleJson.sprite,
+        layers: [...currentStyle.layers, ...layers],
+      });
     }
 
     for (const layer of layers) {
       if (map.getLayer(layer.id) == null) continue;
+      const paint = layer.paint as Record<string, unknown>;
       if (layer.type === 'symbol') {
-        map.setPaintProperty(layer.id, `icon-opacity`, value);
-        map.setPaintProperty(layer.id, `text-opacity`, value);
+        map.setPaintProperty(layer.id, `icon-opacity`, scaleOpacityProperty(paint, 'icon-opacity', value));
+        map.setPaintProperty(layer.id, `text-opacity`, scaleOpacityProperty(paint, 'text-opacity', value));
       } else {
-        map.setPaintProperty(layer.id, `${layer.type}-opacity`, value);
+        map.setPaintProperty(
+          layer.id,
+          `${layer.type}-opacity`,
+          scaleOpacityProperty(paint, `${layer.type}-opacity`, value),
+        );
       }
     }
   }
 
-  adjustTopographic: FormEventHandler = (e) => {
-    Config.map.setDebug('debug.layer.linz-topographic', Number((e.target as HTMLInputElement).value));
+  adjustTopographicLabels: FormEventHandler = (e) => {
+    Config.map.setDebug('debug.layer.linz-labels', Number((e.target as HTMLInputElement).value));
   };
   adjustOsm: FormEventHandler = (e) => {
     Config.map.setDebug('debug.layer.osm', Number((e.target as HTMLInputElement).value));
@@ -231,4 +256,23 @@ export class DebugMap {
 
     throw new Error('Unknown tile server');
   }
+}
+
+/**
+ * Attempt to scale a opacity property
+ * Which is generally either a number 0-1 or a list of stops eg `[[0, 1], [10, 0.5]]`
+ */
+function scaleOpacityProperty(
+  obj: Record<string, unknown> | undefined,
+  property: string,
+  value: number,
+): number | { stops: [number, number][] } {
+  const current = obj?.[property] ?? 1;
+
+  if (typeof current === 'number') return current * value;
+  if (typeof current !== 'object') return value;
+  if (Array.isArray(current)) return value;
+
+  if ('stops' in current) return { stops: (current.stops as [number, number][]).map((s) => [s[0], s[1] * value]) };
+  return value;
 }

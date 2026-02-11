@@ -248,8 +248,10 @@ export class Basemaps extends Component<unknown, { isLayerSwitcherEnabled: boole
 
     const path = LocationUrl.toSlug(location);
     const url = new URL(window.location.href);
+
     url.pathname = path;
     url.hash = ''; // Ensure the hash is removed, to ensure the redirect from #@location to /@location
+
     window.history.replaceState(null, '', url);
   }
 }

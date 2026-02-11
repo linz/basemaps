@@ -24,7 +24,7 @@ describe('ConfigDebug', () => {
     const cfg = { ...DebugDefaults };
     cfg.debug = true;
     cfg['debug.background'] = 'magenta';
-    cfg['debug.layer.linz-topographic'] = 0.5;
+    cfg['debug.layer.linz-labels'] = 0.5;
     cfg['debug.layer.linz-aerial'] = -1;
 
     const url = urlToString(cfg);
