@@ -90,7 +90,6 @@ handler.router.get('/v1/fonts/:fontStack/:range.pbf', fontGet);
 
 // StyleJSON
 handler.router.get('/v1/styles/:styleName.json', styleJsonGet);
-handler.router.get('/v1/styles/:{.*}styleName.json', styleJsonGet);
 
 /** @deprecated 2022-07-22 all styles should be being served from /v1/styles/:styleName.json */
 handler.router.get('/v1/tiles/:tileSet/:tileMatrix/style/:styleName.json', styleJsonGet);
