@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.9.7](https://github.com/linz/basemaps/compare/shared-v8.9.6...shared-v8.9.7) (2026-02-15)
+
+
+### Bug Fixes
+
+* create a center URL for tilesets ([#3601](https://github.com/linz/basemaps/issues/3601)) ([8f49a3e](https://github.com/linz/basemaps/commit/8f49a3e0f64f84b32dfa7d5f31f842d0058f8544))
+
 ## [8.9.6](https://github.com/linz/basemaps/compare/shared-v8.9.5...shared-v8.9.6) (2025-12-18)
 
 

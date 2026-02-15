@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.19.0](https://github.com/linz/basemaps/compare/v8.18.3...v8.19.0) (2026-02-15)
+
+
+### Features
+
+* **lambda-tiler:** allow merging of styles using "," eg "aerial,labels-v2.json" ([#3604](https://github.com/linz/basemaps/issues/3604)) ([868c5ce](https://github.com/linz/basemaps/commit/868c5ce510bba78b64d73bc2aee5bd015d36a3e6))
+* support NZTM2000 labels in debug view ([#3602](https://github.com/linz/basemaps/issues/3602)) ([ac04281](https://github.com/linz/basemaps/commit/ac042813cbee68ea48a8e0e23a8ef03160c140f6))
+
+
+### Bug Fixes
+
+* create a center URL for tilesets ([#3601](https://github.com/linz/basemaps/issues/3601)) ([8f49a3e](https://github.com/linz/basemaps/commit/8f49a3e0f64f84b32dfa7d5f31f842d0058f8544))
+
 ## [8.18.3](https://github.com/linz/basemaps/compare/v8.18.2...v8.18.3) (2026-02-08)
 
 
