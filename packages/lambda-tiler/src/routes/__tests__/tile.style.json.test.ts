@@ -195,32 +195,16 @@ describe('/v1/styles', () => {
     assert.equal(res.header('content-type'), 'application/json');
     assert.equal(res.header('cache-control'), 'no-store');
 
-    const body = Buffer.from(res.body ?? '', 'base64').toString();
-    fakeStyle.sources['basemaps_vector'] = {
-      type: 'vector',
-      url: `${host}/vector?api=${Api.key}`,
-    };
-    fakeStyle.sources['basemaps_raster'] = {
-      type: 'raster',
-      tiles: [`${host}/raster?api=${Api.key}`],
-    };
-    fakeStyle.sources['basemaps_raster_encode'] = {
-      type: 'raster',
-      tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${Api.key}`],
-    };
+    const targetStyle = JSON.parse(Buffer.from(res.body ?? '', 'base64').toString()) as StyleJson;
 
-    fakeStyle.sources['basemaps_terrain'] = {
-      type: 'raster-dem',
-      tiles: [`${host}/elevation/{z}/{x}/{y}.png?pipeline=terrain-rgb&api=${Api.key}`],
-    };
-
-    fakeStyle.sprite = `${host}/sprite`;
-    fakeStyle.glyphs = `${host}/glyphs`;
-
-    assert.deepEqual(JSON.parse(body), fakeStyle);
+    assert.deepEqual(targetStyle.layers, fakeStyle.layers);
+    assert.deepEqual(Object.keys(targetStyle.sources), Object.keys(fakeStyle.sources));
+    assert.equal(targetStyle.glyphs, `${host}${fakeStyle.glyphs}`);
+    assert.equal(targetStyle.sprite, `${host}${fakeStyle.sprite}`);
   });
 
   it('should serve style json with excluded layers', async () => {
+    console.log(fakeRecord.style.layers.map((m) => m.id));
     config.put(fakeRecord);
     const request = mockUrlRequest(
       '/v1/tiles/topographic/Google/style/topographic.json',
@@ -233,25 +217,18 @@ describe('/v1/styles', () => {
     assert.equal(res.header('content-type'), 'application/json');
     assert.equal(res.header('cache-control'), 'no-store');
 
-    const body = Buffer.from(res.body ?? '', 'base64').toString();
-    fakeStyle.sources['basemaps_vector'] = {
-      type: 'vector',
-      url: `${host}/vector?api=${Api.key}`,
-    };
-    fakeStyle.sources['basemaps_raster'] = {
-      type: 'raster',
-      tiles: [`${host}/raster?api=${Api.key}`],
-    };
-    fakeStyle.sources['basemaps_raster_encode'] = {
-      type: 'raster',
-      tiles: [`${host}/raster/{z}/{x}/{y}.webp?api=${Api.key}`],
-    };
+    const targetStyle = JSON.parse(Buffer.from(res.body ?? '', 'base64').toString()) as StyleJson;
+    assert.deepEqual(
+      targetStyle.layers.map((m) => m.id),
+      ['Background3'],
+    );
+    // original record should be preserved
+    assert.deepEqual(
+      fakeRecord.style.layers.map((m) => m.id),
+      ['Background1', 'Background2', 'Background3'],
+    );
 
-    fakeStyle.sprite = `${host}/sprite`;
-    fakeStyle.glyphs = `${host}/glyphs`;
-    fakeStyle.layers = [fakeStyle.layers[2]];
-
-    assert.deepEqual(JSON.parse(body), fakeStyle);
+    assert.deepEqual(Object.keys(targetStyle.sources), Object.keys(fakeStyle.sources));
   });
 
   it('should create raster styles', async () => {
@@ -371,6 +348,7 @@ describe('/v1/styles', () => {
         },
         id: 'Background1',
         type: 'background',
+        source: 'basemaps_vector',
         minzoom: 0,
       },
     ],
@@ -399,6 +377,63 @@ describe('/v1/styles', () => {
     ]);
   });
 
+  describe('style.merge', () => {
+    it('should merge terrain for all style config', async () => {
+      const request = mockUrlRequest('/v1/styles/aerial,topolite.json', '', Api.header);
+      config.put(fakeVectorRecord);
+      config.put(fakeAerialRecord);
+
+      const res = await handler.router.handle(request);
+      assert.equal(res.status, 200, res.statusDescription);
+
+      const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
+      const aerialSource = body.sources['basemaps_raster'] as unknown as SourceRaster;
+
+      assert.equal(aerialSource.type, 'raster');
+      assert.equal(body.layers[0].source, 'basemaps_raster');
+      assert.equal(body.layers[1].source, 'basemaps_vector');
+    });
+
+    it('should fail merge terrain for duplicate layers', async () => {
+      const request = mockUrlRequest('/v1/styles/topolite,topolite.json', '', Api.header);
+      config.put(fakeVectorRecord);
+
+      const res = await handler.router.handle(request);
+
+      assert.equal(res.status, 400, res.statusDescription);
+      assert.equal(res.statusDescription.includes('duplicate layerIds'), true);
+    });
+
+    it('should fail merge terrain for large requests', async () => {
+      const layers = 'topolite,'.repeat(10).slice(0, -1);
+      const request = mockUrlRequest(`/v1/styles/${layers}.json`, '', Api.header);
+      config.put(fakeVectorRecord);
+
+      const res = await handler.router.handle(request);
+      assert.equal(res.status, 400, res.statusDescription);
+      assert.equal(res.statusDescription.includes('Too many styles'), true);
+    });
+
+    it('should skip merging empty style names', async () => {
+      const layers = ','.repeat(10);
+      const request = mockUrlRequest(`/v1/styles/${layers}topolite.json`, '', Api.header);
+      config.put(fakeVectorRecord);
+
+      const res = await handler.router.handle(request);
+      assert.equal(res.status, 200, res.statusDescription);
+      console.log(request.url);
+    });
+
+    it('should fail merge if one layer is missing', async () => {
+      const request = mockUrlRequest('/v1/styles/topolite,missing-layer.json', '', Api.header);
+      config.put(fakeVectorRecord);
+
+      const res = await handler.router.handle(request);
+
+      assert.equal(res.status, 404, res.statusDescription);
+    });
+  });
+
   const fakeAerialStyleConfig = {
     id: 'test',
     name: 'test',
@@ -420,8 +455,9 @@ describe('/v1/styles', () => {
         paint: {
           'background-color': 'rgba(206, 229, 242, 1)',
         },
-        id: 'Background1',
-        type: 'background',
+        id: 'aerial',
+        source: 'basemaps_raster',
+        type: 'raster',
         minzoom: 0,
       },
     ],

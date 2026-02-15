@@ -298,9 +298,51 @@ export interface StyleGet {
   };
 }
 
+/**
+ * Join styles together
+ *
+ * Returns a new style json with sources and layers merged together
+ *
+ * @throws if there are any duplicate layerIds between the styles
+ * @param styles styles to merge together, the first style in the array will be used as the base style and urls will be merged into this style
+ * @returns
+ */
+function mergeStyles(styles: StyleJson[]): StyleJson {
+  const target = structuredClone(styles[0]);
+  if (styles.length === 1) return target;
+
+  const layerId = new Map<string, string>();
+  for (const l of target.layers) layerId.set(l.id, target.id);
+
+  for (const st of styles.slice(1)) {
+    for (const newLayers of st.layers) {
+      if (layerId.has(newLayers.id)) {
+        const prev = layerId.get(newLayers.id);
+        throw new LambdaHttpResponse(
+          400,
+          `Cannot merge styles with duplicate layerIds! styles: "${prev}" "${st.id}" layer: ${newLayers.id}`,
+        );
+      }
+      layerId.set(newLayers.id, st.id);
+    }
+
+    if (target.glyphs == null) target.glyphs = st.glyphs;
+    if (target.sprite == null) target.sprite = st.sprite;
+    if (target.sky == null) target.sky = st.sky;
+
+    Object.assign(target.sources, st.sources);
+    target.layers.push(...st.layers);
+    target.name = target.name + '_' + st.name;
+    target.id = target.id + '_' + st.id;
+  }
+
+  return target;
+}
+
 export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<LambdaHttpResponse> {
   const apiKey = Validate.apiKey(req);
-  const styleName = req.params.styleName;
+  const styleNames = req.params.styleName.split(',').filter((f) => f.trim().length > 0);
+  if (styleNames.length > 9) throw new LambdaHttpResponse(400, 'Too many styles requested, max 10');
 
   const tileMatrix = TileMatrixSets.find(req.query.get('tileMatrix') ?? GoogleTms.identifier);
   if (tileMatrix == null) return new LambdaHttpResponse(400, 'Invalid tile matrix');
@@ -311,23 +353,32 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   if (excluded.size > 0) req.set('excludedLayers', [...excluded]);
 
   /**
-   * Configuration options used for the landing page:
-   * "terrain" - force add a terrain layer
-   * "labels" - merge the labels style with the current style
+   * Force add a terrain layer
    *
-   * TODO: (2024-08) this is not a very scalable way of configuring styles, it would be good to provide a styleJSON merge
+   * @deprecated 2026-02: use "/aerial,terrain-v2.json"
    */
   const terrain = req.query.get('terrain') ?? undefined;
+  /**
+   * Merge the labels style with the current style
+   *
+   * @deprecated 2026-02: use "/aerial,labels-v2.json"
+   */
   const labels = Boolean(req.query.get('labels') ?? false);
-  req.set('styleConfig', { terrain, labels });
+  req.set('styleConfig', { terrain, labels, styles: styleNames });
 
   // Get style Config from db
   const config = await ConfigLoader.load(req);
-  const styleConfig = await config.Style.get(styleName);
-  const styleSource =
-    styleConfig?.style ?? (await generateStyleFromTileSet(req, config, styleName, tileMatrix, apiKey));
 
-  const targetStyle = structuredClone(styleSource);
+  const styles = await Promise.all(
+    styleNames.map(async (styleName) => {
+      const styleConfig = await config.Style.get(styleName);
+      if (styleConfig?.style != null) return styleConfig.style;
+      return generateStyleFromTileSet(req, config, styleName, tileMatrix, apiKey);
+    }),
+  );
+
+  const targetStyle = mergeStyles(styles);
+
   // Ensure elevation for style json config
   // TODO: We should remove this after adding terrain source into style configs. PR-916
   await ensureTerrain(req, tileMatrix, apiKey, targetStyle);
