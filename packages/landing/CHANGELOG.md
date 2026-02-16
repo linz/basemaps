@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.0](https://github.com/linz/basemaps/compare/landing-v8.12.5...landing-v8.13.0) (2026-02-15)
+
+
+### Features
+
+* support NZTM2000 labels in debug view ([#3602](https://github.com/linz/basemaps/issues/3602)) ([ac04281](https://github.com/linz/basemaps/commit/ac042813cbee68ea48a8e0e23a8ef03160c140f6))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/cli-config bumped from ^8.11.4 to ^8.11.5
+    * @basemaps/shared bumped from ^8.9.6 to ^8.9.7
+
 ## [8.12.5](https://github.com/linz/basemaps/compare/landing-v8.12.4...landing-v8.12.5) (2026-02-08)
 
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.11.5](https://github.com/linz/basemaps/compare/cli-config-v8.11.4...cli-config-v8.11.5) (2026-02-15)
+
+
+### Bug Fixes
+
+* create a center URL for tilesets ([#3601](https://github.com/linz/basemaps/issues/3601)) ([8f49a3e](https://github.com/linz/basemaps/commit/8f49a3e0f64f84b32dfa7d5f31f842d0058f8544))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config-loader bumped from ^8.12.2 to ^8.12.3
+    * @basemaps/shared bumped from ^8.9.6 to ^8.9.7
+
 ## [8.11.4](https://github.com/linz/basemaps/compare/cli-config-v8.11.3...cli-config-v8.11.4) (2026-02-08)
 
 

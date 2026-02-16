@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/cli",
-  "version": "8.10.9",
+  "version": "8.10.10",
   "private": false,
   "repository": {
     "type": "git",
@@ -41,10 +41,10 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
-    "@basemaps/cli-config": "^8.11.4",
-    "@basemaps/cli-raster": "^8.11.5",
-    "@basemaps/cli-vector": "^8.10.6",
-    "@basemaps/shared": "^8.9.6",
+    "@basemaps/cli-config": "^8.11.5",
+    "@basemaps/cli-raster": "^8.11.6",
+    "@basemaps/cli-vector": "^8.10.7",
+    "@basemaps/shared": "^8.9.7",
     "cmd-ts": "^0.13.0"
   },
   "publishConfig": {
