@@ -8,6 +8,8 @@ import {
   TileMakerResizeKernel,
 } from '@basemaps/tiler';
 import { Metrics } from '@linzjs/metrics';
+import type { LimitFunction } from 'p-limit';
+import pLimit from 'p-limit';
 import Sharp from 'sharp';
 
 import { Decompressors } from './pipeline/decompressor.lerc.js';
@@ -23,12 +25,23 @@ const EmptyImage = new Map<string, Promise<Buffer>>();
 
 export class TileMakerSharp implements TileMaker {
   static readonly MaxImageSize = 256 * 2 ** 15;
-  private width: number;
-  private height: number;
+  readonly width: number;
+  readonly height: number;
 
-  public constructor(width: number, height = width) {
+  /** Limit the number of outstanding tile requests to help reduce maximum memory usage */
+  q: LimitFunction;
+
+  /**
+   *
+   * @param width Tile output size
+   * @param height Tile output height (If not supplied it will be the same as width)
+   * @param limit Number of concurrent tile requests to allow when composing a tile,
+   *        this can help reduce memory usage when there are a large number of layers to compose
+   */
+  public constructor(width: number, height = width, limit = 16) {
     this.width = width;
     this.height = height;
+    this.q = pLimit(limit);
   }
 
   protected isTooLarge(composition: Composition): boolean {
@@ -104,9 +117,9 @@ export class TileMakerSharp implements TileMaker {
       if (this.isTooLarge(comp)) continue;
       if (ctx.pipeline) {
         if (comp.type === 'cotar') throw new Error('Cannot use a composition pipeline from cotar');
-        todo.push(this.composeTilePipeline(comp, ctx));
+        todo.push(this.q(() => this.composeTilePipeline(comp, ctx)));
       } else {
-        todo.push(this.composeTile(comp, ctx.resizeKernel));
+        todo.push(this.q(() => this.composeTile(comp, ctx.resizeKernel)));
       }
     }
     const overlays = await Promise.all(todo).then((items) => items.filter(notEmpty));
@@ -159,13 +172,13 @@ export class TileMakerSharp implements TileMaker {
   }
 
   async composeTilePipeline(comp: CompositionTiff, ctx: TileMakerContext): Promise<SharpOverlay | null> {
-    const tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
+    let tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
     if (tile == null) return null;
     const tiffTile = { imageId: comp.source.imageId, x: comp.source.x, y: comp.source.y };
-    const bytes = await Decompressors[tile.compression]?.bytes(comp.asset, tiffTile, tile.bytes);
-    if (bytes == null) throw new Error(`Failed to decompress: ${comp.asset.source.url.href}`);
+    let result = await Decompressors[tile.compression]?.bytes(comp.asset, tiffTile, tile.bytes);
+    tile = null;
+    if (result == null) throw new Error(`Failed to decompress: ${comp.asset.source.url.href}`);
 
-    let result = bytes;
     if (ctx.pipeline) {
       const resizePerf = performance.now();
       result = cropResize(comp.asset, result, comp, 'bilinear');
@@ -176,6 +189,7 @@ export class TileMakerSharp implements TileMaker {
           isCrop: comp.crop != null,
           isResize: comp.resize != null,
           isExtract: comp.extract != null,
+          resizeScale: comp.resize?.scale,
           tiffTile,
           duration: performance.now() - resizePerf,
         },

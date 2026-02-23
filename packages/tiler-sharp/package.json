@@ -27,7 +27,8 @@
     "@basemaps/tiler": "^8.12.2",
     "@linzjs/metrics": "^8.0.0",
     "fzstd": "^0.1.1",
-    "lerc": "^4.0.4"
+    "lerc": "^4.0.4",
+    "p-limit": "^6.2.0"
   },
   "devDependencies": {
     "@types/pixelmatch": "^5.2.3",

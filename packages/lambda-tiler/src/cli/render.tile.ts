@@ -1,7 +1,7 @@
-import { ConfigProviderMemory } from '@basemaps/config';
+import { ConfigImagery, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
 import { Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
+import { fsa, FsaLocalCache, LogConfig, setDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
 import { Context } from 'aws-lambda';
 import { extname } from 'path';
@@ -25,6 +25,9 @@ if (sourceRaw == null || tilePath == null) {
   `);
   process.exit(1);
 }
+
+fsa.middleware.push(FsaLocalCache);
+
 const source = fsa.toUrl(sourceRaw);
 const tile = fromPath(tilePath);
 let tileMatrix: TileMatrixSet | null = null;
@@ -43,14 +46,27 @@ function fromPath(s: string): Tile & { extension: string } {
   return tile;
 }
 
+async function loadConfig(
+  url: URL,
+): Promise<{ tileSet: ConfigTileSetRaster; imagery: ConfigImagery[]; cfg: ConfigProviderMemory }> {
+  if (url.pathname.endsWith('.json') || url.pathname.endsWith('.json.gz')) {
+    const cfg = ConfigProviderMemory.fromJson(await fsa.readJson(url), url);
+    LogConfig.get().info({ url: url.href }, 'ConfigLoaded');
+    const imagery = [...cfg.objects.values()].filter((f) => f.id.startsWith('im_')) as ConfigImagery[];
+    return { tileSet: cfg.imageryToTileSetByName(imagery[0]), imagery, cfg };
+  }
+
+  const cfg = new ConfigProviderMemory();
+  const { imagery } = await initConfigFromUrls(cfg, [url]);
+  return { tileSet: cfg.imageryToTileSetByName(imagery[0]), imagery, cfg };
+}
+
 async function main(): Promise<void> {
   const log = LogConfig.get();
-  log.level = 'trace';
-  const provider = new ConfigProviderMemory();
-  setDefaultConfig(provider);
-  const { imagery } = await initConfigFromUrls(provider, [source]);
+  log.level = process.argv.includes('--verbose') ? 'trace' : 'debug';
 
-  const tileSet = provider.imageryToTileSetByName(imagery[0]);
+  const { tileSet, imagery, cfg } = await loadConfig(source);
+  setDefaultConfig(cfg);
 
   log.info({ tileSet: tileSet.name, layers: tileSet.layers.length }, 'TileSet:Loaded');
 
