@@ -48,6 +48,8 @@ handler.router.hook('request', (req) => {
   randomTrace(req);
 
   req.set('name', 'LambdaTiler');
+
+  req.log.debug({ ...req.logContext }, 'Lambda:Start');
 });
 
 handler.router.hook('response', (req, res) => {
