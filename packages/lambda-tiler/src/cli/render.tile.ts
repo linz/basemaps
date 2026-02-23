@@ -63,7 +63,7 @@ async function loadConfig(
 
 async function main(): Promise<void> {
   const log = LogConfig.get();
-  log.level = 'debug';
+  log.level = process.argv.includes('--verbose') ? 'trace' : 'debug';
 
   const { tileSet, imagery, cfg } = await loadConfig(source);
   setDefaultConfig(cfg);

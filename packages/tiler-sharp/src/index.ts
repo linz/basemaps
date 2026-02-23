@@ -189,6 +189,7 @@ export class TileMakerSharp implements TileMaker {
           isCrop: comp.crop != null,
           isResize: comp.resize != null,
           isExtract: comp.extract != null,
+          resizeScale: comp.resize?.scale,
           tiffTile,
           duration: performance.now() - resizePerf,
         },
