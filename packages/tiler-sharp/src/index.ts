@@ -108,6 +108,9 @@ export class TileMakerSharp implements TileMaker {
       } else {
         todo.push(this.composeTile(comp, ctx.resizeKernel));
       }
+
+      // Limit the number of outstanding requests to prevent memory issues
+      if (todo.length % 128 === 0) await Promise.all(todo);
     }
     const overlays = await Promise.all(todo).then((items) => items.filter(notEmpty));
     metrics.end('compose:overlay');
@@ -159,13 +162,13 @@ export class TileMakerSharp implements TileMaker {
   }
 
   async composeTilePipeline(comp: CompositionTiff, ctx: TileMakerContext): Promise<SharpOverlay | null> {
-    const tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
+    let tile = await comp.asset.images[comp.source.imageId].getTile(comp.source.x, comp.source.y);
     if (tile == null) return null;
     const tiffTile = { imageId: comp.source.imageId, x: comp.source.x, y: comp.source.y };
-    const bytes = await Decompressors[tile.compression]?.bytes(comp.asset, tiffTile, tile.bytes);
-    if (bytes == null) throw new Error(`Failed to decompress: ${comp.asset.source.url.href}`);
+    let result = await Decompressors[tile.compression]?.bytes(comp.asset, tiffTile, tile.bytes);
+    tile = null;
+    if (result == null) throw new Error(`Failed to decompress: ${comp.asset.source.url.href}`);
 
-    let result = bytes;
     if (ctx.pipeline) {
       const resizePerf = performance.now();
       result = cropResize(comp.asset, result, comp, 'bilinear');

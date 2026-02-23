@@ -140,6 +140,31 @@ export const FsaLog = {
 fsa.middleware.push(FsaLog);
 
 /**
+ * Middleware to cache responses locally into .cache/
+ *
+ * very useful when developing with remote sources as it avoids repeatedly downloading the same data
+ */
+export const FsaLocalCache = {
+  name: 'source:local-cache',
+  remotes: new Set<string>(['s3:', 'http:', 'https:']),
+  async fetch(req: SourceRequest, next: SourceCallback): Promise<ArrayBuffer> {
+    if (this.remotes.has(req.source.url.protocol) === false) return next(req);
+
+    const requestId = sha256base58(
+      JSON.stringify({ source: req.source.url.href, offset: req.offset, length: req.length }),
+    );
+    const cacheUrl = fsa.toUrl(`./.cache/${requestId}`);
+    const bytes = await fsa.read(cacheUrl).catch(() => {});
+    if (bytes) return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+
+    return next(req).then(async (res) => {
+      await fsa.write(cacheUrl, Buffer.from(res)).catch(() => {});
+      return res;
+    });
+  },
+};
+
+/**
  * When chunkd moves to URLs this can be removed
  *
  * But reading a file as a string with `file://....` does not work in node

@@ -12,6 +12,7 @@ export {
   Fsa as fsa,
   FsaCache,
   FsaChunk,
+  FsaLocalCache,
   FsaLog,
   s3Config,
   signS3Get,
