@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.1](https://github.com/linz/basemaps/compare/lambda-tiler-v8.13.0...lambda-tiler-v8.13.1) (2026-02-26)
+
+
+### Bug Fixes
+
+* lower memory usage when rendering from large amounts of tiffs BM-1535 ([#3605](https://github.com/linz/basemaps/issues/3605)) ([9dc711d](https://github.com/linz/basemaps/commit/9dc711daf77a904ddb3b1d9b1083e01d0ef37818))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config-loader bumped from ^8.12.3 to ^8.12.4
+    * @basemaps/shared bumped from ^8.9.7 to ^8.9.8
+    * @basemaps/tiler-sharp bumped from ^8.11.4 to ^8.11.5
+
 ## [8.13.0](https://github.com/linz/basemaps/compare/lambda-tiler-v8.12.2...lambda-tiler-v8.13.0) (2026-02-15)
 
 

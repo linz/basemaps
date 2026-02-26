@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.5](https://github.com/linz/basemaps/compare/tiler-sharp-v8.11.4...tiler-sharp-v8.11.5) (2026-02-26)
+
+
+### Bug Fixes
+
+* lower memory usage when rendering from large amounts of tiffs BM-1535 ([#3605](https://github.com/linz/basemaps/issues/3605)) ([9dc711d](https://github.com/linz/basemaps/commit/9dc711daf77a904ddb3b1d9b1083e01d0ef37818))
+
 ## [8.11.4](https://github.com/linz/basemaps/compare/tiler-sharp-v8.11.3...tiler-sharp-v8.11.4) (2025-12-18)
 
 
