@@ -54,7 +54,6 @@ handler.router.hook('request', (req) => {
 
 handler.router.hook('response', (req, res) => {
   req.set('fetchCount', FsaLog.count);
-  req.set('fetches', FsaLog.requests);
   req.set('cacheSize', FsaCache.size);
   // Force access-control-allow-origin to everything
   res.header('access-control-allow-origin', '*');

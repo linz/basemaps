@@ -20,15 +20,17 @@ export class ConfigLoader {
   /** Exposed for testing */
   static async getDefaultConfig(req?: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const config = getDefaultConfig();
+    req?.timer.start('config:load');
 
     // Look up the latest config bundle out of dynamodb, then load the config from the provided path
     const cb = await config.ConfigBundle.get('cb_latest');
     if (cb == null) return config;
 
-    req?.timer.start('config:load');
-
-    return CachedConfig.get(fsa.toUrl(cb.path)).then((cfg) => {
+    const configUrl = fsa.toUrl(cb.path);
+    return CachedConfig.get(configUrl).then((cfg) => {
       req?.timer.end('config:load');
+      req?.set('config', configUrl.href);
+
       if (cfg == null) throw new LambdaHttpResponse(500, 'Unable to find latest configuration');
       if (cfg.assets == null) cfg.assets = cb.assets;
       return cfg;
@@ -45,7 +47,7 @@ export class ConfigLoader {
 
   static async load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const rawLocation = req.query.get('config');
-    if (rawLocation == null) return this.getDefaultConfig();
+    if (rawLocation == null) return this.getDefaultConfig(req);
 
     const configLocation = isBase58(rawLocation) ? Buffer.from(base58.decode(rawLocation)).toString() : rawLocation;
     const configUrl = fsa.toUrl(configLocation);
