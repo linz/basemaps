@@ -20,7 +20,6 @@ export class ConfigLoader {
   /** Exposed for testing */
   static async getDefaultConfig(req?: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const config = getDefaultConfig();
-    req?.timer.start('config:load');
 
     // Look up the latest config bundle out of dynamodb, then load the config from the provided path
     const cb = await config.ConfigBundle.get('cb_latest');
@@ -28,7 +27,6 @@ export class ConfigLoader {
 
     const configUrl = fsa.toUrl(cb.path);
     return CachedConfig.get(configUrl).then((cfg) => {
-      req?.timer.end('config:load');
       req?.set('config', configUrl.href);
 
       if (cfg == null) throw new LambdaHttpResponse(500, 'Unable to find latest configuration');
@@ -46,6 +44,13 @@ export class ConfigLoader {
   }
 
   static async load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
+    req.timer.start('config:load');
+    const config = await this._load(req);
+    req.timer.end('config:load');
+    return config;
+  }
+
+  static async _load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const rawLocation = req.query.get('config');
     if (rawLocation == null) return this.getDefaultConfig(req);
 
@@ -60,10 +65,9 @@ export class ConfigLoader {
       throw new LambdaHttpResponse(400, `Bucket: "${configUrl.hostname}" is not a allowed bucket location`);
     }
 
-    req.set('config', configUrl.href);
-    req.timer.start('config:load');
     return CachedConfig.get(configUrl).then((f) => {
-      req.timer.end('config:load');
+      req.set('config', configUrl.href);
+
       if (f == null) throw new LambdaHttpResponse(400, `Invalid config location at ${configLocation}`);
       return f;
     });
