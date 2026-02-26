@@ -94,7 +94,7 @@ jobs:
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
 
       - name: (Dev) Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
@@ -154,7 +154,7 @@ jobs:
       - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/* # see https://stackoverflow.com/a/60184319/9285308
 
       - name: (Prod) Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4.0.2
+        uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           aws-region: ap-southeast-2
           mask-aws-account-id: true
