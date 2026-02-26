@@ -2,29 +2,16 @@ import assert from 'node:assert';
 import { afterEach, before, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory } from '@basemaps/config';
-import { LogConfig } from '@basemaps/shared';
-import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { LambdaHttpResponse } from '@linzjs/lambda';
 import { VectorTile, VectorTileFeature, VectorTileLayer } from '@mapbox/vector-tile';
-import { ALBEventRequestContext, Context } from 'aws-lambda';
 import sinon from 'sinon';
 
 import { FakeData } from '../../__tests__/config.data.js';
+import { mockRequest } from '../../__tests__/xyz.util.js';
 import { ConfigLoader } from '../../util/config.loader.js';
 import { getTestBuffer, healthGet, TestFeature, TestTiles, VectorTileProvider } from '../health.js';
 import { TileXyzRaster } from '../tile.xyz.raster.js';
 import { tileXyzVector } from '../tile.xyz.vector.js';
-
-const ctx: LambdaHttpRequest = new LambdaAlbRequest(
-  {
-    requestContext: null as unknown as ALBEventRequestContext,
-    httpMethod: 'get',
-    path: '/v1/tiles/health',
-    body: null,
-    isBase64Encoded: false,
-  },
-  {} as Context,
-  LogConfig.get(),
-);
 
 //  Function to create a vector tile with specific properties for testing
 function createTestTile(testFeatures: TestFeature[]): VectorTile {
@@ -65,14 +52,14 @@ describe('/v1/health', () => {
     sandbox.restore();
   });
 
-  it('Should return bad response', () => {
+  it('Should return bad response', async () => {
     // Given ... a bad get tile response
     const BadResponse = new LambdaHttpResponse(500, 'Can not get Tile Set.');
     sandbox.stub(TileXyzRaster, 'tile').resolves(BadResponse);
     sandbox.stub(tileXyzVector, 'tile').resolves(BadResponse);
 
     // When ...Then ...
-    assert.rejects(() => healthGet(ctx), BadResponse);
+    await assert.rejects(() => healthGet(mockRequest('/v1/tiles/health')), BadResponse);
   });
 
   const Response1 = new LambdaHttpResponse(200, 'ok');
@@ -99,20 +86,20 @@ describe('/v1/health', () => {
     callbackVectorTile.onCall(1).resolves(testVectorTile2);
 
     // When ...
-    const res = await healthGet(ctx);
+    const res = await healthGet(mockRequest('/v1/tiles/health'));
 
     // Then ...
     assert.equal(res.status, 200);
     assert.equal(res.statusDescription, 'ok');
   });
 
-  it('Should return mis-match tile response', () => {
+  it('Should return mis-match tile response', async () => {
     // Given ... a bad get tile response for second get tile
     const callback = sandbox.stub(TileXyzRaster, 'tile');
     callback.onCall(0).resolves(Response2);
 
     // When ... Then ...
     const BadResponse = new LambdaHttpResponse(500, 'TileSet does not match.');
-    assert.rejects(() => healthGet(ctx), BadResponse);
+    await assert.rejects(() => healthGet(mockRequest('/v1/tiles/health')), BadResponse);
   });
 });
