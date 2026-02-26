@@ -25,10 +25,10 @@ export class ConfigLoader {
     const cb = await config.ConfigBundle.get('cb_latest');
     if (cb == null) return config;
 
-    req?.timer.start('config:load');
+    const configUrl = fsa.toUrl(cb.path);
+    return CachedConfig.get(configUrl).then((cfg) => {
+      req?.set('config', configUrl.href);
 
-    return CachedConfig.get(fsa.toUrl(cb.path)).then((cfg) => {
-      req?.timer.end('config:load');
       if (cfg == null) throw new LambdaHttpResponse(500, 'Unable to find latest configuration');
       if (cfg.assets == null) cfg.assets = cb.assets;
       return cfg;
@@ -44,8 +44,15 @@ export class ConfigLoader {
   }
 
   static async load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
+    req.timer.start('config:load');
+    const config = await this._load(req);
+    req.timer.end('config:load');
+    return config;
+  }
+
+  static async _load(req: LambdaHttpRequest): Promise<BasemapsConfigProvider> {
     const rawLocation = req.query.get('config');
-    if (rawLocation == null) return this.getDefaultConfig();
+    if (rawLocation == null) return this.getDefaultConfig(req);
 
     const configLocation = isBase58(rawLocation) ? Buffer.from(base58.decode(rawLocation)).toString() : rawLocation;
     const configUrl = fsa.toUrl(configLocation);
@@ -58,10 +65,9 @@ export class ConfigLoader {
       throw new LambdaHttpResponse(400, `Bucket: "${configUrl.hostname}" is not a allowed bucket location`);
     }
 
-    req.set('config', configUrl.href);
-    req.timer.start('config:load');
     return CachedConfig.get(configUrl).then((f) => {
-      req.timer.end('config:load');
+      req.set('config', configUrl.href);
+
       if (f == null) throw new LambdaHttpResponse(400, `Invalid config location at ${configLocation}`);
       return f;
     });
