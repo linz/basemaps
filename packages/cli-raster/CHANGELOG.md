@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.7](https://github.com/linz/basemaps/compare/cli-raster-v8.11.6...cli-raster-v8.11.7) (2026-02-26)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/config-loader bumped from ^8.12.3 to ^8.12.4
+    * @basemaps/shared bumped from ^8.9.7 to ^8.9.8
+
 ## [8.11.6](https://github.com/linz/basemaps/compare/cli-raster-v8.11.5...cli-raster-v8.11.6) (2026-02-15)
 
 
