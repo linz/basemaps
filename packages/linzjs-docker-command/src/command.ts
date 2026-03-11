@@ -1,8 +1,19 @@
 import { CommandExecution, CommandExecutionOptions } from './command.execution.js';
 
 export interface CommandOptions {
-  container: string;
+  /**
+   * Container to use
+   * @example "ghcr.io/linz/basemaps/cli"
+   */
+  container?: string;
+  /**
+   * Container tag to use
+   * @example "v7.0.3"
+   */
   tag?: string;
+
+  /** Should the container be used by default */
+  useDocker?: boolean;
 }
 export class Command {
   executable: string;
@@ -24,7 +35,7 @@ export class Command {
   }
 
   static create(cmd: string, opts?: CommandOptions): CommandExecution {
-    return new Command(cmd, opts).create();
+    return new Command(cmd, opts).create({ useDocker: opts?.useDocker });
   }
 
   get containerName(): string {
