@@ -4,7 +4,8 @@ import { ExecutorLocal } from './execution/execute.local.js';
 import { CommandExecutionResult } from './execution/execute.result.js';
 
 export interface CommandExecutionOptions {
-  useDocker: boolean;
+  /** Should this execution use the container */
+  useDocker?: boolean;
 }
 
 export class CommandExecution {
@@ -15,9 +16,7 @@ export class CommandExecution {
   useDocker?: boolean;
   constructor(cmd: Command, opts?: CommandExecutionOptions) {
     this.cmd = cmd;
-    if (opts) {
-      this.useDocker = opts.useDocker;
-    }
+    this.useDocker ??= opts?.useDocker;
   }
 
   get isRunWithDocker(): boolean {
