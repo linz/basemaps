@@ -150,5 +150,6 @@ export const ExtractCommand = command({
     await fsa.write(fsa.toUrl('/tmp/extract/largeLayers.json'), JSON.stringify(largeLayers, null, 2));
     await fsa.write(fsa.toUrl('/tmp/extract/hasSmallLayers'), String(smallLayers.length > 0));
     await fsa.write(fsa.toUrl('/tmp/extract/hasLargeLayers'), String(largeLayers.length > 0));
+    await fsa.write(fsa.toUrl('/tmp/extract/updateRequired'), String(total > 0));
   },
 });
