@@ -151,6 +151,9 @@ export const ExtractCommand = command({
     await fsa.write(fsa.toUrl('/tmp/extract/hasSmallLayers'), String(smallLayers.length > 0));
     await fsa.write(fsa.toUrl('/tmp/extract/hasLargeLayers'), String(largeLayers.length > 0));
     await fsa.write(fsa.toUrl('/tmp/extract/updateRequired'), String(total > 0));
-    logger.info({ update: total > 0, hasSmall: smallLayers.length > 0, hasLarge: largeLayers.length > 0 }, 'Extract: UpdateFlags');
+    logger.info(
+      { update: total > 0, hasSmall: smallLayers.length > 0, hasLarge: largeLayers.length > 0 },
+      'Extract: UpdateFlags',
+    );
   },
 });
