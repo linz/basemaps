@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.10.9](https://github.com/linz/basemaps/compare/cli-vector-v8.10.8...cli-vector-v8.10.9) (2026-03-18)
+
+
+### Bug Fixes
+
+* Check if small layers get updates ([#3610](https://github.com/linz/basemaps/issues/3610)) ([b8c8f51](https://github.com/linz/basemaps/commit/b8c8f519248ef19c4aff4b087966e7408aa3c9b1))
+
 ## [8.10.8](https://github.com/linz/basemaps/compare/cli-vector-v8.10.7...cli-vector-v8.10.8) (2026-02-26)
 
 

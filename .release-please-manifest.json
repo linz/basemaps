@@ -3,10 +3,10 @@
   "packages/_infra": "8.12.4",
   "packages/attribution": "8.9.0",
   "packages/bathymetry": "8.9.8",
-  "packages/cli": "8.10.11",
+  "packages/cli": "8.10.12",
   "packages/cli-config": "8.11.6",
   "packages/cli-raster": "8.11.7",
-  "packages/cli-vector": "8.10.8",
+  "packages/cli-vector": "8.10.9",
   "packages/config": "8.13.1",
   "packages/config-loader": "8.12.4",
   "packages/geo": "8.9.0",
@@ -22,5 +22,5 @@
   "packages/sprites": "8.0.0",
   "packages/tiler": "8.12.2",
   "packages/tiler-sharp": "8.11.5",
-  ".": "8.19.1"
+  ".": "8.19.2"
 }
