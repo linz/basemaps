@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.19.2](https://github.com/linz/basemaps/compare/v8.19.1...v8.19.2) (2026-03-18)
+
+
+### Bug Fixes
+
+* Check if small layers get updates ([#3610](https://github.com/linz/basemaps/issues/3610)) ([b8c8f51](https://github.com/linz/basemaps/commit/b8c8f519248ef19c4aff4b087966e7408aa3c9b1))
+
 ## [8.19.1](https://github.com/linz/basemaps/compare/v8.19.0...v8.19.1) (2026-02-26)
 
 
