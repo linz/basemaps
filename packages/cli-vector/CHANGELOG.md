@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.11.0](https://github.com/linz/basemaps/compare/cli-vector-v8.10.9...cli-vector-v8.11.0) (2026-04-22)
+
+
+### Features
+
+* swap to new addressing layer BM-1623 ([#3614](https://github.com/linz/basemaps/issues/3614)) ([271024e](https://github.com/linz/basemaps/commit/271024e02708b9f40483ef079e061d2be3116587))
+
 ## [8.10.9](https://github.com/linz/basemaps/compare/cli-vector-v8.10.8...cli-vector-v8.10.9) (2026-03-18)
 
 

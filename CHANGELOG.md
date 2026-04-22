@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.20.0](https://github.com/linz/basemaps/compare/v8.19.2...v8.20.0) (2026-04-22)
+
+
+### Features
+
+* swap to new addressing layer BM-1623 ([#3614](https://github.com/linz/basemaps/issues/3614)) ([271024e](https://github.com/linz/basemaps/commit/271024e02708b9f40483ef079e061d2be3116587))
+
+
+### Bug Fixes
+
+* vector diffing numbers ([#3616](https://github.com/linz/basemaps/issues/3616)) ([9994922](https://github.com/linz/basemaps/commit/999492274b59988bcf0542e88c92b7eb2f47d75b))
+
 ## [8.19.2](https://github.com/linz/basemaps/compare/v8.19.1...v8.19.2) (2026-03-18)
 
 

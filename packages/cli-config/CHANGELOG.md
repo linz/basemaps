@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.11.7](https://github.com/linz/basemaps/compare/cli-config-v8.11.6...cli-config-v8.11.7) (2026-04-22)
+
+
+### Bug Fixes
+
+* vector diffing numbers ([#3616](https://github.com/linz/basemaps/issues/3616)) ([9994922](https://github.com/linz/basemaps/commit/999492274b59988bcf0542e88c92b7eb2f47d75b))
+
 ## [8.11.6](https://github.com/linz/basemaps/compare/cli-config-v8.11.5...cli-config-v8.11.6) (2026-02-26)
 
 
