@@ -11,6 +11,8 @@ export class ProjectionLoader {
   // Exposed for testing
   static _fetch = fetch;
 
+  private static _inflight = new Map<number, Promise<Epsg>>();
+
   /**
    * Initialises an Epsg instance for the given code and ensures that
    * a corresponding Projection instance is available.
@@ -18,9 +20,18 @@ export class ProjectionLoader {
    * @param code - The code for which to initialise an Epsg and Projection instance.
    * @returns an Epsg instance
    */
-  static async load(code: number): Promise<Epsg> {
-    if (Projection.tryGet(code) != null) return Epsg.get(code);
+  static load(code: number): Promise<Epsg> {
+    if (Projection.tryGet(code) != null) return Promise.resolve(Epsg.get(code));
 
+    let promise = this._inflight.get(code);
+    if (promise == null) {
+      promise = this._load(code).finally(() => this._inflight.delete(code));
+      this._inflight.set(code, promise);
+    }
+    return promise;
+  }
+
+  private static async _load(code: number): Promise<Epsg> {
     let projJson: PROJJSONDefinition;
 
     if (UtmZone.isUTMZoneCode(code)) {
