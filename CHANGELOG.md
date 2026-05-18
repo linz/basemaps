@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.20.1](https://github.com/linz/basemaps/compare/v8.20.0...v8.20.1) (2026-05-17)
+
+
+### Bug Fixes
+
+* **geo:** handle concurrent projection loads ([#3618](https://github.com/linz/basemaps/issues/3618)) ([2a7a267](https://github.com/linz/basemaps/commit/2a7a267d03e2e9a32c07aebe6717d088474cd149))
+
 ## [8.20.0](https://github.com/linz/basemaps/compare/v8.19.2...v8.20.0) (2026-04-22)
 
 

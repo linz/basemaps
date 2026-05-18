@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.11.6](https://github.com/linz/basemaps/compare/tiler-sharp-v8.11.5...tiler-sharp-v8.11.6) (2026-05-17)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.13.1 to ^8.13.2
+    * @basemaps/geo bumped from ^8.9.0 to ^8.9.1
+    * @basemaps/tiler bumped from ^8.12.2 to ^8.12.3
+
 ## [8.11.5](https://github.com/linz/basemaps/compare/tiler-sharp-v8.11.4...tiler-sharp-v8.11.5) (2026-02-26)
 
 
