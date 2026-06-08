@@ -31,9 +31,9 @@ We have two sets of vector tiles, each defined by a different tile matrix: one i
 | :--------------------: | :----------------------: | :-------------------------: |
 | ![](static/labels.png) | ![](static/topolite.png) | ![](static/topographic.png) |
 
-[Labels]: https://basemaps.linz.govt.nz/?style=labels-v2&i=topographic
-[Topolite]: https://basemaps.linz.govt.nz/?style=topolite-v2&i=topographic
-[Topographic]: https://basemaps.linz.govt.nz/?style=topographic-v2&i=topographic
+[Labels]: https://basemaps.linz.govt.nz/?style=labels-v2&i=topographic-v2
+[Topolite]: https://basemaps.linz.govt.nz/?style=topolite-v2&i=topographic-v2
+[Topographic]: https://basemaps.linz.govt.nz/?style=topographic-v2&i=topographic-v2
 
 We have three guides for working with vector tiles:
 
