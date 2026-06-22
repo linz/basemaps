@@ -34,7 +34,7 @@
     "@basemaps/geo": "^8.9.1",
     "@basemaps/shared": "^8.9.9",
     "@linzjs/geojson": "^8.0.0",
-    "@linzjs/lui": "^21.46.0",
+    "@linzjs/lui": "^24.17.0",
     "@servie/events": "^3.0.0",
     "@types/mime-types": "^2.1.4",
     "@types/react-dom": "^18.0.6",
