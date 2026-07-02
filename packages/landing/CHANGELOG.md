@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.14.0](https://github.com/linz/basemaps/compare/landing-v8.13.3...landing-v8.14.0) (2026-07-02)
+
+
+### Features
+
+* **landing:** Upgrade lui to 24.17.0 with the new linz logo ([#3630](https://github.com/linz/basemaps/issues/3630)) ([bfeeb0e](https://github.com/linz/basemaps/commit/bfeeb0ecd424d541d7d0fa3fea22b082f9172021))
+* swap to standard viewport settings BM-1712 ([#3629](https://github.com/linz/basemaps/issues/3629)) ([9d67d25](https://github.com/linz/basemaps/commit/9d67d250ec5ce99c37da497895e67172b764a632))
+
 ## [8.13.3](https://github.com/linz/basemaps/compare/landing-v8.13.2...landing-v8.13.3) (2026-05-17)
 
 
