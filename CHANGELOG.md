@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.21.1](https://github.com/linz/basemaps/compare/v8.21.0...v8.21.1) (2026-07-20)
+
+
+### Bug Fixes
+
+* vector tile links need i=topographic to show style.json ([#3625](https://github.com/linz/basemaps/issues/3625)) ([03a0ad7](https://github.com/linz/basemaps/commit/03a0ad7409bc949972763949fa1ce009daf5cd5f))
+
 ## [8.21.0](https://github.com/linz/basemaps/compare/v8.20.1...v8.21.0) (2026-07-02)
 
 
