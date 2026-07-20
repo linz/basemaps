@@ -52,4 +52,16 @@ describe('tileset.export', () => {
     );
     assert.equal(res.status, 404);
   });
+
+  it('should not error on invalid requests', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+    t.mock.method(s3Config, 'getSignedUrl', () => Promise.resolve('https://fake-s3-url.com/tileset.mbtiles'));
+
+    config.put(FakeData.tileSetRaster('aerial'));
+
+    const res = await handler.router.handle(
+      mockUrlRequest('/v1/export/aerial/WebMercatorQuad.mbtiles', 'get', Api.header),
+    );
+    assert.equal(res.status, 400);
+  });
 });

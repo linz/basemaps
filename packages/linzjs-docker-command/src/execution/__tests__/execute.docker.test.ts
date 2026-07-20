@@ -2,7 +2,8 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { Command } from '../../command.js';
-import { toDockerExecution } from '../execute.docker.js';
+import { ExecutorDocker, toDockerExecution } from '../execute.docker.js';
+import { ExecutorLocal } from '../execute.local.js';
 
 describe('DockerExecution', () => {
   it('should run hello world', () => {
@@ -37,5 +38,20 @@ describe('DockerExecution', () => {
     const cmd = Command.create('echo', { container: 'ubuntu' }).arg('hello world');
     cmd.env('AWS_ACCESS_KEY');
     assert.equal(toDockerExecution(cmd).toCommand(), `docker run --rm --env AWS_ACCESS_KEY ubuntu echo hello world`);
+  });
+
+  it('should skip docker if useDocker is false', async (t) => {
+    const runDocker = t.mock.method(ExecutorDocker, 'run');
+    const runLocal = t.mock.method(ExecutorLocal, 'run');
+    const cmdLocal = Command.create('echo', { container: 'ubuntu', useDocker: false }).arg('hello world');
+    const cmdDocker = Command.create('echo', { container: 'ubuntu' }).arg('hello world');
+
+    await cmdLocal.run();
+    assert.equal(runLocal.mock.callCount(), 1);
+    assert.equal(runDocker.mock.callCount(), 0);
+
+    await cmdDocker.run();
+    assert.equal(runLocal.mock.callCount(), 1);
+    assert.equal(runDocker.mock.callCount(), 1);
   });
 });
