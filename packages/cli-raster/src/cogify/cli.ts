@@ -5,6 +5,7 @@ import { BasemapsCogifyCreateCommand } from './cli/cli.cog.js';
 import { BasemapsCogifyCoverCommand } from './cli/cli.cover.js';
 import { TopoStacCreationCommand } from './cli/cli.topo.js';
 import { BasemapsCogifyValidateCommand } from './cli/cli.validate.js';
+import { TopoReliefShadeCreationCommand } from './cli/cli.topo.reliefshade.js';
 
 export const CogifyCli = subcommands({
   name: 'cogify',
@@ -13,6 +14,7 @@ export const CogifyCli = subcommands({
     create: BasemapsCogifyCreateCommand,
     validate: BasemapsCogifyValidateCommand,
     topo: TopoStacCreationCommand,
+    'topo-reliefshade': TopoReliefShadeCreationCommand,
     charts: ChartsCreationCommand,
   },
 });
