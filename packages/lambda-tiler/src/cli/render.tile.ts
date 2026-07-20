@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
+import { base58, ConfigImagery, ConfigProviderMemory, ConfigTileSetRaster, isBase58 } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
 import { Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, FsaLocalCache, LogConfig, setDefaultConfig } from '@basemaps/shared';
@@ -14,7 +14,7 @@ const pipeline = process.argv[4];
 
 if (sourceRaw == null || tilePath == null) {
   // eslint-disable-next-line no-console
-  console.log(`Usage: render-tile <source-imagery> tilePath
+  console.log(`Usage: render-tile <source-imagery|source-config> tilePath
   eg:
 
   # render tile: {z:3, x:2, y:3} as a webmercator png
@@ -22,13 +22,25 @@ if (sourceRaw == null || tilePath == null) {
 
   # Render a false-color pipeline
   render-tile /home/data/nz 3/2/3.png false-color
+
+
+  render-tile s3://linz-basemaps/config.json.gz 3/2/3.png false-color
   `);
   process.exit(1);
 }
 
 fsa.middleware.push(FsaLocalCache);
 
-const source = fsa.toUrl(sourceRaw);
+function decodePath(sourcePath: string): URL {
+  if (isBase58(sourcePath)) {
+    try {
+      const text = Buffer.from(base58.decode(sourcePath)).toString();
+      if (text.startsWith('s3:')) return fsa.toUrl(text);
+    } catch {}
+  }
+  return fsa.toUrl(sourcePath);
+}
+const source = decodePath(sourceRaw);
 const tile = fromPath(tilePath);
 let tileMatrix: TileMatrixSet | null = null;
 

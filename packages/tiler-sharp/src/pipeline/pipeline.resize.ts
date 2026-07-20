@@ -41,13 +41,14 @@ export function cropResize(
     target.scale = comp.resize.scale;
   }
 
-  const invScale = 1 / target.scale;
+  const invScaleX = 1 / (comp.resize?.scaleX ?? target.scale);
+  const invScaleY = 1 / (comp.resize?.scaleY ?? target.scale);
 
   if (comp.crop) {
-    source.x = Math.round(comp.crop.x * invScale);
-    source.y = Math.round(comp.crop.y * invScale);
-    source.width = Math.round(comp.crop.width * invScale);
-    source.height = Math.round(comp.crop.height * invScale);
+    source.x = comp.crop.x * invScaleX;
+    source.y = comp.crop.y * invScaleY;
+    source.width = comp.crop.width * invScaleX;
+    source.height = comp.crop.height * invScaleY;
 
     target.width = comp.crop.width;
     target.height = comp.crop.height;
@@ -86,7 +87,8 @@ function resizeNearest(
 ): DecompressedInterleaved {
   const maxWidth = Math.min(comp.source.width, data.width) - 1;
   const maxHeight = Math.min(comp.source.height, data.height) - 1;
-  const invScale = 1 / target.scale;
+  const invScaleX = 1 / (comp.resize?.scaleX ?? target.scale);
+  const invScaleY = 1 / (comp.resize?.scaleY ?? target.scale);
   const ret = getOutputBuffer(data, target);
   const outputBuffer = ret.pixels;
 
@@ -94,11 +96,11 @@ function resizeNearest(
   // const channelOffset = data.width * data.height * 1;
   // const resizeSource = new Set();
   for (let y = 0; y < target.height; y++) {
-    let sourceY = Math.round((y + 0.5) * invScale + source.y);
+    let sourceY = Math.floor((y + 0.5) * invScaleY + source.y);
     if (sourceY > maxHeight) sourceY = maxHeight;
 
     for (let x = 0; x < target.width; x++) {
-      let sourceX = Math.round((x + 0.5) * invScale + source.x);
+      let sourceX = Math.floor((x + 0.5) * invScaleX + source.x);
       if (sourceX > maxWidth) sourceX = maxWidth;
 
       const targetOffset = (y * target.width + x) * ret.channels;
@@ -157,7 +159,11 @@ export function resizeBilinear(
   target: Size & { scale: number },
   noData?: number | null,
 ): DecompressedInterleaved {
-  const invScale = 1 / target.scale;
+  const invScaleX = 1 / (comp.resize?.scaleX ?? target.scale);
+  const invScaleY = 1 / (comp.resize?.scaleY ?? target.scale);
+  if (invScaleX > 2 || invScaleY > 2) {
+    return resizeArea(data, comp, source, target, noData);
+  }
 
   const maxWidth = Math.min(comp.source.width, data.width) - 2;
   const maxHeight = Math.min(comp.source.height, data.height) - 2;
@@ -172,36 +178,26 @@ export function resizeBilinear(
   const needsRounding = !data.depth.startsWith('float');
 
   for (let y = 0; y < target.height; y++) {
-    const sourceY = Math.min((y + 0.5) * invScale + source.y, maxHeight);
+    const sourceY = Math.min((y + 0.5) * invScaleY + source.y, maxHeight);
     const minY = Math.floor(sourceY);
     const maxY = minY + 1;
 
     for (let x = 0; x < target.width; x++) {
-      const sourceX = Math.min((x + 0.5) * invScale + source.x, maxWidth);
+      const sourceX = Math.min((x + 0.5) * invScaleX + source.x, maxWidth);
       const minX = Math.floor(sourceX);
       const maxX = minX + 1;
 
       for (let i = 0; i < ret.channels; i++) {
         const outPx = (y * target.width + x) * data.channels + i;
 
+        // Bilinear interpolation for upscaling
         const minXMinY = data.pixels[(minY * data.width + minX) * data.channels + i];
-        if (minXMinY === noData) {
-          outputBuffer[outPx] = noData;
-          continue;
-        }
         const maxXMinY = data.pixels[(minY * data.width + maxX) * data.channels + i];
-        if (maxXMinY === noData) {
-          outputBuffer[outPx] = noData;
-          continue;
-        }
         const minXMaxY = data.pixels[(maxY * data.width + minX) * data.channels + i];
-        if (minXMaxY === noData) {
-          outputBuffer[outPx] = noData;
-          continue;
-        }
         const maxXMaxY = data.pixels[(maxY * data.width + maxX) * data.channels + i];
-        if (maxXMaxY === noData) {
-          outputBuffer[outPx] = noData;
+
+        if (minXMinY === noData || maxXMinY === noData || minXMaxY === noData || maxXMaxY === noData) {
+          outputBuffer[outPx] = noData ?? 0;
           continue;
         }
 
@@ -213,7 +209,74 @@ export function resizeBilinear(
         const weightD = xDiff * yDiff;
 
         const pixel = minXMinY * weightA + maxXMinY * weightB + minXMaxY * weightC + maxXMaxY * weightD;
+        outputBuffer[outPx] = needsRounding ? Math.round(pixel) : pixel;
+      }
+    }
+  }
 
+  return ret;
+}
+
+export function resizeArea(
+  data: DecompressedInterleaved,
+  comp: CompositionTiff,
+  source: BoundingBox,
+  target: Size & { scale: number },
+  noData?: number | null,
+): DecompressedInterleaved {
+  const invScaleX = 1 / (comp.resize?.scaleX ?? target.scale);
+  const invScaleY = 1 / (comp.resize?.scaleY ?? target.scale);
+  const ret = getOutputBuffer(data, target);
+  const outputBuffer = ret.pixels;
+  const needsRounding = !data.depth.startsWith('float');
+
+  const fullArea = invScaleX * invScaleY;
+
+  for (let y = 0; y < target.height; y++) {
+    const startY = y * invScaleY + source.y;
+    const endY = (y + 1) * invScaleY + source.y;
+
+    for (let x = 0; x < target.width; x++) {
+      const startX = x * invScaleX + source.x;
+      const endX = (x + 1) * invScaleX + source.x;
+
+      for (let i = 0; i < ret.channels; i++) {
+        const outPx = (y * target.width + x) * data.channels + i;
+
+        let totalValue = 0;
+        let totalWeight = 0;
+
+        const minSY = Math.max(0, Math.floor(startY));
+        const maxSY = Math.min(data.height - 1, Math.ceil(endY) - 1);
+        const minSX = Math.max(0, Math.floor(startX));
+        const maxSX = Math.min(data.width - 1, Math.ceil(endX) - 1);
+
+        for (let sy = minSY; sy <= maxSY; sy++) {
+          const yWeight = Math.min(sy + 1, endY) - Math.max(sy, startY);
+          for (let sx = minSX; sx <= maxSX; sx++) {
+            const xWeight = Math.min(sx + 1, endX) - Math.max(sx, startX);
+            const weight = xWeight * yWeight;
+
+            const val = data.pixels[(sy * data.width + sx) * data.channels + i];
+            if (val !== noData) {
+              totalValue += val * weight;
+              totalWeight += weight;
+            }
+          }
+        }
+
+        if (totalWeight === 0) {
+          outputBuffer[outPx] = noData ?? 0;
+          continue;
+        }
+
+        // Determine if we are at an image edge (not just a tile edge)
+        // If we are at an image edge, we want to fade to transparent (normalize by fullArea)
+        // If we are at a tile edge but still within the image, we want to extrapolate (normalize by totalWeight)
+        // const isAtImageX = comp.source.x + startX < 0 || comp.source.x + endX > comp.source.width;
+        // const isAtImageY = comp.source.y + startY < 0 || comp.source.y + endY > comp.source.height;
+
+        const pixel = totalValue / fullArea; // (isAtImageX || isAtImageY ? fullArea : totalWeight);
         outputBuffer[outPx] = needsRounding ? Math.round(pixel) : pixel;
       }
     }
