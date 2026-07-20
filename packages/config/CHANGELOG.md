@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.2](https://github.com/linz/basemaps/compare/config-v8.13.1...config-v8.13.2) (2026-05-17)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/geo bumped from ^8.9.0 to ^8.9.1
+
 ## [8.13.1](https://github.com/linz/basemaps/compare/config-v8.13.0...config-v8.13.1) (2025-12-18)
 
 

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.5](https://github.com/linz/basemaps/compare/infra-v8.12.4...infra-v8.12.5) (2026-05-17)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/lambda-tiler bumped from ^8.13.1 to ^8.13.2
+    * @basemaps/shared bumped from ^8.9.8 to ^8.9.9
+
 ## [8.12.4](https://github.com/linz/basemaps/compare/infra-v8.12.3...infra-v8.12.4) (2026-02-26)
 
 

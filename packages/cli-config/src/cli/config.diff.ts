@@ -61,6 +61,12 @@ export class ConfigDiff {
   }
 }
 
+const formatter = new Intl.NumberFormat('en-NZ', {});
+
+function formatNumber(obj: StacLinkLds, key: keyof StacLinkLds): string {
+  return `${formatter.format(obj[key] as number)}`;
+}
+
 /**
  * Given a old and new lds layer stac item and log the changes
  */
@@ -75,28 +81,28 @@ export function getVectorChanges(
     if (newLayer['lds:version'] === existingLayer['lds:version']) {
       // Alert if feature changed with no version bump.
       if (featureChange !== 0) {
-        return `🟥🟥🟥🟥 Feature Change Detected ${newLayer['lds:name']} - version: ${newLayer['lds:version']} features: ${newLayer['lds:feature_count']} (+${featureChange}) 🟥🟥🟥🟥`;
+        return `🟥🟥🟥🟥 Feature Change Detected ${newLayer['lds:name']} - version: ${formatNumber(newLayer, 'lds:version')} features: ${formatNumber(newLayer, 'lds:feature_count')} (+${featureChange}) 🟥🟥🟥🟥`;
       }
       return null;
     }
 
     if (featureChange >= 0) {
       // Add Features
-      return `🟦 ${newLayer['lds:name']} - version: ${newLayer['lds:version']} (from: ${existingLayer['lds:version']}) features: ${newLayer['lds:feature_count']} (+${featureChange})`;
+      return `🟦 ${newLayer['lds:name']} - version: ${formatNumber(newLayer, 'lds:version')} (from: ${formatNumber(existingLayer, 'lds:version')}) features: ${formatNumber(newLayer, 'lds:feature_count')} (+${featureChange})`;
     } else {
       // Remove Features
-      return `🟧 ${newLayer['lds:name']} - version: ${newLayer['lds:version']} (from: ${existingLayer['lds:version']}) features: ${newLayer['lds:feature_count']} (-${featureChange})`;
+      return `🟧 ${newLayer['lds:name']} - version: ${formatNumber(newLayer, 'lds:version')} (from: ${formatNumber(existingLayer, 'lds:version')}) features: ${formatNumber(newLayer, 'lds:feature_count')} (${featureChange})`;
     }
   }
 
   // Add new Layer
   if (newLayer != null && existingLayer == null) {
-    return `🟩 ${newLayer['lds:name']} - version: ${newLayer['lds:version']} features: ${newLayer['lds:feature_count']}`;
+    return `🟩 ${newLayer['lds:name']} - version: ${formatNumber(newLayer, 'lds:version')} features: ${formatNumber(newLayer, 'lds:feature_count')}`;
   }
 
   // Remove Layer
   if (newLayer == null && existingLayer != null) {
-    return `🟥 ${existingLayer['lds:name']} features: -${existingLayer['lds:feature_count']}`;
+    return `🟥 ${existingLayer['lds:name']} features: -${formatNumber(existingLayer, 'lds:feature_count')}`;
   }
 
   // No changes detected return null
@@ -154,7 +160,7 @@ export async function diffVectorUpdate(
 
     // Remove the layers that not deleted from existingLdsLayers
     for (const l of existingLdsLayers.values()) {
-      const change = getVectorChanges(l, undefined);
+      const change = getVectorChanges(undefined, l);
       if (change != null) changes.push(change);
     }
   }

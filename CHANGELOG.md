@@ -3,6 +3,40 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.21.0](https://github.com/linz/basemaps/compare/v8.20.1...v8.21.0) (2026-07-02)
+
+
+### Features
+
+* **landing:** Upgrade lui to 24.17.0 with the new linz logo ([#3630](https://github.com/linz/basemaps/issues/3630)) ([bfeeb0e](https://github.com/linz/basemaps/commit/bfeeb0ecd424d541d7d0fa3fea22b082f9172021))
+* swap to standard viewport settings BM-1712 ([#3629](https://github.com/linz/basemaps/issues/3629)) ([9d67d25](https://github.com/linz/basemaps/commit/9d67d250ec5ce99c37da497895e67172b764a632))
+
+## [8.20.1](https://github.com/linz/basemaps/compare/v8.20.0...v8.20.1) (2026-05-17)
+
+
+### Bug Fixes
+
+* **geo:** handle concurrent projection loads ([#3618](https://github.com/linz/basemaps/issues/3618)) ([2a7a267](https://github.com/linz/basemaps/commit/2a7a267d03e2e9a32c07aebe6717d088474cd149))
+
+## [8.20.0](https://github.com/linz/basemaps/compare/v8.19.2...v8.20.0) (2026-04-22)
+
+
+### Features
+
+* swap to new addressing layer BM-1623 ([#3614](https://github.com/linz/basemaps/issues/3614)) ([271024e](https://github.com/linz/basemaps/commit/271024e02708b9f40483ef079e061d2be3116587))
+
+
+### Bug Fixes
+
+* vector diffing numbers ([#3616](https://github.com/linz/basemaps/issues/3616)) ([9994922](https://github.com/linz/basemaps/commit/999492274b59988bcf0542e88c92b7eb2f47d75b))
+
+## [8.19.2](https://github.com/linz/basemaps/compare/v8.19.1...v8.19.2) (2026-03-18)
+
+
+### Bug Fixes
+
+* Check if small layers get updates ([#3610](https://github.com/linz/basemaps/issues/3610)) ([b8c8f51](https://github.com/linz/basemaps/commit/b8c8f519248ef19c4aff4b087966e7408aa3c9b1))
+
 ## [8.19.1](https://github.com/linz/basemaps/compare/v8.19.0...v8.19.1) (2026-02-26)
 
 

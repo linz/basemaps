@@ -1,5 +1,30 @@
 # Changelog
 
+## [8.11.1](https://github.com/linz/basemaps/compare/cli-vector-v8.11.0...cli-vector-v8.11.1) (2026-05-17)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.13.1 to ^8.13.2
+    * @basemaps/geo bumped from ^8.9.0 to ^8.9.1
+    * @basemaps/shared bumped from ^8.9.8 to ^8.9.9
+
+## [8.11.0](https://github.com/linz/basemaps/compare/cli-vector-v8.10.9...cli-vector-v8.11.0) (2026-04-22)
+
+
+### Features
+
+* swap to new addressing layer BM-1623 ([#3614](https://github.com/linz/basemaps/issues/3614)) ([271024e](https://github.com/linz/basemaps/commit/271024e02708b9f40483ef079e061d2be3116587))
+
+## [8.10.9](https://github.com/linz/basemaps/compare/cli-vector-v8.10.8...cli-vector-v8.10.9) (2026-03-18)
+
+
+### Bug Fixes
+
+* Check if small layers get updates ([#3610](https://github.com/linz/basemaps/issues/3610)) ([b8c8f51](https://github.com/linz/basemaps/commit/b8c8f519248ef19c4aff4b087966e7408aa3c9b1))
+
 ## [8.10.8](https://github.com/linz/basemaps/compare/cli-vector-v8.10.7...cli-vector-v8.10.8) (2026-02-26)
 
 

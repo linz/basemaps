@@ -205,6 +205,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.9.1](https://github.com/linz/basemaps/compare/geo-v8.9.0...geo-v8.9.1) (2026-05-17)
+
+
+### Bug Fixes
+
+* **geo:** handle concurrent projection loads ([#3618](https://github.com/linz/basemaps/issues/3618)) ([2a7a267](https://github.com/linz/basemaps/commit/2a7a267d03e2e9a32c07aebe6717d088474cd149))
+
 ## [6.32.1](https://github.com/linz/basemaps/compare/v6.32.0...v6.32.1) (2022-07-28)
 
 **Note:** Version bump only for package @basemaps/geo

@@ -1,7 +1,14 @@
 import assert from 'node:assert';
 import { before, beforeEach, describe, it, TestContext } from 'node:test';
 
-import { ConfigLayer, ConfigProviderMemory, ConfigTileSetRaster, getAllImagery, sha256base58 } from '@basemaps/config';
+import {
+  ConfigLayer,
+  ConfigProviderMemory,
+  ConfigTileSetRaster,
+  ConfigTileSetVector,
+  getAllImagery,
+  sha256base58,
+} from '@basemaps/config';
 import { ConfigJson } from '@basemaps/config-loader';
 import { ConfigImageryTiff } from '@basemaps/config-loader/build/json/tiff.config.js';
 import { TileSetConfigSchema, TileSetConfigSchemaLayer } from '@basemaps/config-loader/src/json/parse.tile.set.js';
@@ -9,6 +16,7 @@ import { Epsg, EpsgCode, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import pLimit from 'p-limit';
 
+import { diffVectorUpdate } from '../cli/config.diff.js';
 import {
   configTileSetDiff,
   DiffNew,
@@ -17,7 +25,7 @@ import {
   DiffTileSetUpdated,
 } from '../cli/diff/config.diff.js';
 import { diffToMarkdown } from '../cli/diff/config.diff.markdown.js';
-import { TsAerial, TsElevation, TsIndividual } from './config.diff.data.js';
+import { TsAerial, TsElevation, TsIndividual, TsVector } from './config.diff.data.js';
 
 function splitUrlIntoParts(e: URL): { tileMatrix: TileMatrixSet; name: string; gsd: number } {
   const parts = e.pathname.slice(1).split('/');
@@ -457,6 +465,95 @@ describe('config.diff', () => {
       const diff = configTileSetDiff(before, after);
 
       await dumpState(t.fullName, diff);
+    });
+  });
+
+  describe('vector', () => {
+    const exampleLink = {
+      rel: 'lds:layer',
+      'lds:id': '123113',
+      'lds:name': '123113-nz-addresses',
+      'lds:title': 'NZ Addresses',
+      'lds:version': 436630,
+      'basemaps:layers': ['addresses'],
+      href: 'https://data.linz.govt.nz/services/api/v1/layers/123113/versions/436630/',
+      'lds:feature_count': 2410159,
+    };
+
+    async function basicSetup(t: TestContext): Promise<{ before: ConfigTileSetVector; after: ConfigTileSetVector }> {
+      const vectorBefore = structuredClone(TsVector);
+      delete vectorBefore.layers[0]['2193'];
+      vectorBefore.layers[0]['3857'] = 'before://data/topographic-v2/';
+
+      const vectorAfter = structuredClone(vectorBefore);
+      vectorAfter.layers[0]['3857'] = 'after://data/topographic-v2/';
+
+      await fsa.write(fsa.toUrl('before://config/tileset/topographic.json'), JSON.stringify(vectorBefore));
+      const before = await stubLoadConfig(t, 'before://config/');
+
+      await fsa.write(fsa.toUrl('after://config/tileset/topographic.json'), JSON.stringify(vectorAfter));
+
+      const after = await stubLoadConfig(t, 'after://config/');
+
+      return {
+        before: after.objects.get('ts_topographic-v2') as ConfigTileSetVector,
+        after: before.objects.get('ts_topographic-v2') as ConfigTileSetVector,
+      };
+    }
+
+    async function writeJson(url: string, data: unknown): Promise<void> {
+      await fsa.write(fsa.toUrl(url), JSON.stringify(data));
+    }
+
+    it('should show diff when a layer is deleted', async (t) => {
+      const { before, after } = await basicSetup(t);
+      await writeJson('before://data/topographic-v2/collection.json', { links: [exampleLink] });
+      await writeJson('after://data/topographic-v2/collection.json', { links: [] });
+
+      const diff = await diffVectorUpdate(before, after);
+
+      // Layer deleted
+      assert.deepEqual(diff, ['🟥 123113-nz-addresses features: -2,410,159']);
+    });
+
+    it('should show diff when a layer is added', async (t) => {
+      const { before, after } = await basicSetup(t);
+      await writeJson('before://data/topographic-v2/collection.json', { links: [] });
+      await writeJson('after://data/topographic-v2/collection.json', { links: [exampleLink] });
+
+      const diff = await diffVectorUpdate(before, after);
+
+      // Layer deleted
+      assert.deepEqual(diff, ['🟩 123113-nz-addresses - version: 436,630 features: 2,410,159']);
+    });
+
+    it('should show diff when a layer is modified', async (t) => {
+      const { before, after } = await basicSetup(t);
+      await writeJson('before://data/topographic-v2/collection.json', { links: [exampleLink] });
+      const afterLink = structuredClone(exampleLink);
+      afterLink['lds:feature_count']--;
+      afterLink['lds:version']++;
+      await writeJson('after://data/topographic-v2/collection.json', { links: [afterLink] });
+      const diffDown = await diffVectorUpdate(before, after);
+
+      // Layer deleted
+      assert.deepEqual(diffDown, [
+        '🟧 123113-nz-addresses - version: 436,631 (from: 436,630) features: 2,410,158 (-1)',
+      ]);
+
+      afterLink['lds:feature_count'] += 2;
+      await writeJson('after://data/topographic-v2/collection.json', { links: [afterLink] });
+
+      const diffUp = await diffVectorUpdate(before, after);
+      assert.deepEqual(diffUp, ['🟦 123113-nz-addresses - version: 436,631 (from: 436,630) features: 2,410,160 (+1)']);
+
+      afterLink['lds:version']--;
+      await writeJson('after://data/topographic-v2/collection.json', { links: [afterLink] });
+
+      const diffVersion = await diffVectorUpdate(before, after);
+      assert.deepEqual(diffVersion, [
+        '🟥🟥🟥🟥 Feature Change Detected 123113-nz-addresses - version: 436,630 features: 2,410,160 (+1) 🟥🟥🟥🟥',
+      ]);
     });
   });
 });

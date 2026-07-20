@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.14.0](https://github.com/linz/basemaps/compare/landing-v8.13.3...landing-v8.14.0) (2026-07-02)
+
+
+### Features
+
+* **landing:** Upgrade lui to 24.17.0 with the new linz logo ([#3630](https://github.com/linz/basemaps/issues/3630)) ([bfeeb0e](https://github.com/linz/basemaps/commit/bfeeb0ecd424d541d7d0fa3fea22b082f9172021))
+* swap to standard viewport settings BM-1712 ([#3629](https://github.com/linz/basemaps/issues/3629)) ([9d67d25](https://github.com/linz/basemaps/commit/9d67d250ec5ce99c37da497895e67172b764a632))
+
+## [8.13.3](https://github.com/linz/basemaps/compare/landing-v8.13.2...landing-v8.13.3) (2026-05-17)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/attribution bumped from ^8.9.0 to ^8.9.1
+    * @basemaps/cli-config bumped from ^8.11.7 to ^8.11.8
+    * @basemaps/config bumped from ^8.13.1 to ^8.13.2
+    * @basemaps/geo bumped from ^8.9.0 to ^8.9.1
+    * @basemaps/shared bumped from ^8.9.8 to ^8.9.9
+
+## [8.13.2](https://github.com/linz/basemaps/compare/landing-v8.13.1...landing-v8.13.2) (2026-04-22)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/cli-config bumped from ^8.11.6 to ^8.11.7
+
 ## [8.13.1](https://github.com/linz/basemaps/compare/landing-v8.13.0...landing-v8.13.1) (2026-02-26)
 
 
