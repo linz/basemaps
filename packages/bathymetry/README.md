@@ -25,7 +25,7 @@ npm install @mapnik/mapnik
 npm run build
 
 # Create a the data file
-node build/index.js -v create --input gebco_2020.nc --docker --output gebco/
+npx tsx build/index.ts create --input gebco_2020.nc --docker --output gebco_2020/
 ```
 
 ## Process

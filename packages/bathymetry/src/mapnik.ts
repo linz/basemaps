@@ -4,9 +4,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Tile, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
-import * as fs from 'fs';
 /** To prevent the long compile time of mapnik for development, only pull it in when needed */
 import mapnik from '@mapnik/mapnik';
+import * as fs from 'fs';
 
 import { BathyMaker } from './bathy.maker.js';
 import { FileType } from './file.js';
@@ -16,7 +16,7 @@ mapnik.register_default_input_plugins();
 function makeTemplate(sourceFile: string, hillShade: string): string {
   return `<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Map[]>
-<Map background-color="#2a383e" srs="+init=epsg:4326">
+<Map background-color="#2a383e" srs="EPSG:4326">
 
   <Style comp-op="color-dodge" filter-mode="first" name="gebco2019webmercator2">
     <Rule>
@@ -26,7 +26,7 @@ function makeTemplate(sourceFile: string, hillShade: string): string {
       </RasterSymbolizer>
     </Rule>
   </Style>
-  <Layer name="gebco2019webmercator2" srs="+init=epsg:4326">
+  <Layer name="gebco2019webmercator2" srs="EPSG:4326">
     <StyleName><![CDATA[gebco2019webmercator2]]></StyleName>
     <Datasource>
       <Parameter name="file"><![CDATA[${hillShade}]]></Parameter>
@@ -52,7 +52,7 @@ function makeTemplate(sourceFile: string, hillShade: string): string {
       </RasterSymbolizer>
     </Rule>
   </Style>
-  <Layer name="gebco2019webmercator" srs="+init=epsg:4326">
+  <Layer name="gebco2019webmercator" srs="EPSG:4326">
     <StyleName><![CDATA[gebco2019webmercator]]></StyleName>
     <StyleName><![CDATA[gebco2019webmercator-deuce]]></StyleName>
     <Datasource>

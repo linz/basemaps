@@ -42,7 +42,7 @@ function createMountedGdal(...paths: string[]): GdalCommand {
 export const BathyMakerContextDefault = {
   threads: os.cpus().length,
   /** Making this much larger than this takes quite a long time to render */
-  tileSize: 8192,
+  tileSize: 128,
 };
 
 export class BathyMaker {
@@ -92,10 +92,7 @@ export class BathyMaker {
   async render(logger: LogType): Promise<void> {
     this.gdalVersion = Gdal.version(logger);
 
-    const isNc = this.inputPath.endsWith('.nc');
-
-    // NetCdf files need to be converted to GeoTiff before processing
-    if (isNc) await this.createSourceGeoTiff(logger);
+    await this.createSourceGeoTiff(logger);
     await this.createSourceHash(logger);
 
     const { tileMatrix: tms, zoom } = this.config;
@@ -166,15 +163,17 @@ export class BathyMaker {
     await gdal.run(
       'gdal_translate',
       [
-        '-of',
-        'GTiff',
+        ['-of', 'GTiff'],
+        ['-co', 'COMPRESS=zstd'],
+        ['-co', 'ZSTD_LEVEL=3'],
+        ['-co', 'TILED=YES'],
+        ['-co', 'NUM_THREADS=ALL_CPUS'],
         // Files need to be converted to Float32 to fix a weird outline bug with the resampling
         // see https://github.com/linz/basemaps-team/issues/241
-        '-ot',
-        'Float32',
+        ['-ot', 'Float32'],
         s3ToVsis3(this.inputPath),
         this.tiffPath,
-      ],
+      ].flat(),
       logger,
     );
   }
@@ -189,21 +188,17 @@ export class BathyMaker {
 
     const bounds = tms.tileToSourceBounds(tile);
     const warpCommand = [
-      '-of',
-      'GTIFF',
-      '-co',
-      'NUM_THREADS=ALL_CPUS',
-      '-s_srs',
-      Epsg.Wgs84.toEpsgString(),
-      '-t_srs',
-      tms.projection.toEpsgString(),
-      '-r',
-      'bilinear',
-      '-te',
-      ...bounds.toBbox(),
+      ['-of', 'GTIFF'],
+      ['-co', 'NUM_THREADS=ALL_CPUS'],
+      ['-s_srs', Epsg.Wgs84.toEpsgString()],
+      ['-t_srs', tms.projection.toEpsgString()],
+      ['-r', 'bilinear'],
+      ['-te', ...bounds.toBbox()],
       this.tiffPath,
       warpedPath,
-    ].map(String);
+    ]
+      .flat()
+      .map(String);
 
     logger.trace({ file: warpedPath }, 'Warping');
     const gdal = createMountedGdal(this.tmpFolder.sourcePath, this.tiffPath);
@@ -238,23 +233,19 @@ export class BathyMaker {
     await gdal.run(
       'gdal_translate',
       [
-        '-of',
-        'GTiff',
-        '-co',
-        'NUM_THREADS=ALL_CPUS',
-        '-co',
-        'COMPRESS=webp',
-        '-co',
-        'WEBP_LEVEL=100',
-        '-r',
-        'bilinear',
-        '-a_srs',
-        tileMatrix.projection.toEpsgString(),
-        '-a_ullr',
-        ...[bounds.x, bounds.bottom, bounds.right, bounds.y],
+        ['-of', 'GTiff'],
+        ['-co', 'NUM_THREADS=ALL_CPUS'],
+        ['-co', 'COMPRESS=webp'],
+        ['-co', 'WEBP_LEVEL=100'],
+        ['-r', 'bilinear'],
+        ['-a_srs', tileMatrix.projection.toEpsgString()],
+        ['-a_ullr', ...[bounds.x, bounds.bottom, bounds.right, bounds.y]],
         renderedPath,
         outputPath,
-      ].map(String),
+      ]
+        .flat()
+        .map(String),
+
       logger,
     );
   }

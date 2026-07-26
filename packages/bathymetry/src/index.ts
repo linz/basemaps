@@ -44,6 +44,13 @@ export const BathymetryCreateCommand = command({
       long: 'zoom-level',
       description: 'Zoom level to use for the final cutting',
     }),
+    tileSize: option({
+      type: optional(number),
+      long: 'tile-size',
+      description: 'Pixel size of output tiles',
+      defaultValue: () => 8192,
+      defaultValueIsSerializable: true
+    }),
   },
   async handler(args) {
     const logger = getLogger(this, args, 'bathymetry');
@@ -84,6 +91,7 @@ export const BathymetryCreateCommand = command({
         tmpFolder,
         tileMatrix,
         zoom: bestZ,
+        tileSize: args.tileSize,
         threads: os.cpus().length / 2,
       });
       await bathy.render(logger);
@@ -91,10 +99,10 @@ export const BathymetryCreateCommand = command({
       const srcPath = path.join(tmpFolder.sourcePath, String(FileType.Output));
 
       for (const file of await fs.readdir(srcPath)) {
-        await fsa.write(fsa.toUrl(path.join(args.output, file)), createReadStream(path.join(srcPath, file)));
+        await fsa.write(new URL(file, args.output), createReadStream(path.join(srcPath, file)));
       }
     } finally {
-      await fs.rm(tmpFolder.sourcePath, { recursive: true });
+      // await fs.rm(tmpFolder.sourcePath, { recursive: true });
     }
   },
 });
