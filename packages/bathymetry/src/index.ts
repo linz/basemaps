@@ -49,7 +49,7 @@ export const BathymetryCreateCommand = command({
       long: 'tile-size',
       description: 'Pixel size of output tiles',
       defaultValue: () => 8192,
-      defaultValueIsSerializable: true
+      defaultValueIsSerializable: true,
     }),
   },
   async handler(args) {
@@ -67,9 +67,9 @@ export const BathymetryCreateCommand = command({
     if (tileMatrix == null) {
       throw new Error(
         'Unknown tile matrix set: ' +
-        tileMatrixInput +
-        ' Aviaiable tile matrix sets: ' +
-        TileMatrixSets.All.map((c) => c.identifier).join(', '),
+          tileMatrixInput +
+          ' Aviaiable tile matrix sets: ' +
+          TileMatrixSets.All.map((c) => c.identifier).join(', '),
       );
     }
 
