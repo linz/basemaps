@@ -30,7 +30,7 @@
   "dependencies": {
     "@basemaps/geo": "^8.9.1",
     "@basemaps/shared": "^8.9.9",
-    "@rushstack/ts-command-line": "^4.3.13",
+    "cmd-ts": "^0.12.1",
     "ulid": "^2.3.0"
   },
   "devDependencies": {

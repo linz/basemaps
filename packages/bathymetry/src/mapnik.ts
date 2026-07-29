@@ -6,7 +6,7 @@ import { Tile, TileMatrixSet } from '@basemaps/geo';
 import { LogType } from '@basemaps/shared';
 import * as fs from 'fs';
 /** To prevent the long compile time of mapnik for development, only pull it in when needed */
-import mapnik from 'mapnik';
+import mapnik from '@mapnik/mapnik';
 
 import { BathyMaker } from './bathy.maker.js';
 import { FileType } from './file.js';

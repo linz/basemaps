@@ -1,5 +1,5 @@
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
-import { fsa, LogType, s3ToVsis3 } from '@basemaps/shared';
+import { fsa, LogType, s3ToVsis3, urlToString } from '@basemaps/shared';
 import * as os from 'os';
 import type { LimitFunction } from 'p-limit';
 import PLimit from 'p-limit';
@@ -17,9 +17,9 @@ interface BathyMakerContext {
   /** unique id for this build */
   id: string;
   /** Source netcdf or tiff file path */
-  inputPath: string;
+  inputPath: URL;
   /** Output directory path */
-  outputPath: string;
+  outputPath: URL;
   tmpFolder: FilePath;
   /** TileMatrixSet to cut the bathy up into tiles */
   tileMatrix: TileMatrixSet;
@@ -59,7 +59,7 @@ export class BathyMaker {
   }
 
   get inputPath(): string {
-    return this.config.inputPath;
+    return urlToString(this.config.inputPath);
   }
 
   get inputFolder(): string {
@@ -67,7 +67,7 @@ export class BathyMaker {
   }
 
   get outputPath(): string {
-    return this.config.outputPath;
+    return urlToString(this.config.outputPath);
   }
 
   get tmpFolder(): FilePath {
