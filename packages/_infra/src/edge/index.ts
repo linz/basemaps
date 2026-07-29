@@ -104,6 +104,9 @@ export class EdgeStack extends cdk.Stack {
       additionalBehaviors,
     });
 
+    // Override logical ID to match deprecated CloudFrontWebDistribution logical ID to update in-place without destroying old distribution
+    (this.distribution.node.defaultChild as cdk.CfnResource).overrideLogicalId('DistributionCFDistribution882A7313');
+
     new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontLogBucket, { value: this.logBucket.bucketName });
     new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontDistributionId, { value: this.distribution.distributionId });
     new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontBucket, { value: s3BucketSource.bucketName });
