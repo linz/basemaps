@@ -51,59 +51,56 @@ describe('cache policies', () => {
       sources?: Record<string, { url?: string; tiles?: string[] }>;
     }
 
-    const configUrl = 's3://linz-basemaps/config/config-latest.json.gz';
-    const v1Params = [
-      {
-        param: 'config',
-        styleUrl: '/v1/styles/topographic.json',
-        query: `config=${encodeURIComponent(configUrl)}`,
-        makeRes2Query: (id: string): string => `config=${encodeURIComponent(`${configUrl}?v=${id}`)}`,
-        validate: (style: TestStyle): void => {
-          assert.ok(style.glyphs?.includes('config='), 'glyphs should include config');
-          assert.ok(style.sprite?.includes('config='), 'sprite should include config');
-          assert.ok(style.sources?.['LINZ Basemaps']?.url?.includes('config='), 'source url should include config');
-        },
-      },
-      {
-        param: 'exclude',
-        styleUrl: '/v1/styles/topographic.json',
-        query: 'exclude=background',
-        makeRes2Query: (id: string): string => `exclude=${id}`,
-        validate: (style: TestStyle): void => {
-          const hasBackgroundLayer = style.layers?.some((layer: { id: string }) => layer.id === 'background');
-          assert.equal(hasBackgroundLayer, false, 'background layer should be excluded');
-        },
-      },
-      {
-        param: 'pipeline',
-        styleUrl: '/v1/styles/elevation.json',
-        query: 'pipeline=color-ramp',
-        makeRes2Query: (): string => 'pipeline=terrain-rgb',
-        validate: (style: TestStyle): void => {
-          const tiles = style.sources?.['basemaps-elevation-color-ramp']?.tiles;
-          assert.ok(
-            tiles && tiles.some((t: string) => t.includes('pipeline=color-ramp')),
-            'tiles should include pipeline=color-ramp',
-          );
-        },
-      },
-    ];
+    it('should validate config parameter on /v1/styles/topographic.json', async () => {
+      const configUrl = 's3://linz-basemaps/config/config-latest.json.gz';
+      const testId = ulid.ulid().toLowerCase();
 
-    for (const { param, styleUrl, query, makeRes2Query, validate } of v1Params) {
-      it(`should validate ${param} parameter on ${styleUrl}`, async () => {
-        const testId = ulid.ulid().toLowerCase();
+      const res1 = await ctx.req(`/v1/styles/topographic.json?api=${ctx.apiKey}&config=${encodeURIComponent(configUrl)}`);
+      assert.equal(res1.status, 200);
 
-        const res1 = await ctx.req(`${styleUrl}?api=${ctx.apiKey}&${query}`);
-        assert.equal(res1.status, 200);
+      const style1 = (await res1.json()) as TestStyle;
+      assert.ok(style1.glyphs?.includes('config='), 'glyphs should include config');
+      assert.ok(style1.sprite?.includes('config='), 'sprite should include config');
+      assert.ok(style1.sources?.['LINZ Basemaps']?.url?.includes('config='), 'source url should include config');
 
-        const style1 = (await res1.json()) as TestStyle;
-        validate(style1);
+      const configUrl2 = `${configUrl}?v=${testId}`;
+      const res2 = await ctx.req(
+        `/v1/styles/topographic.json?api=${ctx.apiKey}&config=${encodeURIComponent(configUrl2)}`,
+      );
+      assert.equal(res2.status, 200);
+      assertCacheMiss(res2);
+    });
 
-        const res2 = await ctx.req(`${styleUrl}?api=${ctx.apiKey}&${makeRes2Query(testId)}`);
-        assert.equal(res2.status, 200);
-        assertCacheMiss(res2);
-      });
-    }
+    it('should validate exclude parameter on /v1/styles/topographic.json', async () => {
+      const testId = ulid.ulid().toLowerCase();
+
+      const res1 = await ctx.req(`/v1/styles/topographic.json?api=${ctx.apiKey}&exclude=background`);
+      assert.equal(res1.status, 200);
+
+      const style1 = (await res1.json()) as TestStyle;
+      const hasBackgroundLayer = style1.layers?.some((layer: { id: string }) => layer.id === 'background');
+      assert.equal(hasBackgroundLayer, false, 'background layer should be excluded');
+
+      const res2 = await ctx.req(`/v1/styles/topographic.json?api=${ctx.apiKey}&exclude=${testId}`);
+      assert.equal(res2.status, 200);
+      assertCacheMiss(res2);
+    });
+
+    it('should validate pipeline parameter on /v1/styles/elevation.json', async () => {
+      const res1 = await ctx.req(`/v1/styles/elevation.json?api=${ctx.apiKey}&pipeline=color-ramp`);
+      assert.equal(res1.status, 200);
+
+      const style1 = (await res1.json()) as TestStyle;
+      const tiles = style1.sources?.['basemaps-elevation-color-ramp']?.tiles;
+      assert.ok(
+        tiles && tiles.some((t: string) => t.includes('pipeline=color-ramp')),
+        'tiles should include pipeline=color-ramp',
+      );
+
+      const res2 = await ctx.req(`/v1/styles/elevation.json?api=${ctx.apiKey}&pipeline=terrain-rgb`);
+      assert.equal(res2.status, 200);
+      assertCacheMiss(res2);
+    });
 
     it('should validate format parameter and default no labels on /v1/styles/elevation.json', async () => {
       const res = await ctx.req(`/v1/styles/elevation.json?api=${ctx.apiKey}&pipeline=color-ramp&format=webp`);

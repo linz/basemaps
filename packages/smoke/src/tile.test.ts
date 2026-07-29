@@ -49,14 +49,33 @@ describe('tile', () => {
     assertCors(res);
   });
 
-  for (const ext of ['png', 'jpeg', 'avif', 'jpg']) {
-    it(`should serve a ${ext} tile`, async () => {
-      const res = await ctx.req(`/v1/tiles/aerial/WebMercatorQuad/6/62/40.${ext}?api=${ctx.apiKey}`);
-      assert.equal(res.status, 200);
-      assert.equal(res.headers.get('content-type'), `image/${ext === 'jpg' ? 'jpeg' : ext}`);
-      assertCors(res);
-    });
-  }
+  it('should serve a png tile', async () => {
+    const res = await ctx.req(`/v1/tiles/aerial/WebMercatorQuad/6/62/40.png?api=${ctx.apiKey}`);
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('content-type'), 'image/png');
+    assertCors(res);
+  });
+
+  it('should serve a jpeg tile', async () => {
+    const res = await ctx.req(`/v1/tiles/aerial/WebMercatorQuad/6/62/40.jpeg?api=${ctx.apiKey}`);
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('content-type'), 'image/jpeg');
+    assertCors(res);
+  });
+
+  it('should serve a avif tile', async () => {
+    const res = await ctx.req(`/v1/tiles/aerial/WebMercatorQuad/6/62/40.avif?api=${ctx.apiKey}`);
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('content-type'), 'image/avif');
+    assertCors(res);
+  });
+
+  it('should serve a jpg tile', async () => {
+    const res = await ctx.req(`/v1/tiles/aerial/WebMercatorQuad/6/62/40.jpg?api=${ctx.apiKey}`);
+    assert.equal(res.status, 200);
+    assert.equal(res.headers.get('content-type'), 'image/jpeg');
+    assertCors(res);
+  });
 
   it('should serve a preview', async () => {
     const res = await ctx.req(`/v1/preview/aerial/WebMercatorQuad/7.25/175.4665236/-41.1619890`);
