@@ -94,6 +94,7 @@ export class EdgeStack extends cdk.Stack {
       priceClass: cf.PriceClass.PRICE_CLASS_ALL,
       httpVersion: cf.HttpVersion.HTTP2,
       logBucket: this.logBucket,
+      defaultRootObject: 'index.html',
       defaultBehavior: {
         origin: s3Origin,
         viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
