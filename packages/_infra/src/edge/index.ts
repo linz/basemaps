@@ -1,6 +1,7 @@
 import cdk from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import cf from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import s3, { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 
@@ -14,6 +15,7 @@ export interface EdgeStackProps extends cdk.StackProps {
   /** Is the lambda deployed as a function url somewhere */
   lambdaUrl?: string;
 }
+
 /**
  * Edge infrastructure
  *
@@ -23,7 +25,7 @@ export interface EdgeStackProps extends cdk.StackProps {
  */
 export class EdgeStack extends cdk.Stack {
   public logBucket: Bucket;
-  public distribution: cf.CloudFrontWebDistribution;
+  public distribution: cf.Distribution;
 
   public constructor(scope: Construct, id: string, props: EdgeStackProps) {
     super(scope, id, props);
@@ -39,46 +41,67 @@ export class EdgeStack extends cdk.Stack {
       ],
     });
 
-    // Allow cloud front to read the static bucket
-    const originAccessIdentity = new cf.OriginAccessIdentity(this, 'AccessIdentity', {
-      comment: 'Basemaps S3 access',
-    });
-
-    s3BucketSource.grantRead(originAccessIdentity);
-
-    const s3Source: cf.SourceConfiguration = {
-      s3OriginSource: { s3BucketSource, originAccessIdentity },
-      behaviors: [
-        {
-          isDefaultBehavior: true,
-          allowedMethods: cf.CloudFrontAllowedMethods.GET_HEAD_OPTIONS,
-          forwardedValues: {
-            queryString: true,
-            // From https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-origin-request-policies.html
-            // "CORS-S3Origin"
-            headers: ['Origin', 'Access-Control-Request-Method', 'Access-Control-Request-Headers'],
-          },
-        },
-      ],
-    };
+    const s3Origin = origins.S3BucketOrigin.withOriginAccessControl(s3BucketSource);
 
     const acmCert = Certificate.fromCertificateArn(this, 'Cert', props.cloudfrontCertificateArn);
-    const viewerCertificate = cf.ViewerCertificate.fromAcmCertificate(acmCert, {
-      aliases: config.CloudFrontDns,
-    });
     new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
 
     this.logBucket = new s3.Bucket(this, 'EdgeLogBucket');
-    const originConfigs = [s3Source];
-    if (props.lambdaUrl) originConfigs.push(this.lambdaUrlSource(props.lambdaUrl));
 
-    this.distribution = new cf.CloudFrontWebDistribution(this, 'Distribution', {
-      viewerCertificate,
+    const additionalBehaviors: Record<string, cf.BehaviorOptions> = {};
+
+    if (props.lambdaUrl) {
+      const trimmedUrl = new URL(props.lambdaUrl); // LambdaURLS include https:// and a trailing /
+      const lambdaOrigin = new origins.HttpOrigin(trimmedUrl.hostname, {
+        protocolPolicy: cf.OriginProtocolPolicy.HTTPS_ONLY,
+      });
+
+      const v1CachePolicy = new cf.CachePolicy(this, 'V1CachePolicy', {
+        queryStringBehavior: cf.CacheQueryStringBehavior.allowList('config', 'exclude', 'pipeline'),
+      });
+
+      const atCachePolicy = new cf.CachePolicy(this, 'AtCachePolicy', {
+        queryStringBehavior: cf.CacheQueryStringBehavior.allowList(
+          'config',
+          'exclude',
+          'tileMatrix',
+          'style',
+          'pipeline',
+          'terrain',
+        ),
+      });
+
+      additionalBehaviors['/v1*'] = {
+        origin: lambdaOrigin,
+        viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cf.AllowedMethods.ALLOW_ALL,
+        cachePolicy: v1CachePolicy,
+        originRequestPolicy: cf.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+      };
+
+      additionalBehaviors['/@*'] = {
+        origin: lambdaOrigin,
+        viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cf.AllowedMethods.ALLOW_ALL,
+        cachePolicy: atCachePolicy,
+        originRequestPolicy: cf.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+      };
+    }
+
+    this.distribution = new cf.Distribution(this, 'Distribution', {
+      domainNames: config.CloudFrontDns,
+      certificate: acmCert,
       priceClass: cf.PriceClass.PRICE_CLASS_ALL,
       httpVersion: cf.HttpVersion.HTTP2,
-      viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-      originConfigs,
-      loggingConfig: { bucket: this.logBucket },
+      logBucket: this.logBucket,
+      defaultBehavior: {
+        origin: s3Origin,
+        viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cf.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+        originRequestPolicy: cf.OriginRequestPolicy.CORS_S3_ORIGIN,
+        cachePolicy: cf.CachePolicy.CACHING_OPTIMIZED,
+      },
+      additionalBehaviors,
     });
 
     new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontLogBucket, { value: this.logBucket.bucketName });
@@ -86,45 +109,5 @@ export class EdgeStack extends cdk.Stack {
     new cdk.CfnOutput(this, ParametersEdgeKeys.CloudFrontBucket, { value: s3BucketSource.bucketName });
     new cdk.CfnOutput(this, 'CloudFrontId', { value: this.distribution.distributionDomainName });
     new cdk.CfnOutput(this, 'CloudFrontDomain', { value: this.distribution.distributionDomainName });
-  }
-
-  lambdaUrlSource(lambdaUrl: string): cf.SourceConfiguration {
-    const trimmedUrl = new URL(lambdaUrl); // LambdaURLS include https:// and a trailing /
-
-    return {
-      customOriginSource: {
-        domainName: trimmedUrl.hostname,
-        originProtocolPolicy: cf.OriginProtocolPolicy.HTTPS_ONLY,
-      },
-      behaviors: [
-        // Configuration for all lambda requests
-        // Only the tiles themselves are cached so only things affecting tile rendering should be a cacheKey
-        {
-          pathPattern: '/v1*',
-          allowedMethods: cf.CloudFrontAllowedMethods.ALL,
-          forwardedValues: {
-            /** Forward all query strings but do not use them for caching */
-            queryString: true,
-            // queryStringCacheKeys are limited to a max of 10
-            queryStringCacheKeys: ['config', 'exclude', 'pipeline'].map(encodeURIComponent),
-          },
-          lambdaFunctionAssociations: [],
-        },
-        // Configuration for static landing page, used when rendering preview images for things like slack
-        {
-          pathPattern: '/@*',
-          allowedMethods: cf.CloudFrontAllowedMethods.ALL,
-          forwardedValues: {
-            /** Forward all query strings but do not use them for caching */
-            queryString: true,
-            // queryStringCacheKeys are limited to a max of 10
-            queryStringCacheKeys: ['config', 'exclude', 'tileMatrix', 'style', 'pipeline', 'terrain'].map(
-              encodeURIComponent,
-            ),
-          },
-          lambdaFunctionAssociations: [],
-        },
-      ],
-    };
   }
 }
