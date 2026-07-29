@@ -55,7 +55,9 @@ describe('cache policies', () => {
       const configUrl = 's3://linz-basemaps/config/config-latest.json.gz';
       const testId = ulid.ulid().toLowerCase();
 
-      const res1 = await ctx.req(`/v1/styles/topographic.json?api=${ctx.apiKey}&config=${encodeURIComponent(configUrl)}`);
+      const res1 = await ctx.req(
+        `/v1/styles/topographic.json?api=${ctx.apiKey}&config=${encodeURIComponent(configUrl)}`,
+      );
       assert.equal(res1.status, 200);
 
       const style1 = (await res1.json()) as TestStyle;
