@@ -8,7 +8,7 @@ describe('styles', () => {
     const res = await ctx.req(`/v1/styles/topographic.json?api=${ctx.apiKey}`, { headers: ctx.Cors });
     assert.equal(res.status, 200);
     assertCors(res);
-    const style = await res.json();
+    const style = (await res.json()) as Record<string, unknown>;
     assert.ok(style);
   });
 
@@ -27,7 +27,7 @@ describe('styles', () => {
     });
     assert.equal(res.status, 200);
     assertCors(res);
-    const style = await res.json();
+    const style = (await res.json()) as Record<string, unknown>;
     assert.ok(style);
   });
 

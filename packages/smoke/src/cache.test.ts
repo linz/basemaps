@@ -44,14 +44,21 @@ describe('cache policies', () => {
       assertCacheMiss(res2);
     });
 
+    interface TestStyle {
+      glyphs?: string;
+      sprite?: string;
+      layers?: Array<{ id: string }>;
+      sources?: Record<string, { url?: string; tiles?: string[] }>;
+    }
+
     const configUrl = 's3://linz-basemaps/config/config-latest.json.gz';
     const v1Params = [
       {
         param: 'config',
         styleUrl: '/v1/styles/topographic.json',
         query: `config=${encodeURIComponent(configUrl)}`,
-        makeRes2Query: (id: string) => `config=${encodeURIComponent(`${configUrl}?v=${id}`)}`,
-        validate: (style: any) => {
+        makeRes2Query: (id: string): string => `config=${encodeURIComponent(`${configUrl}?v=${id}`)}`,
+        validate: (style: TestStyle): void => {
           assert.ok(style.glyphs?.includes('config='), 'glyphs should include config');
           assert.ok(style.sprite?.includes('config='), 'sprite should include config');
           assert.ok(style.sources?.['LINZ Basemaps']?.url?.includes('config='), 'source url should include config');
@@ -61,9 +68,9 @@ describe('cache policies', () => {
         param: 'exclude',
         styleUrl: '/v1/styles/topographic.json',
         query: 'exclude=background',
-        makeRes2Query: (id: string) => `exclude=${id}`,
-        validate: (style: any) => {
-          const hasBackgroundLayer = style.layers?.some((layer: any) => layer.id === 'background');
+        makeRes2Query: (id: string): string => `exclude=${id}`,
+        validate: (style: TestStyle): void => {
+          const hasBackgroundLayer = style.layers?.some((layer: { id: string }) => layer.id === 'background');
           assert.equal(hasBackgroundLayer, false, 'background layer should be excluded');
         },
       },
@@ -71,8 +78,8 @@ describe('cache policies', () => {
         param: 'pipeline',
         styleUrl: '/v1/styles/elevation.json',
         query: 'pipeline=color-ramp',
-        makeRes2Query: (_id: string) => 'pipeline=terrain-rgb',
-        validate: (style: any) => {
+        makeRes2Query: (): string => 'pipeline=terrain-rgb',
+        validate: (style: TestStyle): void => {
           const tiles = style.sources?.['basemaps-elevation-color-ramp']?.tiles;
           assert.ok(
             tiles && tiles.some((t: string) => t.includes('pipeline=color-ramp')),
@@ -89,7 +96,7 @@ describe('cache policies', () => {
         const res1 = await ctx.req(`${styleUrl}?api=${ctx.apiKey}&${query}`);
         assert.equal(res1.status, 200);
 
-        const style1 = await res1.json();
+        const style1 = (await res1.json()) as TestStyle;
         validate(style1);
 
         const res2 = await ctx.req(`${styleUrl}?api=${ctx.apiKey}&${makeRes2Query(testId)}`);
@@ -102,10 +109,7 @@ describe('cache policies', () => {
       const res = await ctx.req(`/v1/styles/elevation.json?api=${ctx.apiKey}&pipeline=color-ramp&format=webp`);
       assert.equal(res.status, 200);
 
-      const style = (await res.json()) as {
-        layers?: Array<{ id: string }>;
-        sources?: Record<string, any>;
-      };
+      const style = (await res.json()) as TestStyle;
 
       const tiles = style.sources?.['basemaps-elevation-color-ramp']?.tiles;
       assert.ok(
