@@ -54,3 +54,19 @@ export function assertCacheMiss(res: Response): void {
   if (cacheHeader == null) return; // No header is a miss
   assert.equal(cacheHeader.startsWith('Miss'), true, `Should be a cache Miss ${res.headers.get('x-cache')}`);
 }
+
+/** Validate that the response was served from cache */
+export function assertCacheHit(res: Response): void {
+  const cacheHeader = res.headers.get('x-cache');
+  if (cacheHeader == null) return; // No header when testing without CloudFront
+  assert.equal(
+    cacheHeader.startsWith('Hit') || cacheHeader.startsWith('RefreshHit'),
+    true,
+    `Should be a cache Hit ${cacheHeader}`,
+  );
+}
+
+/** Validate that response has valid CORS headers */
+export function assertCors(res: Response): void {
+  assert.equal(res.headers.get('access-control-allow-origin'), '*', 'access-control-allow-origin header should be *');
+}
