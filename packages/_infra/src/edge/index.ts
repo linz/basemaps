@@ -7,6 +7,7 @@ import { Construct } from 'constructs';
 
 import { getConfig } from '../config.js';
 import { ParametersEdgeKeys } from '../parameters.js';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 
 export interface EdgeStackProps extends cdk.StackProps {
   /** ACM certificate to use for cloudfront */
@@ -88,6 +89,10 @@ export class EdgeStack extends cdk.Stack {
       };
     }
 
+    // This value needs to be manually set after the first deployment into a business Cloudfront plan
+    const webAclIdSsm = StringParameter.valueFromLookup(this, '/linz/basemaps/cloudfront-webacl-id');
+    const webAclId = webAclIdSsm.includes('-') ? webAclIdSsm : undefined;
+
     this.distribution = new cf.Distribution(this, 'Distribution', {
       domainNames: config.CloudFrontDns,
       certificate: acmCert,
@@ -103,6 +108,7 @@ export class EdgeStack extends cdk.Stack {
         cachePolicy: cf.CachePolicy.CACHING_OPTIMIZED,
       },
       additionalBehaviors,
+      webAclId,
     });
 
     // Override logical ID to match deprecated CloudFrontWebDistribution logical ID to update in-place without destroying old distribution
