@@ -105,6 +105,7 @@ export class EdgeStack extends cdk.Stack {
         allowedMethods: cf.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         originRequestPolicy: cf.OriginRequestPolicy.CORS_S3_ORIGIN,
         cachePolicy: cf.CachePolicy.CACHING_OPTIMIZED,
+        responseHeadersPolicy: cf.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT,
       },
       additionalBehaviors,
       webAclId: webAclId.startsWith('arn:') ? webAclId : undefined,
