@@ -107,7 +107,7 @@ export class EdgeStack extends cdk.Stack {
         cachePolicy: cf.CachePolicy.CACHING_OPTIMIZED,
       },
       additionalBehaviors,
-      webAclId: webAclId === '' ? undefined : webAclId,
+      webAclId: webAclId.startsWith('arn:') ? webAclId : undefined,
     });
 
     // Override logical ID to match deprecated CloudFrontWebDistribution logical ID to update in-place without destroying old distribution
