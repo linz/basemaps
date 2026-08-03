@@ -91,7 +91,7 @@ async function createCollection(
   const links: StacLink[] = [
     {
       rel: 'self',
-      href: new URL(bm.tmpFolder.basename(FileType.Stac, 'collection'), bm.outputPath).href,
+      href: new URL(bm.tmpFolder.basename(FileType.Stac, 'collection'), fsa.toUrl(bm.outputPath)).href,
     },
     {
       rel: 'derived_from',
@@ -115,7 +115,7 @@ async function createCollection(
   ];
   const interval: [string, string][] = [];
   try {
-    const sourceCollectionPath = new URL('collection.json', bm.inputPath);
+    const sourceCollectionPath = new URL('collection.json', fsa.toUrl(bm.inputPath));
     sourceStac = await fsa.readJson<StacCollection>(sourceCollectionPath);
     description = sourceStac.description;
     interval.push(...(sourceStac.extent?.temporal?.interval ?? []));

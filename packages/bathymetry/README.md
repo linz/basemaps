@@ -12,20 +12,20 @@ You will need:
 
 - Gebco netcdf file [here](https://www.gebco.net/data_and_products/gridded_bathymetry_data/)
 - Docker (or a new gdal 3+ with netcdf support)
-- Node >= v12
+- Node >= v20
 
 ```bash
 # Install dependencies
 npm install @basemaps/bathymetry
 
 # To prevent very long CI/Dev build times, mapnik will need to be manually installed
-npm install mapnik
+npm install @mapnik/mapnik
 
 # Ensure the javascript has been built
 npm run build
 
 # Create a the data file
-node build/index.js -v create --input gebco_2020.nc --docker --output gebco/
+npx tsx build/index.ts create --input gebco_2020.nc --docker --output gebco_2020/
 ```
 
 ## Process

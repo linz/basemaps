@@ -1,5 +1,5 @@
 import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
-import { fsa, LogType, s3ToVsis3 } from '@basemaps/shared';
+import { fsa, LogType, s3ToVsis3, urlToString } from '@basemaps/shared';
 import * as os from 'os';
 import type { LimitFunction } from 'p-limit';
 import PLimit from 'p-limit';
@@ -17,9 +17,9 @@ interface BathyMakerContext {
   /** unique id for this build */
   id: string;
   /** Source netcdf or tiff file path */
-  inputPath: string;
+  inputPath: URL;
   /** Output directory path */
-  outputPath: string;
+  outputPath: URL;
   tmpFolder: FilePath;
   /** TileMatrixSet to cut the bathy up into tiles */
   tileMatrix: TileMatrixSet;
@@ -42,7 +42,7 @@ function createMountedGdal(...paths: string[]): GdalCommand {
 export const BathyMakerContextDefault = {
   threads: os.cpus().length,
   /** Making this much larger than this takes quite a long time to render */
-  tileSize: 8192,
+  tileSize: 128,
 };
 
 export class BathyMaker {
@@ -59,7 +59,7 @@ export class BathyMaker {
   }
 
   get inputPath(): string {
-    return this.config.inputPath;
+    return urlToString(this.config.inputPath);
   }
 
   get inputFolder(): string {
@@ -67,7 +67,7 @@ export class BathyMaker {
   }
 
   get outputPath(): string {
-    return this.config.outputPath;
+    return urlToString(this.config.outputPath);
   }
 
   get tmpFolder(): FilePath {
@@ -92,10 +92,7 @@ export class BathyMaker {
   async render(logger: LogType): Promise<void> {
     this.gdalVersion = Gdal.version(logger);
 
-    const isNc = this.inputPath.endsWith('.nc');
-
-    // NetCdf files need to be converted to GeoTiff before processing
-    if (isNc) await this.createSourceGeoTiff(logger);
+    await this.createSourceGeoTiff(logger);
     await this.createSourceHash(logger);
 
     const { tileMatrix: tms, zoom } = this.config;
@@ -166,15 +163,17 @@ export class BathyMaker {
     await gdal.run(
       'gdal_translate',
       [
-        '-of',
-        'GTiff',
+        ['-of', 'GTiff'],
+        ['-co', 'COMPRESS=zstd'],
+        ['-co', 'ZSTD_LEVEL=3'],
+        ['-co', 'TILED=YES'],
+        ['-co', 'NUM_THREADS=ALL_CPUS'],
         // Files need to be converted to Float32 to fix a weird outline bug with the resampling
         // see https://github.com/linz/basemaps-team/issues/241
-        '-ot',
-        'Float32',
+        ['-ot', 'Float32'],
         s3ToVsis3(this.inputPath),
         this.tiffPath,
-      ],
+      ].flat(),
       logger,
     );
   }
@@ -189,21 +188,17 @@ export class BathyMaker {
 
     const bounds = tms.tileToSourceBounds(tile);
     const warpCommand = [
-      '-of',
-      'GTIFF',
-      '-co',
-      'NUM_THREADS=ALL_CPUS',
-      '-s_srs',
-      Epsg.Wgs84.toEpsgString(),
-      '-t_srs',
-      tms.projection.toEpsgString(),
-      '-r',
-      'bilinear',
-      '-te',
-      ...bounds.toBbox(),
+      ['-of', 'GTIFF'],
+      ['-co', 'NUM_THREADS=ALL_CPUS'],
+      ['-s_srs', Epsg.Wgs84.toEpsgString()],
+      ['-t_srs', tms.projection.toEpsgString()],
+      ['-r', 'bilinear'],
+      ['-te', ...bounds.toBbox()],
       this.tiffPath,
       warpedPath,
-    ].map(String);
+    ]
+      .flat()
+      .map(String);
 
     logger.trace({ file: warpedPath }, 'Warping');
     const gdal = createMountedGdal(this.tmpFolder.sourcePath, this.tiffPath);
@@ -238,23 +233,19 @@ export class BathyMaker {
     await gdal.run(
       'gdal_translate',
       [
-        '-of',
-        'GTiff',
-        '-co',
-        'NUM_THREADS=ALL_CPUS',
-        '-co',
-        'COMPRESS=webp',
-        '-co',
-        'WEBP_LEVEL=100',
-        '-r',
-        'bilinear',
-        '-a_srs',
-        tileMatrix.projection.toEpsgString(),
-        '-a_ullr',
-        ...[bounds.x, bounds.bottom, bounds.right, bounds.y],
+        ['-of', 'GTiff'],
+        ['-co', 'NUM_THREADS=ALL_CPUS'],
+        ['-co', 'COMPRESS=webp'],
+        ['-co', 'WEBP_LEVEL=100'],
+        ['-r', 'bilinear'],
+        ['-a_srs', tileMatrix.projection.toEpsgString()],
+        ['-a_ullr', ...[bounds.x, bounds.bottom, bounds.right, bounds.y]],
         renderedPath,
         outputPath,
-      ].map(String),
+      ]
+        .flat()
+        .map(String),
+
       logger,
     );
   }
