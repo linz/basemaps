@@ -22,11 +22,15 @@ button {
 }
 
 .checker-board {
-  background-image: linear-gradient(45deg, #00000010 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, transparent 75%, #00000010 75%),
-    linear-gradient(45deg, #00000010 25%, transparent 25%);
+  background-image:
+    linear-gradient(45deg, #00000010 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #00000010 75%),
+    linear-gradient(45deg, transparent 75%, #00000010 75%), linear-gradient(45deg, #00000010 25%, transparent 25%);
   background-size: 100px 100px;
-  background-position: 0 0, 0 0, -50px -50px, 50px 50px;
+  background-position:
+    0 0,
+    0 0,
+    -50px -50px,
+    50px 50px;
 }
 
 .lui-menu-drawer.lui-menu-drawer-wide {
@@ -127,7 +131,11 @@ button {
   right: 0;
   background-color: #007198;
   color: white;
-  transition: background-color 0.3s, color 0.3s, height 0.3s, border 0.3s;
+  transition:
+    background-color 0.3s,
+    color 0.3s,
+    height 0.3s,
+    border 0.3s;
 }
 
 .menu-copyable button i {
@@ -157,9 +165,9 @@ button {
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
 }
 
-.lui-checkbox-container label{
+.lui-checkbox-container label {
   margin-left: 10px;
-  margin-top:  0px;
+  margin-top: 0px;
 }
 
 .debug {
@@ -197,7 +205,6 @@ button {
   min-height: 0 !important;
 }
 
-
 .toast-message {
   position: absolute;
   background-color: #eaeaea;
@@ -214,7 +221,6 @@ button {
   height: 40px;
 }
 
-
 /*
 The additional #layer-selector id selector is needed to ensure these styles
 have higher specifity than the default styles of the react-select component
@@ -224,7 +230,6 @@ have higher specifity than the default styles of the react-select component
   color: #00425d;
   letter-spacing: 1px;
 }
-
 
 /** Force the footer links to be centered */
 .lui-footer.lui-footer .lui-footer-list li {
@@ -236,7 +241,6 @@ have higher specifity than the default styles of the react-select component
 .LuiHeaderV2-menu-icon {
   padding-right: 8px;
 }
-
 
 /** Label control **/
 .maplibregl-ctrl-group .maplibregl-ctrl-labels {
@@ -254,15 +258,14 @@ have higher specifity than the default styles of the react-select component
   font-size: 20px;
 }
 
-
 .display-none {
-  display: none!important;
+  display: none !important;
 }
 
 .lui-feature-img img {
   padding: 20px;
 }
 
-.maplibregl-ctrl button.ctrl-terrain-dsm-enabled  .maplibregl-ctrl-icon {
-  background-image: url("ctrl-terrain-dsm-enabled.svg");
+.maplibregl-ctrl button.ctrl-terrain-dsm-enabled .maplibregl-ctrl-icon {
+  background-image: url('ctrl-terrain-dsm-enabled.svg');
 }

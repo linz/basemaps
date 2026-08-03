@@ -1,6 +1,4 @@
-import type {
-  ImageFormat,
-  TileMatrixSet} from '@basemaps/geo';
+import type { ImageFormat, TileMatrixSet } from '@basemaps/geo';
 import {
   Epsg,
   EpsgCode,
@@ -18,7 +16,7 @@ import type { DebugState } from './config.debug.js';
 import { ConfigDebug, DebugDefaults } from './config.debug.js';
 import { Config } from './config.js';
 import { mapToBoundingBox } from './tile.matrix.js';
-import type { MapLocation, MapOptionType} from './url.js';
+import type { MapLocation, MapOptionType } from './url.js';
 import { ensureBase58, WindowUrl } from './url.js';
 
 /** Default center point if none provided */

@@ -1,9 +1,9 @@
 import type { Rgba } from '@basemaps/config';
-import type { EpsgCode, TileMatrixSet} from '@basemaps/geo';
+import type { EpsgCode, TileMatrixSet } from '@basemaps/geo';
 import { Epsg, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
-import type { PresetName} from '../../preset.js';
+import type { PresetName } from '../../preset.js';
 import { Presets } from '../../preset.js';
 import type { CogifyCreationOptions } from '../stac.js';
 import type { GdalCommand } from './gdal.runner.js';

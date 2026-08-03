@@ -15,34 +15,34 @@ describe('fqdnMiddleware', () => {
     Fqdn.isForcedFqdn = true;
   });
 
-  it('should not add  FQDN to s3 requests if turned off', () => {
+  it('should not add  FQDN to s3 requests if turned off', async () => {
     Fqdn.isForcedFqdn = false;
     fakeRequest.request.hostname = 'nz-imagery.s3.ap-southeast-2.amazonaws.com';
-    Fqdn.middleware(fakeNext, {})(fakeRequest);
+    await Fqdn.middleware(fakeNext, {})(fakeRequest);
     assert.equal(fakeRequest.request.hostname, 'nz-imagery.s3.ap-southeast-2.amazonaws.com');
   });
 
-  it('should add FQDN to s3 requests', () => {
+  it('should add FQDN to s3 requests', async () => {
     fakeRequest.request.hostname = 'nz-imagery.s3.ap-southeast-2.amazonaws.com';
-    Fqdn.middleware(fakeNext, {})(fakeRequest);
+    await Fqdn.middleware(fakeNext, {})(fakeRequest);
     assert.equal(fakeRequest.request.hostname, 'nz-imagery.s3.ap-southeast-2.amazonaws.com.');
   });
 
-  it('should not add for other services', () => {
+  it('should not add for other services', async () => {
     fakeRequest.request.hostname = 'logs.ap-southeast-2.amazonaws.com';
-    Fqdn.middleware(fakeNext, {})(fakeRequest);
+    await Fqdn.middleware(fakeNext, {})(fakeRequest);
     assert.equal(fakeRequest.request.hostname, 'logs.ap-southeast-2.amazonaws.com');
   });
 
-  it('should not add for other regions', () => {
+  it('should not add for other regions', async () => {
     fakeRequest.request.hostname = 'nz-imagery.s3.us-east-1.amazonaws.com';
-    Fqdn.middleware(fakeNext, {})(fakeRequest);
+    await Fqdn.middleware(fakeNext, {})(fakeRequest);
     assert.equal(fakeRequest.request.hostname, 'nz-imagery.s3.us-east-1.amazonaws.com');
   });
 
-  it('should not add for unknown hosts', () => {
+  it('should not add for unknown hosts', async () => {
     fakeRequest.request.hostname = 'google.com';
-    Fqdn.middleware(fakeNext, {})(fakeRequest);
+    await Fqdn.middleware(fakeNext, {})(fakeRequest);
     assert.equal(fakeRequest.request.hostname, 'google.com');
   });
 });

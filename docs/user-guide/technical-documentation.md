@@ -13,7 +13,7 @@ At a platform level, the LINZ Basemaps APIs supports:
 | **Protocols**            | WMTS and XYZ                                                  |
 | **Output tiling scheme** | NZTM2000 and Web Mercator                                     |
 | **Zoom levels**          | NZTM 0 - 17 and Web Mercator 0 - 22                           |
-| **Output formats**       | WebP, Jpeg, PNG, or Avif                                             |
+| **Output formats**       | WebP, Jpeg, PNG, or Avif                                      |
 | **Applications**         | GIS (e.g QGIS, ArcGIS), CAD and Javascript web or mobile apps |
 
 ### LINZ Topographic Basemap

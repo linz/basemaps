@@ -6,7 +6,7 @@ import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 
-import type { BandPresetName, PresetName} from '../../preset.js';
+import type { BandPresetName, PresetName } from '../../preset.js';
 import { AllowedPresets, BandPresets, Presets } from '../../preset.js';
 import { CutlineOptimizer } from '../covering/cutline.js';
 import type { TileCoverContext } from '../covering/tile.cover.js';

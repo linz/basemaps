@@ -1,6 +1,6 @@
 import { signS3Get } from '@basemaps/shared';
 import { fsa } from '@chunkd/fs';
-import type { LambdaHttpRequest} from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';

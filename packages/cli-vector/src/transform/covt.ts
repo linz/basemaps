@@ -1,9 +1,10 @@
-import type { LogType} from '@basemaps/shared';
+import { promises as fs } from 'fs';
+
+import type { LogType } from '@basemaps/shared';
 import { fsa, SourceMemory } from '@basemaps/shared';
-import type { CotarIndexOptions} from '@cotar/builder';
+import type { CotarIndexOptions } from '@cotar/builder';
 import { CotarIndexBuilder, TarReader } from '@cotar/builder';
 import { CotarIndex } from '@cotar/core';
-import { promises as fs } from 'fs';
 
 /**
  * Create index for the COVT tar file

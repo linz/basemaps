@@ -8,7 +8,7 @@ Testing utilities and assets
 import { approxEqual } from '@basemaps/test';
 
 o('should be near', () => {
-    approxEqual(1, 2, 'one two'); // `one two (1 vs 2) should be less than 0.001`
+  approxEqual(1, 2, 'one two'); // `one two (1 vs 2) should be less than 0.001`
 });
 ```
 

@@ -1,7 +1,7 @@
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
 
-import type { Tiff} from '@cogeotiff/core';
+import type { Tiff } from '@cogeotiff/core';
 import { SampleFormat, TiffTag } from '@cogeotiff/core';
 import { decompress } from 'fzstd';
 

@@ -1,5 +1,5 @@
 import { FsaCache, FsaLog, LogConfig, LogStorage } from '@basemaps/shared';
-import type { LambdaHttpRequest} from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { LambdaHttpResponse, lf } from '@linzjs/lambda';
 
 import { tileAttributionGet } from './routes/attribution.js';

@@ -1,4 +1,4 @@
-import type { Bounds, Epsg} from '@basemaps/geo';
+import type { Bounds, Epsg } from '@basemaps/geo';
 import { Projection } from '@basemaps/geo';
 import type { LogType } from '@basemaps/shared';
 import { fsa } from '@basemaps/shared';

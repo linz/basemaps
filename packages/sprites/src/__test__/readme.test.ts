@@ -1,5 +1,6 @@
-import { fsa } from '@basemaps/shared';
 import { basename } from 'path';
+
+import { fsa } from '@basemaps/shared';
 
 import type { SvgId } from '../sprites.js';
 import { Sprites } from '../sprites.js';

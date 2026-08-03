@@ -1,8 +1,8 @@
+import type { ReadStream } from 'fs';
+import { createReadStream } from 'fs';
 import { existsSync, mkdirSync } from 'node:fs';
 
 import { Epsg } from '@basemaps/geo';
-import type { ReadStream } from 'fs';
-import { createReadStream } from 'fs';
 
 export const projection = Epsg.Wgs84.toEpsgString();
 

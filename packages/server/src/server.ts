@@ -1,7 +1,11 @@
+import { createRequire } from 'module';
+import path from 'path';
+import { URL } from 'url';
+
 // Fastfiy uses a lot of floating promises
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { handler } from '@basemaps/lambda-tiler';
-import type { LogType} from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
 import { Env, fsa, getDefaultConfig, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
@@ -10,10 +14,7 @@ import { LambdaUrlRequest } from '@linzjs/lambda';
 import type { Context } from 'aws-lambda';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { fastify } from 'fastify';
-import { createRequire } from 'module';
-import path from 'path';
 import ulid from 'ulid';
-import { URL } from 'url';
 
 import type { ServerOptions } from './config.js';
 import { loadConfig } from './config.js';

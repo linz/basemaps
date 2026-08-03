@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { beforeEach, describe, it } from 'node:test';
 
 import type { ConfigImagery } from '../../config/imagery.js';
-import type { ConfigTileSetRaster} from '../../config/tile.set.js';
+import type { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { TileSetType } from '../../config/tile.set.js';
 import { addDefaultOutputPipelines } from '../imagery.outputs.js';
 

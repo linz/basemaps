@@ -9,7 +9,7 @@ This repository requires [NodeJs](https://nodejs.org/en/) > 18
 Use [n](https://github.com/tj/n) or [fnm](https://github.com/Schniz/fnm) to manage nodeJs versions
 
 ```bash
-# Download the latest nodejs 
+# Download the latest nodejs
 n latest
 # Install node deps
 npm install
@@ -51,7 +51,6 @@ this repository is a monorepo for everything related to basemaps
 - [@linzjs/docker-command](packages/linzjs-docker-command/) - Utilities for running commands inside Docker
 - [@linzjs/geojson](packages/linzjs-geojson/) - Utility for working with GeoJSON
 - [@linzjs/metrics](packages/linzjs-metrics/) - Simple timing metric tracker for NodeJS
-
 
 ## Commit message
 

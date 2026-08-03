@@ -2,14 +2,10 @@
   // "extends": "@linzjs/style/tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2023",
-    "lib": [
-      "ESNext"
-    ],
+    "lib": ["ESNext"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "composite": true,
     "declaration": true,
     "declarationMap": true,
@@ -27,8 +23,5 @@
     "skipLibCheck": true,
     "sourceMap": true
   },
-  "exclude": [
-    "dist/",
-    "node_modules/"
-  ]
+  "exclude": ["dist/", "node_modules/"]
 }

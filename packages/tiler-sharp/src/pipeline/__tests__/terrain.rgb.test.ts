@@ -145,13 +145,11 @@ describe('TerrainRgb', () => {
       channels: 1,
     } as const;
     async function toTerrainRgb(resolution: number): Promise<number[]> {
-      const tiff = {
-        ...FakeComp,
-        asset: {
-          ...FakeComp.asset,
+      const tiff = Object.assign({}, FakeComp, {
+        asset: Object.assign({}, FakeComp.asset, {
           images: [{ noData: -9999, resolution: [resolution, -resolution] } as unknown as TiffImage],
-        } as Tiff,
-      };
+        }) as Tiff,
+      });
 
       const output = await PipelineTerrainRgb.process(tiff, input);
 

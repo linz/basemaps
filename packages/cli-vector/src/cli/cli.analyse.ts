@@ -1,16 +1,16 @@
+import { readFileSync } from 'fs';
 import sq from 'node:sqlite';
+import { basename } from 'path';
+import { gunzip } from 'zlib';
 
 import { fsa, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { VectorTile } from '@mapbox/vector-tile';
 import { command, option } from 'cmd-ts';
-import { readFileSync } from 'fs';
 import Mustache from 'mustache';
 import sizeof from 'object-sizeof';
-import { basename } from 'path';
 import Protobuf from 'pbf';
-import { gunzip } from 'zlib';
 
 interface TileInfo {
   x: number;

@@ -1,6 +1,6 @@
 import type { ConfigTileSetVector } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
-import type { LambdaHttpRequest} from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { isGzip } from '../util/cotar.serve.js';

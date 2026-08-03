@@ -1,13 +1,5 @@
-import type {
-  Epsg,
-  TileMatrixSetType} from '../index.js';
-import {
-  getXyOrder,
-  GoogleTms,
-  Projection,
-  ProjectionLoader,
-  TileMatrixSet
-} from '../index.js';
+import type { Epsg, TileMatrixSetType } from '../index.js';
+import { getXyOrder, GoogleTms, Projection, ProjectionLoader, TileMatrixSet } from '../index.js';
 
 /**
  * Minimal typings of PROJJSON

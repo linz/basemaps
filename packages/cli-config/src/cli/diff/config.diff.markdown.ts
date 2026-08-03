@@ -6,7 +6,7 @@ import type {
   ConfigTileSet,
   ConfigTileSetRaster,
 } from '@basemaps/config';
-import type { TileMatrixSet} from '@basemaps/geo';
+import type { TileMatrixSet } from '@basemaps/geo';
 import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, getImageryCenterZoom, getPreviewUrl, toSlug } from '@basemaps/shared';
 import type { Diff } from 'deep-diff';

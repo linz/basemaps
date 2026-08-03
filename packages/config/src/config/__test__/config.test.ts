@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import type { BaseConfig, ConfigImageryV1 } from '../../index.js';
 import { ConfigBase } from '../base.js';
-import type { ConfigBundle} from '../config.bundle.js';
+import type { ConfigBundle } from '../config.bundle.js';
 import { ConfigBundleParser } from '../config.bundle.js';
 import { ConfigImageryParser } from '../imagery.js';
 

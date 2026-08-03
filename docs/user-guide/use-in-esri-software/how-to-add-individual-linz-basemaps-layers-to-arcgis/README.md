@@ -14,15 +14,15 @@
 
    ![Basemaps Layer Search](static/layer-search.png)
 
-3. Decide which map projection to work in (NZ Transverse Mercator or Web Mercator)
+4. Decide which map projection to work in (NZ Transverse Mercator or Web Mercator)
 
-4. Copy the WMTS url eg https://basemaps.linz.govt.nz/v1/tiles/port-hills-false-colour-2024-10m/NZTM2000Quad/WMTSCapabilities.xml?api=[YourAPIKeyHere]
+5. Copy the WMTS url eg https://basemaps.linz.govt.nz/v1/tiles/port-hills-false-colour-2024-10m/NZTM2000Quad/WMTSCapabilities.xml?api=[YourAPIKeyHere]
 
    ![Copy the API URL and API key](static/copy-url-apikey.png)
 
-5. Open ArcGIS Online Web Viewer > Add layer > Add layer from URL > Paste WMTS URL from above
+6. Open ArcGIS Online Web Viewer > Add layer > Add layer from URL > Paste WMTS URL from above
 
-6. Remove from the end of the url ##?api=[YourAPIKeyHere]## This should automatically recognise the layer type as WMTS (OGC)
+7. Remove from the end of the url ##?api=[YourAPIKeyHere]## This should automatically recognise the layer type as WMTS (OGC)
 
    - Add custom parameter
 
@@ -40,7 +40,7 @@
 
    Note: parameters and values must be lowercase
 
-7. Next > Add to Map
+8. Next > Add to Map
 
 !!! tip
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
-import type { BaseConfig} from '@basemaps/config';
+import type { BaseConfig } from '@basemaps/config';
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { setDefaultConfig } from '@basemaps/shared';
 import { fsa, FsMemory } from '@chunkd/fs';

@@ -1,9 +1,9 @@
-import type { ConfigTileSet} from '@basemaps/config';
+import type { ConfigTileSet } from '@basemaps/config';
 import { TileSetType } from '@basemaps/config';
-import type { OutputFormat, TileJson} from '@basemaps/geo';
+import type { OutputFormat, TileJson } from '@basemaps/geo';
 import { GoogleTms, TileMatrixSet } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
-import type { LambdaHttpRequest} from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';

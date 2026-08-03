@@ -1,11 +1,12 @@
+import { createReadStream, promises as fs } from 'fs';
+import * as os from 'os';
+import path from 'path';
+
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, LogConfig } from '@basemaps/shared';
 import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
 import type { CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
 import { CommandLineAction } from '@rushstack/ts-command-line';
-import { createReadStream, promises as fs } from 'fs';
-import * as os from 'os';
-import path from 'path';
 import * as ulid from 'ulid';
 
 import { BathyMaker } from './bathy.maker.js';

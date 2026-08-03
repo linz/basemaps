@@ -9,7 +9,7 @@ import { Bounds } from '../../bounds.js';
 import { QuadKey } from '../../quad.key.js';
 import { GoogleTms } from '../../tms/google.js';
 import { Nztm2000QuadTms, Nztm2000Tms } from '../../tms/nztm2000.js';
-import type { LatLon} from '../projection.js';
+import type { LatLon } from '../projection.js';
 import { Projection } from '../projection.js';
 
 const TileSize = 256;

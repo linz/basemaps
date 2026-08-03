@@ -1,6 +1,6 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
-import type { TileMatrixSet} from '@basemaps/geo';
+import type { TileMatrixSet } from '@basemaps/geo';
 import { TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
 import type { LambdaHttpRequest, UrlEvent } from '@linzjs/lambda';

@@ -3,10 +3,9 @@ import type {
   ConfigProviderMemory,
   ConfigTileSet,
   ConfigTileSetRaster,
-  ConfigTileSetVector} from '@basemaps/config';
-import {
-  TileSetType,
+  ConfigTileSetVector,
 } from '@basemaps/config';
+import { TileSetType } from '@basemaps/config';
 import diff from 'deep-diff';
 
 import { IgnoredProperties } from '../config.diff.js';

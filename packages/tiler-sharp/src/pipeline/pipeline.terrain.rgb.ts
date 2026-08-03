@@ -117,7 +117,7 @@ export const PipelineTerrainRgb: Pipeline & TerrainRgbRange = {
 
       raw[target] = (v >> 16) & clampR;
       raw[target + 1] = (v >> 8) & clampG;
-      raw[target + 2] = v % 256 & clampB;
+      raw[target + 2] = (v % 256) & clampB;
       raw[target + 3] = 255;
     }
 

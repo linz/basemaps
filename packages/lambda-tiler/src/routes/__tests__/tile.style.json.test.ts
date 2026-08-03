@@ -281,9 +281,6 @@ describe('/v1/styles', () => {
     assert.equal(res.status, 200, res.statusDescription);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
-    body.sources['basemaps-aerial'];
-    body.sources['basemaps-aerial'];
-    body.sources['basemaps-aerial'];
     const aerialSource = body.sources['basemaps-aerial'] as unknown as SourceRaster;
 
     assert.deepEqual(aerialSource.type, 'raster');

@@ -4,7 +4,7 @@ import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { sha256base58 } from '@basemaps/config';
 import { fsa, FsHttp } from '@chunkd/fs';
-import type { AwsCredentialConfig} from '@chunkd/fs-aws';
+import type { AwsCredentialConfig } from '@chunkd/fs-aws';
 import { AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
 import { SourceCache, SourceChunk } from '@chunkd/middleware';
 import type { SourceCallback, SourceRequest } from '@chunkd/source';

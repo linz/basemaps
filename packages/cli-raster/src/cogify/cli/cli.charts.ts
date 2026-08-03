@@ -1,18 +1,19 @@
+import { mkdir, rm } from 'fs/promises';
+import { tmpdir } from 'os';
+import path from 'path';
+import { URL } from 'url';
+
 import type { StacItem } from '@basemaps/geo';
 import { Bounds, EpsgCode, GoogleTms } from '@basemaps/geo';
-import type { LogType} from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
 import { fsa, stringToUrlFolder, Tiff, urlToString } from '@basemaps/shared';
 import { getLogger, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { TiffTag, TiffTagGeo } from '@cogeotiff/core';
 import { command, number, option, optional, restPositionals } from 'cmd-ts';
-import { mkdir, rm } from 'fs/promises';
 import type { FeatureCollection } from 'geojson';
-import { tmpdir } from 'os';
 import pLimit from 'p-limit';
-import path from 'path';
 import type { SpatialExtents, StacCollection } from 'stac-ts';
-import { URL } from 'url';
 
 import { gdalBuildChartsCommand } from '../gdal/gdal.command.js';
 import { GdalRunner } from '../gdal/gdal.runner.js';

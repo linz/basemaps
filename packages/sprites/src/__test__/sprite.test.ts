@@ -1,7 +1,6 @@
+import { createHash } from 'crypto';
 import assert from 'node:assert';
 import { beforeEach, describe, it } from 'node:test';
-
-import { createHash } from 'crypto';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 

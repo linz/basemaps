@@ -1,10 +1,10 @@
 import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
+import { basename } from 'path';
 
 import { Env, fsa } from '@basemaps/shared';
 import type { LambdaRequest } from '@linzjs/lambda';
 import pLimit from 'p-limit';
-import { basename } from 'path';
 
 import { byDay, getOneHourAgo } from './date.js';
 import { Elastic } from './elastic.js';

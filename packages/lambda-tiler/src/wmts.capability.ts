@@ -1,12 +1,5 @@
-import type {
-  ConfigImagery,
-  ConfigLayer,
-  ConfigTileSet,
-  ConfigTileSetRasterOutput} from '@basemaps/config';
-import {
-  standardizeLayerName,
-  TileSetType,
-} from '@basemaps/config';
+import type { ConfigImagery, ConfigLayer, ConfigTileSet, ConfigTileSetRasterOutput } from '@basemaps/config';
+import { standardizeLayerName, TileSetType } from '@basemaps/config';
 import type { BoundingBox, ImageFormat, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
 import { Bounds, GoogleTms, Projection } from '@basemaps/geo';
 import type { VNodeElement } from '@basemaps/shared';

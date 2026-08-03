@@ -2,7 +2,7 @@
 
 CLI to retile imagery into a [Cloud Optimised Geotiffs (COG)](https://www.cogeo.org/) aligned to a [TileMatrix](https://www.ogc.org/standard/tms/)
 
-## Why ? 
+## Why ?
 
 LINZ gets most of it's imagery delivered as tiles in [NZTM2000](https://www.linz.govt.nz/guidance/geodetic-system/coordinate-systems-used-new-zealand/projections/new-zealand-transverse-mercator-2000-nztm2000) the imagery is tiled as rectangles against a tile grid such as the [1:5k](https://data.linz.govt.nz/layer/104691-nz-15k-tile-index/) or [1:1k](https://data.linz.govt.nz/layer/104692-nz-11k-tile-index/).
 
@@ -25,7 +25,6 @@ cogify cover --tile-matrix WebMercatorQuad s3://linz-imagery/.../porirua_2020_0.
 
 The metadata for the optimized COGS is written into the output folder where the COG creation step can use [GDAL](https://github.com/gdal/gdal) to create the output tiff.
 
-
 ```
 cogify create ./output/WebMercatorQuad/porirua_2020_0.1m/01GY8W69EJEMAKKXNHYMRF7DCY/14-16150-10245.json
 ```
@@ -38,12 +37,11 @@ cogify validate  --tile-matrix WebMercatorQuad ./output/WebMercatorQuad/porirua_
 
 ## Usage
 
-
 Install `cogify` using `npm`
+
 ```
 npm install -g @basemaps/cli-raster
 ```
-
 
 ```
 $ cogify --help
@@ -51,7 +49,6 @@ $ cogify --help
 - cover - Create a covering configuration from a collection from source imagery
 - create - Create a COG from a covering configuration
 ```
-
 
 ### Covering
 
@@ -64,7 +61,7 @@ cogify cover --tile-matrix WebMercatorQuad s3://linz-imagery/new-zealand/north-i
 ### Create
 
 Create the first COG from the list
+
 ```
 cogify create ./output/3857/north-island_2023_0.5m/:id/14-16150-10245.json
 ```
-

@@ -1,4 +1,4 @@
-import type { Epsg} from '@basemaps/geo';
+import type { Epsg } from '@basemaps/geo';
 import { EpsgCode } from '@basemaps/geo';
 import type { LogType } from '@basemaps/shared';
 

@@ -1,6 +1,6 @@
-import type { ConfigImagery} from '@basemaps/config';
+import type { ConfigImagery } from '@basemaps/config';
 import { standardizeLayerName } from '@basemaps/config';
-import type { Size} from '@basemaps/geo';
+import type { Size } from '@basemaps/geo';
 import { Bounds, Projection, TileMatrixSets } from '@basemaps/geo';
 
 export const PreviewSize = { width: 1200, height: 630 };

@@ -51,7 +51,6 @@ jobs:
       - run: npm run check
       - run: npm run test
 
-
       - name: Bundle
         run: |
           npx lerna run bundle --stream
@@ -101,7 +100,6 @@ jobs:
       - run: npm run build
       - run: npm run check
       - run: npm run test
-
 
       - name: Build docs
         run: |
@@ -171,7 +169,6 @@ jobs:
       - run: npm run build
       - run: npm run check
       - run: npm run test
-
 
       - name: Build docs
         run: |

@@ -1,9 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "typescript",
-    "unicorn"
-  ],
+  "plugins": ["typescript", "unicorn"],
   "categories": {
     "correctness": "error"
   },
@@ -30,11 +27,7 @@
         "allowForKnownSafeCalls": [
           {
             "from": "package",
-            "name": [
-              "it",
-              "describe",
-              "test"
-            ],
+            "name": ["it", "describe", "test", "skip", "only"],
             "package": "node:test"
           }
         ]
@@ -46,10 +39,7 @@
         "caughtErrors": "none"
       }
     ],
-    "@typescript-eslint/consistent-type-imports": [
-      "error",
-      {}
-    ]
+    "@typescript-eslint/consistent-type-imports": ["error", {}]
   },
   "jsPlugins": []
 }

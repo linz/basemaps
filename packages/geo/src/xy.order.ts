@@ -1,4 +1,4 @@
-import type { Epsg} from './epsg.js';
+import type { Epsg } from './epsg.js';
 import { EpsgCode } from './epsg.js';
 
 /**

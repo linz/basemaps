@@ -1,13 +1,14 @@
 #!/usr/bin/env node
-/**
- * Using the package.json#bundle object configure ESBuild to bundle a javascript file
- */
-import c from 'ansi-colors';
 import cp from 'child_process';
 import crypto from 'crypto';
 import fs, { chmodSync } from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
+
+/**
+ * Using the package.json#bundle object configure ESBuild to bundle a javascript file
+ */
+import c from 'ansi-colors';
 import * as z from 'zod';
 
 import { GitTag } from '../packages/shared/build/cli/git.tag.js';

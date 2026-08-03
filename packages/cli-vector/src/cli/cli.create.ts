@@ -1,11 +1,12 @@
+import { createGunzip } from 'zlib';
+
 import { TileMatrixSets } from '@basemaps/geo';
-import type { LogType} from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
 import { fsa, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
 import PLimit from 'p-limit';
-import { createGunzip } from 'zlib';
 
 import { generalize } from '../generalization/generalization.js';
 import type { Metrics } from '../schema-loader/schema.js';

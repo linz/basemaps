@@ -1,9 +1,10 @@
-import { sha256base58 } from '@basemaps/config';
-import type { LogType} from '@basemaps/shared';
-import { urlToString } from '@basemaps/shared';
 import { spawn } from 'child_process';
 import { EventEmitter } from 'events';
 import { dirname } from 'path';
+
+import { sha256base58 } from '@basemaps/config';
+import type { LogType } from '@basemaps/shared';
+import { urlToString } from '@basemaps/shared';
 
 export interface GdalCommand {
   /** Output file location */

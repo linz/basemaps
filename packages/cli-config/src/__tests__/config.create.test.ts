@@ -1,10 +1,10 @@
+import assert from 'assert';
 import { before, describe, it } from 'node:test';
+import { pathToFileURL } from 'url';
 
 import { ensureBase58 } from '@basemaps/config';
 import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
-import assert from 'assert';
-import { pathToFileURL } from 'url';
 
 import { CreateConfigCommand } from '../cli/action.create.config.js';
 

@@ -6,7 +6,7 @@ import { command, oneOf, option, string } from 'cmd-ts';
 import type { StacCatalog, StacCollection, StacItem, StacLink } from 'stac-ts';
 
 import { SchemaLoader } from '../schema-loader/schema.loader.js';
-import type { VectorCreationOptions} from '../stac.js';
+import type { VectorCreationOptions } from '../stac.js';
 import { VectorStac } from '../stac.js';
 
 function pathToURLFolder(path: string): URL {

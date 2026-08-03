@@ -1,7 +1,7 @@
 import { TileSetType } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 import { getPreviewUrl } from '@basemaps/shared';
-import type { LambdaHttpRequest} from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';

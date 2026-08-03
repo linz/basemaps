@@ -1,7 +1,7 @@
+import { createWriteStream } from 'fs';
 import sq from 'node:sqlite';
 
 import type { LogType } from '@basemaps/shared';
-import { createWriteStream } from 'fs';
 import * as tar from 'tar-stream';
 
 export interface TileTable {
@@ -58,7 +58,7 @@ export async function toTarTiles(input: string, output: string, logger: LogType,
   packer.pipe(createWriteStream(output));
 
   let startTileTime = Date.now();
-  for await (const { tile, index, total } of readMbTiles(input, limit, logger)) {
+  for (const { tile, index, total } of readMbTiles(input, limit, logger)) {
     if (index === 0) logger.info({ path: output, count: total }, 'Covt.Tar:Start');
 
     const z = tile.zoom_level;

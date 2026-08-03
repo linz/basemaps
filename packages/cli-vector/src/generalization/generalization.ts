@@ -1,8 +1,9 @@
+import { createWriteStream } from 'fs';
+import readline from 'readline';
+
 import type { TileMatrixSet } from '@basemaps/geo';
 import type { LogType } from '@basemaps/shared';
-import { createWriteStream } from 'fs';
 import type { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
-import readline from 'readline';
 
 import { modifyFeature } from '../modify/modify.js';
 import type { Metrics, Simplify } from '../schema-loader/schema.js';
@@ -10,7 +11,7 @@ import type { VectorCreationOptions } from '../stac.js';
 import { transformNdJson, transformZoom } from '../transform/nztm.js';
 import type { VectorGeoFeature } from '../types/VectorGeoFeature.js';
 import { createReadStreamSafe } from '../util.js';
-import type { Point} from './simplify.js';
+import type { Point } from './simplify.js';
 import { simplify } from './simplify.js';
 
 /**

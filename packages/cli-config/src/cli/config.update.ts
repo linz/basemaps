@@ -5,11 +5,9 @@ import type {
   ConfigImagery,
   ConfigProvider,
   ConfigTileSet,
-  ConfigVectorStyle} from '@basemaps/config';
-import {
-  ConfigId,
-  ConfigPrefix
+  ConfigVectorStyle,
 } from '@basemaps/config';
+import { ConfigId, ConfigPrefix } from '@basemaps/config';
 import type { LogType } from '@basemaps/shared';
 import { ConfigDynamoBase, LogConfig } from '@basemaps/shared';
 import PLimit from 'p-limit';

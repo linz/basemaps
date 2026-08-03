@@ -4,26 +4,13 @@ import type {
   ConfigBundle,
   ConfigBundled,
   ConfigLayer,
-  ConfigTileSetVector} from '@basemaps/config';
-import {
-  ConfigId,
-  ConfigPrefix,
-  ConfigProviderMemory,
-  TileSetType,
+  ConfigTileSetVector,
 } from '@basemaps/config';
+import { ConfigId, ConfigPrefix, ConfigProviderMemory, TileSetType } from '@basemaps/config';
 import type { TileMatrixSet } from '@basemaps/geo';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
-import type {
-  LogType} from '@basemaps/shared';
-import {
-  Env,
-  fsa,
-  getDefaultConfig,
-  getLogger,
-  getPreviewUrl,
-  logArguments,
-  setDefaultConfig,
-} from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
+import { Env, fsa, getDefaultConfig, getLogger, getPreviewUrl, logArguments, setDefaultConfig } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { command, flag, option, optional, string } from 'cmd-ts';
 import fetch from 'node-fetch';

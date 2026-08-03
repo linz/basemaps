@@ -9,7 +9,7 @@ import sinon from 'sinon';
 import { FakeData } from '../../__tests__/config.data.js';
 import { mockRequest } from '../../__tests__/xyz.util.js';
 import { ConfigLoader } from '../../util/config.loader.js';
-import type { TestFeature} from '../health.js';
+import type { TestFeature } from '../health.js';
 import { getTestBuffer, healthGet, TestTiles, VectorTileProvider } from '../health.js';
 import { TileXyzRaster } from '../tile.xyz.raster.js';
 import { tileXyzVector } from '../tile.xyz.vector.js';

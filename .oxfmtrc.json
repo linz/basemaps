@@ -8,9 +8,7 @@
   "tabWidth": 2,
   "endOfLine": "lf",
   "sortPackageJson": false,
-  "ignorePatterns": [
-    "CHANGELOG.md",
-  ],
+  "ignorePatterns": ["CHANGELOG.md"],
   "experimentalSortImports": {
     "newlinesBetweenGroups": true
   }

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { Attribution } from '@basemaps/attribution';
 import { ConfigProviderMemory } from '@basemaps/config';
-import type { AttributionStac} from '@basemaps/geo';
+import type { AttributionStac } from '@basemaps/geo';
 import { GoogleTms, Nztm2000QuadTms, Projection } from '@basemaps/geo';
 import { LogConfig } from '@basemaps/shared';
 import type { BBox } from '@linzjs/geojson';

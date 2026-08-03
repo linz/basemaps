@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
 
-import type { ConfigTileSetRaster} from '@basemaps/config';
+import type { ConfigTileSetRaster } from '@basemaps/config';
 import { DefaultTerrainRgbOutput, TileSetType } from '@basemaps/config';
 import { fsa, FsMemory, LogConfig, SourceMemory, Tiff, TiffTag } from '@basemaps/shared';
 import pLimit from 'p-limit';

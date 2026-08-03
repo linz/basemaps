@@ -1,7 +1,7 @@
+import { strictEqual } from 'assert';
 import { describe, it } from 'node:test';
 
 import { LogConfig } from '@basemaps/shared';
-import { strictEqual } from 'assert';
 
 import type { VectorGeoFeature } from '../../../types/VectorGeoFeature.js';
 import { handleKindContours, handleKindPeak } from '../contours.js';

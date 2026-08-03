@@ -3,7 +3,8 @@ import type {
   ConfigImagery,
   ConfigProvider,
   ConfigTileSetRaster,
-  ConfigTileSetVector} from '@basemaps/config';
+  ConfigTileSetVector,
+} from '@basemaps/config';
 import {
   base58,
   ConfigProviderMemory,

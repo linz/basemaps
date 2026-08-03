@@ -1,11 +1,11 @@
-import type { ConfigTileSetRaster, ConfigTileSetRasterOutput} from '@basemaps/config';
+import type { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
 import { TileSetType } from '@basemaps/config';
 import type { LatLon, TileMatrixSet } from '@basemaps/geo';
 import { Bounds, Projection } from '@basemaps/geo';
-import type { CompositionTiff, TileMakerContext} from '@basemaps/tiler';
+import type { CompositionTiff, TileMakerContext } from '@basemaps/tiler';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
-import type { LambdaHttpRequest} from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 import sharp from 'sharp';
 

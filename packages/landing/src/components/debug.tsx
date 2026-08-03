@@ -11,7 +11,7 @@ import { MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
 import { MapConfig } from '../config.map.js';
-import type { DebugType} from '../debug.map.js';
+import type { DebugType } from '../debug.map.js';
 import { DebugMap, debugTypes } from '../debug.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';

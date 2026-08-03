@@ -1,12 +1,5 @@
-import type {
-  BatchGetItemCommandInput,
-  BatchGetItemCommandOutput,
-  DynamoDB} from '@aws-sdk/client-dynamodb';
-import {
-  BatchGetItemCommand,
-  GetItemCommand,
-  PutItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import type { BatchGetItemCommandInput, BatchGetItemCommandOutput, DynamoDB } from '@aws-sdk/client-dynamodb';
+import { BatchGetItemCommand, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import type { BaseConfig, BaseConfigWriteableObject, ConfigPrefix } from '@basemaps/config';
 import { BasemapsConfigObject } from '@basemaps/config';

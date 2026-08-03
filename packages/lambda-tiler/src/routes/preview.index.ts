@@ -2,10 +2,10 @@ import { promisify } from 'node:util';
 import { gunzip } from 'node:zlib';
 
 import { TileSetType } from '@basemaps/config';
-import type { LonLatZoom} from '@basemaps/geo';
+import type { LonLatZoom } from '@basemaps/geo';
 import { GoogleTms, LocationUrl, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, getPreviewQuery } from '@basemaps/shared';
-import type { LambdaHttpRequest} from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';

@@ -1,11 +1,12 @@
+import * as fs from 'fs';
+
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import type { Tile} from '@basemaps/geo';
+import type { Tile } from '@basemaps/geo';
 import { TileMatrixSet } from '@basemaps/geo';
 import type { LogType } from '@basemaps/shared';
-import * as fs from 'fs';
 /** To prevent the long compile time of mapnik for development, only pull it in when needed */
 import mapnik from 'mapnik';
 

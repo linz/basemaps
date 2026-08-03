@@ -7,14 +7,9 @@ import type {
   ConfigProvider,
   ConfigTileSet,
   ConfigVectorStyle,
-  StyleJson} from '@basemaps/config';
-import {
-  ConfigId,
-  ConfigPrefix,
-  ConfigProviderMemory,
-  sha256base58,
-  TileSetType,
+  StyleJson,
 } from '@basemaps/config';
+import { ConfigId, ConfigPrefix, ConfigProviderMemory, sha256base58, TileSetType } from '@basemaps/config';
 import type { ImageFormat, TileMatrixSet, VectorFormat } from '@basemaps/geo';
 import { TileMatrixSets } from '@basemaps/geo';
 import { Cotar, fsa, stringToUrlFolder, Tiff, TiffTag } from '@basemaps/shared';
@@ -24,9 +19,9 @@ import ulid from 'ulid';
 import type { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
-import type { TileSetConfigSchemaLayer} from './parse.tile.set.js';
+import type { TileSetConfigSchemaLayer } from './parse.tile.set.js';
 import { zTileSetConfig } from './parse.tile.set.js';
-import type { ConfigImageryTiff} from './tiff.config.js';
+import type { ConfigImageryTiff } from './tiff.config.js';
 import { initImageryFromTiffUrl } from './tiff.config.js';
 
 export function matchUri(a: string, b: string): boolean {

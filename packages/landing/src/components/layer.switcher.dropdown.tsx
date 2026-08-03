@@ -1,4 +1,4 @@
-import type { MultiPolygon} from '@linzjs/geojson';
+import type { MultiPolygon } from '@linzjs/geojson';
 import { intersection, Wgs84 } from '@linzjs/geojson';
 import type { ChangeEventHandler, ReactNode } from 'react';
 import { Component } from 'react';
@@ -6,7 +6,7 @@ import Select from 'react-select';
 
 import { MapAttrState } from '../attribution.js';
 import { Config, GaEvent, gaEvent } from '../config.js';
-import type { LayerInfo} from '../config.map.js';
+import type { LayerInfo } from '../config.map.js';
 import { MapConfig } from '../config.map.js';
 
 type CategoryMap = Map<string, { label: string; options: { label: string; value: string }[] }>;

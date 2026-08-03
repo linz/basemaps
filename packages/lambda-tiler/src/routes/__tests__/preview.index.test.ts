@@ -10,7 +10,7 @@ import type { ALBEvent, ALBEventRequestContext, Context } from 'aws-lambda';
 
 import { FakeData } from '../../__tests__/config.data.js';
 import { CachedConfig } from '../../util/config.cache.js';
-import type { PreviewIndexGet} from '../preview.index.js';
+import type { PreviewIndexGet } from '../preview.index.js';
 import { loadAndServeIndexHtml, previewIndexGet } from '../preview.index.js';
 
 describe('/@*', () => {

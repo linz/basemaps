@@ -1,7 +1,7 @@
 import type { NamedBounds } from '../../bounds.js';
 import { EpsgCode } from '../../epsg.js';
 import { QuadKey } from '../../quad.key.js';
-import type { Tile} from '../../tile.matrix.set.js';
+import type { Tile } from '../../tile.matrix.set.js';
 import { TileMatrixSet } from '../../tile.matrix.set.js';
 import { TileMatrixSets } from '../../tms/index.js';
 
@@ -11,11 +11,11 @@ export function qkToName(qk: string): string {
 
 export function qkToNamedBounds(quadKeys: string[]): NamedBounds[] {
   const tms = TileMatrixSets.get(EpsgCode.Google);
-  return quadKeys.map((qk) => ({ name: qkToName(qk), ...tms.tileToSourceBounds(QuadKey.toTile(qk)) }));
+  return quadKeys.map((qk) => ({ name: qkToName(qk), ...tms.tileToSourceBounds(QuadKey.toTile(qk)).toJson() }));
 }
 
 export function tileNamesToNamedBounds(tileNames: string[], tms = TileMatrixSets.get(EpsgCode.Google)): NamedBounds[] {
-  return tileNames.map((name) => ({ name, ...tms.tileToSourceBounds(TileMatrixSet.nameToTile(name)) }));
+  return tileNames.map((name) => ({ name, ...tms.tileToSourceBounds(TileMatrixSet.nameToTile(name)).toJson() }));
 }
 
 export function genTileNames(
@@ -33,7 +33,7 @@ export function genTileNames(
     tile.y = y;
     for (let x = topLeftTile.x; x < xTotal; ++x) {
       tile.x = x;
-      bounds.push({ name: TileMatrixSet.tileToName(tile), ...tms.tileToSourceBounds(tile) });
+      bounds.push({ name: TileMatrixSet.tileToName(tile), ...tms.tileToSourceBounds(tile).toJson() });
     }
   }
 

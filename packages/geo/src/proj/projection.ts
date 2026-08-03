@@ -1,13 +1,5 @@
-import type {
-  BBox,
-  BBoxFeature,
-  BBoxFeatureCollection,
-  MultiPolygon} from '@linzjs/geojson';
-import {
-  multiPolygonToWgs84,
-  toFeatureMultiPolygon,
-  toFeaturePolygon,
-} from '@linzjs/geojson';
+import type { BBox, BBoxFeature, BBoxFeatureCollection, MultiPolygon } from '@linzjs/geojson';
+import { multiPolygonToWgs84, toFeatureMultiPolygon, toFeaturePolygon } from '@linzjs/geojson';
 import type { Position } from 'geojson';
 import proj4, { type Converter } from 'proj4';
 import type { PROJJSONDefinition } from 'proj4/dist/lib/core.js';

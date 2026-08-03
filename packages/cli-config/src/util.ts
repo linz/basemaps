@@ -1,13 +1,14 @@
+import crypto from 'crypto';
+import path from 'path';
+import { promisify } from 'util';
+import { gzip } from 'zlib';
+
 import { CloudFormationClient, DescribeStacksCommand } from '@aws-sdk/client-cloudformation';
 import { CloudFrontClient, CreateInvalidationCommand, ListDistributionsCommand } from '@aws-sdk/client-cloudfront';
 import { HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { fsa, LogConfig } from '@basemaps/shared';
 import { CliId } from '@basemaps/shared/build/cli/info.js';
-import crypto from 'crypto';
-import path from 'path';
 import slugify from 'slugify';
-import { promisify } from 'util';
-import { gzip } from 'zlib';
 
 // Cloudfront has to be defined in us-east-1
 const cloudFormationClient = new CloudFormationClient({ region: 'us-east-1' });

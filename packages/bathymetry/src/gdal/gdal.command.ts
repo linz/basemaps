@@ -1,6 +1,7 @@
-import type { LogType } from '@basemaps/shared';
-import type { ChildProcessWithoutNullStreams} from 'child_process';
+import type { ChildProcessWithoutNullStreams } from 'child_process';
 import { spawn } from 'child_process';
+
+import type { LogType } from '@basemaps/shared';
 
 import type { GdalProgressParser } from './gdal.progress.js';
 

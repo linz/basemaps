@@ -1,4 +1,4 @@
-import type { BasemapsConfigProvider, ConfigBundled} from '@basemaps/config';
+import type { BasemapsConfigProvider, ConfigBundled } from '@basemaps/config';
 import { ConfigPrefix, ConfigProviderMemory } from '@basemaps/config';
 import { ConfigJson, initConfigFromUrls } from '@basemaps/config-loader';
 import type { LogType } from '@basemaps/shared';

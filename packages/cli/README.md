@@ -14,7 +14,7 @@ npm i @basemaps/cli
 
 ## Usage -- Config
 
-Config clis in @basemap/cli-config 
+Config clis in @basemap/cli-config
 
 ```bash
 ./bin/bmc.js config --help

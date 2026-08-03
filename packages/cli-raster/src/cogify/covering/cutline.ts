@@ -1,9 +1,7 @@
 import type { Tile, TileMatrixSet } from '@basemaps/geo';
 import { Epsg, EpsgCode, Projection } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
-import type {
-  FeatureCollectionWithCrs,
-  MultiPolygon} from '@linzjs/geojson';
+import type { FeatureCollectionWithCrs, MultiPolygon } from '@linzjs/geojson';
 import {
   Area,
   featuresToMultiPolygon,

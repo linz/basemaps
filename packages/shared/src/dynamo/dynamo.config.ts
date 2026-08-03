@@ -5,11 +5,9 @@ import type {
   ConfigImagery,
   ConfigProvider,
   ConfigTileSet,
-  ConfigVectorStyle} from '@basemaps/config';
-import {
-  BasemapsConfigProvider,
-  ConfigPrefix
+  ConfigVectorStyle,
 } from '@basemaps/config';
+import { BasemapsConfigProvider, ConfigPrefix } from '@basemaps/config';
 import { ConfiguredRetryStrategy } from '@smithy/util-retry';
 
 import { ConfigDynamoBase } from './dynamo.config.base.js';

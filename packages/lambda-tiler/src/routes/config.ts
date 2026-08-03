@@ -1,6 +1,6 @@
 import { standardizeLayerName } from '@basemaps/config';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
-import type { LambdaHttpRequest} from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';
