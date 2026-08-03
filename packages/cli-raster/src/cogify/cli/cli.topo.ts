@@ -31,8 +31,8 @@ export interface TopoCreationContext {
   logger: LogType;
 }
 
-const Format = ['gridded', 'gridless'];
-export type Format = 'gridded' | 'gridless';
+const Format = ['gridded', 'gridless', 'hillshade'];
+export type Format = 'gridded' | 'gridless'| 'hillshade';
 
 const MapSeries = ['topo25', 'topo50', 'topo250'];
 export type MapSeries = 'topo25' | 'topo50' | 'topo250';

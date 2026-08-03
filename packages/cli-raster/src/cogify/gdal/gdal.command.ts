@@ -1,5 +1,5 @@
 import { Rgba } from '@basemaps/config';
-import { Epsg, EpsgCode, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import { Bounds, Epsg, EpsgCode, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
 import { PresetName, Presets } from '../../preset.js';
@@ -213,6 +213,41 @@ export function gdalBuildTopoRasterCommands(
       // https://gdal.org/en/latest/drivers/raster/cog.html#reprojection-related-creation-options
       ['-co', 'ADD_ALPHA=YES'],
       urlToString(sourceVrt),
+      urlToString(targetTiff),
+    ]
+      .filter((f) => f != null)
+      .flat()
+      .map(String),
+  };
+
+  return command;
+}
+
+/**
+ * Build a topographic mapsheet relief shade cog
+ *
+ * This is specific configuration to LINZ's topo50 relief shade mapsheets
+ */
+export function gdalBuildTopoReliefShadeCommands(
+  sourceTiff: URL,
+  targetTiff: URL,
+  bounds: Bounds,
+): GdalCommand {
+  const command: GdalCommand = {
+    command: 'gdal_translate',
+    output: targetTiff,
+    args: [
+      ['-q'], // Supress non-error output
+      ['-stats'], // Force stats (re)computation
+      ['-of', 'COG'], // Output format
+      ['-expand', 'gray'],
+      ['-oo', 'GEOREF_SOURCES=NONE'], // Ignore georef sources as the relief shade tiffs have incorrect georef sources that cause gdalwarp to fail
+      ['-a_srs', `EPSG:2193`],
+      ['-a_ullr', bounds.x, bounds.y, bounds.right, bounds.bottom],
+      ['-co', 'COMPRESS=ZSTD'],
+      ['-co', 'LEVEL=17'],
+      ['-co', 'PREDICTOR=2'],
+      urlToString(sourceTiff),
       urlToString(targetTiff),
     ]
       .filter((f) => f != null)
