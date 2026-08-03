@@ -3,6 +3,7 @@ import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import cf from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import s3, { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import { Construct } from 'constructs';
 
 import { getConfig } from '../config.js';
@@ -88,6 +89,9 @@ export class EdgeStack extends cdk.Stack {
       };
     }
 
+    // This value needs to be manually set after the first deployment into a business Cloudfront plan
+    const webAclId = StringParameter.valueFromLookup(this, '/linz/basemaps/cloudfront-webacl-arn', '');
+
     this.distribution = new cf.Distribution(this, 'Distribution', {
       domainNames: config.CloudFrontDns,
       certificate: acmCert,
@@ -101,8 +105,10 @@ export class EdgeStack extends cdk.Stack {
         allowedMethods: cf.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
         originRequestPolicy: cf.OriginRequestPolicy.CORS_S3_ORIGIN,
         cachePolicy: cf.CachePolicy.CACHING_OPTIMIZED,
+        responseHeadersPolicy: cf.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT,
       },
       additionalBehaviors,
+      webAclId: webAclId.startsWith('arn:') ? webAclId : undefined,
     });
 
     // Override logical ID to match deprecated CloudFrontWebDistribution logical ID to update in-place without destroying old distribution
