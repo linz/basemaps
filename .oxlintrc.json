@@ -1,0 +1,54 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn"
+  ],
+  "categories": {
+    "correctness": "error"
+  },
+  "options": {
+    "typeAware": true
+  },
+  "env": {
+    "builtin": true
+  },
+  "rules": {
+    "no-var": "error",
+    "eqeqeq": [
+      "error",
+      "always",
+      {
+        "null": "ignore"
+      }
+    ],
+    "no-constant-binary-expression": "error",
+    "no-sequences": "error",
+    "@typescript-eslint/no-floating-promises": [
+      "error",
+      {
+        "allowForKnownSafeCalls": [
+          {
+            "from": "package",
+            "name": [
+              "it",
+              "describe"
+            ],
+            "package": "node:test"
+          }
+        ]
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "caughtErrors": "none"
+      }
+    ],
+    "@typescript-eslint/consistent-type-imports": [
+      "error",
+      {}
+    ]
+  },
+  "jsPlugins": []
+}
