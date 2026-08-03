@@ -1,13 +1,14 @@
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
 
-import { SampleFormat, Tiff, TiffTag } from '@cogeotiff/core';
+import type { Tiff} from '@cogeotiff/core';
+import { SampleFormat, TiffTag } from '@cogeotiff/core';
 import { decompress } from 'fzstd';
 
-import { DecompressedInterleaved, Decompressor, TiffTileId } from './decompressor.js';
+import type { DecompressedInterleaved, Decompressor, TiffTileId } from './decompressor.js';
 
 function toArrayBuffer(buf: Buffer | Uint8Array): ArrayBuffer {
-  return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
+  return (buf.buffer as ArrayBuffer).slice(buf.byteOffset, buf.byteOffset + buf.byteLength);
 }
 
 let zstdDecompressZlib: undefined | ((buf: ArrayBuffer) => Promise<Buffer>);

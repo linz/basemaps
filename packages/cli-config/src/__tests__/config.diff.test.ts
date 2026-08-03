@@ -1,28 +1,32 @@
 import assert from 'node:assert';
-import { before, beforeEach, describe, it, TestContext } from 'node:test';
+import type { TestContext } from 'node:test';
+import { before, beforeEach, describe, it } from 'node:test';
 
-import {
+import type {
   ConfigLayer,
   ConfigProviderMemory,
   ConfigTileSetRaster,
-  ConfigTileSetVector,
+  ConfigTileSetVector} from '@basemaps/config';
+import {
   getAllImagery,
   sha256base58,
 } from '@basemaps/config';
 import { ConfigJson } from '@basemaps/config-loader';
-import { ConfigImageryTiff } from '@basemaps/config-loader/build/json/tiff.config.js';
-import { TileSetConfigSchema, TileSetConfigSchemaLayer } from '@basemaps/config-loader/src/json/parse.tile.set.js';
-import { Epsg, EpsgCode, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import type { ConfigImageryTiff } from '@basemaps/config-loader/build/json/tiff.config.js';
+import type { TileSetConfigSchema, TileSetConfigSchemaLayer } from '@basemaps/config-loader/src/json/parse.tile.set.js';
+import type { EpsgCode, TileMatrixSet} from '@basemaps/geo';
+import { Epsg, TileMatrixSets } from '@basemaps/geo';
 import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import pLimit from 'p-limit';
 
 import { diffVectorUpdate } from '../cli/config.diff.js';
-import {
-  configTileSetDiff,
+import type {
   DiffNew,
   DiffRemoved,
   DiffTileSetResult,
-  DiffTileSetUpdated,
+  DiffTileSetUpdated} from '../cli/diff/config.diff.js';
+import {
+  configTileSetDiff
 } from '../cli/diff/config.diff.js';
 import { diffToMarkdown } from '../cli/diff/config.diff.markdown.js';
 import { TsAerial, TsElevation, TsIndividual, TsVector } from './config.diff.data.js';

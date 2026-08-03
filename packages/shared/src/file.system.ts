@@ -4,7 +4,8 @@ import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { sha256base58 } from '@basemaps/config';
 import { fsa, FsHttp } from '@chunkd/fs';
-import { AwsCredentialConfig, AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
+import type { AwsCredentialConfig} from '@chunkd/fs-aws';
+import { AwsS3CredentialProvider, FsAwsS3 } from '@chunkd/fs-aws';
 import { SourceCache, SourceChunk } from '@chunkd/middleware';
 import type { SourceCallback, SourceRequest } from '@chunkd/source';
 import type { RequestSigner } from '@smithy/types';
@@ -155,7 +156,7 @@ export const FsaLocalCache = {
     );
     const cacheUrl = fsa.toUrl(`./.cache/${requestId}`);
     const bytes = await fsa.read(cacheUrl).catch(() => {});
-    if (bytes) return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+    if (bytes) return (bytes.buffer as ArrayBuffer).slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
 
     return next(req).then(async (res) => {
       await fsa.write(cacheUrl, Buffer.from(res)).catch(() => {});

@@ -1,4 +1,5 @@
-import { Stac, StacProvider } from '@basemaps/geo';
+import type { StacProvider } from '@basemaps/geo';
+import { Stac } from '@basemaps/geo';
 
 export const copyright = `© ${Stac.License}`;
 

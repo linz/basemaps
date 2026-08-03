@@ -1,9 +1,9 @@
-import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
+import type { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
 import { GoogleTms, projectGeoJson } from '@basemaps/geo';
-import { BBoxFeature } from '@linzjs/geojson';
-import { BBoxFeatureCollection } from '@linzjs/geojson/build/types.js';
-import { StyleSpecification } from 'maplibre-gl';
-import { FormEventHandler } from 'react';
+import type { BBoxFeature } from '@linzjs/geojson';
+import type { BBoxFeatureCollection } from '@linzjs/geojson/build/types.js';
+import type { StyleSpecification } from 'maplibre-gl';
+import type { FormEventHandler } from 'react';
 
 import { Config } from './config.js';
 import { ConfigData } from './config.layer.js';

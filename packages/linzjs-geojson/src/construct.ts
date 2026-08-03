@@ -1,6 +1,6 @@
 import type { Feature, FeatureCollection, MultiPolygon, Polygon, Position } from 'geojson';
 
-import { ConvertCoordinates } from './multipolygon/convert.js';
+import type { ConvertCoordinates } from './multipolygon/convert.js';
 
 /**
  * Join a list of features into a Feature collection

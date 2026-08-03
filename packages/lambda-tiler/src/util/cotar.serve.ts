@@ -1,4 +1,5 @@
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest} from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { Etag } from './etag.js';
 import { NotFound, NotModified } from './response.js';

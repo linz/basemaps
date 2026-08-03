@@ -1,16 +1,20 @@
-import {
+import type {
   BaseConfig,
   BasemapsConfigProvider,
   ConfigBundle,
   ConfigBundled,
-  ConfigId,
   ConfigLayer,
+  ConfigTileSetVector} from '@basemaps/config';
+import {
+  ConfigId,
   ConfigPrefix,
   ConfigProviderMemory,
-  ConfigTileSetVector,
   TileSetType,
 } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
+import type {
+  LogType} from '@basemaps/shared';
 import {
   Env,
   fsa,
@@ -18,7 +22,6 @@ import {
   getLogger,
   getPreviewUrl,
   logArguments,
-  LogType,
   setDefaultConfig,
 } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';

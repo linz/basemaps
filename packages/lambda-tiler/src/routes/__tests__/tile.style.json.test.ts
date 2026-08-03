@@ -1,8 +1,10 @@
 import assert from 'node:assert';
 import { afterEach, before, beforeEach, describe, it } from 'node:test';
 
-import { ConfigProviderMemory, SourceRaster, StyleJson } from '@basemaps/config';
-import { DefaultExaggeration, Terrain } from '@basemaps/config/build/config/vector.style.js';
+import type { SourceRaster, StyleJson } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
+import type { Terrain } from '@basemaps/config/build/config/vector.style.js';
+import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
 import { Nztm2000QuadTms } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { createSandbox } from 'sinon';

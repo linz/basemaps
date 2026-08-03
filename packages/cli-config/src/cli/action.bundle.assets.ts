@@ -1,14 +1,16 @@
 import { base58 } from '@basemaps/config';
-import { fsa, getLogger, logArguments, LogType, SourceMemory } from '@basemaps/shared';
+import type { LogType} from '@basemaps/shared';
+import { fsa, getLogger, logArguments, SourceMemory } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { CotarIndexBuilder, TarReader } from '@cotar/builder';
 import { CotarIndex } from '@cotar/core';
 import { TarBuilder } from '@cotar/tar';
 import { Metrics } from '@linzjs/metrics';
 import { command, option, string } from 'cmd-ts';
-import { BinaryLike, createHash } from 'crypto';
+import type { BinaryLike} from 'crypto';
+import { createHash } from 'crypto';
 import { createReadStream, promises as fs } from 'fs';
-import { Readable } from 'stream';
+import type { Readable } from 'stream';
 
 const Packing = 25; // Packing factor for the hash map
 const MaxSearch = 50; // Max search factor

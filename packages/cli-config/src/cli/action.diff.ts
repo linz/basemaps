@@ -1,4 +1,5 @@
-import { ConfigBundled, ConfigId, ConfigPrefix, ConfigProviderMemory, ConfigTileSetVector } from '@basemaps/config';
+import type { ConfigBundled, ConfigTileSetVector } from '@basemaps/config';
+import { ConfigId, ConfigPrefix, ConfigProviderMemory } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env, fsa, getLogger, logArguments, Url } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
@@ -6,7 +7,8 @@ import { command, option } from 'cmd-ts';
 
 import { getVectorVersion } from '../util.js';
 import { diffVectorUpdate } from './config.diff.js';
-import { configTileSetDiff, Diff } from './diff/config.diff.js';
+import type { Diff } from './diff/config.diff.js';
+import { configTileSetDiff } from './diff/config.diff.js';
 import { diffToMarkdown, EmojiChange, markdownProjectionLink } from './diff/config.diff.markdown.js';
 
 const PublicUrlBase = Env.isProduction() ? 'https://basemaps.linz.govt.nz/' : 'https://dev.basemaps.linz.govt.nz/';

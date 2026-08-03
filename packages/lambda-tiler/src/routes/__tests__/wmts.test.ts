@@ -1,7 +1,8 @@
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
-import { ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
+import type { ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
 import { Env } from '@basemaps/shared';
 
 import {

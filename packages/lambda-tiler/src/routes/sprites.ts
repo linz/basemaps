@@ -1,4 +1,4 @@
-import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
 
 import { assetProvider } from '../util/assets.provider.js';

@@ -1,22 +1,25 @@
+import type {
+  ImageFormat,
+  TileMatrixSet} from '@basemaps/geo';
 import {
   Epsg,
   EpsgCode,
   GoogleTms,
-  ImageFormat,
   locationTransform,
   LocationUrl,
   Nztm2000QuadTms,
   Nztm2000Tms,
-  TileMatrixSet,
   TileMatrixSets,
 } from '@basemaps/geo';
 import { Emitter } from '@servie/events';
-import { LngLatBoundsLike } from 'maplibre-gl';
+import type { LngLatBoundsLike } from 'maplibre-gl';
 
-import { ConfigDebug, DebugDefaults, DebugState } from './config.debug.js';
+import type { DebugState } from './config.debug.js';
+import { ConfigDebug, DebugDefaults } from './config.debug.js';
 import { Config } from './config.js';
 import { mapToBoundingBox } from './tile.matrix.js';
-import { ensureBase58, MapLocation, MapOptionType, WindowUrl } from './url.js';
+import type { MapLocation, MapOptionType} from './url.js';
+import { ensureBase58, WindowUrl } from './url.js';
 
 /** Default center point if none provided */
 const DefaultCenter: Record<string, MapLocation> = {

@@ -1,16 +1,20 @@
-import { ConfigTileSetRaster, getAllImagery } from '@basemaps/config';
+import type { ConfigTileSetRaster} from '@basemaps/config';
+import { getAllImagery } from '@basemaps/config';
 import { Bounds, Epsg, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { Cotar, Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
+import type { Cotar} from '@basemaps/shared';
+import { Env, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest} from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 import pLimit from 'p-limit';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';
 import { NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
-import { TileXyz, Validate } from '../util/validate.js';
+import type { TileXyz} from '../util/validate.js';
+import { Validate } from '../util/validate.js';
 
 const LoadingQueue = pLimit(Env.getNumber(Env.TiffConcurrency, 25));
 

@@ -1,4 +1,4 @@
-import { Tile } from './tile.matrix.set.js';
+import type { Tile } from './tile.matrix.set.js';
 
 export const TileId = {
   /** Create a tile from a tile ID in the format `:z-:x-:y` */

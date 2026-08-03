@@ -1,6 +1,6 @@
-import { LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
 
-import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
+import type { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 import { getInaccessibilityPole } from '../shared.js';
 
 /**

@@ -1,11 +1,12 @@
 import { base58, isBase58 } from '@basemaps/config/build/base58.js';
-import { GoogleTms, TileMatrixSet } from '@basemaps/geo';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo';
 import { toQueryString } from '@basemaps/shared/build/url.js';
-import { BBox } from '@linzjs/geojson';
+import type { BBox } from '@linzjs/geojson';
 
 import { LabelsDisabledLayers } from './components/map.label.js';
 import { Config } from './config.js';
-import { FilterDate } from './config.map.js';
+import type { FilterDate } from './config.map.js';
 
 export interface LonLat {
   lat: number;

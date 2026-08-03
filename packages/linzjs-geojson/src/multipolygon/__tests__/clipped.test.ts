@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { round } from '@basemaps/test/build/rounding.js';
 
-import { BBox, MultiPolygon } from '../../types.js';
+import type { BBox, MultiPolygon } from '../../types.js';
 import { clipMultipolygon } from '../clipped.js';
 
 describe('clipped.multipolygon', () => {

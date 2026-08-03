@@ -1,8 +1,9 @@
-import { Bounds, Point, Size, TileMatrixSet } from '@basemaps/geo';
-import { Tiff, TiffImage } from '@cogeotiff/core';
-import { Cotar } from '@cotar/core';
+import type { Point, Size, TileMatrixSet } from '@basemaps/geo';
+import { Bounds } from '@basemaps/geo';
+import type { Tiff, TiffImage } from '@cogeotiff/core';
+import type { Cotar } from '@cotar/core';
 
-import { Composition, CompositionTiff } from './raster.js';
+import type { Composition, CompositionTiff } from './raster.js';
 
 export interface RasterPixelBounds {
   /** Bounds in Raster Pixels of the output tile */

@@ -4,9 +4,10 @@ import { describe, it } from 'node:test';
 import { Bounds, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { Approx, TestTiff } from '@basemaps/test';
-import { Tiff, TiffImage } from '@cogeotiff/core';
+import type { TiffImage } from '@cogeotiff/core';
+import { Tiff } from '@cogeotiff/core';
 
-import { CompositionTiff } from '../raster.js';
+import type { CompositionTiff } from '../raster.js';
 import { Tiler } from '../tiler.js';
 
 describe('tiler.test', () => {

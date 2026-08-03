@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { ConfigImagery } from '@basemaps/config';
+import type { ConfigImagery } from '@basemaps/config';
 
 import { getImageryCenterZoom, PreviewSize } from '../imagery.url.js';
 

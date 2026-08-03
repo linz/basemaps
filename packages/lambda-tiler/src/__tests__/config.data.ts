@@ -1,11 +1,12 @@
-import {
-  base58,
+import type {
   BaseConfig,
   ConfigImagery,
   ConfigProvider,
-  ConfigProviderMemory,
   ConfigTileSetRaster,
-  ConfigTileSetVector,
+  ConfigTileSetVector} from '@basemaps/config';
+import {
+  base58,
+  ConfigProviderMemory,
   DefaultColorRampOutput,
   DefaultTerrainRgbOutput,
   TileSetType,

@@ -1,8 +1,8 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { AttributionCollection, AttributionItem, AttributionStac } from '@basemaps/geo';
-import { BBox } from 'geojson';
+import type { AttributionCollection, AttributionItem, AttributionStac } from '@basemaps/geo';
+import type { BBox } from 'geojson';
 
 import { Attribution } from '../attribution.js';
 

@@ -1,7 +1,8 @@
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, fsa, LogConfig } from '@basemaps/shared';
 import { BaseCommandLine } from '@basemaps/shared/build/cli/base.js';
-import { CommandLineAction, CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import type { CommandLineFlagParameter, CommandLineStringParameter } from '@rushstack/ts-command-line';
+import { CommandLineAction } from '@rushstack/ts-command-line';
 import { createReadStream, promises as fs } from 'fs';
 import * as os from 'os';
 import path from 'path';

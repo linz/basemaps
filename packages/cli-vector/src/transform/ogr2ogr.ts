@@ -1,8 +1,8 @@
 import { Epsg } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
 import { Command } from '@linzjs/docker-command';
 
-import { Layer } from '../schema-loader/schema.js';
+import type { Layer } from '../schema-loader/schema.js';
 
 /**
  * ogr2ogr GeoJSONSeq usage, return cmd for ogr2ogr

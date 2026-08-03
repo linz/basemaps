@@ -1,5 +1,6 @@
 import ShelfPack from '@mapbox/shelf-pack';
-import Sharp, { PngOptions } from 'sharp';
+import type { PngOptions } from 'sharp';
+import Sharp from 'sharp';
 
 export interface SvgId {
   /** Unique id for the sprite */

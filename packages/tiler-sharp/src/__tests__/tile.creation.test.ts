@@ -1,10 +1,12 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { Epsg, GoogleTms, Nztm2000Tms, QuadKey, Tile } from '@basemaps/geo';
+import type { Tile } from '@basemaps/geo';
+import { Epsg, GoogleTms, Nztm2000Tms, QuadKey } from '@basemaps/geo';
 import { fsa, Tiff } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
-import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
+import type { CompositionTiff, TileMakerContext} from '@basemaps/tiler';
+import { Tiler } from '@basemaps/tiler';
 import { readFileSync, writeFileSync } from 'fs';
 import PixelMatch from 'pixelmatch';
 import { PNG } from 'pngjs';

@@ -1,6 +1,7 @@
 import { loadTiffsFromPaths } from '@basemaps/config-loader/build/json/tiff.config.js';
 import { Bounds } from '@basemaps/geo';
-import { fsa, LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
+import { fsa } from '@basemaps/shared';
 import { getLogger, isArgo, logArguments, Url, UrlFolder } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { boolean, command, flag, oneOf, option, optional, restPositionals, string } from 'cmd-ts';

@@ -1,7 +1,8 @@
-import { base58, BasemapsConfigProvider, isBase58 } from '@basemaps/config';
+import type { BasemapsConfigProvider} from '@basemaps/config';
+import { base58, isBase58 } from '@basemaps/config';
 import { fsa, getDefaultConfig } from '@basemaps/shared';
 import { LambdaHttpResponse } from '@linzjs/lambda';
-import { LambdaHttpRequest } from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
 
 import { CachedConfig } from './config.cache.js';
 

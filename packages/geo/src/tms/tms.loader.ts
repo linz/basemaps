@@ -1,11 +1,12 @@
-import {
+import type {
   Epsg,
+  TileMatrixSetType} from '../index.js';
+import {
   getXyOrder,
   GoogleTms,
   Projection,
   ProjectionLoader,
-  TileMatrixSet,
-  TileMatrixSetType,
+  TileMatrixSet
 } from '../index.js';
 
 /**

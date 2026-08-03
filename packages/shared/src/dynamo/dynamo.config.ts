@@ -1,13 +1,14 @@
 import { DynamoDB } from '@aws-sdk/client-dynamodb';
-import {
+import type {
   BaseConfig,
-  BasemapsConfigProvider,
   ConfigBundle,
   ConfigImagery,
-  ConfigPrefix,
   ConfigProvider,
   ConfigTileSet,
-  ConfigVectorStyle,
+  ConfigVectorStyle} from '@basemaps/config';
+import {
+  BasemapsConfigProvider,
+  ConfigPrefix
 } from '@basemaps/config';
 import { ConfiguredRetryStrategy } from '@smithy/util-retry';
 

@@ -2,14 +2,14 @@ import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
 
 import { Env, fsa } from '@basemaps/shared';
-import { LambdaRequest } from '@linzjs/lambda';
+import type { LambdaRequest } from '@linzjs/lambda';
 import pLimit from 'p-limit';
 import { basename } from 'path';
 
 import { byDay, getOneHourAgo } from './date.js';
 import { Elastic } from './elastic.js';
 import { FileProcess, toFullDate } from './log.reader.js';
-import { LogStats } from './log.stats.js';
+import type { LogStats } from './log.stats.js';
 import { ParserErrors } from './useragent/parser.js';
 
 const gzipPromise = promisify(gzip);

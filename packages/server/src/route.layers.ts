@@ -1,6 +1,8 @@
-import { BasemapsConfigProvider, ConfigImagery, ConfigProviderMemory, ConfigTileSet } from '@basemaps/config';
+import type { BasemapsConfigProvider, ConfigImagery, ConfigTileSet } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
 import { GoogleTms, TileMatrixSets } from '@basemaps/geo';
-import { getPreviewUrl, V, VNodeElement } from '@basemaps/shared';
+import type { VNodeElement } from '@basemaps/shared';
+import { getPreviewUrl, V } from '@basemaps/shared';
 
 async function getAllImagery(
   cfg: BasemapsConfigProvider,

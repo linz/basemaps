@@ -1,22 +1,24 @@
-import {
+import type {
   Bounds,
-  Projection,
-  Stac as StacStatic,
   StacCollection,
   StacItem,
   StacLink,
   StacProvider,
-  Tile,
+  Tile} from '@basemaps/geo';
+import {
+  Projection,
+  Stac as StacStatic,
   TileMatrixSet,
 } from '@basemaps/geo';
-import { extractYearRangeFromName, fsa, LogType, titleizeImageryName } from '@basemaps/shared';
-import { FsError } from '@chunkd/fs';
+import type { LogType} from '@basemaps/shared';
+import { extractYearRangeFromName, fsa, titleizeImageryName } from '@basemaps/shared';
+import type { FsError } from '@chunkd/fs';
 import * as cp from 'child_process';
 import { readFileSync } from 'fs';
 import path, { basename } from 'path';
 import url from 'url';
 
-import { BathyMaker } from './bathy.maker.js';
+import type { BathyMaker } from './bathy.maker.js';
 import { FileType } from './file.js';
 import { Hash } from './hash.js';
 

@@ -1,8 +1,8 @@
-import { EpsgCode, ImageFormat, VectorFormat } from '@basemaps/geo';
-import { z } from 'zod';
+import type { EpsgCode, ImageFormat, VectorFormat } from '@basemaps/geo';
+import type { z } from 'zod';
 
-import { ConfigBase } from './base.js';
-import { ConfigTileSetOutputParser } from './tile.set.pipeline.js';
+import type { ConfigBase } from './base.js';
+import type { ConfigTileSetOutputParser } from './tile.set.pipeline.js';
 
 export enum TileSetType {
   Raster = 'raster',

@@ -1,9 +1,10 @@
-import {
+import type {
   ConfigLayer,
   ConfigProviderMemory,
   ConfigTileSet,
   ConfigTileSetRaster,
-  ConfigTileSetVector,
+  ConfigTileSetVector} from '@basemaps/config';
+import {
   TileSetType,
 } from '@basemaps/config';
 import diff from 'deep-diff';

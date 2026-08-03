@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { Approx } from '@basemaps/test';
 import { round } from '@basemaps/test/build/rounding.js';
 
-import { Point } from '../bounds.js';
+import type { Point } from '../bounds.js';
 import { Epsg } from '../epsg.js';
 import { QuadKey } from '../quad.key.js';
 import { TileMatrixSet } from '../tile.matrix.set.js';

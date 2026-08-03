@@ -1,4 +1,4 @@
-import { ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
+import type { ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
 
 function getAllTileSets(cfg: ConfigProviderMemory): Map<string, ConfigTileSetRaster> {
   const tileSets: Map<string, ConfigTileSetRaster> = new Map();

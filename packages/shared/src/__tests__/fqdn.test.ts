@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { beforeEach, describe, it } from 'node:test';
 
-import { FinalizeHandler, MetadataBearer } from '@smithy/types';
+import type { FinalizeHandler, MetadataBearer } from '@smithy/types';
 
 import { Fqdn } from '../file.system.middleware.js';
 

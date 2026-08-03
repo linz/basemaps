@@ -1,23 +1,25 @@
-import {
+import type {
   BBox,
   BBoxFeature,
   BBoxFeatureCollection,
-  MultiPolygon,
+  MultiPolygon} from '@linzjs/geojson';
+import {
   multiPolygonToWgs84,
   toFeatureMultiPolygon,
   toFeaturePolygon,
 } from '@linzjs/geojson';
-import { Position } from 'geojson';
-import Proj from 'proj4';
-import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
+import type { Position } from 'geojson';
+import proj4, { type Converter } from 'proj4';
+import type { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 
-import { BoundingBox, NamedBounds } from '../bounds.js';
-import { Epsg, EpsgCode } from '../epsg.js';
-import { Tile, TileMatrixSet } from '../tile.matrix.set.js';
+import type { BoundingBox, NamedBounds } from '../bounds.js';
+import type { EpsgCode } from '../epsg.js';
+import { Epsg } from '../epsg.js';
+import type { Tile, TileMatrixSet } from '../tile.matrix.set.js';
 import { Citm2000Json } from './json/nz/citm2000.js';
 import { Nztm2000Json } from './json/nz/nztm2000.js';
 
-export const Projections = new Map<number | EpsgCode, { json?: PROJJSONDefinition; converter: proj4.Converter }>();
+export const Projections = new Map<number | EpsgCode, { json?: PROJJSONDefinition; converter: Converter }>();
 
 export interface LatLon {
   lat: number;
@@ -42,7 +44,7 @@ export class Projection {
   epsg: Epsg;
 
   /** Transform coordinates to and from Wgs84 */
-  private projection: proj4.Converter;
+  private projection: Converter;
 
   /** If the projection was definied with a projjson */
   definition?: PROJJSONDefinition;
@@ -66,7 +68,7 @@ export class Projection {
   static define(epsg: Epsg, def: PROJJSONDefinition): Projection {
     const existing = Projections.get(epsg.code);
     if (existing != null) throw new Error('Duplicate projection definition: ' + epsg.toEpsgString());
-    Projections.set(epsg.code, { json: def, converter: Proj(def, Epsg.Wgs84.toEpsgString()) });
+    Projections.set(epsg.code, { json: def, converter: proj4(def, Epsg.Wgs84.toEpsgString()) });
     return new Projection(epsg, def);
   }
 
@@ -282,5 +284,5 @@ export class Projection {
 
 Projection.define(Epsg.Nztm2000, Nztm2000Json);
 Projection.define(Epsg.Citm2000, Citm2000Json);
-Projections.set(Epsg.Google.code, { converter: Proj(Epsg.Google.toEpsgString(), Epsg.Wgs84.toEpsgString()) });
-Projections.set(Epsg.Wgs84.code, { converter: Proj(Epsg.Wgs84.toEpsgString(), Epsg.Wgs84.toEpsgString()) });
+Projections.set(Epsg.Google.code, { converter: proj4(Epsg.Google.toEpsgString(), Epsg.Wgs84.toEpsgString()) });
+Projections.set(Epsg.Wgs84.code, { converter: proj4(Epsg.Wgs84.toEpsgString(), Epsg.Wgs84.toEpsgString()) });

@@ -1,6 +1,6 @@
-import { Position } from 'geojson';
+import type { Position } from 'geojson';
 
-import { BBox } from './types.js';
+import type { BBox } from './types.js';
 
 /**
  * Build a polygon from a bounding box.

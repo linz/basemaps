@@ -1,13 +1,14 @@
 import assert from 'node:assert';
 import { before, describe, it } from 'node:test';
 
-import { ConfigTileSetRaster, DefaultTerrainRgbOutput, TileSetType } from '@basemaps/config';
+import type { ConfigTileSetRaster} from '@basemaps/config';
+import { DefaultTerrainRgbOutput, TileSetType } from '@basemaps/config';
 import { fsa, FsMemory, LogConfig, SourceMemory, Tiff, TiffTag } from '@basemaps/shared';
 import pLimit from 'p-limit';
 
 import { ConfigJson } from '../json.config.js';
-import { TileSetConfigSchema } from '../parse.tile.set.js';
-import { ConfigImageryTiff } from '../tiff.config.js';
+import type { TileSetConfigSchema } from '../parse.tile.set.js';
+import type { ConfigImageryTiff } from '../tiff.config.js';
 
 describe('tiff-loader', () => {
   const stac = {

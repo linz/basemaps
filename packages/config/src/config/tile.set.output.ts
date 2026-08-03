@@ -1,4 +1,4 @@
-import { ConfigTileSetRasterOutput } from './tile.set.js';
+import type { ConfigTileSetRasterOutput } from './tile.set.js';
 
 export const DefaultTerrainRgbOutput: ConfigTileSetRasterOutput = {
   title: 'TerrainRGB',

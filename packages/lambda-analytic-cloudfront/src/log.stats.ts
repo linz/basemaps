@@ -1,4 +1,4 @@
-import { UserAgentInfo } from './useragent/parser.types.js';
+import type { UserAgentInfo } from './useragent/parser.types.js';
 
 export interface LogStats {
   '@timestamp': string;

@@ -1,8 +1,10 @@
 import * as fs from 'node:fs';
 
-import { ConfigTileSetRaster, ConfigTileSetVector, TileSetType } from '@basemaps/config';
+import type { ConfigTileSetRaster, ConfigTileSetVector} from '@basemaps/config';
+import { TileSetType } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest} from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 import { VectorTile } from '@mapbox/vector-tile';
 import Protobuf from 'pbf';
 import PixelMatch from 'pixelmatch';
@@ -11,7 +13,7 @@ import { gunzipSync } from 'zlib';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { isGzip } from '../util/cotar.serve.js';
-import { TileXyz } from '../util/validate.js';
+import type { TileXyz } from '../util/validate.js';
 import { TileXyzRaster } from './tile.xyz.raster.js';
 import { tileXyzVector } from './tile.xyz.vector.js';
 

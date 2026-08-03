@@ -1,8 +1,8 @@
-import { ConfigRasterPipeline } from '@basemaps/config';
-import { ImageFormat, Point, Size } from '@basemaps/geo';
-import { Tiff } from '@cogeotiff/core';
-import { Cotar } from '@cotar/core';
-import { Metrics } from '@linzjs/metrics';
+import type { ConfigRasterPipeline } from '@basemaps/config';
+import type { ImageFormat, Point, Size } from '@basemaps/geo';
+import type { Tiff } from '@cogeotiff/core';
+import type { Cotar } from '@cotar/core';
+import type { Metrics } from '@linzjs/metrics';
 
 export interface TileMaker {
   compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics }>;

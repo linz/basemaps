@@ -1,7 +1,8 @@
-import { Epsg, EpsgCode } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
+import type { Epsg} from '@basemaps/geo';
+import { EpsgCode } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
 
-import { MapSeries } from '../cli/cli.topo.js';
+import type { MapSeries } from '../cli/cli.topo.js';
 
 const Slugs: Record<MapSeries, Record<number, string>> = {
   topo25: {

@@ -3,7 +3,8 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { fsa, FsMemory } from '@basemaps/shared';
 
-import { isRgbOrRgba, loadStacFromURL, TiffSummary } from '../tiff.config.js';
+import type { TiffSummary } from '../tiff.config.js';
+import { isRgbOrRgba, loadStacFromURL } from '../tiff.config.js';
 
 describe('loadStacFromURL', () => {
   const mem = new FsMemory();

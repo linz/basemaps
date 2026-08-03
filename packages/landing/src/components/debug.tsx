@@ -1,15 +1,18 @@
-import { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
-import { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
+import type { ConfigImagery } from '@basemaps/config/build/config/imagery.js';
+import type { ConfigTileSetRaster } from '@basemaps/config/build/config/tile.set.js';
 import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
-import { GoogleTms, LocationUrl, TileMatrixSet } from '@basemaps/geo';
-import { RasterLayerSpecification, SourceSpecification } from 'maplibre-gl';
-import { ChangeEventHandler, Component, FormEventHandler, Fragment, ReactNode } from 'react';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, LocationUrl } from '@basemaps/geo';
+import type { RasterLayerSpecification, SourceSpecification } from 'maplibre-gl';
+import type { ChangeEventHandler, FormEventHandler, ReactNode } from 'react';
+import { Component, Fragment } from 'react';
 
 import { MapAttrState } from '../attribution.js';
 import { Config } from '../config.js';
 import { ConfigData } from '../config.layer.js';
 import { MapConfig } from '../config.map.js';
-import { DebugMap, DebugType, debugTypes } from '../debug.map.js';
+import type { DebugType} from '../debug.map.js';
+import { DebugMap, debugTypes } from '../debug.map.js';
 import { MapOptionType, WindowUrl } from '../url.js';
 import { onMapLoaded } from './map.js';
 

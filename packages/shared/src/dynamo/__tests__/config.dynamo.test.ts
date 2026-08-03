@@ -1,9 +1,10 @@
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
-import { BatchGetItemCommand, DynamoDB, GetItemCommand, GetItemCommandInput } from '@aws-sdk/client-dynamodb';
+import type { DynamoDB, GetItemCommandInput } from '@aws-sdk/client-dynamodb';
+import { BatchGetItemCommand, GetItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall } from '@aws-sdk/util-dynamodb';
-import { ConfigImagery, ConfigTileSet } from '@basemaps/config';
+import type { ConfigImagery, ConfigTileSet } from '@basemaps/config';
 import { createSandbox } from 'sinon';
 
 import { ConfigProviderDynamo } from '../dynamo.config.js';

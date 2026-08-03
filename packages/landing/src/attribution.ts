@@ -1,5 +1,5 @@
 import { Attribution } from '@basemaps/attribution';
-import { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
+import type { AttributionBounds } from '@basemaps/attribution/build/attribution.js';
 import { GoogleTms } from '@basemaps/geo';
 import * as maplibre from 'maplibre-gl';
 

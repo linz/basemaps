@@ -1,6 +1,6 @@
 import sq from 'node:sqlite';
 
-import { LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
 import { createWriteStream } from 'fs';
 import * as tar from 'tar-stream';
 

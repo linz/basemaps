@@ -2,8 +2,9 @@ import assert, { strictEqual } from 'node:assert';
 import { afterEach, before, describe, it } from 'node:test';
 
 import { copyright, createLicensorAttribution } from '@basemaps/attribution/build/utils.js';
-import { ConfigProviderMemory, StyleJson } from '@basemaps/config';
-import { StacProvider } from '@basemaps/geo';
+import type { StyleJson } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
+import type { StacProvider } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 
 import { FakeData, Imagery3857 } from '../../__tests__/config.data.js';

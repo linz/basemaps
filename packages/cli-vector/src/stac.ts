@@ -1,11 +1,14 @@
-import { BoundingBox, Bounds, TileMatrixSet } from '@basemaps/geo';
-import { fsa, LogType } from '@basemaps/shared';
+import type { BoundingBox, TileMatrixSet } from '@basemaps/geo';
+import { Bounds } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import { fsa } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { StacCatalog, StacCollection, StacItem, StacLink, StacProvider } from 'stac-ts';
+import type { StacCatalog, StacCollection, StacItem, StacLink, StacProvider } from 'stac-ts';
 
 import { LDS_CACHE_BUCKET } from './extract.js';
-import { zLayer, zTypeLayer } from './schema-loader/parser.js';
-import { Layer, SchemaMetadata } from './schema-loader/schema.js';
+import type { zTypeLayer } from './schema-loader/parser.js';
+import { zLayer } from './schema-loader/parser.js';
+import type { Layer, SchemaMetadata } from './schema-loader/schema.js';
 
 export interface VectorCreationOptions {
   /** Schema name for the layer*/

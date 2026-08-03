@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 import { LogConfig } from '@basemaps/shared';
 import { strictEqual } from 'assert';
 
-import { VectorGeoFeature } from '../../../types/VectorGeoFeature.js';
+import type { VectorGeoFeature } from '../../../types/VectorGeoFeature.js';
 import { handleKindContours, handleKindPeak } from '../contours.js';
 
 describe('HandleLayerContours', () => {

@@ -1,16 +1,21 @@
-import { ImageryBandType, Rgba } from '@basemaps/config';
-import { ConfigImageryTiff } from '@basemaps/config-loader';
-import { BoundingBox, Bounds, EpsgCode, Projection, ProjectionLoader, TileId, TileMatrixSet } from '@basemaps/geo';
-import { fsa, LogType, urlToString } from '@basemaps/shared';
+import type { ImageryBandType, Rgba } from '@basemaps/config';
+import type { ConfigImageryTiff } from '@basemaps/config-loader';
+import type { BoundingBox, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, EpsgCode, Projection, ProjectionLoader, TileId } from '@basemaps/geo';
+import type { LogType} from '@basemaps/shared';
+import { fsa, urlToString } from '@basemaps/shared';
 import { CliDate, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { intersection, MultiPolygon, multiPolygonToWgs84, toFeatureCollection, union } from '@linzjs/geojson';
-import { Metrics } from '@linzjs/metrics';
-import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
+import type { MultiPolygon} from '@linzjs/geojson';
+import { intersection, multiPolygonToWgs84, toFeatureCollection, union } from '@linzjs/geojson';
+import type { Metrics } from '@linzjs/metrics';
+import type { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { GdalBandPreset, PresetName, Presets } from '../../preset.js';
-import { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem, createFileStats } from '../stac.js';
+import type { GdalBandPreset, PresetName} from '../../preset.js';
+import { Presets } from '../../preset.js';
+import type { CogifyLinkCutline, CogifyLinkSource, CogifyStacCollection, CogifyStacItem} from '../stac.js';
+import { createFileStats } from '../stac.js';
 import { createCovering } from './covering.js';
-import { CutlineOptimizer } from './cutline.js';
+import type { CutlineOptimizer } from './cutline.js';
 
 export interface TileCoverContext {
   /** Unique id for the covering */

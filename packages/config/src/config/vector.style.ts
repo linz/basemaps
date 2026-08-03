@@ -1,6 +1,6 @@
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 
-import { ConfigBase } from './base.js';
+import type { ConfigBase } from './base.js';
 
 /**
  * Default Terrain exaggeration settings for different projection

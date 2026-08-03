@@ -1,6 +1,6 @@
-import { CompositionTiff } from '@basemaps/tiler';
+import type { CompositionTiff } from '@basemaps/tiler';
 
-import { DecompressedInterleaved, Pipeline } from './decompressor.js';
+import type { DecompressedInterleaved, Pipeline } from './decompressor.js';
 
 const MinValue = -10_000;
 const MaxValue = 1_667_721.5;

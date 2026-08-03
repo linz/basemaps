@@ -6,9 +6,11 @@ import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, oneOf, option, optional, restPositionals, string } from 'cmd-ts';
 
-import { AllowedPresets, BandPresetName, BandPresets, PresetName, Presets } from '../../preset.js';
+import type { BandPresetName, PresetName} from '../../preset.js';
+import { AllowedPresets, BandPresets, Presets } from '../../preset.js';
 import { CutlineOptimizer } from '../covering/cutline.js';
-import { createTileCover, TileCoverContext } from '../covering/tile.cover.js';
+import type { TileCoverContext } from '../covering/tile.cover.js';
+import { createTileCover } from '../covering/tile.cover.js';
 import { createFileStats } from '../stac.js';
 
 const SupportedTileMatrix = [GoogleTms, Nztm2000QuadTms];

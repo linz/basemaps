@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { ImageryBandDataType, ImageryBandType } from '@basemaps/config';
+import type { ImageryBandDataType, ImageryBandType } from '@basemaps/config';
 
 import { findOptimialCoveringZoomOffset } from '../tile.cover.js';
 

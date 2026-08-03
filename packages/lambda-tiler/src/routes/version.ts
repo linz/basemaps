@@ -1,5 +1,7 @@
-import { BasemapsConfigProvider, ConfigProviderMemory } from '@basemaps/config';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { BasemapsConfigProvider} from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
+import type { LambdaHttpRequest} from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';
 

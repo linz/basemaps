@@ -1,5 +1,7 @@
-import { createHash, Hash } from 'crypto';
-import { Transform, TransformCallback } from 'stream';
+import type { Hash } from 'crypto';
+import { createHash } from 'crypto';
+import type { TransformCallback } from 'stream';
+import { Transform } from 'stream';
 
 export class HashTransform extends Transform {
   /** hash function in use */

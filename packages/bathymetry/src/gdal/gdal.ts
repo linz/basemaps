@@ -1,6 +1,7 @@
-import { Env, LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
+import { Env } from '@basemaps/shared';
 
-import { GdalCommand } from './gdal.command.js';
+import type { GdalCommand } from './gdal.command.js';
 import { GdalDocker } from './gdal.docker.js';
 import { GdalLocal } from './gdal.local.js';
 

@@ -1,5 +1,5 @@
-import { CompositionTiff } from '@basemaps/tiler';
-import { Tiff } from '@cogeotiff/core';
+import type { CompositionTiff } from '@basemaps/tiler';
+import type { Tiff } from '@cogeotiff/core';
 
 export interface DecompressedInterleavedUint32 {
   pixels: Uint32Array;

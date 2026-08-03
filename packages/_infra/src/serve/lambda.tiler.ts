@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 
 import { Env, isValidApiKey } from '@basemaps/shared';
-import * as cdk from 'aws-cdk-lib';
+import type * as cdk from 'aws-cdk-lib';
 import { Duration } from 'aws-cdk-lib';
 import iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';

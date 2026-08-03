@@ -5,7 +5,8 @@ import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { GoogleTms } from '@basemaps/geo';
-import { fsa, FsMemory, LogConfig, LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
+import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
 import { basename, dirname } from 'path';
 

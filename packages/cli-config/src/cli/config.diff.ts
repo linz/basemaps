@@ -1,6 +1,8 @@
-import { ConfigTileSet } from '@basemaps/config';
-import { Epsg, StacCollection, StacLink } from '@basemaps/geo';
-import { fsa, LogType } from '@basemaps/shared';
+import type { ConfigTileSet } from '@basemaps/config';
+import type { StacCollection, StacLink } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import { fsa } from '@basemaps/shared';
 import c from 'ansi-colors';
 import diff from 'deep-diff';
 

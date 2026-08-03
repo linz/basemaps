@@ -1,4 +1,5 @@
-import { Epsg, EpsgCode } from './epsg.js';
+import type { Epsg} from './epsg.js';
+import { EpsgCode } from './epsg.js';
 
 /**
  * - [EPSG:2193](https://www.opengis.net/def/crs/EPSG/0/2193) (NZTM) is defined in [y, x]

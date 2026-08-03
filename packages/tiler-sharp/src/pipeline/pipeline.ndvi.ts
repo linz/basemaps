@@ -1,7 +1,7 @@
-import { PipelineNdviArgs } from '@basemaps/config';
-import { CompositionTiff } from '@basemaps/tiler';
+import type { PipelineNdviArgs } from '@basemaps/config';
+import type { CompositionTiff } from '@basemaps/tiler';
 
-import { DecompressedInterleaved, Pipeline } from './decompressor.js';
+import type { DecompressedInterleaved, Pipeline } from './decompressor.js';
 
 // Stolen from https://custom-scripts.sentinel-hub.com/landsat-4-5-tm/ndvi/
 export function colorNdvi(val: number): [number, number, number] {

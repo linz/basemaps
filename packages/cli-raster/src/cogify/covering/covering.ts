@@ -1,9 +1,11 @@
-import { Simplify, Tile, TileId, TileMatrixSet } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
-import { Area, intersection, MultiPolygon } from '@linzjs/geojson';
-import { Metrics } from '@linzjs/metrics';
+import type { Tile, TileMatrixSet } from '@basemaps/geo';
+import { Simplify, TileId } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import type { MultiPolygon } from '@linzjs/geojson';
+import { Area, intersection } from '@linzjs/geojson';
+import type { Metrics } from '@linzjs/metrics';
 
-import { CutlineOptimizer } from '../covering/cutline.js';
+import type { CutlineOptimizer } from '../covering/cutline.js';
 
 /**
  * Tile offsets for surrounding tiles

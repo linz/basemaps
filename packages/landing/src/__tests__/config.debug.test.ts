@@ -1,7 +1,8 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { ConfigDebug, DebugDefaults, DebugState } from '../config.debug.js';
+import type { DebugState } from '../config.debug.js';
+import { ConfigDebug, DebugDefaults } from '../config.debug.js';
 
 function urlToString(o: Partial<DebugState>): string {
   const url = new URLSearchParams();

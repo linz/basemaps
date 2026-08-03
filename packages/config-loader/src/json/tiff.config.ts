@@ -1,26 +1,29 @@
-import {
+import type {
   ConfigImagery,
   ConfigProviderMemory,
   ConfigTileSetRaster,
-  DefaultColorRampOutput,
-  DefaultTerrainRgbOutput,
   ImageryBandDataType,
   ImageryBandType,
-  ImageryDataType,
+  ImageryDataType} from '@basemaps/config';
+import {
+  DefaultColorRampOutput,
+  DefaultTerrainRgbOutput,
   sha256base58,
   TileSetType,
 } from '@basemaps/config';
-import { BoundingBox, Bounds, EpsgCode, NamedBounds, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
+import type { BoundingBox, NamedBounds} from '@basemaps/geo';
+import { Bounds, EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, Tiff, TiffTag } from '@basemaps/shared';
 import { SampleFormat } from '@cogeotiff/core';
-import pLimit, { LimitFunction } from 'p-limit';
+import type { LimitFunction } from 'p-limit';
+import pLimit from 'p-limit';
 import { basename } from 'path';
-import { StacCollection } from 'stac-ts';
+import type { StacCollection } from 'stac-ts';
 import { fileURLToPath } from 'url';
 
 import { getCachedImageryConfig, writeCachedImageryConfig } from './imagery.config.cache.js';
 import { ConfigJson, isEmptyTiff } from './json.config.js';
-import { LogType } from './log.js';
+import type { LogType } from './log.js';
 
 /** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: URL): boolean {

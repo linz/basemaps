@@ -1,8 +1,8 @@
-import { BoundingBox, Point, Size } from '@basemaps/geo';
-import { CompositionTiff, ResizeKernelType } from '@basemaps/tiler';
-import { Tiff } from '@cogeotiff/core';
+import type { BoundingBox, Point, Size } from '@basemaps/geo';
+import type { CompositionTiff, ResizeKernelType } from '@basemaps/tiler';
+import type { Tiff } from '@cogeotiff/core';
 
-import { DecompressedInterleaved } from './decompressor.js';
+import type { DecompressedInterleaved } from './decompressor.js';
 
 /**
  * Pipeline to apply the crop/resizing to datasets

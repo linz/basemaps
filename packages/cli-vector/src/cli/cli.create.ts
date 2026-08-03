@@ -1,5 +1,6 @@
 import { TileMatrixSets } from '@basemaps/geo';
-import { fsa, LogType, Url, UrlArrayJsonFile } from '@basemaps/shared';
+import type { LogType} from '@basemaps/shared';
+import { fsa, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
@@ -7,11 +8,12 @@ import PLimit from 'p-limit';
 import { createGunzip } from 'zlib';
 
 import { generalize } from '../generalization/generalization.js';
-import { Metrics } from '../schema-loader/schema.js';
-import { VectorStacItem } from '../stac.js';
+import type { Metrics } from '../schema-loader/schema.js';
+import type { VectorStacItem } from '../stac.js';
 import { ogr2ogrNDJson } from '../transform/ogr2ogr.js';
 import { tileJoin, tippecanoe } from '../transform/tippecanoe.js';
-import { ContentType, prepareTmpPaths, TmpPaths } from '../util.js';
+import type { TmpPaths } from '../util.js';
+import { ContentType, prepareTmpPaths } from '../util.js';
 
 const TmpPath = fsa.toUrl('tmp/create/');
 

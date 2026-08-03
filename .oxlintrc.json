@@ -32,7 +32,8 @@
             "from": "package",
             "name": [
               "it",
-              "describe"
+              "describe",
+              "test"
             ],
             "package": "node:test"
           }

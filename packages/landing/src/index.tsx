@@ -1,4 +1,5 @@
-import { Component, Fragment, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Component, Fragment } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { Footer } from './components/layout.footer.js';

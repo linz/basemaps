@@ -1,4 +1,5 @@
-import { isValidOs, UserAgentOs, UserAgentParser } from '../parser.types.js';
+import type { UserAgentOs, UserAgentParser } from '../parser.types.js';
+import { isValidOs } from '../parser.types.js';
 
 // Mozilla/5.0 QGIS/32400/Windows 10 Version 2009
 function guessQgisOs(ua: string): UserAgentOs | undefined {

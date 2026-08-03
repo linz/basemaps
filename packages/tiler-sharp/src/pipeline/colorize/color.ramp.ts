@@ -1,4 +1,4 @@
-import { Colorizer } from './colorize.js';
+import type { Colorizer } from './colorize.js';
 
 export class ColorRamp implements Colorizer {
   min: number;

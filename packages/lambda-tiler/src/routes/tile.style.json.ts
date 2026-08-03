@@ -1,17 +1,20 @@
-import {
+import type {
   BasemapsConfigProvider,
-  ConfigId,
-  ConfigPrefix,
   ConfigTileSetRaster,
   Layer,
   Sources,
-  StyleJson,
+  StyleJson} from '@basemaps/config';
+import {
+  ConfigId,
+  ConfigPrefix,
   TileSetType,
 } from '@basemaps/config';
 import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import type { TileMatrixSet} from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, toQueryString } from '@basemaps/shared';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest} from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 import { URL } from 'url';
 
 import { ConfigLoader } from '../util/config.loader.js';

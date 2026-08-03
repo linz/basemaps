@@ -2,13 +2,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { Tile, TileMatrixSet } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
+import type { Tile} from '@basemaps/geo';
+import { TileMatrixSet } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
 import * as fs from 'fs';
 /** To prevent the long compile time of mapnik for development, only pull it in when needed */
 import mapnik from 'mapnik';
 
-import { BathyMaker } from './bathy.maker.js';
+import type { BathyMaker } from './bathy.maker.js';
 import { FileType } from './file.js';
 mapnik.register_default_input_plugins();
 

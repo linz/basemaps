@@ -1,7 +1,8 @@
 import assert from 'node:assert';
-import { describe, it, TestContext } from 'node:test';
+import type { TestContext } from 'node:test';
+import { describe, it } from 'node:test';
 
-import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
+import type { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 
 import { Epsg } from '../../../epsg.js';
 import { Projection } from '../../projection.js';

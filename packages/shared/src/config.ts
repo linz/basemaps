@@ -1,4 +1,4 @@
-import { BasemapsConfigProvider } from '@basemaps/config';
+import type { BasemapsConfigProvider } from '@basemaps/config';
 
 import { Const } from './const.js';
 import { ConfigProviderDynamo } from './dynamo/dynamo.config.js';

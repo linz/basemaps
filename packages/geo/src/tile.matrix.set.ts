@@ -1,6 +1,7 @@
-import { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
+import type { TileMatrixSetType, TileMatrixType } from '@linzjs/tile-matrix-set';
 
-import { Bounds, Point } from './bounds.js';
+import type { Point } from './bounds.js';
+import { Bounds } from './bounds.js';
 import { Epsg } from './epsg.js';
 import { getXyOrder } from './xy.order.js';
 

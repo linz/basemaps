@@ -1,7 +1,8 @@
-import { NamedBounds } from '../../bounds.js';
+import type { NamedBounds } from '../../bounds.js';
 import { EpsgCode } from '../../epsg.js';
 import { QuadKey } from '../../quad.key.js';
-import { Tile, TileMatrixSet } from '../../tile.matrix.set.js';
+import type { Tile} from '../../tile.matrix.set.js';
+import { TileMatrixSet } from '../../tile.matrix.set.js';
 import { TileMatrixSets } from '../../tms/index.js';
 
 export function qkToName(qk: string): string {

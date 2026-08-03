@@ -1,5 +1,6 @@
 import { TileMatrixSets } from '@basemaps/geo';
-import { fsa, isArgo, LogType, Url, UrlArrayJsonFile, urlToString } from '@basemaps/shared';
+import type { LogType} from '@basemaps/shared';
+import { fsa, isArgo, Url, UrlArrayJsonFile, urlToString } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
 import { command, option, optional, string } from 'cmd-ts';

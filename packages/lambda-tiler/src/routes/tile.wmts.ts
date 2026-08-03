@@ -1,7 +1,9 @@
 import { getAllImagery, TileSetType } from '@basemaps/config';
-import { GoogleTms, Nztm2000QuadTms, TileMatrixSet } from '@basemaps/geo';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest} from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 import { createHash } from 'crypto';
 
 import { ConfigLoader } from '../util/config.loader.js';

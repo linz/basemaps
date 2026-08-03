@@ -32,7 +32,7 @@ async function main() {
   );
 
   const packageNames = [...localPackageNames];
-  packageNames.sort();
+  packageNames.sort((a, b) => a.localeCompare(b));
   console.log('Found local packages: ', packageNames);
 
   let hasFailures = false;

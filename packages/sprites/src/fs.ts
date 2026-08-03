@@ -1,7 +1,7 @@
 import { promises as fs } from 'node:fs';
 import path, { join, parse } from 'node:path';
 
-import { SvgId } from './sprites.js';
+import type { SvgId } from './sprites.js';
 
 export const ValidExtensions = new Set(['.svg']);
 

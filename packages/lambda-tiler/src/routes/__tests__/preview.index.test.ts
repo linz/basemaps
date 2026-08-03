@@ -4,12 +4,14 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { ConfigProviderMemory, DefaultColorRampOutput, DefaultTerrainRgbOutput } from '@basemaps/config';
 import { LocationUrl } from '@basemaps/geo';
 import { Env, fsa, FsMemory, LogConfig, V } from '@basemaps/shared';
-import { LambdaAlbRequest, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
-import { ALBEvent, ALBEventRequestContext, Context } from 'aws-lambda';
+import type { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import { LambdaAlbRequest } from '@linzjs/lambda';
+import type { ALBEvent, ALBEventRequestContext, Context } from 'aws-lambda';
 
 import { FakeData } from '../../__tests__/config.data.js';
 import { CachedConfig } from '../../util/config.cache.js';
-import { loadAndServeIndexHtml, PreviewIndexGet, previewIndexGet } from '../preview.index.js';
+import type { PreviewIndexGet} from '../preview.index.js';
+import { loadAndServeIndexHtml, previewIndexGet } from '../preview.index.js';
 
 describe('/@*', () => {
   // o.specTimeout(1000);

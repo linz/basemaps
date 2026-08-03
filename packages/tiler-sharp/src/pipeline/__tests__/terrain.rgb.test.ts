@@ -2,8 +2,8 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { GoogleTms } from '@basemaps/geo';
-import { CompositionTiff } from '@basemaps/tiler';
-import { Tiff, TiffImage } from '@cogeotiff/core';
+import type { CompositionTiff } from '@basemaps/tiler';
+import type { Tiff, TiffImage } from '@cogeotiff/core';
 
 import { PipelineTerrainRgb } from '../pipeline.terrain.rgb.js';
 
