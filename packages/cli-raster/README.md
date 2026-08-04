@@ -23,7 +23,7 @@ To convert imagery to optimized COG, a output tile cover is created, this covers
 cogify cover --tile-matrix WebMercatorQuad s3://linz-imagery/.../porirua_2020_0.1m --target ./output
 ```
 
-The metadata for the optimized COGS is written into the output folder where the COG creation step can use [GDAL](https://github.com/gdal/gdal) to create the output tiff.
+The metadata for the optimized COGS is written into the output folder where the COG creation step can use [GDAL](https://github.com/OSGeo/gdal) to create the output tiff.
 
 ```
 cogify create ./output/WebMercatorQuad/porirua_2020_0.1m/01GY8W69EJEMAKKXNHYMRF7DCY/14-16150-10245.json
