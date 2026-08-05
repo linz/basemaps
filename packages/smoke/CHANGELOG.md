@@ -57,6 +57,13 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 
 
+## [8.1.0](https://github.com/linz/basemaps/compare/smoke-v8.0.0...smoke-v8.1.0) (2026-08-05)
+
+
+### Features
+
+* improve smoke tests ([#3646](https://github.com/linz/basemaps/issues/3646)) ([e4e9a22](https://github.com/linz/basemaps/commit/e4e9a22af30644926c06352bba8697e6e9c0382e))
+
 ## [7.1.1](https://github.com/linz/basemaps/compare/v7.1.0...v7.1.1) (2024-03-25)
 
 

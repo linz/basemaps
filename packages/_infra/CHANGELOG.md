@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.0](https://github.com/linz/basemaps/compare/infra-v8.12.5...infra-v8.13.0) (2026-08-05)
+
+
+### Features
+
+* cloudfront distro upgrade BM-1825 ([#3645](https://github.com/linz/basemaps/issues/3645)) ([46291b8](https://github.com/linz/basemaps/commit/46291b8350191a901377ee7e346b3a704a73d08a))
+
+
+### Bug Fixes
+
+* include webacl id if the cloudfront is on a pay monthly plan ([#3648](https://github.com/linz/basemaps/issues/3648)) ([0cb573c](https://github.com/linz/basemaps/commit/0cb573c44c460747e4f88d171e7c776bb5ebe2a1))
+
 ## [8.12.5](https://github.com/linz/basemaps/compare/infra-v8.12.4...infra-v8.12.5) (2026-05-17)
 
 
