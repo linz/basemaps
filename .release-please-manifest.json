@@ -1,6 +1,6 @@
 {
   "packages/__tests__": "8.2.0",
-  "packages/_infra": "8.12.5",
+  "packages/_infra": "8.13.0",
   "packages/attribution": "8.9.1",
   "packages/bathymetry": "8.9.9",
   "packages/cli": "8.10.14",
@@ -18,9 +18,9 @@
   "packages/linzjs-metrics": "8.0.0",
   "packages/server": "8.10.16",
   "packages/shared": "8.9.9",
-  "packages/smoke": "8.0.0",
+  "packages/smoke": "8.1.0",
   "packages/sprites": "8.0.0",
   "packages/tiler": "8.12.3",
   "packages/tiler-sharp": "8.11.6",
-  ".": "8.21.0"
+  ".": "8.22.0"
 }
