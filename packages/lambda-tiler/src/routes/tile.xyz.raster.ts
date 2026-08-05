@@ -34,7 +34,7 @@ export function isArchiveTiff(x: CloudArchive): x is Tiff {
   return false;
 }
 
-export const TileComposer = new TileMakerSharp(256);
+export const TileComposer = new TileMakerSharp();
 
 export const DefaultResizeKernel = { in: 'lanczos3', out: 'lanczos3' } as const;
 export const DefaultBackground = { r: 0, g: 0, b: 0, alpha: 0 };
@@ -131,7 +131,7 @@ export const TileXyzRaster = {
 
     const assets = await TileXyzRaster.loadAssets(req, assetPaths);
 
-    const scale = xyz.scale;
+    const scale = xyz.scale ?? 1;
     const tiler = new Tiler(xyz.tileMatrix);
     const layers = tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z, scale);
 

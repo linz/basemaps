@@ -23,7 +23,7 @@ export interface TileXyz {
    * Scale multiplier factor (e.g. 2 for @2x)
    * @default 1
    */
-  scale: number;
+  scale?: number;
 }
 
 export interface TileMatrixRequest {
