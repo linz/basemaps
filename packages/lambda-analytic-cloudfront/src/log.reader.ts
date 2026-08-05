@@ -114,7 +114,7 @@ export const FileProcess = {
 
       let isEmpty = false;
       trackId.push(ret.tileMatrix, ret.extension, String(ret.webMercatorZoom));
-      if (ret.scale != 1) trackId.push(String(ret.scale));
+      if (ret.scale !== 1) trackId.push(String(ret.scale));
       if (pipeline) trackId.push(pipeline);
 
       // If the bytes served back to the user is low, it could be a empty tile
