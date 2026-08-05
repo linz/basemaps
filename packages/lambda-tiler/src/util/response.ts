@@ -1,4 +1,5 @@
-import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
+import { LambdaHttpResponse } from '@linzjs/lambda';
 
 export const NotFound = (msg: string = 'Not Found'): LambdaHttpResponse => new LambdaHttpResponse(404, msg);
 export const NotModified = (): LambdaHttpResponse => new LambdaHttpResponse(304, 'Not modified');

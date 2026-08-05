@@ -1,7 +1,7 @@
-import { Command } from './command.js';
+import type { Command } from './command.js';
 import { ExecutorDocker } from './execution/execute.docker.js';
 import { ExecutorLocal } from './execution/execute.local.js';
-import { CommandExecutionResult } from './execution/execute.result.js';
+import type { CommandExecutionResult } from './execution/execute.result.js';
 
 export interface CommandExecutionOptions {
   useDocker: boolean;

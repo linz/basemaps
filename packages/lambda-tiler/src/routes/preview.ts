@@ -1,8 +1,12 @@
-import { ConfigTileSetRaster, ConfigTileSetRasterOutput, TileSetType } from '@basemaps/config';
-import { Bounds, LatLon, Projection, TileMatrixSet } from '@basemaps/geo';
-import { CompositionTiff, TileMakerContext, Tiler } from '@basemaps/tiler';
+import type { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
+import { TileSetType } from '@basemaps/config';
+import type { LatLon, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, Projection } from '@basemaps/geo';
+import type { CompositionTiff, TileMakerContext } from '@basemaps/tiler';
+import { Tiler } from '@basemaps/tiler';
 import { TileMakerSharp } from '@basemaps/tiler-sharp';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 import sharp from 'sharp';
 
 import { ConfigLoader } from '../util/config.loader.js';
@@ -176,7 +180,7 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
 
   const shortLocation = [ctx.location.lon.toFixed(7), ctx.location.lat.toFixed(7)].join('_');
   const suggestedFileName = `preview_${ctx.tileSet.name}_z${ctx.z}_${shortLocation}-${ctx.output.name}.${tileContext.format}`;
-  response.header('Content-Disposition', `inline; filename=\"${suggestedFileName}\"`);
+  response.header('Content-Disposition', `inline; filename="${suggestedFileName}"`);
 
   return response;
 }

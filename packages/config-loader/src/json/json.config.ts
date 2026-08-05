@@ -1,29 +1,28 @@
-import {
+import type {
   BaseConfig,
   ConfigBundled,
-  ConfigId,
   ConfigImagery,
   ConfigImageryOverview,
   ConfigLayer,
-  ConfigPrefix,
   ConfigProvider,
-  ConfigProviderMemory,
   ConfigTileSet,
   ConfigVectorStyle,
-  sha256base58,
   StyleJson,
-  TileSetType,
 } from '@basemaps/config';
-import { ImageFormat, TileMatrixSet, TileMatrixSets, VectorFormat } from '@basemaps/geo';
+import { ConfigId, ConfigPrefix, ConfigProviderMemory, sha256base58, TileSetType } from '@basemaps/config';
+import type { ImageFormat, TileMatrixSet, VectorFormat } from '@basemaps/geo';
+import { TileMatrixSets } from '@basemaps/geo';
 import { Cotar, fsa, stringToUrlFolder, Tiff, TiffTag } from '@basemaps/shared';
-import { LimitFunction } from 'p-limit';
+import type { LimitFunction } from 'p-limit';
 import ulid from 'ulid';
 
-import { LogType } from './log.js';
+import type { LogType } from './log.js';
 import { zProviderConfig } from './parse.provider.js';
 import { zStyleJson } from './parse.style.js';
-import { TileSetConfigSchemaLayer, zTileSetConfig } from './parse.tile.set.js';
-import { ConfigImageryTiff, initImageryFromTiffUrl } from './tiff.config.js';
+import type { TileSetConfigSchemaLayer } from './parse.tile.set.js';
+import { zTileSetConfig } from './parse.tile.set.js';
+import type { ConfigImageryTiff } from './tiff.config.js';
+import { initImageryFromTiffUrl } from './tiff.config.js';
 
 export function matchUri(a: string, b: string): boolean {
   const UrlA = new URL(a.endsWith('/') ? a : a + '/');

@@ -1,4 +1,4 @@
-import { BBox, MultiPolygon, Pair, Ring } from '../types.js';
+import type { BBox, MultiPolygon, Pair, Ring } from '../types.js';
 import { Wgs84 } from '../wgs84.js';
 import { clipMultipolygon } from './clipped.js';
 

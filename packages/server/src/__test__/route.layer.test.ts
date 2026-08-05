@@ -3,7 +3,8 @@ import { before, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory } from '@basemaps/config';
 import { ConfigJson, initConfigFromUrls } from '@basemaps/config-loader';
-import { fsa, FsMemory, LogConfig, VNodeElement } from '@basemaps/shared';
+import type { VNodeElement } from '@basemaps/shared';
+import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
 import pLimit from 'p-limit';
 

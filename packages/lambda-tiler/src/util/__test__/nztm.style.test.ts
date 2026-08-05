@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { StyleJson } from '@basemaps/config';
+import type { StyleJson } from '@basemaps/config';
 import { GoogleTms, Nztm2000QuadTms } from '@basemaps/geo';
 
 import { setStyleTerrain } from '../../routes/tile.style.json.js';

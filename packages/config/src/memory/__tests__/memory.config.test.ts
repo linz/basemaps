@@ -4,9 +4,9 @@ import timers from 'node:timers/promises';
 
 import { ulid } from 'ulid';
 
-import { ConfigBase } from '../../config/base.js';
-import { ConfigImagery, ConfigImageryV1 } from '../../config/imagery.js';
-import { ConfigTileSetRaster } from '../../config/tile.set.js';
+import type { ConfigBase } from '../../config/base.js';
+import type { ConfigImagery, ConfigImageryV1 } from '../../config/imagery.js';
+import type { ConfigTileSetRaster } from '../../config/tile.set.js';
 import { ConfigProviderMemory } from '../memory.config.js';
 
 describe('MemoryConfig', () => {

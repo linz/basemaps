@@ -1,4 +1,4 @@
-import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
+import type { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 
 import { Mscl2000Json } from './ant/mslc2000.js';
 import { Citm2000Json } from './nz/citm2000.js';

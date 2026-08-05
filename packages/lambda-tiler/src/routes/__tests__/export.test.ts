@@ -1,8 +1,8 @@
+import assert from 'assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa, FsMemory, LogConfig, s3Config } from '@basemaps/shared';
-import assert from 'assert';
 
 import { FakeData } from '../../__tests__/config.data.js';
 import { Api, mockUrlRequest } from '../../__tests__/xyz.util.js';

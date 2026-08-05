@@ -1,6 +1,8 @@
-import { Env, LogType } from '@basemaps/shared';
 import * as os from 'os';
 import * as path from 'path';
+
+import type { LogType } from '@basemaps/shared';
+import { Env } from '@basemaps/shared';
 
 import { GdalCommand } from './gdal.command.js';
 

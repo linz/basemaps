@@ -1,10 +1,10 @@
 import assert from 'node:assert';
 import { afterEach, before, beforeEach, describe, it } from 'node:test';
+import { gunzipSync, gzipSync } from 'zlib';
 
 import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa, FsMemory } from '@chunkd/fs';
 import { createSandbox } from 'sinon';
-import { gunzipSync, gzipSync } from 'zlib';
 
 import { mockRequest } from '../../__tests__/xyz.util.js';
 import { handler } from '../../index.js';
@@ -57,12 +57,10 @@ describe('/v1/sprites', () => {
   });
 
   it('should detect gziped files and set content-encoding', async () => {
-    await Promise.all([
-      fsa.write(
-        new URL('fake-s3://assets/sprites/topographic.json'),
-        gzipSync(Buffer.from(JSON.stringify({ test: true }))),
-      ),
-    ]);
+    await fsa.write(
+      new URL('fake-s3://assets/sprites/topographic.json'),
+      gzipSync(Buffer.from(JSON.stringify({ test: true }))),
+    );
     const res = await handler.router.handle(mockRequest('/v1/sprites/topographic.json'));
     assert.equal(res.status, 200);
     assert.equal(res.header('content-type'), 'application/json');

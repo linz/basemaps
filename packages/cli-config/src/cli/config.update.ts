@@ -1,15 +1,15 @@
-import {
+import type {
   BaseConfig,
   BasemapsConfigObject,
   BasemapsConfigProvider,
-  ConfigId,
   ConfigImagery,
-  ConfigPrefix,
   ConfigProvider,
   ConfigTileSet,
   ConfigVectorStyle,
 } from '@basemaps/config';
-import { ConfigDynamoBase, LogConfig, LogType } from '@basemaps/shared';
+import { ConfigId, ConfigPrefix } from '@basemaps/config';
+import type { LogType } from '@basemaps/shared';
+import { ConfigDynamoBase, LogConfig } from '@basemaps/shared';
 import PLimit from 'p-limit';
 
 import { ConfigDiff } from './config.diff.js';

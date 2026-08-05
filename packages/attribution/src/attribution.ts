@@ -1,5 +1,6 @@
-import { AttributionCollection, AttributionStac } from '@basemaps/geo';
-import { BBox, intersection, MultiPolygon, Ring, Wgs84 } from '@linzjs/geojson';
+import type { AttributionCollection, AttributionStac } from '@basemaps/geo';
+import type { BBox, MultiPolygon, Ring } from '@linzjs/geojson';
+import { intersection, Wgs84 } from '@linzjs/geojson';
 
 import { createLicensorAttribution } from './utils.js';
 

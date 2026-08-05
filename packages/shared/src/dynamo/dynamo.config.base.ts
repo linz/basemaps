@@ -1,15 +1,10 @@
-import {
-  BatchGetItemCommand,
-  BatchGetItemCommandInput,
-  BatchGetItemCommandOutput,
-  DynamoDB,
-  GetItemCommand,
-  PutItemCommand,
-} from '@aws-sdk/client-dynamodb';
+import type { BatchGetItemCommandInput, BatchGetItemCommandOutput, DynamoDB } from '@aws-sdk/client-dynamodb';
+import { BatchGetItemCommand, GetItemCommand, PutItemCommand } from '@aws-sdk/client-dynamodb';
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
-import { BaseConfig, BaseConfigWriteableObject, BasemapsConfigObject, ConfigPrefix } from '@basemaps/config';
+import type { BaseConfig, BaseConfigWriteableObject, ConfigPrefix } from '@basemaps/config';
+import { BasemapsConfigObject } from '@basemaps/config';
 
-import { ConfigProviderDynamo } from './dynamo.config.js';
+import type { ConfigProviderDynamo } from './dynamo.config.js';
 
 export type IdQuery = { id: { S: string } };
 function toId(id: string): IdQuery {

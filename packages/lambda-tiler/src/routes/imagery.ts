@@ -1,7 +1,9 @@
-import { fsa } from '@basemaps/shared';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import { promisify } from 'util';
 import { gzip } from 'zlib';
+
+import { fsa } from '@basemaps/shared';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { isGzip } from '../util/cotar.serve.js';

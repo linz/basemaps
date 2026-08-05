@@ -1,22 +1,21 @@
 import { createLicensorAttribution } from '@basemaps/attribution/build/utils.js';
-import { BasemapsConfigProvider, ConfigProvider, ConfigTileSet, getAllImagery, TileSetType } from '@basemaps/config';
-import {
+import type { BasemapsConfigProvider, ConfigProvider, ConfigTileSet } from '@basemaps/config';
+import { getAllImagery, TileSetType } from '@basemaps/config';
+import type {
   AttributionCollection,
   AttributionItem,
   AttributionStac,
-  Bounds,
   Epsg,
-  GoogleTms,
   NamedBounds,
-  Projection,
-  Stac,
   StacExtent,
   StacProvider,
-  TileMatrixSet,
 } from '@basemaps/geo';
+import { Bounds, GoogleTms, Projection, Stac, TileMatrixSet } from '@basemaps/geo';
 import { extractYearRangeFromName, extractYearRangeFromTitle } from '@basemaps/shared';
-import { BBox, MultiPolygon, multiPolygonToWgs84, Pair, union, Wgs84 } from '@linzjs/geojson';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { BBox, MultiPolygon, Pair } from '@linzjs/geojson';
+import { multiPolygonToWgs84, union, Wgs84 } from '@linzjs/geojson';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { Etag } from '../util/etag.js';

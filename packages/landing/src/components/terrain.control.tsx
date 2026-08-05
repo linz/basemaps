@@ -1,4 +1,4 @@
-import { IControl, Map } from 'maplibre-gl';
+import type { IControl, Map } from 'maplibre-gl';
 
 export class TerrainControl implements IControl {
   private demSource: string;

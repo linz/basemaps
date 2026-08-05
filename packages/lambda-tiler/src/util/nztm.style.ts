@@ -1,4 +1,4 @@
-import { StyleJson } from '@basemaps/config';
+import type { StyleJson } from '@basemaps/config';
 
 /**
  * limited checking to cast a unknown paint/layout into one with stops

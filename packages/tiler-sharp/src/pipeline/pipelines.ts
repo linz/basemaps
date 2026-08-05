@@ -1,4 +1,4 @@
-import { Pipeline } from './decompressor.js';
+import type { Pipeline } from './decompressor.js';
 import { PipelineColorRamp } from './pipeline.color.ramp.js';
 import { PipelineExtract } from './pipeline.extract.js';
 import { PipelineNdvi } from './pipeline.ndvi.js';

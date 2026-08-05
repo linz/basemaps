@@ -1,15 +1,11 @@
-import {
-  ConfigImagery,
-  ConfigLayer,
-  ConfigTileSet,
-  ConfigTileSetRasterOutput,
-  standardizeLayerName,
-  TileSetType,
-} from '@basemaps/config';
-import { BoundingBox, Bounds, GoogleTms, ImageFormat, Projection, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
-import { toQueryString, V, VNodeElement } from '@basemaps/shared';
+import type { ConfigImagery, ConfigLayer, ConfigTileSet, ConfigTileSetRasterOutput } from '@basemaps/config';
+import { standardizeLayerName, TileSetType } from '@basemaps/config';
+import type { BoundingBox, ImageFormat, TileMatrixSet, WmtsProvider } from '@basemaps/geo';
+import { Bounds, GoogleTms, Projection } from '@basemaps/geo';
+import type { VNodeElement } from '@basemaps/shared';
+import { toQueryString, V } from '@basemaps/shared';
 import { ImageFormatOrder } from '@basemaps/tiler';
-import { BBox } from '@linzjs/geojson';
+import type { BBox } from '@linzjs/geojson';
 
 const CapabilitiesAttrs = {
   xmlns: 'http://www.opengis.net/wmts/1.0',

@@ -1,7 +1,7 @@
-import { PipelineExtractArgs } from '@basemaps/config';
-import { CompositionTiff } from '@basemaps/tiler';
+import type { PipelineExtractArgs } from '@basemaps/config';
+import type { CompositionTiff } from '@basemaps/tiler';
 
-import { DecompressedInterleaved, Pipeline } from './decompressor.js';
+import type { DecompressedInterleaved, Pipeline } from './decompressor.js';
 
 export const PipelineExtract: Pipeline<PipelineExtractArgs> = {
   type: 'extract',

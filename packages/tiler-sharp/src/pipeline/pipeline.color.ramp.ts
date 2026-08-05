@@ -1,10 +1,11 @@
-import { DefaultColorRamp, PipelineColorRampArgs } from '@basemaps/config';
-import { CompositionTiff } from '@basemaps/tiler';
+import type { PipelineColorRampArgs } from '@basemaps/config';
+import { DefaultColorRamp } from '@basemaps/config';
+import type { CompositionTiff } from '@basemaps/tiler';
 
 import { ColorRamp } from './colorize/color.ramp.js';
-import { Colorizer } from './colorize/colorize.js';
+import type { Colorizer } from './colorize/colorize.js';
 import { GreyScale } from './colorize/grey.scale.js';
-import { DecompressedInterleaved, Pipeline } from './decompressor.js';
+import type { DecompressedInterleaved, Pipeline } from './decompressor.js';
 
 export const Ramps: Record<DecompressedInterleaved['depth'], Colorizer> = {
   float32: new ColorRamp(DefaultColorRamp),

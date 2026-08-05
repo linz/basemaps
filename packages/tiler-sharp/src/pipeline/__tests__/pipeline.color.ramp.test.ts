@@ -1,12 +1,12 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { Tiff } from '@basemaps/shared';
-import { CompositionTiff } from '@basemaps/tiler';
+import type { Tiff } from '@basemaps/shared';
+import type { CompositionTiff } from '@basemaps/tiler';
 
 import { ColorRamp } from '../colorize/color.ramp.js';
 import { GreyScale } from '../colorize/grey.scale.js';
-import { DecompressedInterleaved } from '../decompressor.js';
+import type { DecompressedInterleaved } from '../decompressor.js';
 import { PipelineColorRamp } from '../pipeline.color.ramp.js';
 
 const FakeTiff = { images: [{ noData: -9999, resolution: [0.1, -0.1] }] } as unknown as Tiff;

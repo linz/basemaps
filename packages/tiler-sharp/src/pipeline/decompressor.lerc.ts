@@ -1,7 +1,8 @@
-import { Compression, Tiff } from '@cogeotiff/core';
+import type { Tiff } from '@cogeotiff/core';
+import { Compression } from '@cogeotiff/core';
 import Lerc from 'lerc';
 
-import { DecompressedInterleaved, Decompressor, TiffTileId } from './decompressor.js';
+import type { DecompressedInterleaved, Decompressor, TiffTileId } from './decompressor.js';
 import { ZstdDecompressor } from './decompressor.zstd.js';
 
 export const LercDecompressor: Decompressor = {

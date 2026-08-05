@@ -1,7 +1,9 @@
-import { LogType } from '@basemaps/shared';
-import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
+import type { ChildProcessWithoutNullStreams } from 'child_process';
+import { spawn } from 'child_process';
 
-import { GdalProgressParser } from './gdal.progress.js';
+import type { LogType } from '@basemaps/shared';
+
+import type { GdalProgressParser } from './gdal.progress.js';
 
 /**
  * GDAL uses AWS_DEFAULT_PROFILE while node uses AWS_PROFILE

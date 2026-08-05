@@ -1,16 +1,10 @@
-import {
-  Bounds,
-  Epsg,
-  EpsgCode,
-  ProjectionLoader,
-  Size,
-  TileMatrixSet,
-  TileMatrixSets,
-  TmsLoader,
-} from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
-import { RasterTypeKey, Tiff, TiffTagGeo } from '@cogeotiff/core';
 import path from 'path';
+
+import type { Epsg, Size, TileMatrixSet } from '@basemaps/geo';
+import { Bounds, EpsgCode, ProjectionLoader, TileMatrixSets, TmsLoader } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import type { Tiff } from '@cogeotiff/core';
+import { RasterTypeKey, TiffTagGeo } from '@cogeotiff/core';
 
 export const brokenTiffs = {
   noBounds: [] as string[],

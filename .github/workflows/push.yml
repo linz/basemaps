@@ -16,9 +16,18 @@ jobs:
     env:
       NODE_OPTIONS: '--max-old-space-size=8192'
     steps:
-      - uses: linz/action-typescript@v3
+      - uses: actions/checkout@v6
         with:
-          node-version: 24.x
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6.4.0
+        with:
+          node-version-file: .node-version
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check
+      - run: npm run test
 
   build-deploy:
     runs-on: ubuntu-latest
@@ -29,9 +38,18 @@ jobs:
       contents: write
 
     steps:
-      - uses: linz/action-typescript@v3
+      - uses: actions/checkout@v6
         with:
-          node-version: 24.x
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6.4.0
+        with:
+          node-version-file: .node-version
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check
+      - run: npm run test
 
       - name: Bundle
         run: |
@@ -70,9 +88,18 @@ jobs:
       contents: write
 
     steps:
-      - uses: linz/action-typescript@v3
+      - uses: actions/checkout@v6
         with:
-          node-version: 24.x
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6.4.0
+        with:
+          node-version-file: .node-version
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check
+      - run: npm run test
 
       - name: Build docs
         run: |
@@ -130,9 +157,18 @@ jobs:
       id-token: write
       contents: write
     steps:
-      - uses: linz/action-typescript@v3
+      - uses: actions/checkout@v6
         with:
-          node-version: 24.x
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6.4.0
+        with:
+          node-version-file: .node-version
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check
+      - run: npm run test
 
       - name: Build docs
         run: |

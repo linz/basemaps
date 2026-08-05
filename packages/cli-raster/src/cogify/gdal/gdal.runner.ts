@@ -1,8 +1,10 @@
-import { sha256base58 } from '@basemaps/config';
-import { LogType, urlToString } from '@basemaps/shared';
 import { spawn } from 'child_process';
 import { EventEmitter } from 'events';
 import { dirname } from 'path';
+
+import { sha256base58 } from '@basemaps/config';
+import type { LogType } from '@basemaps/shared';
+import { urlToString } from '@basemaps/shared';
 
 export interface GdalCommand {
   /** Output file location */
@@ -24,8 +26,8 @@ function toDockerArgs(cmd: GdalCommand): string[] {
   const dirName = dirname(urlToString(cmd.output));
 
   const args = ['run'];
-  if (cmd.output) args.push(...['-v', `${dirName}:${dirName}`]);
-  args.push(...[getDockerContainer(), cmd.command, ...cmd.args]);
+  if (cmd.output) args.push('-v', `${dirName}:${dirName}`);
+  args.push(getDockerContainer(), cmd.command, ...cmd.args);
   return args;
 }
 

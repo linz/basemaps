@@ -1,7 +1,8 @@
 import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
 import { GoogleTms, locationTransform, LocationUrl } from '@basemaps/geo';
 import maplibre from 'maplibre-gl';
-import { Component, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Component } from 'react';
 
 import { MapAttribution } from '../attribution.js';
 import { Config } from '../config.js';

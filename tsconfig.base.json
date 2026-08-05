@@ -1,9 +1,27 @@
 {
-  "extends": "@linzjs/style/tsconfig.base.json",
+  // "extends": "@linzjs/style/tsconfig.base.json",
   "compilerOptions": {
-    "lib": ["ES2023"],
-    // TODO turn this on, its a lot of changes though
+    "target": "ES2023",
+    "lib": ["ESNext"],
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "types": ["node"],
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "pretty": true,
+    "newLine": "lf",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": false,
+    "skipLibCheck": true,
     "sourceMap": true
-  }
+  },
+  "exclude": ["dist/", "node_modules/"]
 }

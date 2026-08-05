@@ -92,4 +92,3 @@ Get WMTS xml from the server to support QGIS and Arcgis
 - GET [/v1/tiles/:tileSet/:tileMatrix/WMTSCapabilities.xml](./src/routes/tile.wmts.ts)
 - GET [/v1/tiles/:tileSet/WMTSCapabilities.xml](./src/routes/tile.wmts.ts)
 - GET [/v1/tiles/WMTSCapabilities.xml](./src/routes/tile.wmts.ts)
-

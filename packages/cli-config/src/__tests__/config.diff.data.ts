@@ -1,5 +1,5 @@
-import { TileSetType } from '@basemaps/config';
-import { TileSetConfigSchema } from '@basemaps/config-loader/build/json/parse.tile.set.js';
+import type { TileSetType } from '@basemaps/config';
+import type { TileSetConfigSchema } from '@basemaps/config-loader/build/json/parse.tile.set.js';
 
 export const TsAerial: TileSetConfigSchema = {
   type: 'raster' as TileSetType.Raster,

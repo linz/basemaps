@@ -1,16 +1,17 @@
 import assert from 'node:assert';
-import { afterEach, beforeEach, describe, it, TestContext } from 'node:test';
+import type { TestContext } from 'node:test';
+import { afterEach, beforeEach, describe, it } from 'node:test';
 import { gzipSync } from 'node:zlib';
 
 import { Env, fsa, FsMemory, LogConfig } from '@basemaps/shared';
-import { Client } from '@elastic/elasticsearch';
+import type { Client } from '@elastic/elasticsearch';
 import { LambdaRequest } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
+import type { Context } from 'aws-lambda';
 
 import { getOneHourAgo } from '../date.js';
 import { Elastic } from '../elastic.js';
 import { main } from '../handler.js';
-import { LogStats } from '../log.stats.js';
+import type { LogStats } from '../log.stats.js';
 import { LogData } from './log.data.js';
 
 interface IndexOperation {

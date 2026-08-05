@@ -1,4 +1,4 @@
-import { TileMatrixSetType } from '@linzjs/tile-matrix-set';
+import type { TileMatrixSetType } from '@linzjs/tile-matrix-set';
 
 import { TileMatrixSet } from '../tile.matrix.set.js';
 

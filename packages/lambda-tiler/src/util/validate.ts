@@ -1,10 +1,12 @@
-import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
-import { ImageFormat, LatLon, Projection, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import type { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
+import type { ImageFormat, LatLon, TileMatrixSet } from '@basemaps/geo';
+import { Projection, TileMatrixSets } from '@basemaps/geo';
 import { Const, Env, isValidApiKey, LogConfig, truncateApiKey } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
-import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
+import { LambdaHttpResponse } from '@linzjs/lambda';
 
-import { TileXyzGet } from '../routes/tile.xyz.js';
+import type { TileXyzGet } from '../routes/tile.xyz.js';
 
 export interface TileXyz {
   /** Tile XYZ location */

@@ -1,4 +1,5 @@
-import { Component, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Component } from 'react';
 
 import { WindowUrl } from '../../url.js';
 import { FeatureUpdates } from '../feature.updates.js';

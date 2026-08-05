@@ -11,7 +11,9 @@ npm install @basemaps/attribution
 ```typescript
 import { Attribution } from '@basemaps/attribution';
 
-const attributions = await Attribution.load('https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/attribution.json?api=...');
+const attributions = await Attribution.load(
+  'https://basemaps.linz.govt.nz/v1/tiles/aerial/EPSG:3857/attribution.json?api=...',
+);
 
 // Find all imagery sets inside the following bounding box
 const attrList = attributions.filter([144.7377202, -45.8938181, 195.62639, -37.65336], 6);

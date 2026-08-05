@@ -1,5 +1,5 @@
-import { ImageFormat } from '@basemaps/geo';
-import {
+import type { ImageFormat } from '@basemaps/geo';
+import type {
   Composition,
   CompositionCotar,
   CompositionTiff,

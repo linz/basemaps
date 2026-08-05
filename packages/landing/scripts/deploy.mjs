@@ -1,10 +1,11 @@
+import { basename, extname } from 'path';
+
 import { invalidateCache, uploadStaticFile } from '@basemaps/cli-config/build/util.js';
 import { fsa } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { LogConfig } from '@basemaps/shared/build/log.js';
 import mime from 'mime-types';
 import pLimit from 'p-limit';
-import { basename, extname } from 'path';
 
 const Q = pLimit(10);
 
@@ -51,43 +52,46 @@ async function deploy() {
   const invalidationPaths = new Set();
 
   const fileList = await fsa.toArray(fsa.list(DistDir));
-  const promises = fileList.map((filePath) => {
+  const promises = [];
+  for (const filePath of fileList) {
     // Ignore the files that don't need to be deployed.
-    if (ignoredFiles.has(basename(filePath.pathname))) return;
+    if (ignoredFiles.has(basename(filePath.pathname))) continue;
     // targetKey will always start with "/" eg: "/index.html" "/docs/index.html"
     const targetKey = filePath.href.slice(DistDir.href.length);
 
-    return Q(async () => {
-      const isVersioned = HasVersionRe.test(basename(filePath.pathname));
-      const contentType = mime.contentType(extname(filePath.pathname));
+    promises.push(
+      Q(async () => {
+        const isVersioned = HasVersionRe.test(basename(filePath.pathname));
+        const contentType = mime.contentType(extname(filePath.pathname));
 
-      if (contentType === false) {
-        throw new Error('Could not determine content type');
-      }
+        if (contentType === false) {
+          throw new Error('Could not determine content type');
+        }
 
-      const cacheControl = isVersioned
-        ? // Set cache control for versioned files to immutable
-          'public, max-age=604800, immutable'
-        : // Set cache control for non versioned files to be short lived
-          'public, max-age=60, stale-while-revalidate=300';
+        const cacheControl = isVersioned
+          ? // Set cache control for versioned files to immutable
+            'public, max-age=604800, immutable'
+          : // Set cache control for non versioned files to be short lived
+            'public, max-age=60, stale-while-revalidate=300';
 
-      if (targetKey.endsWith('index.html') && targetKey !== '/index.html') {
-        await uploadStaticFile(filePath, targetKey.replace('/index.html', ''), contentType, cacheControl);
-        await uploadStaticFile(filePath, targetKey.replace('/index.html', '/'), contentType, cacheControl);
-      }
+        if (targetKey.endsWith('index.html') && targetKey !== '/index.html') {
+          await uploadStaticFile(filePath, targetKey.replace('/index.html', ''), contentType, cacheControl);
+          await uploadStaticFile(filePath, targetKey.replace('/index.html', '/'), contentType, cacheControl);
+        }
 
-      const isUploaded = await uploadStaticFile(filePath, targetKey, contentType, cacheControl);
-      if (!isUploaded) return; // No need to invalidate objects not uploaded
-      logger.info({ targetKey, isVersioned }, 'Deploy:Upload');
-      if (isVersioned) return; // No need to invalidate versioned objects
+        const isUploaded = await uploadStaticFile(filePath, targetKey, contentType, cacheControl);
+        if (!isUploaded) return; // No need to invalidate objects not uploaded
+        logger.info({ targetKey, isVersioned }, 'Deploy:Upload');
+        if (isVersioned) return; // No need to invalidate versioned objects
 
-      // Invalidate the top level directory only
-      invalidationPaths.add(getInvalidationPath(targetKey));
-    }).catch((e) => {
-      logger.error({ targetKey, error: String(e) }, 'Deploy:Failed');
-      throw e;
-    });
-  });
+        // Invalidate the top level directory only
+        invalidationPaths.add(getInvalidationPath(targetKey));
+      }).catch((e) => {
+        logger.error({ targetKey, error: String(e) }, 'Deploy:Failed');
+        throw e;
+      }),
+    );
+  }
 
   await Promise.all(promises);
 

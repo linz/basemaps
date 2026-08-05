@@ -1,18 +1,23 @@
+import { createRequire } from 'module';
+import path from 'path';
+import { URL } from 'url';
+
 // Fastfiy uses a lot of floating promises
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { handler } from '@basemaps/lambda-tiler';
-import { Env, fsa, getDefaultConfig, LogType, setDefaultConfig } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
+import { Env, fsa, getDefaultConfig, setDefaultConfig } from '@basemaps/shared';
 import formBodyPlugin from '@fastify/formbody';
 import fastifyStatic from '@fastify/static';
-import { LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
-import { fastify, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { createRequire } from 'module';
-import path from 'path';
+import type { UrlEvent } from '@linzjs/lambda';
+import { LambdaUrlRequest } from '@linzjs/lambda';
+import type { Context } from 'aws-lambda';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { fastify } from 'fastify';
 import ulid from 'ulid';
-import { URL } from 'url';
 
-import { loadConfig, ServerOptions } from './config.js';
+import type { ServerOptions } from './config.js';
+import { loadConfig } from './config.js';
 import { createLayersHtml } from './route.layers.js';
 
 const instanceId = ulid.ulid();

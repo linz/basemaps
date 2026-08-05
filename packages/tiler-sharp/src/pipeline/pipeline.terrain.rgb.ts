@@ -1,6 +1,6 @@
-import { CompositionTiff } from '@basemaps/tiler';
+import type { CompositionTiff } from '@basemaps/tiler';
 
-import { DecompressedInterleaved, Pipeline } from './decompressor.js';
+import type { DecompressedInterleaved, Pipeline } from './decompressor.js';
 
 const MinValue = -10_000;
 const MaxValue = 1_667_721.5;
@@ -117,7 +117,7 @@ export const PipelineTerrainRgb: Pipeline & TerrainRgbRange = {
 
       raw[target] = (v >> 16) & clampR;
       raw[target + 1] = (v >> 8) & clampG;
-      raw[target + 2] = v % 256 & clampB;
+      raw[target + 2] = (v % 256) & clampB;
       raw[target + 3] = 255;
     }
 

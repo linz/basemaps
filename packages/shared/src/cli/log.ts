@@ -1,6 +1,7 @@
 import { flag } from 'cmd-ts';
 
-import { LogConfig, LogType } from '../log.js';
+import type { LogType } from '../log.js';
+import { LogConfig } from '../log.js';
 import { isArgo } from './argo.js';
 import { CliInfo } from './info.js';
 

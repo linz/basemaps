@@ -1,5 +1,6 @@
-import { Epsg, EpsgCode } from '../epsg.js';
-import { TileMatrixSet } from '../tile.matrix.set.js';
+import type { EpsgCode } from '../epsg.js';
+import { Epsg } from '../epsg.js';
+import type { TileMatrixSet } from '../tile.matrix.set.js';
 import { Citm2000Tms } from './citm2000.js';
 import { GoogleTms } from './google.js';
 import { Nztm2000QuadTms, Nztm2000Tms } from './nztm2000.js';

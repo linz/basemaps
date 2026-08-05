@@ -142,7 +142,7 @@ describe('/v1/tiles/:tileSet/:tileMatrix/tile.json', () => {
 
     const cfgBundle = new ConfigProviderMemory();
     cfgBundle.put(fakeTileSet);
-    memoryFs.write(new URL('memory://linz-basemaps/bar.json'), JSON.stringify(cfgBundle.toJson()));
+    await memoryFs.write(new URL('memory://linz-basemaps/bar.json'), JSON.stringify(cfgBundle.toJson()));
 
     const configLocation = base58.encode(Buffer.from('memory://linz-basemaps/bar.json'));
     const request = mockUrlRequest('/v1/tiles/🦄 🌈/NZTM2000Quad/tile.json', `?config=${configLocation}`, Api.header);

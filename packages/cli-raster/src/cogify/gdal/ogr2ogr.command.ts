@@ -1,7 +1,7 @@
-import { TileMatrixSet } from '@basemaps/geo';
+import type { TileMatrixSet } from '@basemaps/geo';
 import { urlToString } from '@basemaps/shared';
 
-import { GdalCommand } from './gdal.runner.js';
+import type { GdalCommand } from './gdal.runner.js';
 
 /**
  * Wrap a cutline to multipolygon if that is crossing Prime Meridian

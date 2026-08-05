@@ -1,16 +1,16 @@
-import { Epsg, EpsgCode, Projection, Tile, TileMatrixSet } from '@basemaps/geo';
+import type { Tile, TileMatrixSet } from '@basemaps/geo';
+import { Epsg, EpsgCode, Projection } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
+import type { FeatureCollectionWithCrs, MultiPolygon } from '@linzjs/geojson';
 import {
   Area,
-  FeatureCollectionWithCrs,
   featuresToMultiPolygon,
   intersection,
-  MultiPolygon,
   toFeatureCollection,
   toFeatureMultiPolygon,
 } from '@linzjs/geojson';
 
-import { CogifyLinkCutline } from '../stac.js';
+import type { CogifyLinkCutline } from '../stac.js';
 
 export async function loadCutline(path: URL): Promise<{ polygon: MultiPolygon; projection: EpsgCode }> {
   const buf = await fsa.read(path);

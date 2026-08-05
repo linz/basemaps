@@ -1,6 +1,7 @@
 import { LogConfig } from '@basemaps/shared';
-import { LambdaAlbRequest, LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
-import { ALBEventRequestContext, Context } from 'aws-lambda';
+import type { LambdaHttpRequest, UrlEvent } from '@linzjs/lambda';
+import { LambdaAlbRequest, LambdaUrlRequest } from '@linzjs/lambda';
+import type { ALBEventRequestContext, Context } from 'aws-lambda';
 
 export function mockRequest(path: string, method = 'get', headers: Record<string, string> = {}): LambdaHttpRequest {
   const log = LogConfig.get();

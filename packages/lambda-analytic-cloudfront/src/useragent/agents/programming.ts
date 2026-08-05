@@ -1,4 +1,4 @@
-import { UserAgentParser } from '../parser.types.js';
+import type { UserAgentParser } from '../parser.types.js';
 
 // Programming languages internal http clients
 export const Programming: Record<string, UserAgentParser> = {

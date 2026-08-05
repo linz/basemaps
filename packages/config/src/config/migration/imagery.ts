@@ -1,4 +1,4 @@
-import { ConfigImagery, ConfigImageryAll } from '../imagery.js';
+import type { ConfigImagery, ConfigImageryAll } from '../imagery.js';
 
 export function migrateConfigImagery(img: ConfigImageryAll): ConfigImagery {
   // Already latest version

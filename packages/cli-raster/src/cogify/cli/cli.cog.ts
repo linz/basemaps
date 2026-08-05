@@ -1,16 +1,19 @@
+import { mkdir, rm } from 'fs/promises';
+import { tmpdir } from 'os';
+import path from 'path';
+import { pathToFileURL } from 'url';
+
 import { isEmptyTiff } from '@basemaps/config-loader';
-import { Projection, ProjectionLoader, TileId, TileMatrixSet, TileMatrixSets, TmsLoader } from '@basemaps/geo';
-import { fsa, LogType, stringToUrlFolder, Tiff } from '@basemaps/shared';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { Projection, ProjectionLoader, TileId, TileMatrixSets, TmsLoader } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import { fsa, stringToUrlFolder, Tiff } from '@basemaps/shared';
 import { getLogger, logArguments, Url, UrlArrayJsonFile } from '@basemaps/shared';
 import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, flag, number, option, optional, restPositionals } from 'cmd-ts';
-import { mkdir, rm } from 'fs/promises';
-import { tmpdir } from 'os';
 import pLimit from 'p-limit';
-import path from 'path';
-import { StacAsset, StacCollection } from 'stac-ts';
-import { pathToFileURL } from 'url';
+import type { StacAsset, StacCollection } from 'stac-ts';
 
 import { SourceDownloader } from '../../download.js';
 import { HashTransform } from '../../hash.stream.js';
@@ -23,7 +26,8 @@ import {
   gdalCreate,
 } from '../gdal/gdal.command.js';
 import { GdalRunner } from '../gdal/gdal.runner.js';
-import { CogifyCreationOptions, CogifyStacItem, getCutline, getSources, isTopoStacItem } from '../stac.js';
+import type { CogifyCreationOptions, CogifyStacItem } from '../stac.js';
+import { getCutline, getSources, isTopoStacItem } from '../stac.js';
 
 const Collections = new Map<string, Promise<StacCollection>>();
 

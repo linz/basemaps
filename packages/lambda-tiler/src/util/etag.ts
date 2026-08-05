@@ -1,5 +1,6 @@
 import { sha256base58 } from '@basemaps/config';
-import { HttpHeader, LambdaHttpRequest } from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
+import { HttpHeader } from '@linzjs/lambda';
 
 export const Etag = {
   key(obj: unknown): string {

@@ -1,12 +1,14 @@
+import { readFileSync, writeFileSync } from 'fs';
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { GoogleTms, Tile } from '@basemaps/geo';
+import type { Tile } from '@basemaps/geo';
+import { GoogleTms } from '@basemaps/geo';
 import { fsa } from '@basemaps/shared';
 import { TestTiff } from '@basemaps/test';
-import { CompositionTiff, Tiler } from '@basemaps/tiler';
+import type { CompositionTiff } from '@basemaps/tiler';
+import { Tiler } from '@basemaps/tiler';
 import { Tiff } from '@cogeotiff/core';
-import { readFileSync, writeFileSync } from 'fs';
 import PixelMatch from 'pixelmatch';
 import { PNG } from 'pngjs';
 

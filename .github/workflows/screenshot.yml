@@ -28,9 +28,18 @@ jobs:
       name: preprod
 
     steps:
-      - uses: linz/action-typescript@v3
+      - uses: actions/checkout@v6
         with:
-          node-version: 24.x
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6.4.0
+        with:
+          node-version-file: .node-version
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check
+      - run: npm run test
 
       # Package all the files
       - name: Bundle & Package all files

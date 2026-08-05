@@ -1,5 +1,6 @@
-import { GoogleTms, locationTransform, TileMatrixSet } from '@basemaps/geo';
-import { BBox } from '@linzjs/geojson';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { GoogleTms, locationTransform } from '@basemaps/geo';
+import type { BBox } from '@linzjs/geojson';
 
 import { Config } from './config.js';
 import { MapOptionType, WindowUrl } from './url.js';

@@ -1,4 +1,5 @@
-import { Area, MultiPolygon, Pair } from '@linzjs/geojson';
+import type { MultiPolygon, Pair } from '@linzjs/geojson';
+import { Area } from '@linzjs/geojson';
 
 // square distance between 2 points
 function getDistance(p1: Pair, p2: Pair): number {

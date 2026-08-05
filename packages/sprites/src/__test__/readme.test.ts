@@ -1,7 +1,9 @@
-import { fsa } from '@basemaps/shared';
 import { basename } from 'path';
 
-import { Sprites, SvgId } from '../sprites.js';
+import { fsa } from '@basemaps/shared';
+
+import type { SvgId } from '../sprites.js';
+import { Sprites } from '../sprites.js';
 
 // Validate the readme example actually compiles
 export async function main(): Promise<void> {

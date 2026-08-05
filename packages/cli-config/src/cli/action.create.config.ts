@@ -1,3 +1,6 @@
+import { promisify } from 'util';
+import { gzip } from 'zlib';
+
 import { base58, ConfigProviderMemory } from '@basemaps/config';
 import { initImageryFromTiffUrl } from '@basemaps/config-loader';
 import { fsa, getLogger, getPreviewUrl, isArgo, logArguments, Url, UrlFolder, urlToString } from '@basemaps/shared';
@@ -5,8 +8,6 @@ import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { Metrics } from '@linzjs/metrics';
 import { command, number, option, optional, positional } from 'cmd-ts';
 import pLimit from 'p-limit';
-import { promisify } from 'util';
-import { gzip } from 'zlib';
 
 const gzipPromise = promisify(gzip);
 

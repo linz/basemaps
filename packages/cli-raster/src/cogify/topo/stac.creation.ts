@@ -1,11 +1,13 @@
-import { Bounds, Epsg, Projection } from '@basemaps/geo';
-import { fsa, LogType } from '@basemaps/shared';
+import type { Bounds, Epsg } from '@basemaps/geo';
+import { Projection } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import { fsa } from '@basemaps/shared';
 import { CliDate, CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
+import type { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
-import { MapSeries } from '../cli/cli.topo.js';
-import { CogifyLinkSource, CogifyStacCollection, TopoStacItem } from '../stac.js';
-import { TiffItem } from './extract.js';
+import type { MapSeries } from '../cli/cli.topo.js';
+import type { CogifyLinkSource, CogifyStacCollection, TopoStacItem } from '../stac.js';
+import type { TiffItem } from './extract.js';
 
 /**
  * Creates a StacItem with additional properties specific to topo-raster maps.

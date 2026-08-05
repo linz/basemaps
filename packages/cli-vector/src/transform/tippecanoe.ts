@@ -1,9 +1,12 @@
-import { Epsg, TileMatrixSet } from '@basemaps/geo';
-import { LogType, urlToString } from '@basemaps/shared';
-import { Command } from '@linzjs/docker-command';
 import path, { dirname } from 'path';
 
-import { Layer } from '../schema-loader/schema.js';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { Epsg } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import { urlToString } from '@basemaps/shared';
+import { Command } from '@linzjs/docker-command';
+
+import type { Layer } from '../schema-loader/schema.js';
 import { transformZoom } from './nztm.js';
 
 /**

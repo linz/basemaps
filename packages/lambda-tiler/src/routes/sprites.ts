@@ -1,5 +1,6 @@
-import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 import path from 'path';
+
+import type { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { assetProvider } from '../util/assets.provider.js';
 import { NotFound } from '../util/response.js';

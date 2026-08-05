@@ -1,4 +1,4 @@
-import { IControl } from 'maplibre-gl';
+import type { IControl } from 'maplibre-gl';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
 

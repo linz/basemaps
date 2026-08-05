@@ -1,7 +1,8 @@
-import { Env, LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
+import { Env } from '@basemaps/shared';
 import { Client } from '@elastic/elasticsearch';
 
-import { LogStats } from './log.stats.js';
+import type { LogStats } from './log.stats.js';
 
 export class ElasticClient {
   _client: Client | undefined;

@@ -39,7 +39,7 @@ export function extractYearRangeFromName(name: string): null | [number, number] 
 
   if (years.length === 0) return null;
 
-  years.sort();
+  years.sort((a, b) => a - b);
 
   return [years[0], years[years.length - 1] + 1];
 }

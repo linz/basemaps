@@ -1,12 +1,13 @@
-import { ConfigTileSetVector } from '@basemaps/config';
+import type { ConfigTileSetVector } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
-import { HttpHeader, LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
+import { HttpHeader, LambdaHttpResponse } from '@linzjs/lambda';
 
 import { isGzip } from '../util/cotar.serve.js';
 import { Etag } from '../util/etag.js';
 import { NoContent, NotFound, NotModified } from '../util/response.js';
 import { CoSources } from '../util/source.cache.js';
-import { TileXyz } from '../util/validate.js';
+import type { TileXyz } from '../util/validate.js';
 
 export const tileXyzVector = {
   /** Serve a MVT vector tile */

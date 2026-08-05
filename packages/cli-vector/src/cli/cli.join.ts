@@ -1,11 +1,13 @@
-import { TileMatrixSets } from '@basemaps/geo';
-import { fsa, isArgo, LogType, Url, UrlArrayJsonFile, urlToString } from '@basemaps/shared';
-import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
-import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
-import { command, option, optional, string } from 'cmd-ts';
 import { mkdir } from 'fs/promises';
 import path, { basename, dirname } from 'path';
 import { createGzip } from 'zlib';
+
+import { TileMatrixSets } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import { fsa, isArgo, Url, UrlArrayJsonFile, urlToString } from '@basemaps/shared';
+import { CliId, CliInfo } from '@basemaps/shared/build/cli/info.js';
+import { getLogger, logArguments } from '@basemaps/shared/build/cli/log.js';
+import { command, option, optional, string } from 'cmd-ts';
 
 import { createStacFiles } from '../stac.js';
 import { toTarIndex } from '../transform/covt.js';

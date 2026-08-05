@@ -4,7 +4,7 @@ import { createGunzip } from 'node:zlib';
 import { sha256base58 } from '@basemaps/config';
 import { fsa } from '@chunkd/fs';
 
-import { LogStats } from './log.stats.js';
+import type { LogStats } from './log.stats.js';
 import { parseQueryString } from './log/query.js';
 import { getUrlHost } from './log/referer.js';
 import { parseTileUrl } from './log/tile.url.js';

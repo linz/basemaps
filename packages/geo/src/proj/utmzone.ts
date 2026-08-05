@@ -1,4 +1,4 @@
-import { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
+import type { PROJJSONDefinition } from 'proj4/dist/lib/core.js';
 
 /**
  * The ProjJSON definition for UTM Zone 1S (EPSG: 32701) pulled via the `spatialreference.org`

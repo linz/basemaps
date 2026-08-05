@@ -1,10 +1,14 @@
-import { ConfigImagery, ConfigProviderMemory, ConfigTileSetRaster } from '@basemaps/config';
-import { initConfigFromUrls } from '@basemaps/config-loader';
-import { Tile, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
-import { fsa, FsaLocalCache, LogConfig, setDefaultConfig } from '@basemaps/shared';
-import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
 import { extname } from 'path';
+
+import type { ConfigImagery, ConfigTileSetRaster } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
+import { initConfigFromUrls } from '@basemaps/config-loader';
+import type { Tile, TileMatrixSet } from '@basemaps/geo';
+import { TileMatrixSets } from '@basemaps/geo';
+import { fsa, FsaLocalCache, LogConfig, setDefaultConfig } from '@basemaps/shared';
+import type { LambdaHttpRequest, UrlEvent } from '@linzjs/lambda';
+import { LambdaUrlRequest } from '@linzjs/lambda';
+import type { Context } from 'aws-lambda';
 
 import { TileXyzRaster } from '../routes/tile.xyz.raster.js';
 

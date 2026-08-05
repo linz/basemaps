@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { MultiPolygon, Polygon, Ring } from '../../types.js';
+import type { MultiPolygon, Polygon, Ring } from '../../types.js';
 import { Area } from '../area.js';
 
 describe('Area', () => {

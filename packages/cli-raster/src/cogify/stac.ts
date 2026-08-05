@@ -1,10 +1,10 @@
 import { createHash } from 'node:crypto';
 
-import { ImageryBandType, Rgba } from '@basemaps/config';
-import { EpsgCode, Tile } from '@basemaps/geo';
-import { StacCollection, StacItem, StacLink } from 'stac-ts';
+import type { ImageryBandType, Rgba } from '@basemaps/config';
+import type { EpsgCode, Tile } from '@basemaps/geo';
+import type { StacCollection, StacItem, StacLink } from 'stac-ts';
 
-import { GdalBandPreset } from '../preset.js';
+import type { GdalBandPreset } from '../preset.js';
 
 export type CogifyCreationOptions =
   | CogifyCreationOptionsZstd

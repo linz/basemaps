@@ -1,9 +1,9 @@
-import { LogType } from '@basemaps/shared';
-import { Geometry, Point, Position } from 'geojson';
+import type { LogType } from '@basemaps/shared';
+import type { Geometry, Point, Position } from 'geojson';
 import * as poly from 'polylabel';
 
-import { VectorCreationOptions } from '../stac.js';
-import { VectorGeoFeature } from '../types/VectorGeoFeature.js';
+import type { VectorCreationOptions } from '../stac.js';
+import type { VectorGeoFeature } from '../types/VectorGeoFeature.js';
 import { MajorHighWays } from './consts.js';
 
 export const polylabel = poly.default as unknown as (

@@ -1,10 +1,11 @@
-import { Epsg } from '@basemaps/geo';
+import type { Epsg } from '@basemaps/geo';
 
-import { ConfigBase } from './config/base.js';
-import { ConfigBundle } from './config/config.bundle.js';
-import { ConfigPrefix, ConfigPrefixes } from './config/prefix.js';
-import { ConfigLayer, ConfigTileSet } from './config/tile.set.js';
-import { ConfigImagery, ConfigProvider, ConfigVectorStyle } from './index.js';
+import type { ConfigBase } from './config/base.js';
+import type { ConfigBundle } from './config/config.bundle.js';
+import type { ConfigPrefix } from './config/prefix.js';
+import { ConfigPrefixes } from './config/prefix.js';
+import type { ConfigLayer, ConfigTileSet } from './config/tile.set.js';
+import type { ConfigImagery, ConfigProvider, ConfigVectorStyle } from './index.js';
 
 export abstract class BasemapsConfigProvider {
   abstract type: string;

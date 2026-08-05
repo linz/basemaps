@@ -1,7 +1,7 @@
-import { ConfigImagery, ImageryBandType } from '../config/imagery.js';
-import { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '../config/tile.set.js';
+import type { ConfigImagery, ImageryBandType } from '../config/imagery.js';
+import type { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '../config/tile.set.js';
 import { DefaultBandExpandOutput, DefaultColorRampOutput, DefaultTerrainRgbOutput } from '../config/tile.set.output.js';
-import { PipelineExtractArgs, PipelineNdviArgs } from '../config/tile.set.pipeline.js';
+import type { PipelineExtractArgs, PipelineNdviArgs } from '../config/tile.set.pipeline.js';
 
 export function addDefaultOutputPipelines(
   ts: ConfigTileSetRaster,

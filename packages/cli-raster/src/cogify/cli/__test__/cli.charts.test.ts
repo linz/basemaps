@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { FeatureCollection } from 'geojson';
+import type { FeatureCollection } from 'geojson';
 
 import { geojsonToBbox } from '../cli.charts.js';
 

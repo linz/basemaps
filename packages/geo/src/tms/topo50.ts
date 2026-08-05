@@ -1,4 +1,5 @@
-import { Tile, TileMatrixSet, TileMatrixSetTypeOrdered } from '../tile.matrix.set.js';
+import type { Tile, TileMatrixSetTypeOrdered } from '../tile.matrix.set.js';
+import { TileMatrixSet } from '../tile.matrix.set.js';
 
 // Map Sheets are 24,000 x 36,000 meters, at 50_000 scale with the tile matrix set using 0.28mm / pixel
 // this calculates out to these width and height in pixels

@@ -1,5 +1,6 @@
-import { Nztm2000QuadTms, projectFeature, TileMatrixSet } from '@basemaps/geo';
-import { Feature } from 'geojson';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { Nztm2000QuadTms, projectFeature } from '@basemaps/geo';
+import type { Feature } from 'geojson';
 
 // Transform a GeoJSON feature to the NZTM projection
 export function transformNdJson(feature: Feature): void {

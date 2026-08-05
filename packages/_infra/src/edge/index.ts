@@ -2,9 +2,10 @@ import cdk from 'aws-cdk-lib';
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager';
 import cf from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
-import s3, { Bucket, HttpMethods } from 'aws-cdk-lib/aws-s3';
+import type { Bucket } from 'aws-cdk-lib/aws-s3';
+import s3, { HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-import { Construct } from 'constructs';
+import type { Construct } from 'constructs';
 
 import { getConfig } from '../config.js';
 import { ParametersEdgeKeys } from '../parameters.js';

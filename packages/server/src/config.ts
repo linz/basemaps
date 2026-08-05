@@ -1,6 +1,8 @@
-import { BasemapsConfigProvider, ConfigBundled, ConfigPrefix, ConfigProviderMemory } from '@basemaps/config';
+import type { BasemapsConfigProvider, ConfigBundled } from '@basemaps/config';
+import { ConfigPrefix, ConfigProviderMemory } from '@basemaps/config';
 import { ConfigJson, initConfigFromUrls } from '@basemaps/config-loader';
-import { ConfigProviderDynamo, fsa, getDefaultConfig, LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
+import { ConfigProviderDynamo, fsa, getDefaultConfig } from '@basemaps/shared';
 import pLimit from 'p-limit';
 export type ServerOptions = (ServerOptionsTiffs | ServerOptionsConfig) & { configCache?: URL };
 

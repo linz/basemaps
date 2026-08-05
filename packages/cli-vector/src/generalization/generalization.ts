@@ -1,16 +1,18 @@
-import { TileMatrixSet } from '@basemaps/geo';
-import { LogType } from '@basemaps/shared';
 import { createWriteStream } from 'fs';
-import { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
 import readline from 'readline';
 
+import type { TileMatrixSet } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import type { Feature, Geometry, LineString, MultiPolygon, Polygon } from 'geojson';
+
 import { modifyFeature } from '../modify/modify.js';
-import { Metrics, Simplify } from '../schema-loader/schema.js';
-import { VectorCreationOptions } from '../stac.js';
+import type { Metrics, Simplify } from '../schema-loader/schema.js';
+import type { VectorCreationOptions } from '../stac.js';
 import { transformNdJson, transformZoom } from '../transform/nztm.js';
-import { VectorGeoFeature } from '../types/VectorGeoFeature.js';
+import type { VectorGeoFeature } from '../types/VectorGeoFeature.js';
 import { createReadStreamSafe } from '../util.js';
-import { Point, simplify } from './simplify.js';
+import type { Point } from './simplify.js';
+import { simplify } from './simplify.js';
 
 /**
  * Read and modify all ndJson file, then combine into one file,

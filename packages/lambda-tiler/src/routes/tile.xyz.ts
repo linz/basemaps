@@ -1,5 +1,6 @@
 import { TileSetType } from '@basemaps/config';
-import { LambdaHttpRequest, LambdaHttpResponse } from '@linzjs/lambda';
+import type { LambdaHttpRequest } from '@linzjs/lambda';
+import { LambdaHttpResponse } from '@linzjs/lambda';
 
 import { ConfigLoader } from '../util/config.loader.js';
 import { NotFound } from '../util/response.js';

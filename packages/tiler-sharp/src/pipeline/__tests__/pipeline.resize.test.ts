@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { CompositionTiff } from '@basemaps/tiler';
+import type { CompositionTiff } from '@basemaps/tiler';
 
 import { applyCrop, resizeBilinear } from '../pipeline.resize.js';
 

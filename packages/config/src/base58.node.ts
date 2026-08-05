@@ -1,4 +1,5 @@
-import { BinaryLike, createHash } from 'crypto';
+import type { BinaryLike } from 'crypto';
+import { createHash } from 'crypto';
 
 import { base58, isBase58 } from './base58.js';
 

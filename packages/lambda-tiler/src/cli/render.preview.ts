@@ -1,9 +1,11 @@
 import { ConfigProviderMemory } from '@basemaps/config';
 import { initConfigFromUrls } from '@basemaps/config-loader';
-import { TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { TileMatrixSets } from '@basemaps/geo';
 import { fsa, LogConfig, setDefaultConfig } from '@basemaps/shared';
-import { LambdaHttpRequest, LambdaUrlRequest, UrlEvent } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
+import type { LambdaHttpRequest, UrlEvent } from '@linzjs/lambda';
+import { LambdaUrlRequest } from '@linzjs/lambda';
+import type { Context } from 'aws-lambda';
 
 import { renderPreview } from '../routes/preview.js';
 

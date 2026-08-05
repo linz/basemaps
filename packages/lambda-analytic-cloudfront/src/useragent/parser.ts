@@ -1,6 +1,6 @@
 import UA from 'ua-parser-js';
 
-import { UserAgentInfo, UserAgentOs, UserAgentParser } from './parser.types.js';
+import type { UserAgentInfo, UserAgentOs, UserAgentParser } from './parser.types.js';
 
 const OsMap: Record<string, UserAgentOs> = { ubuntu: 'linux' };
 const UaParser: ParserConfig = { name: 'ua-parser-js', hit: 0 };

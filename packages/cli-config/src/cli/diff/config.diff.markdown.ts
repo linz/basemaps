@@ -1,4 +1,4 @@
-import {
+import type {
   ConfigImagery,
   ConfigLayer,
   ConfigProviderMemory,
@@ -6,11 +6,12 @@ import {
   ConfigTileSet,
   ConfigTileSetRaster,
 } from '@basemaps/config';
-import { EpsgCode, Nztm2000QuadTms, TileMatrixSet, TileMatrixSets } from '@basemaps/geo';
+import type { TileMatrixSet } from '@basemaps/geo';
+import { EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { Env, getImageryCenterZoom, getPreviewUrl, toSlug } from '@basemaps/shared';
-import { Diff } from 'deep-diff';
+import type { Diff } from 'deep-diff';
 
-import { DiffTileSet, DiffTileSetResult, DiffTileSetUpdated, DiffType } from './config.diff.js';
+import type { DiffTileSet, DiffTileSetResult, DiffTileSetUpdated, DiffType } from './config.diff.js';
 
 // useful for local testing of the markdown structure
 const UsePlaceholderUrls = false;

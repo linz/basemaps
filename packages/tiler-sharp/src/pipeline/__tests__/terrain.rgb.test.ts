@@ -2,8 +2,8 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import { GoogleTms } from '@basemaps/geo';
-import { CompositionTiff } from '@basemaps/tiler';
-import { Tiff, TiffImage } from '@cogeotiff/core';
+import type { CompositionTiff } from '@basemaps/tiler';
+import type { Tiff, TiffImage } from '@cogeotiff/core';
 
 import { PipelineTerrainRgb } from '../pipeline.terrain.rgb.js';
 
@@ -145,13 +145,11 @@ describe('TerrainRgb', () => {
       channels: 1,
     } as const;
     async function toTerrainRgb(resolution: number): Promise<number[]> {
-      const tiff = {
-        ...FakeComp,
-        asset: {
-          ...FakeComp.asset,
+      const tiff = Object.assign({}, FakeComp, {
+        asset: Object.assign({}, FakeComp.asset, {
           images: [{ noData: -9999, resolution: [resolution, -resolution] } as unknown as TiffImage],
-        } as Tiff,
-      };
+        }) as Tiff,
+      });
 
       const output = await PipelineTerrainRgb.process(tiff, input);
 

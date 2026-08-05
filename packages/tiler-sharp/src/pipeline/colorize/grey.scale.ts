@@ -1,4 +1,4 @@
-import { Colorizer } from './colorize.js';
+import type { Colorizer } from './colorize.js';
 
 /**
  * Convert a number between min and max into a RGBA between 0 and 255

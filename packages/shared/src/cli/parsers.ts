@@ -1,7 +1,8 @@
 import { pathToFileURL } from 'node:url';
 
-import { parseRgba, Rgba } from '@basemaps/config';
-import { Type } from 'cmd-ts';
+import type { Rgba } from '@basemaps/config';
+import { parseRgba } from '@basemaps/config';
+import type { Type } from 'cmd-ts';
 
 import { Fsa } from '../file.system.js';
 

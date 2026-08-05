@@ -1,8 +1,9 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { BatchGetItemCommandInput, BatchGetItemCommandOutput } from '@aws-sdk/client-dynamodb';
-import { ConfigId, ConfigImagery, ConfigPrefix, getAllImagery } from '@basemaps/config';
+import type { BatchGetItemCommandInput, BatchGetItemCommandOutput } from '@aws-sdk/client-dynamodb';
+import type { ConfigImagery } from '@basemaps/config';
+import { ConfigId, ConfigPrefix, getAllImagery } from '@basemaps/config';
 import { Epsg } from '@basemaps/geo';
 
 import { ConfigProviderDynamo } from '../dynamo.config.js';

@@ -1,26 +1,26 @@
-import {
+import { basename } from 'path';
+import { fileURLToPath } from 'url';
+
+import type {
   ConfigImagery,
   ConfigProviderMemory,
   ConfigTileSetRaster,
-  DefaultColorRampOutput,
-  DefaultTerrainRgbOutput,
   ImageryBandDataType,
   ImageryBandType,
   ImageryDataType,
-  sha256base58,
-  TileSetType,
 } from '@basemaps/config';
-import { BoundingBox, Bounds, EpsgCode, NamedBounds, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
+import { DefaultColorRampOutput, DefaultTerrainRgbOutput, sha256base58, TileSetType } from '@basemaps/config';
+import type { BoundingBox, NamedBounds } from '@basemaps/geo';
+import { Bounds, EpsgCode, Nztm2000QuadTms, TileMatrixSets } from '@basemaps/geo';
 import { fsa, Tiff, TiffTag } from '@basemaps/shared';
 import { SampleFormat } from '@cogeotiff/core';
-import pLimit, { LimitFunction } from 'p-limit';
-import { basename } from 'path';
-import { StacCollection } from 'stac-ts';
-import { fileURLToPath } from 'url';
+import type { LimitFunction } from 'p-limit';
+import pLimit from 'p-limit';
+import type { StacCollection } from 'stac-ts';
 
 import { getCachedImageryConfig, writeCachedImageryConfig } from './imagery.config.cache.js';
 import { ConfigJson, isEmptyTiff } from './json.config.js';
-import { LogType } from './log.js';
+import type { LogType } from './log.js';
 
 /** Does a file look like a tiff, ending in .tif or .tiff */
 function isTiff(f: URL): boolean {
@@ -214,7 +214,7 @@ async function computeTiffSummary(target: URL, tiffs: Tiff[]): Promise<TiffSumma
     if (res.files == null) res.files = [];
 
     const relativePath = toRelative(targetPath, tiff.source.url);
-    res.files.push({ name: relativePath, ...imgBounds });
+    res.files.push({ name: relativePath, ...imgBounds.toJson() });
   }
 
   // If the tiff is in EPSG:4326 then its resolution will be in degrees,
@@ -479,7 +479,7 @@ export async function initImageryFromTiffUrl(
 
     return imagery;
   } finally {
-    await Promise.all(tiffs.map((t) => t.source.close?.()));
+    await Promise.all(tiffs.map(async (t) => t.source.close?.()));
   }
 }
 

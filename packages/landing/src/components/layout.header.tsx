@@ -1,9 +1,10 @@
 import { EpsgCode, Nztm2000QuadTms } from '@basemaps/geo';
 import { clsx } from 'clsx';
-import { Component, Fragment, ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import { Component, Fragment } from 'react';
 
 import { Config, GaEvent, gaEvent } from '../config.js';
-import { LayerInfo } from '../config.map.js';
+import type { LayerInfo } from '../config.map.js';
 import { MapOptionType } from '../url.js';
 import { Copyable } from './copyable.js';
 import { LayerSwitcherDropdown } from './layer.switcher.dropdown.js';

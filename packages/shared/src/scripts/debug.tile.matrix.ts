@@ -1,6 +1,8 @@
-/* eslint-disable no-console */
-import { Bounds, Epsg, getXyOrder, GoogleTms, Projection, ProjectionLoader, TileMatrixSetType } from '@basemaps/geo';
 import { writeFileSync } from 'fs';
+
+/* eslint-disable no-console */
+import type { TileMatrixSetType } from '@basemaps/geo';
+import { Bounds, Epsg, getXyOrder, GoogleTms, Projection, ProjectionLoader } from '@basemaps/geo';
 
 import { CliInfo } from '../cli/info.js';
 

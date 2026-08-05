@@ -1,13 +1,17 @@
-import { Bounds, Epsg, Tile, TileMatrixSet } from '@basemaps/geo';
-import { fsa, LogType, s3ToVsis3 } from '@basemaps/shared';
 import * as os from 'os';
-import type { LimitFunction } from 'p-limit';
-import PLimit from 'p-limit';
 import * as path from 'path';
 import { basename } from 'path';
 
-import { FilePath, FileType } from './file.js';
-import { GdalCommand } from './gdal/gdal.command.js';
+import type { Bounds, Tile } from '@basemaps/geo';
+import { Epsg, TileMatrixSet } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import { fsa, s3ToVsis3 } from '@basemaps/shared';
+import type { LimitFunction } from 'p-limit';
+import PLimit from 'p-limit';
+
+import type { FilePath } from './file.js';
+import { FileType } from './file.js';
+import type { GdalCommand } from './gdal/gdal.command.js';
 import { Gdal } from './gdal/gdal.js';
 import { Hash } from './hash.js';
 import { MapnikRender } from './mapnik.js';
@@ -251,10 +255,12 @@ export class BathyMaker {
         '-a_srs',
         tileMatrix.projection.toEpsgString(),
         '-a_ullr',
-        ...[bounds.x, bounds.bottom, bounds.right, bounds.y],
+        [bounds.x, bounds.bottom, bounds.right, bounds.y],
         renderedPath,
         outputPath,
-      ].map(String),
+      ]
+        .flat()
+        .map(String),
       logger,
     );
   }

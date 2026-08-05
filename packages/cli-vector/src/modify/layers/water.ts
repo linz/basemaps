@@ -1,7 +1,7 @@
-import { LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
 
-import { VectorCreationOptions } from '../../stac.js';
-import { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
+import type { VectorCreationOptions } from '../../stac.js';
+import type { VectorGeoFeature } from '../../types/VectorGeoFeature.js';
 
 export const LargeLakeSize = 4_000_000;
 

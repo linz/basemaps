@@ -1,7 +1,7 @@
 import { strictEqual } from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { StacProvider } from '@basemaps/geo';
+import type { StacProvider } from '@basemaps/geo';
 
 import { copyright, createLicensorAttribution } from '../utils.js';
 

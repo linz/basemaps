@@ -1,7 +1,7 @@
-import { Feature, FeatureCollection } from 'geojson';
+import type { Feature, FeatureCollection } from 'geojson';
 
 import { Projection } from './proj/projection.js';
-import { TileMatrixSet } from './tile.matrix.set.js';
+import type { TileMatrixSet } from './tile.matrix.set.js';
 import { GoogleTms } from './tms/google.js';
 
 function isGoogle(tms: TileMatrixSet): boolean {

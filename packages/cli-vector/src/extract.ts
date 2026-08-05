@@ -1,5 +1,6 @@
-import { fsa } from '@basemaps/shared';
 import path from 'path';
+
+import { fsa } from '@basemaps/shared';
 // import { createGunzip } from 'zlib';
 
 // import { Layer } from '../layer/layer.js';

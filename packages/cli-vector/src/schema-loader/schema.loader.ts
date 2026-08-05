@@ -1,12 +1,13 @@
 import { sha256base58 } from '@basemaps/config';
-import { TileMatrixSet } from '@basemaps/geo';
-import { fsa, LogType } from '@basemaps/shared';
+import type { TileMatrixSet } from '@basemaps/geo';
+import type { LogType } from '@basemaps/shared';
+import { fsa } from '@basemaps/shared';
 import { CliInfo } from '@basemaps/shared/build/cli/info.js';
 import { z } from 'zod';
 
 import { lds, LDS_CACHE_BUCKET } from '../extract.js';
 import { zSchema } from './parser.js';
-import { Schema } from './schema.js';
+import type { Schema } from './schema.js';
 
 const LARGE_LAYER_SIZE = 1024 * 1024 * 1024; // processing for large layers that over 1GB
 

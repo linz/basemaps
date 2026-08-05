@@ -3,7 +3,7 @@ import { describe, it } from 'node:test';
 
 import { round } from '@basemaps/test/build/rounding.js';
 
-import { BBox, Ring } from '../types.js';
+import type { BBox, Ring } from '../types.js';
 import { Wgs84 } from '../wgs84.js';
 
 describe('wgs84', () => {

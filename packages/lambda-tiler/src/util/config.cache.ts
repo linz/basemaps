@@ -1,6 +1,7 @@
-import { ConfigBundled, ConfigProviderMemory } from '@basemaps/config';
+import type { ConfigBundled } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
 import { fsa } from '@basemaps/shared';
-import { FsError } from '@chunkd/fs';
+import type { FsError } from '@chunkd/fs';
 
 import { SwappingLru } from './swapping.lru.js';
 

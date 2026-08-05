@@ -1,7 +1,8 @@
-/* eslint-disable no-console */
-import { array, command, flag, multioption, number, restPositionals, string } from 'cmd-ts';
 import { promises as fs } from 'fs';
 import path from 'path';
+
+/* eslint-disable no-console */
+import { array, command, flag, multioption, number, restPositionals, string } from 'cmd-ts';
 
 import { listSprites, ValidExtensions } from './fs.js';
 import { Sprites } from './sprites.js';

@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { MultiPolygon } from '../../types.js';
+import type { MultiPolygon } from '../../types.js';
 import { multiPolygonToWgs84 } from '../convert.js';
 
 function intToWgs84(from: number[]): [number, number] {

@@ -10,7 +10,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint . --quiet --fix --report-unused-disable-directives --ignore-path .gitignore",
+    "lint": "oxlint . --type-aware --fix && oxfmt . --write",
+    "check": "oxlint . --type-aware && oxfmt . --check",
     "test": "cross-env NODE_OPTIONS=--enable-source-maps lerna run test --parallel",
     "clean": "tsc -b --clean && rimraf --glob 'packages/*/build' && npm run clean:dist",
     "clean:dist": "rimraf --glob 'packages/*/dist' 'packages/_infra/cdk.out'",
@@ -22,7 +23,6 @@
     "node": ">=16.0.0"
   },
   "devDependencies": {
-    "@linzjs/style": "^5.4.0",
     "@types/aws-lambda": "^8.10.75",
     "@types/geojson": "^7946.0.7",
     "@types/node": "^22.15.24",
@@ -31,8 +31,12 @@
     "cross-env": "^7.0.3",
     "esbuild": "^0.27.0",
     "lerna": "^9.0.3",
+    "oxfmt": "^0.61.0",
+    "oxlint": "^1.76.0",
+    "oxlint-tsgolint": "^7.0.2001",
     "rimraf": "^5.0.5",
-    "sinon": "^17.0.1"
+    "sinon": "^17.0.1",
+    "typescript": "^7.0.2"
   },
   "workspaces": {
     "packages": [

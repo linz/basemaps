@@ -1,6 +1,6 @@
 import { LogConfig } from '@basemaps/shared';
 import { LambdaRequest } from '@linzjs/lambda';
-import { Context } from 'aws-lambda';
+import type { Context } from 'aws-lambda';
 
 import { main } from './handler.js';
 

@@ -1,16 +1,17 @@
-import { EpsgCode } from '@basemaps/geo';
+import type { EpsgCode } from '@basemaps/geo';
 import { decodeTime, ulid } from 'ulid';
 
 import { BasemapsConfigObject, BasemapsConfigProvider, ConfigId } from '../base.config.js';
 import { sha256base58 } from '../base58.node.js';
-import { ConfigBase } from '../config/base.js';
-import { ConfigBundle } from '../config/config.bundle.js';
-import { ConfigImagery } from '../config/imagery.js';
+import type { ConfigBase } from '../config/base.js';
+import type { ConfigBundle } from '../config/config.bundle.js';
+import type { ConfigImagery } from '../config/imagery.js';
 import { migrateConfigImagery } from '../config/migration/imagery.js';
 import { ConfigPrefix } from '../config/prefix.js';
-import { ConfigProvider } from '../config/provider.js';
-import { ConfigLayer, ConfigTileSet, ConfigTileSetRaster, TileSetType } from '../config/tile.set.js';
-import { ConfigVectorStyle } from '../config/vector.style.js';
+import type { ConfigProvider } from '../config/provider.js';
+import type { ConfigLayer, ConfigTileSet, ConfigTileSetRaster } from '../config/tile.set.js';
+import { TileSetType } from '../config/tile.set.js';
+import type { ConfigVectorStyle } from '../config/vector.style.js';
 import { standardizeLayerName } from '../name.convertor.js';
 import { addDefaultOutputPipelines } from './imagery.outputs.js';
 
@@ -45,10 +46,11 @@ function findLatestId(idA: string, idB: string): string {
     const timeA = decodeTime(ulidA);
     const timeB = decodeTime(ulidB);
     if (timeA >= timeB) return idA;
-  } finally {
-    //If not ulid return the return id alphabetically.
-    return idA.localeCompare(idB) > 0 ? idA : idB;
+  } catch {
+    // ignore
   }
+  //If not ulid return the return id alphabetically.
+  return idA.localeCompare(idB) > 0 ? idA : idB;
 }
 
 /** Force a unknown object into a Record<string, unknown> type */

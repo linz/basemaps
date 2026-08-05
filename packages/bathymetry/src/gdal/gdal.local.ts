@@ -1,4 +1,4 @@
-import { LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
 
 import { GdalCommand } from './gdal.command.js';
 

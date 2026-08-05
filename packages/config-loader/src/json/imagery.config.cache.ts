@@ -2,10 +2,11 @@ import { promisify } from 'node:util';
 import { gzip } from 'node:zlib';
 
 import { ConfigImageryVersion, sha256base58 } from '@basemaps/config';
-import { fsa, LogType } from '@basemaps/shared';
-import { FileInfo } from '@chunkd/fs';
+import type { LogType } from '@basemaps/shared';
+import { fsa } from '@basemaps/shared';
+import type { FileInfo } from '@chunkd/fs';
 
-import { ConfigImageryTiff } from './tiff.config.js';
+import type { ConfigImageryTiff } from './tiff.config.js';
 
 export const ConfigCacheVersion = `V1.` + ConfigImageryVersion; // TODO this could just be the config packageJson ?
 

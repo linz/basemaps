@@ -3,11 +3,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import assert from 'node:assert';
 import { afterEach, beforeEach, describe, it } from 'node:test';
+import { basename, dirname } from 'path';
 
 import { GoogleTms } from '@basemaps/geo';
-import { fsa, FsMemory, LogConfig, LogType } from '@basemaps/shared';
+import type { LogType } from '@basemaps/shared';
+import { fsa, FsMemory, LogConfig } from '@basemaps/shared';
 import { round } from '@basemaps/test/build/rounding.js';
-import { basename, dirname } from 'path';
 
 import { FilePath } from '../file.js';
 import { Hash } from '../hash.js';

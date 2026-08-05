@@ -1,8 +1,10 @@
 import assert from 'node:assert';
 import { afterEach, before, beforeEach, describe, it } from 'node:test';
 
-import { ConfigProviderMemory, SourceRaster, StyleJson } from '@basemaps/config';
-import { DefaultExaggeration, Terrain } from '@basemaps/config/build/config/vector.style.js';
+import type { SourceRaster, StyleJson } from '@basemaps/config';
+import { ConfigProviderMemory } from '@basemaps/config';
+import type { Terrain } from '@basemaps/config/build/config/vector.style.js';
+import { DefaultExaggeration } from '@basemaps/config/build/config/vector.style.js';
 import { Nztm2000QuadTms } from '@basemaps/geo';
 import { Env } from '@basemaps/shared';
 import { createSandbox } from 'sinon';
@@ -279,9 +281,6 @@ describe('/v1/styles', () => {
     assert.equal(res.status, 200, res.statusDescription);
 
     const body = JSON.parse(Buffer.from(res.body, 'base64').toString()) as StyleJson;
-    body.sources['basemaps-aerial'];
-    body.sources['basemaps-aerial'];
-    body.sources['basemaps-aerial'];
     const aerialSource = body.sources['basemaps-aerial'] as unknown as SourceRaster;
 
     assert.deepEqual(aerialSource.type, 'raster');

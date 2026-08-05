@@ -1,4 +1,4 @@
-import { MultiPolygon, Polygon, Ring } from '../types.js';
+import type { MultiPolygon, Polygon, Ring } from '../types.js';
 
 export const Area = {
   /**

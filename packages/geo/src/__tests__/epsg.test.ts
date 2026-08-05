@@ -1,7 +1,8 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import { Epsg, EpsgCode } from '../epsg.js';
+import type { EpsgCode } from '../epsg.js';
+import { Epsg } from '../epsg.js';
 import { Nztm2000Tms } from '../tms/nztm2000.js';
 
 describe('Epsg', () => {
