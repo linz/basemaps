@@ -131,11 +131,16 @@ export const TileXyzRaster = {
 
     const assets = await TileXyzRaster.loadAssets(req, assetPaths);
 
+    const scale = xyz.scale;
     const tiler = new Tiler(xyz.tileMatrix);
-    const layers = tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z);
+    const layers = tiler.tile(assets, xyz.tile.x, xyz.tile.y, xyz.tile.z, scale);
+
+    const tileSize = xyz.tileMatrix.tileWidth * scale;
 
     const res = await TileComposer.compose({
       layers,
+      width: tileSize,
+      height: tileSize,
       pipeline: output.pipeline,
       format,
       background: output.background ?? tileSet.background ?? DefaultBackground,

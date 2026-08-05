@@ -114,6 +114,7 @@ export const FileProcess = {
 
       let isEmpty = false;
       trackId.push(ret.tileMatrix, ret.extension, String(ret.webMercatorZoom));
+      if (ret.scale != null) trackId.push(String(ret.scale));
       if (pipeline) trackId.push(pipeline);
 
       // If the bytes served back to the user is low, it could be a empty tile
@@ -135,6 +136,7 @@ export const FileProcess = {
           tileMatrixId: ret.tileMatrixId,
           tileSet: ret.tileSet,
           z: ret.webMercatorZoom,
+          scale: ret.scale,
           referer,
           extension: ret?.extension,
           ua: userAgent,
@@ -144,16 +146,19 @@ export const FileProcess = {
           total: 0,
           bytes: 0,
           empty: 0,
+          requestCount: 0,
           id: sha256base58(trackingId),
         };
         stats.set(trackingId, existing);
       }
 
+      const tilesCount = ret.scale ? ret.scale * ret.scale : 1;
+      existing.requestCount++;
       existing.bytes += bytes;
-      existing.total++;
-      if (isEmpty) existing.empty++;
-      if (hit) existing.cacheHit++;
-      else existing.cacheMiss++;
+      existing.total += tilesCount;
+      if (isEmpty) existing.empty += tilesCount;
+      if (hit) existing.cacheHit += tilesCount;
+      else existing.cacheMiss += tilesCount;
 
       count++;
     }

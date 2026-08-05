@@ -59,11 +59,16 @@ export class TileMakerSharp implements TileMaker {
   }
 
   /** Get a empty (transparent for formats that support it) image buffer */
-  private getEmptyImage(format: ImageFormat, background: Sharp.RGBA): Promise<Buffer> {
-    const imgKey = [format, background.r, background.g, background.b, background.alpha].join('-');
+  private getEmptyImage(
+    format: ImageFormat,
+    background: Sharp.RGBA,
+    width = this.width,
+    height = this.height,
+  ): Promise<Buffer> {
+    const imgKey = [format, background.r, background.g, background.b, background.alpha, width, height].join('-');
     let existing = EmptyImage.get(imgKey);
     if (existing) return existing;
-    existing = this.toImage(format, this.createImage(background));
+    existing = this.toImage(format, this.createImage(background, width, height));
     if (EmptyImage.size > 128) EmptyImage.clear(); // Drop cache if it gets too big
     EmptyImage.set(imgKey, existing);
     return existing;
@@ -100,9 +105,11 @@ export class TileMakerSharp implements TileMaker {
     format: ImageFormat,
     background: Sharp.RGBA,
     lossless?: boolean,
+    width = this.width,
+    height = this.height,
   ): Promise<Buffer> {
-    if (layers.length === 0) return this.getEmptyImage(format, background);
-    return this.toImage(format, this.createImage(background).composite(layers), lossless);
+    if (layers.length === 0) return this.getEmptyImage(format, background, width, height);
+    return this.toImage(format, this.createImage(background, width, height).composite(layers), lossless);
   }
 
   public async compose(ctx: TileMakerContext): Promise<{ buffer: Buffer; metrics: Metrics; layers: number }> {
@@ -126,7 +133,9 @@ export class TileMakerSharp implements TileMaker {
     metrics.end('compose:overlay');
 
     metrics.start('compose:compress');
-    const buffer = await this.getImageBuffer(overlays, ctx.format, ctx.background, ctx.lossless);
+    const width = ctx.width ?? this.width;
+    const height = ctx.height ?? this.height;
+    const buffer = await this.getImageBuffer(overlays, ctx.format, ctx.background, ctx.lossless, width, height);
     metrics.end('compose:compress');
 
     return { buffer, metrics, layers: overlays.length };
@@ -224,11 +233,11 @@ export class TileMakerSharp implements TileMaker {
   }
 
   /** Create a empty base image to be used with the output composition */
-  createImage(background: Sharp.RGBA): Sharp.Sharp {
+  createImage(background: Sharp.RGBA, width = this.width, height = this.height): Sharp.Sharp {
     return Sharp({
       create: {
-        width: this.width,
-        height: this.height,
+        width,
+        height,
         channels: 4,
         background,
       },
