@@ -13,6 +13,10 @@ export type TileMakerResizeKernel = { in: ResizeKernelType; out: ResizeKernelTyp
 
 export interface TileMakerContext {
   layers: Composition[];
+  /** Output canvas width */
+  width: number;
+  /** Output canvas height */
+  height: number;
   /** Apply a processing pipeline to each layer */
   pipeline?: ConfigRasterPipeline[];
   /** Image output format type */

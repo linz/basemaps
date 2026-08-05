@@ -24,6 +24,15 @@ export interface TileUrlInfo {
   tileSet: string;
 
   /**
+   * Scale factor tile from the name of the tile
+   *
+   * `@2x` vs `1x`
+   *
+   * @example 2
+   */
+  scale: number;
+
+  /**
    * Raw tile matrix used
    *
    * @example "3857" "EPSG:3857"
@@ -60,6 +69,7 @@ export function parseTileUrl(status: number, url: string): TileUrlInfo | undefin
   const urlPart = url.split('/');
   const tileSet = urlPart[3];
   const tileMatrixPart = urlPart[4];
+  const yPart = urlPart[7];
 
   let tileMatrix = tileMatrixLookup.get(tileMatrixPart);
   if (tileMatrix === undefined) {
@@ -68,21 +78,29 @@ export function parseTileUrl(status: number, url: string): TileUrlInfo | undefin
   }
   if (tileMatrix == null) return; // TileMatrix not found
 
-  const z = Number.parseInt(urlPart[5]);
+  const rawZ = Number.parseInt(urlPart[5]);
 
   // Check tile is in valid ranges
-  if (isNaN(z)) return;
-  if (z < 0) return;
+  if (isNaN(rawZ)) return;
+  if (rawZ < 0) return;
+
+  let scale = 1;
+  if (yPart.includes('@2x')) scale = 2;
+  if (yPart.includes('@4x')) scale = 4;
+
+  const z = scale > 1 ? rawZ + Math.log2(scale) : rawZ;
 
   // Convert the zoom to webmercator zoom scales
   const webMercatorZoom = TileMatrixSet.convertZoomLevel(z, tileMatrix, GoogleTms);
 
-  return {
+  const ret: TileUrlInfo = {
     extension: ext,
     tileSet,
     tileMatrix: tileMatrixPart,
     tileMatrixId: tileMatrix.identifier as TileUrlInfo['tileMatrixId'],
     z,
+    scale,
     webMercatorZoom,
   };
+  return ret;
 }

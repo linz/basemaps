@@ -19,11 +19,18 @@ export interface TileXyz {
   tileType: string;
   /** Optional processing pipeline to use */
   pipeline?: string;
+  /**
+   * Scale multiplier factor (e.g. 2 for @2x)
+   * @default 1
+   */
+  scale?: number;
 }
 
 export interface TileMatrixRequest {
   Params: { tileMatrix?: string };
 }
+
+const AllowedScale = [false, false, true, false, true];
 
 function getBlockedApiKeys(): string[] {
   try {
@@ -100,8 +107,27 @@ export const Validate = {
 
     req.set('tileSet', req.params.tileSet);
 
+    let scale = 1;
+    let yRaw = req.params.y;
+
+    const yRawAt = yRaw.indexOf('@');
+    if (yRawAt > 0) {
+      if (yRaw.at(yRawAt + 2) !== 'x') {
+        req.logContext['invalidScale'] = yRaw;
+        throw new LambdaHttpResponse(400, 'Invalid scale');
+      }
+      scale = Number.parseInt(yRaw[yRawAt + 1]);
+      if (AllowedScale[scale] !== true) {
+        req.logContext['invalidScale'] = yRaw;
+        throw new LambdaHttpResponse(400, 'Invalid scale');
+      }
+
+      yRaw = yRaw.slice(0, yRawAt);
+    }
+
+    const tileType = req.params.tileType;
     const x = parseInt(req.params.x, 10);
-    const y = parseInt(req.params.y, 10);
+    const y = parseInt(yRaw, 10);
     const z = parseInt(req.params.z, 10);
 
     const tileMatrix = Validate.getTileMatrixSet(req.params.tileMatrix);
@@ -110,9 +136,9 @@ export const Validate = {
     req.set('tileMatrix', tileMatrix.identifier);
     req.set('projection', tileMatrix.projection.code);
 
-    if (req.params.tileType == null) throw new LambdaHttpResponse(404, 'Tile extension not found');
+    if (tileType == null) throw new LambdaHttpResponse(404, 'Tile extension not found');
 
-    req.set('extension', req.params.tileType);
+    req.set('extension', tileType);
 
     if (isNaN(z) || z > tileMatrix.maxZoom || z < 0) throw new LambdaHttpResponse(404, `Zoom not found: ${z}`);
 
@@ -122,13 +148,15 @@ export const Validate = {
 
     const pipeline = req.query.get('pipeline') ?? undefined;
     req.set('pipeline', pipeline);
+    req.set('scale', scale);
 
-    const xyzData = {
+    const xyzData: TileXyz = {
       tile: { x, y, z },
       tileSet: req.params.tileSet,
       tileMatrix,
-      tileType: req.params.tileType,
+      tileType,
       pipeline,
+      scale,
     };
     req.set('xyz', xyzData.tile);
 

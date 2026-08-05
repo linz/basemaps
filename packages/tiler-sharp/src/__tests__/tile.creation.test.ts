@@ -52,12 +52,14 @@ describe('TileCreation', () => {
   });
 
   it('should generate webp', async () => {
-    const tileMaker = new TileMakerSharp(256);
+    const tileMaker = new TileMakerSharp();
     const res = await tileMaker.compose({
       layers: [],
       format: 'webp',
       background,
       resizeKernel,
+      width: 256,
+      height: 256,
     });
     // Image format `R I F F <fileSize (int32)> W E B P`
     const magicBytes = res.buffer.slice(0, 4);
@@ -67,21 +69,23 @@ describe('TileCreation', () => {
   });
 
   it('should generate jpeg', async () => {
-    const tileMaker = new TileMakerSharp(256);
+    const tileMaker = new TileMakerSharp();
     const res = await tileMaker.compose({
       layers: [],
       format: 'jpeg',
       background,
       resizeKernel,
+      width: 256,
+      height: 256,
     });
     const magicBytes = res.buffer.subarray(0, 4);
     assert.deepEqual(magicBytes.toJSON().data, [0xff, 0xd8, 0xff, 0xdb]);
   });
 
   it('should error when provided invalid image formats', async () => {
-    const tileMaker = new TileMakerSharp(256);
+    const tileMaker = new TileMakerSharp();
     try {
-      await tileMaker.compose({ layers: [], background } as unknown as TileMakerContext);
+      await tileMaker.compose({ layers: [], background, width: 256, height: 256 } as unknown as TileMakerContext);
       assert.equal(true, false, 'invalid format');
     } catch (e) {
       assert.equal((e as Error).message.includes('Invalid image'), true);
@@ -130,7 +134,7 @@ describe('TileCreation', () => {
       const tiff = await Tiff.create(fsa.source(url));
       const tiler = new Tiler(tms);
 
-      const tileMaker = new TileMakerSharp(tileSize);
+      const tileMaker = new TileMakerSharp();
 
       const layers = tiler.tile([tiff], tile.x, tile.y, tile.z);
 
@@ -139,6 +143,8 @@ describe('TileCreation', () => {
         format: 'png',
         background,
         resizeKernel,
+        width: tileSize,
+        height: tileSize,
       });
       const newImage = PNG.sync.read(png.buffer);
       if (WRITE_IMAGES) {
