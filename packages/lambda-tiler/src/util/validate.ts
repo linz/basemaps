@@ -1,7 +1,7 @@
 import type { ConfigTileSetRaster, ConfigTileSetRasterOutput } from '@basemaps/config';
 import type { ImageFormat, LatLon, TileMatrixSet } from '@basemaps/geo';
 import { Projection, TileMatrixSets } from '@basemaps/geo';
-import { Const, Env, isValidApiKey, LogConfig, truncateApiKey } from '@basemaps/shared';
+import { Const, Env, isValidApiKey, LogConfig } from '@basemaps/shared';
 import { getImageFormat } from '@basemaps/tiler';
 import type { LambdaHttpRequest } from '@linzjs/lambda';
 import { LambdaHttpResponse } from '@linzjs/lambda';
@@ -48,8 +48,7 @@ export const Validate = {
     const valid = isValidApiKey(apiKey);
 
     if (!valid.valid) throw new LambdaHttpResponse(400, 'API Key Invalid: ' + valid.message);
-    // Truncate the API Key so we are not logging the full key
-    req.set('api', truncateApiKey(apiKey));
+    req.set('api', apiKey);
 
     if (this.blockedApiKeys.has(apiKey as string)) {
       throw new LambdaHttpResponse(429, 'Too many requests! Please contact basemaps@linz.govt.nz for a developer key');
