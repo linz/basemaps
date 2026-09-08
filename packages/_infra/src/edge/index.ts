@@ -18,6 +18,12 @@ export interface EdgeStackProps extends cdk.StackProps {
   lambdaUrl?: string;
 }
 
+const commonBehaviours = {
+  viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+  allowedMethods: cf.AllowedMethods.ALLOW_ALL,
+  originRequestPolicy: cf.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+} as const;
+
 /**
  * Edge infrastructure
  *
@@ -52,6 +58,12 @@ export class EdgeStack extends cdk.Stack {
 
     const additionalBehaviors: Record<string, cf.BehaviorOptions> = {};
 
+    const sourceBucket = s3.Bucket.fromBucketName(this, 'SourceBucket', 'linz-basemaps');
+    const sourceBucketOac = origins.S3BucketOrigin.withOriginAccessControl(sourceBucket);
+    additionalBehaviors['/2193'] = { ...commonBehaviours, origin: sourceBucketOac };
+    additionalBehaviors['/3857'] = { ...commonBehaviours, origin: sourceBucketOac };
+    additionalBehaviors['/vector'] = { ...commonBehaviours, origin: sourceBucketOac };
+
     if (props.lambdaUrl) {
       const trimmedUrl = new URL(props.lambdaUrl); // LambdaURLS include https:// and a trailing /
       const lambdaOrigin = new origins.HttpOrigin(trimmedUrl.hostname, {
@@ -75,18 +87,14 @@ export class EdgeStack extends cdk.Stack {
 
       additionalBehaviors['/v1*'] = {
         origin: lambdaOrigin,
-        viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        allowedMethods: cf.AllowedMethods.ALLOW_ALL,
         cachePolicy: v1CachePolicy,
-        originRequestPolicy: cf.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+        ...commonBehaviours,
       };
 
       additionalBehaviors['/@*'] = {
         origin: lambdaOrigin,
-        viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-        allowedMethods: cf.AllowedMethods.ALLOW_ALL,
         cachePolicy: atCachePolicy,
-        originRequestPolicy: cf.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+        ...commonBehaviours,
       };
     }
 
