@@ -30,10 +30,11 @@ export interface LogStats {
    */
   tileSet: string;
 
-  /**
-   * zoom level of the request served in WebMercatorQuad zoom scales
-   */
+  /** zoom level of the request served in WebMercatorQuad zoom scales */
   z: number;
+
+  /** Scale multiplier factor if @2x */
+  scale?: number;
 
   /** Host that referred the request */
   referer: string;
@@ -50,17 +51,21 @@ export interface LogStats {
    */
   pipeline?: string;
   /**
-   * Number of hits that were cache hits
+   * Number of tiles that were cache hits
    */
   cacheHit: number;
   /**
-   * Number of hits that were cache misses
+   * Number of tiles that were cache misses
    */
   cacheMiss: number;
   /**
-   * Total number of requests
+   * Total number of tiles served
    */
   total: number;
+  /**
+   * Total number of requests used to generate the tiles
+   */
+  requestCount: number;
   /**
    * Total bytes served
    */

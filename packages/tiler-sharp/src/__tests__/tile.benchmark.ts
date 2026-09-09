@@ -23,7 +23,7 @@ async function main(): Promise<void> {
 
   for (let i = 0; i < RenderCount; i++) {
     const tiler = new Tiler(GoogleTms);
-    const tileMaker = new TileMakerSharp(tileSize);
+    const tileMaker = new TileMakerSharp();
     const tiff = await Tiff.create(fsa.source(TestTiff.Google));
 
     const layers = tiler.tile([tiff], CenterTile, CenterTile, Zoom);
@@ -34,6 +34,8 @@ async function main(): Promise<void> {
       format: 'png',
       background,
       resizeKernel,
+      width: tileSize,
+      height: tileSize,
     });
     await tiff.source.close?.();
   }

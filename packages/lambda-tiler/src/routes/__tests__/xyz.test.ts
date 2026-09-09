@@ -58,12 +58,58 @@ describe('/v1/tiles', () => {
     assert.equal(res.status, 200, res.statusDescription);
     assert.equal(res.header('content-type'), 'image/webp');
     assert.equal(res.header('eTaG'), 'fakeEtag');
-    // o(res.body).equals(rasterMockBuffer.toString('base64'));
 
     // Validate the session information has been set correctly
     assert.deepEqual(request.logContext['xyz'], { x: 0, y: 0, z: 0 });
     assert.deepEqual(round(request.logContext['location']), { lat: 0, lon: 0 });
   });
+
+  it('should generate a @2x 512x512 tile for webp', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+    t.mock.method(Etag, 'key', () => 'fakeEtag');
+
+    const request = mockRequest('/v1/tiles/aerial/3857/0/0/0@2x.webp', 'get', Api.header);
+    const res = await handler.router.handle(request);
+
+    assert.equal(res.status, 200, res.statusDescription);
+    assert.equal(res.header('content-type'), 'image/webp');
+    assert.equal(res.header('eTaG'), 'fakeEtag');
+    assert.equal(request.logContext['scale'], 2);
+
+    const { default: Sharp } = await import('sharp');
+    const meta = await Sharp(Buffer.from(res.body, 'base64')).metadata();
+    assert.equal(meta.width, 512);
+    assert.equal(meta.height, 512);
+  });
+
+  it('should generate a @4x 1024x1024 tile for webp', async (t) => {
+    t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+    t.mock.method(Etag, 'key', () => 'fakeEtag');
+
+    const request = mockRequest('/v1/tiles/aerial/3857/0/0/0@4x.webp', 'get', Api.header);
+    const res = await handler.router.handle(request);
+
+    assert.equal(res.status, 200, res.statusDescription);
+    assert.equal(res.header('content-type'), 'image/webp');
+    assert.equal(res.header('eTaG'), 'fakeEtag');
+    assert.equal(request.logContext['scale'], 4);
+
+    const { default: Sharp } = await import('sharp');
+    const meta = await Sharp(Buffer.from(res.body, 'base64')).metadata();
+    assert.equal(meta.width, 1024);
+    assert.equal(meta.height, 1024);
+  });
+
+  for (const scale of ['@', '@1x', '@3x', '@2']) {
+    it(`should return 400 for unsupported scale factor ${scale}`, async (t) => {
+      t.mock.method(ConfigLoader, 'getDefaultConfig', () => Promise.resolve(config));
+
+      const res = await handler.router.handle(
+        mockRequest(`/v1/tiles/aerial/3857/0/0/0${scale}.webp`, 'get', Api.header),
+      );
+      assert.equal(res.status, 400, res.statusDescription);
+    });
+  }
 
   ['png', 'webp', 'jpeg', 'avif'].forEach((fmt) => {
     it(`should 200 with empty ${fmt} if a tile is out of bounds`, async (t) => {
