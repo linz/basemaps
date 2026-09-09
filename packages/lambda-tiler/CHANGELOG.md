@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.3](https://github.com/linz/basemaps/compare/lambda-tiler-v8.13.2...lambda-tiler-v8.13.3) (2026-09-09)
+
+
+### Bug Fixes
+
+* log api key BM-1854 ([#3655](https://github.com/linz/basemaps/issues/3655)) ([be7173e](https://github.com/linz/basemaps/commit/be7173e12ab72b6882a2120cb5cdf027dccae6f3))
+
 ## [8.13.2](https://github.com/linz/basemaps/compare/lambda-tiler-v8.13.1...lambda-tiler-v8.13.2) (2026-05-17)
 
 
