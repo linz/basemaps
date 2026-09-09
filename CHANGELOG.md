@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.22.0](https://github.com/linz/basemaps/compare/v8.21.0...v8.22.0) (2026-09-09)
+
+
+### Features
+
+* allow direct access to s3 source imagery BM-1877 ([#3658](https://github.com/linz/basemaps/issues/3658)) ([1e9db28](https://github.com/linz/basemaps/commit/1e9db2803b517a4550c4aa612c3c83e984957c60))
+* cloudfront distro upgrade BM-1825 ([#3645](https://github.com/linz/basemaps/issues/3645)) ([46291b8](https://github.com/linz/basemaps/commit/46291b8350191a901377ee7e346b3a704a73d08a))
+* improve smoke tests ([#3646](https://github.com/linz/basemaps/issues/3646)) ([e4e9a22](https://github.com/linz/basemaps/commit/e4e9a22af30644926c06352bba8697e6e9c0382e))
+
+
+### Bug Fixes
+
+* include webacl id if the cloudfront is on a pay monthly plan ([#3648](https://github.com/linz/basemaps/issues/3648)) ([0cb573c](https://github.com/linz/basemaps/commit/0cb573c44c460747e4f88d171e7c776bb5ebe2a1))
+* log api key BM-1854 ([#3655](https://github.com/linz/basemaps/issues/3655)) ([be7173e](https://github.com/linz/basemaps/commit/be7173e12ab72b6882a2120cb5cdf027dccae6f3))
+* vector tile links need i=topographic to show style.json ([#3625](https://github.com/linz/basemaps/issues/3625)) ([03a0ad7](https://github.com/linz/basemaps/commit/03a0ad7409bc949972763949fa1ce009daf5cd5f))
+
 ## [8.21.0](https://github.com/linz/basemaps/compare/v8.20.1...v8.21.0) (2026-07-02)
 
 
