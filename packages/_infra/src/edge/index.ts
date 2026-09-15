@@ -19,15 +19,17 @@ export interface EdgeStackProps extends cdk.StackProps {
 }
 
 const commonBehaviours = {
-  viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
   allowedMethods: cf.AllowedMethods.ALLOW_ALL,
   originRequestPolicy: cf.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+  viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
 } as const;
 
 const commonBehavioursS3 = {
-  ...commonBehaviours,
+  allowedMethods: cf.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
   cachePolicy: cf.CachePolicy.CACHING_OPTIMIZED,
+  originRequestPolicy: cf.OriginRequestPolicy.CORS_S3_ORIGIN,
   responseHeadersPolicy: cf.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT,
+  viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
 } as const;
 
 /**
