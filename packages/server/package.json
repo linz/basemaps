@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "lerc": "^4.0.4",
-    "sharp": "^0.33.0"
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@basemaps/config": "^8.13.2",
