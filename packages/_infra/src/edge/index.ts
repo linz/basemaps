@@ -7,7 +7,7 @@ import s3, { HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { StringParameter } from 'aws-cdk-lib/aws-ssm';
 import type { Construct } from 'constructs';
 
-import { getConfig } from '../config.js';
+import { BaseMapsRegion, getConfig } from '../config.js';
 import { ParametersEdgeKeys } from '../parameters.js';
 
 export interface EdgeStackProps extends cdk.StackProps {
@@ -19,9 +19,17 @@ export interface EdgeStackProps extends cdk.StackProps {
 }
 
 const commonBehaviours = {
-  viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
   allowedMethods: cf.AllowedMethods.ALLOW_ALL,
   originRequestPolicy: cf.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
+  viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+} as const;
+
+const commonBehavioursS3 = {
+  allowedMethods: cf.AllowedMethods.ALLOW_GET_HEAD_OPTIONS,
+  cachePolicy: cf.CachePolicy.CACHING_OPTIMIZED,
+  originRequestPolicy: cf.OriginRequestPolicy.CORS_S3_ORIGIN,
+  responseHeadersPolicy: cf.ResponseHeadersPolicy.CORS_ALLOW_ALL_ORIGINS_WITH_PREFLIGHT,
+  viewerProtocolPolicy: cf.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
 } as const;
 
 /**
@@ -58,11 +66,14 @@ export class EdgeStack extends cdk.Stack {
 
     const additionalBehaviors: Record<string, cf.BehaviorOptions> = {};
 
-    const sourceBucket = s3.Bucket.fromBucketName(this, 'SourceBucket', 'linz-basemaps');
+    const sourceBucket = s3.Bucket.fromBucketAttributes(this, 'SourceBucket', {
+      bucketArn: 'arn:aws:s3:::linz-basemaps',
+      region: BaseMapsRegion,
+    });
     const sourceBucketOac = origins.S3BucketOrigin.withOriginAccessControl(sourceBucket);
-    additionalBehaviors['/2193'] = { ...commonBehaviours, origin: sourceBucketOac };
-    additionalBehaviors['/3857'] = { ...commonBehaviours, origin: sourceBucketOac };
-    additionalBehaviors['/vector'] = { ...commonBehaviours, origin: sourceBucketOac };
+    additionalBehaviors['/2193/*'] = { ...commonBehavioursS3, origin: sourceBucketOac };
+    additionalBehaviors['/3857/*'] = { ...commonBehavioursS3, origin: sourceBucketOac };
+    additionalBehaviors['/vector/*'] = { ...commonBehavioursS3, origin: sourceBucketOac };
 
     if (props.lambdaUrl) {
       const trimmedUrl = new URL(props.lambdaUrl); // LambdaURLS include https:// and a trailing /
