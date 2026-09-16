@@ -106,6 +106,39 @@ describe('analytic lambda', () => {
     );
   });
 
+  it('should process @2x requests as 4 tiles served', async (t) => {
+    setupEnv(t);
+
+    const operations: BulkOperation[] = [];
+    Elastic._client = {
+      bulk(op: { operations: BulkOperation }) {
+        operations.push(op.operations);
+        return Promise.resolve({});
+      },
+    } as unknown as Client;
+
+    const log2x = LogData.replace(
+      '/v1/tiles/aerial/EPSG:3857/19/516588/320039.webp',
+      '/v1/tiles/aerial/EPSG:3857/17/516588/320039@2x.webp',
+    );
+
+    const oneHourAgo = getOneHourAgo();
+    const shortDate = oneHourAgo.toISOString().slice(0, 13).replace('T', '-');
+    await fsa.write(new URL(`mem://source/cfid.${shortDate}/data.txt.gz`), gzipSync(log2x));
+
+    await main(new FakeLambdaRequest());
+
+    assert.equal(operations.length, 1);
+    const op = operations[0];
+    const logOpt = op[1] as LogStats;
+
+    assert.equal(logOpt.scale, 2);
+    assert.equal(logOpt.requestCount, 1);
+
+    assert.equal(logOpt.cacheHit, 4);
+    assert.equal(logOpt.total, 4);
+  });
+
   it('should write errors to storage', async (t) => {
     setupEnv(t);
 
