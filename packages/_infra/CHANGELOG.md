@@ -3,6 +3,27 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.13.0](https://github.com/linz/basemaps/compare/infra-v8.12.5...infra-v8.13.0) (2026-09-16)
+
+
+### Features
+
+* allow direct access to s3 source imagery BM-1877 ([#3658](https://github.com/linz/basemaps/issues/3658)) ([1e9db28](https://github.com/linz/basemaps/commit/1e9db2803b517a4550c4aa612c3c83e984957c60))
+* cloudfront distro upgrade BM-1825 ([#3645](https://github.com/linz/basemaps/issues/3645)) ([46291b8](https://github.com/linz/basemaps/commit/46291b8350191a901377ee7e346b3a704a73d08a))
+
+
+### Bug Fixes
+
+* cleanup broken s3 to cloudfront infra BM-1877 ([#3659](https://github.com/linz/basemaps/issues/3659)) ([fc77e1e](https://github.com/linz/basemaps/commit/fc77e1e5d7e34b365d53a6d3b2014df5b4954abc))
+* include webacl id if the cloudfront is on a pay monthly plan ([#3648](https://github.com/linz/basemaps/issues/3648)) ([0cb573c](https://github.com/linz/basemaps/commit/0cb573c44c460747e4f88d171e7c776bb5ebe2a1))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/lambda-tiler bumped from ^8.13.2 to ^8.13.3
+
 ## [8.12.5](https://github.com/linz/basemaps/compare/infra-v8.12.4...infra-v8.12.5) (2026-05-17)
 
 
