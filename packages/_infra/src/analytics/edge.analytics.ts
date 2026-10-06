@@ -30,6 +30,10 @@ export class EdgeAnalytics extends Stack {
 
     const cacheBucket = new Bucket(this, 'AnalyticCacheBucket', {
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      lifecycleRules: [
+        { id: 'abort-incomplete-multipart', abortIncompleteMultipartUploadAfter: Duration.days(3) },
+        { id: 'expire-errors', prefix: 'errors/', expiration: Duration.days(90) },
+      ],
     });
 
     const v2Lambda = new lambda.Function(this, 'AnalyticV2Lambda', {

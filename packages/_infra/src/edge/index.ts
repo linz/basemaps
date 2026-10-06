@@ -48,6 +48,7 @@ export class EdgeStack extends cdk.Stack {
 
     const config = getConfig();
     const s3BucketSource = new s3.Bucket(this, 'StaticBucket', {
+      lifecycleRules: [{ id: 'abort-incomplete-multipart', abortIncompleteMultipartUploadAfter: cdk.Duration.days(3) }],
       cors: [
         {
           allowedOrigins: ['*'],
@@ -62,7 +63,22 @@ export class EdgeStack extends cdk.Stack {
     const acmCert = Certificate.fromCertificateArn(this, 'Cert', props.cloudfrontCertificateArn);
     new cdk.CfnOutput(this, 'CloudFrontPublicDomain', { value: config.CloudFrontDns.join(', ') });
 
-    this.logBucket = new s3.Bucket(this, 'EdgeLogBucket');
+    this.logBucket = new s3.Bucket(this, 'EdgeLogBucket', {
+      versioned: true,
+      lifecycleRules: [
+        {
+          id: 'archive-logs',
+          // lambda-analytic-cloudfront only reads the last 28 days of logs, older logs are kept for historic analysis
+          transitions: [
+            { storageClass: s3.StorageClass.GLACIER_INSTANT_RETRIEVAL, transitionAfter: cdk.Duration.days(30) },
+          ],
+          noncurrentVersionExpiration: cdk.Duration.days(1),
+          abortIncompleteMultipartUploadAfter: cdk.Duration.days(3),
+          objectSizeGreaterThan: cdk.Size.kibibytes(128).toBytes(),
+        },
+        { id: 'expire-delete-markers', expiredObjectDeleteMarker: true },
+      ],
+    });
 
     const additionalBehaviors: Record<string, cf.BehaviorOptions> = {};
 
