@@ -28,7 +28,7 @@ async function main(): Promise<void> {
     group: 'li',
     impact: 'moderate',
     classification: SecurityClassification.Unclassified,
-    responderTeam: 'LINZ - Basemaps',
+    responderTeam: 'LI - Basemaps',
   };
 
   /** Using VPC lookups requires a hard coded AWS "account" */
@@ -58,13 +58,13 @@ async function main(): Promise<void> {
     cloudfrontCertificateArn,
     lambdaUrl: serveParams?.LambdaXyzUrl,
   });
-  applyTags(edge, commonTags);
+  applyTags(edge, { ...commonTags, component: 'edge' });
 
   const serve = new ServeStack(basemaps, 'Serve', {
     env: { region: BaseMapsRegion, account },
     staticBucketName: edgeParams?.CloudFrontBucket,
   });
-  applyTags(serve, commonTags);
+  applyTags(serve, { ...commonTags, component: 'serve' });
   edge.addDependency(serve);
 
   if (edgeParams != null) {
@@ -74,7 +74,7 @@ async function main(): Promise<void> {
       distributionId: edgeParams.CloudFrontDistributionId,
     });
     analytics.addDependency(edge);
-    applyTags(analytics, { ...commonTags, impact: 'minor' });
+    applyTags(analytics, { ...commonTags, component: 'analytics', impact: 'minor' });
   }
 }
 
