@@ -66,6 +66,7 @@ export class EdgeStack extends cdk.Stack {
     this.logBucket = new s3.Bucket(this, 'EdgeLogBucket', {
       versioned: true,
       lifecycleRules: [
+        { id: 'abort-incomplete-multipart', abortIncompleteMultipartUploadAfter: cdk.Duration.days(3) },
         {
           id: 'archive-logs',
           // lambda-analytic-cloudfront only reads the last 28 days of logs, older logs are kept for historic analysis
@@ -73,7 +74,6 @@ export class EdgeStack extends cdk.Stack {
             { storageClass: s3.StorageClass.GLACIER_INSTANT_RETRIEVAL, transitionAfter: cdk.Duration.days(30) },
           ],
           noncurrentVersionExpiration: cdk.Duration.days(1),
-          abortIncompleteMultipartUploadAfter: cdk.Duration.days(3),
           objectSizeGreaterThan: cdk.Size.kibibytes(128).toBytes(),
         },
         { id: 'expire-delete-markers', expiredObjectDeleteMarker: true },
