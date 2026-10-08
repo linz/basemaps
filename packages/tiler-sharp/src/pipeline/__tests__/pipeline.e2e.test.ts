@@ -52,7 +52,7 @@ const WriteImages = false;
 describe('pipeline.e2e', () => {
   const tileRgbi16 = { x: 262144, y: 262144, z: 19 };
 
-  const tileMaker = new TileMakerSharp(tileSize);
+  const tileMaker = new TileMakerSharp();
   const tiler = new Tiler(GoogleTms);
 
   it('should create a rgb tiff', async () => {
@@ -66,6 +66,8 @@ describe('pipeline.e2e', () => {
       background: { r: 255, g: 0, b: 255, alpha: 0.3 },
       pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 3 }],
       resizeKernel: { in: 'nearest', out: 'nearest' },
+      width: tileSize,
+      height: tileSize,
     });
     assertTiffBuffer(png.buffer, tileRgbi16, 'rgb');
     await tiff.source.close?.();
@@ -82,6 +84,8 @@ describe('pipeline.e2e', () => {
       background: { r: 255, g: 0, b: 255, alpha: 0.3 },
       pipeline: [{ type: 'extract', r: 2, g: 1, b: 0, alpha: 3 }],
       resizeKernel: { in: 'nearest', out: 'nearest' },
+      width: tileSize,
+      height: tileSize,
     });
 
     assertTiffBuffer(png.buffer, tileRgbi16, 'false-color');
@@ -99,6 +103,8 @@ describe('pipeline.e2e', () => {
       background: { r: 255, g: 0, b: 255, alpha: 0.3 },
       pipeline: [{ type: 'ndvi', r: 0, nir: 3, alpha: 3, scale: { r: 1024, nir: 1024, alpha: 255 } }],
       resizeKernel: { in: 'nearest', out: 'nearest' },
+      width: tileSize,
+      height: tileSize,
     });
 
     assertTiffBuffer(png.buffer, tileRgbi16, 'ndvi');
@@ -116,6 +122,8 @@ describe('pipeline.e2e', () => {
       background: { r: 255, g: 0, b: 255, alpha: 0.3 },
       pipeline: [{ type: 'color-ramp' }],
       resizeKernel: { in: 'nearest', out: 'nearest' },
+      width: tileSize,
+      height: tileSize,
     });
 
     assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'color-ramp');
@@ -133,6 +141,8 @@ describe('pipeline.e2e', () => {
       background: { r: 255, g: 0, b: 255, alpha: 0.3 },
       pipeline: [{ type: 'terrain-rgb' }],
       resizeKernel: { in: 'nearest', out: 'nearest' },
+      width: tileSize,
+      height: tileSize,
     });
 
     assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'terrain-rgb');
@@ -150,6 +160,8 @@ describe('pipeline.e2e', () => {
       background: { r: 255, g: 0, b: 255, alpha: 0.3 },
       pipeline: [{ type: 'color-ramp', ramp: '0 128 128 255 255\n255 128 255 128 255' }],
       resizeKernel: { in: 'nearest', out: 'nearest' },
+      width: tileSize,
+      height: tileSize,
     });
 
     assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'color-ramp-custom');
@@ -161,7 +173,7 @@ describe('pipeline.e2e', () => {
     const tiler = new Tiler(GoogleTms);
 
     const layer0 = tiler.tile([tiff], 262144, 262144, 19) as CompositionTiff[];
-    const tileMaker = new TileMakerSharp(256);
+    const tileMaker = new TileMakerSharp();
 
     const png = await tileMaker.compose({
       layers: layer0,
@@ -169,6 +181,8 @@ describe('pipeline.e2e', () => {
       background: { r: 255, g: 0, b: 255, alpha: 0.3 },
       pipeline: [{ type: 'extract', r: 0, g: 1, b: 2, alpha: 3 }],
       resizeKernel: { in: 'nearest', out: 'nearest' },
+      width: tileSize,
+      height: tileSize,
     });
 
     assertTiffBuffer(png.buffer, { x: 0, y: 0, z: 0 }, 'big-endian');

@@ -45,18 +45,24 @@ export class Tiler {
    * @param x WebMercator X
    * @param y WebMercator Y
    * @param zoom WebMercator Zoom
+   * @param scale Output pixel scale factor (default 1)
    */
-  public tile(assets: CloudArchive[], x: number, y: number, zoom: number): Composition[] {
+  public tile(assets: CloudArchive[], x: number, y: number, zoom: number, scale = 1): Composition[] {
     let layers: Composition[] = [];
     /** Raster pixels of the output tile */
     const screenPx = this.tms.tileToPixels(x, y);
-    const screenBoundsPx = new Bounds(screenPx.x, screenPx.y, this.tms.tileWidth, this.tms.tileHeight);
+    const screenBoundsPx = new Bounds(
+      screenPx.x * scale,
+      screenPx.y * scale,
+      this.tms.tileWidth * scale,
+      this.tms.tileHeight * scale,
+    );
 
     for (const asset of assets) {
       if (isCotar(asset)) {
         layers.push({ type: 'cotar', asset, path: `tiles/${zoom}/${x}/${y}.webp` });
       } else {
-        const tileOverlays = this.getTiles(asset, screenBoundsPx, zoom);
+        const tileOverlays = this.getTiles(asset, screenBoundsPx, zoom, scale);
         if (tileOverlays == null) continue;
         layers = layers.concat(tileOverlays);
       }
@@ -71,13 +77,22 @@ export class Tiler {
    * @param tiff CoGeoTiff to check bounds of
    * @param screenBoundsPx Bounding box of the output image
    * @param zoom WebMercator zoom
+   * @param scale Output scale factor multiplier
    */
-  public getRasterTiffIntersection(tiff: Tiff, screenBoundsPx: Bounds, zoom: number): RasterPixelBounds | null {
+  public getRasterTiffIntersection(
+    tiff: Tiff,
+    screenBoundsPx: Bounds,
+    zoom: number,
+    scale = 1,
+  ): RasterPixelBounds | null {
     /** Raster pixels of the input geotiff */
     const bbox = tiff.images[0].bbox;
     const ul = this.tms.sourceToPixels(bbox[0], bbox[3], zoom);
     const lr = this.tms.sourceToPixels(bbox[2], bbox[1], zoom);
-    const tiffBoundsPx = Bounds.fromUpperLeftLowerRight(ul, lr);
+    const tiffBoundsPx = Bounds.fromUpperLeftLowerRight(
+      { x: ul.x * scale, y: ul.y * scale },
+      { x: lr.x * scale, y: lr.y * scale },
+    );
 
     /** Raster pixels that need to be filled by this tiff */
     const intersectionPx = tiffBoundsPx.intersection(screenBoundsPx);
@@ -147,12 +162,12 @@ export class Tiler {
     return composition;
   }
 
-  public getTiles(tiff: Tiff, bounds: Bounds, z: number): CompositionTiff[] | null {
-    const rasterBounds = this.getRasterTiffIntersection(tiff, bounds, z);
+  public getTiles(tiff: Tiff, bounds: Bounds, z: number, scale = 1): CompositionTiff[] | null {
+    const rasterBounds = this.getRasterTiffIntersection(tiff, bounds, z, scale);
     if (rasterBounds == null) return null;
 
     // Find the best internal overview tiff to use with the desired XYZ resolution
-    const targetResolution = this.tms.pixelScale(z);
+    const targetResolution = this.tms.pixelScale(z) / scale;
     const img = tiff.getImageByResolution(targetResolution);
     // Often the overviews do not align to the actual resolution we want so we will need to scale the overview to the correct resolution
     const pixelScale = targetResolution / img.resolution[0];

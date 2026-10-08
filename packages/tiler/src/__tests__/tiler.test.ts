@@ -24,6 +24,12 @@ describe('tiler.test', () => {
       Approx.bounds(z0?.tiff, { x: 64, y: 64, height: 128, width: 128 }, 'tiff');
       Approx.bounds(z0?.intersection, { x: 64, y: 64, height: 128, width: 128 }, 'intersection');
       Approx.bounds(z0?.tile, { x: 0, y: 0, width: 256, height: 256 }, 'tile');
+
+      const screenBoundsPx2x = new Bounds(0, 0, 512, 512);
+      const z02x = tiler.getRasterTiffIntersection(tiff, screenBoundsPx2x, 0, 2);
+      Approx.bounds(z02x?.tiff, { x: 128, y: 128, height: 256, width: 256 }, 'tiff');
+      Approx.bounds(z02x?.intersection, { x: 128, y: 128, height: 256, width: 256 }, 'intersection');
+      Approx.bounds(z02x?.tile, { x: 0, y: 0, width: 512, height: 512 }, 'tile');
     });
 
     ['0', '1', '2', '3'].forEach((qk) => {
