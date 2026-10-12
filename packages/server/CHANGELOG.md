@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.10.18](https://github.com/linz/basemaps/compare/server-v8.10.17...server-v8.10.18) (2026-10-12)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * devDependencies
+    * @basemaps/lambda-tiler bumped from ^8.13.3 to ^8.13.4
+
 ## [8.10.17](https://github.com/linz/basemaps/compare/server-v8.10.16...server-v8.10.17) (2026-10-08)
 
 
