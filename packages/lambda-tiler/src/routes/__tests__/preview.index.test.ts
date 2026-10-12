@@ -104,6 +104,40 @@ describe('/@*', () => {
     assert.equal(getBody(resB)?.toString().includes('<fake tag />'), true);
   });
 
+  it('should replace a meta tag that spans multiple lines', async () => {
+    const ctx = new LambdaAlbRequest(baseRequest, {} as Context, LogConfig.get());
+    process.env[Env.StaticAssetLocation] = 'memory://assets/';
+
+    const indexHtml = [
+      '<html>',
+      '  <head>',
+      '    <meta name="twitter:title" property="og:title" content="LINZ Basemaps" />',
+      '    <meta',
+      '      name="twitter:description"',
+      '      property="og:description"',
+      '      content="NZ’s authoritative and open digital basemap service for LINZ and the public."',
+      '    />',
+      '  </head>',
+      '</html>',
+    ].join('\n');
+
+    await fsa.write(new URL('memory://assets/index.html'), indexHtml);
+
+    const res = await loadAndServeIndexHtml(
+      ctx,
+      null,
+      new Map([['og:description', '<meta name="twitter:description" property="og:description" content="replaced" />']]),
+    );
+    const body = getBody(res)?.toString();
+
+    assert.equal(
+      body?.includes('<meta name="twitter:description" property="og:description" content="replaced" />'),
+      true,
+    );
+
+    assert.equal(body?.includes('<meta name="twitter:title" property="og:title" content="LINZ Basemaps" />'), true);
+  });
+
   it('should include config url', async () => {
     process.env[Env.StaticAssetLocation] = 'memory://assets/';
 

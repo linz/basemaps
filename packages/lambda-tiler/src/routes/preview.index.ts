@@ -64,17 +64,13 @@ export async function loadAndServeIndexHtml(
       return res;
     }
 
-    // Replace open graph tags
-    const output = String(indexHtml)
-      .split('\n')
-      .map((f) => {
-        for (const [key, value] of tags.entries()) {
-          if (f.includes(key)) return value;
-        }
-        return f;
-      });
+    // Replace open graph tags, matching the whole `<meta ... />` element as it
+    // may be formatted across multiple lines
+    let outHtml = String(indexHtml);
+    for (const [key, value] of tags.entries()) {
+      outHtml = outHtml.replace(new RegExp(`[ \\t]*<meta[^>]*property="${key}"[^>]*/>`), value);
+    }
 
-    const outHtml = output.join('\n');
     res.header(HttpHeader.ETag, Etag.key(outHtml));
     res.buffer(outHtml, `text/html; charset=utf-8`);
     return res;
