@@ -7,8 +7,10 @@ import { GdalRunner } from '../gdal/gdal.runner.js';
 import { basename } from 'path/win32';
 import { mkdir } from 'fs/promises';
 import { SpatialExtents, StacCollection, StacItem } from 'stac-ts';
-import { Bounds } from '@basemaps/geo';
+import { Bounds, EpsgCode, Projection } from '@basemaps/geo';
 import pLimit from 'p-limit';
+import { createFileStats } from '../stac.js';
+import { GeoJSONPolygon } from 'stac-ts/src/types/geojson.js';
 
 /**
  * Parses a source path directory topographic maps tiffs and writes out a directory structure
@@ -57,7 +59,7 @@ export const TopoReliefShadeCreationCommand = command({
     await mkdir(new URL('./target', args.tempLocation), { recursive: true });
 
     const items: StacItem[] = [];
-    const processed: URL[] = [];
+    const processed: Array<{ target: URL; filename: string }> = [];
     const tasks: Array<Promise<void>> = [];
     for await (const source of fsa.list(args.source)) {
       if (source.href.endsWith('.tif') || source.href.endsWith('.tiff')) {
@@ -73,10 +75,21 @@ export const TopoReliefShadeCreationCommand = command({
             const x1 = tfw.origin.x;
             const y1 = tfw.origin.y;
             const bounds = new Bounds(x1, y1, tfw.scale.x * 2400, tfw.scale.y * 3600);
+            // Skip tiles whose world file produces a degenerate extent (e.g. a zero scale),
+            // otherwise GDAL writes a COG with no geo transformation and processing fails.
+            // Note: height is normally negative (north-up), so only zero/non-finite is invalid.
+            if (
+              bounds.width === 0 ||
+              bounds.height === 0 ||
+              !Number.isFinite(bounds.width) ||
+              !Number.isFinite(bounds.height)
+            ) {
+              logger.warn({ source: source.href, bounds }, 'ReliefShade:Skip:InvalidBounds');
+              return;
+            }
             const target = new URL(`./target/${basename(source.href)}`, args.tempLocation);
             const command = gdalBuildTopoReliefShadeCommands(downloadTiff, target, bounds);
             await new GdalRunner(command).run(logger);
-            processed.push(target);
 
             logger.info({ source: source.href, target: target.href }, 'ProcessReliefShade:End');
 
@@ -85,13 +98,32 @@ export const TopoReliefShadeCreationCommand = command({
               logger.warn({ source }, 'Filename not found in URL');
               return;
             }
-            const id = filename?.split('.')[0];
-            const item = await createStacItem(id, target, bounds, logger);
+            // Derive the map sheet name from the source filename, dropping the hillshade suffix.
+            // Sheet codes are upper-cased, but the LINZ part-sheet connectors "pt"/"pts" are kept
+            // lower-case to match the official map sheet naming. The connector may sit between two
+            // sheet codes or be left trailing when the source name is truncated.
+            // e.g. "as21as22_hs.tif"      -> "AS21AS22"
+            //      "au28ptav28_hs.tif"    -> "AU28ptAV28"
+            //      "au28pt_hs.tif"        -> "AU28pt"
+            //      "ax32ptsax31ay31ay32"  -> "AX32ptsAX31AY31AY32"
+            const id = filename
+              .replace(/\.tiff?$/i, '')
+              .replace(/_(hs|hillshade)$/i, '')
+              .toUpperCase()
+              .replace(/(\d)PTS(?=[A-Z]|$)/g, '$1pts')
+              .replace(/(\d)PT(?=[A-Z]|$)/g, '$1pt');
+            const outputFilename = `${id}_reliefshade.tiff`;
+            processed.push({ target, filename: outputFilename });
+            const item = await createStacItem(id, source, target, bounds, logger);
             items.push(item);
             const tiff = await new Tiff(fsa.source(target)).init();
             const image = tiff.images[0];
 
-            logger.info({ source: source.href, resolution: image.resolution }, 'ReliefShadeResolution');
+            try {
+              logger.info({ source: source.href, resolution: image.resolution }, 'ReliefShadeResolution');
+            } catch (err) {
+              logger.warn({ source: source.href }, 'ReliefShade:ResolutionUnavailable');
+            }
           }),
         );
       }
@@ -101,9 +133,9 @@ export const TopoReliefShadeCreationCommand = command({
     logger.info({ items: items.length }, 'WriteTargets:Start');
     const collection = CreateStacCollection(items, logger);
     await Promise.all([
-      processed.map((c) => fsa.write(new URL(`./${basename(c.pathname)}`, args.target), fsa.readStream(c))),
+      processed.map((c) => fsa.write(new URL(`./${c.filename}`, args.target), fsa.readStream(c.target))),
       items.map((item) =>
-        fsa.write(new URL(`./${item.id}.json`, args.target), JSON.stringify(item, null, 2)),
+        fsa.write(new URL(`./${item.id}_reliefshade.json`, args.target), JSON.stringify(item, null, 2)),
       ),
       fsa.write(new URL('./collection.json', args.target), JSON.stringify(collection, null, 2)),
     ]);
@@ -151,7 +183,12 @@ export async function loadTfw(imageLoc: URL, logger: LogType): Promise<TfwParseR
  * @returns
  */
 export function parseTfw(data: string): TfwParseResult {
-  const parts = data.split('\n');
+  // Some world files contain stray blank lines and/or carriage returns between values.
+  // Trim each line and drop empty ones so the six coefficients are read by position.
+  const parts = data
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
   if (parts.length < 6) throw new Error('TFW: Not enough points');
   const scaleX = Number(parts[0]);
   const scaleY = Number(parts[3]);
@@ -185,21 +222,28 @@ export function replaceUrlPathPattern(location: URL, pattern: RegExp, replaceVal
 async function createStacItem(
   id: string,
   source: URL,
+  target: URL,
   bounds: Bounds,
   logger: LogType,
 ): Promise<StacItem> {
   // Create stac item
   logger.info({ id }, 'Charts:CreateStacItem');
+  const data = await fsa.read(target);
+
+  // Reproject the NZTM (EPSG:2193) bounds to geographic NZGD2000 (EPSG:4167) lon/lat
+  const proj = Projection.get(EpsgCode.Nztm2000);
+  const feature = proj.boundsToGeoJsonFeature(bounds);
+
   const item: StacItem = {
     id,
     type: 'Feature',
     collection: CliId,
     stac_version: '1.0.0',
-    stac_extensions: [],
-    geometry: { type: 'Polygon', coordinates: bounds.toPolygon() },
-    bbox: bounds.toBbox(),
+    stac_extensions: ['https://stac-extensions.github.io/file/v2.0.0/schema.json'],
+    geometry: feature.geometry as GeoJSONPolygon,
+    bbox: proj.boundsToWgs84BoundingBox(bounds),
     links: [
-      { href: `./${id}.json`, rel: 'self' },
+      { href: `./${id}_reliefshade.json`, rel: 'self' },
       { href: './collection.json', rel: 'collection' },
       { href: './collection.json', rel: 'parent' },
       {
@@ -210,12 +254,13 @@ async function createStacItem(
     ],
     properties: {
       datetime: CliDate,
-      'proj:epsg': 2193,
+      'proj:epsg': 4167,
     },
     assets: {
       'data': {
-        href: `./${id}.tiff`,
+        href: `./${id}_reliefshade.tiff`,
         type: 'image/tiff; application=geotiff;',
+        ...createFileStats(data),
       },
     }
   }
@@ -241,7 +286,7 @@ function CreateStacCollection(items: StacItem[], logger: LogType): StacCollectio
     links: [
       { rel: 'self', href: './collection.json', type: 'application/json' },
       ...items.map((item) => ({
-        href: `./${item.id}.json`,
+        href: `./${item.id}_reliefshade.json`,
         rel: 'item',
         type: 'application/json',
       })),
