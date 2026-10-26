@@ -12,6 +12,7 @@ export const Ramps: Record<DecompressedInterleaved['depth'], Colorizer> = {
   uint8: new GreyScale(0, 255),
   uint16: new GreyScale(0, 2 ** 16 - 1),
   uint32: new GreyScale(0, 2 ** 32 - 1),
+  int16: new GreyScale(-(2 ** 15), 2 ** 15 - 1),
 };
 
 function getRamp(data: DecompressedInterleaved, ctx?: PipelineColorRampArgs): Colorizer {

@@ -29,11 +29,12 @@ function applyPredictor(data: DecompressedInterleaved, predictor?: number): Deco
       modulo = 2 ** 8;
       break;
     case 'uint16':
+    case 'int16':
       modulo = 2 ** 16;
       break;
   }
 
-  if (modulo === -1) throw new Error('Only unit8 or uint16 predictor supported');
+  if (modulo === -1) throw new Error('Only unit8, uint16 or int16 predictor supported');
 
   for (let y = 0; y < data.height; y++) {
     const offset = y * data.channels * data.width;
@@ -88,6 +89,9 @@ function createDecompressedInterleaved(
       if (sampleLength === 16) return { pixels: new Uint16Array(bytes), depth: 'uint16', channels, width, height };
       if (sampleLength === 32) return { pixels: new Uint32Array(bytes), depth: 'uint32', channels, width, height };
       throw new Error(`Only uint8,uint16,uint32 supported: ${sampleLength} from: ${tiff.source.url.href}`);
+    case SampleFormat.Int:
+      if (sampleLength === 16) return { pixels: new Int16Array(bytes), depth: 'int16', channels, width, height };
+      throw new Error(`Only int16 supported: ${sampleLength} from: ${tiff.source.url.href}`);
   }
   throw new Error('Unknown sample/bit combination: ' + tiff.source.url.href);
 }
