@@ -3,7 +3,7 @@ import { afterEach, describe, it } from 'node:test';
 
 import { ConfigProviderMemory } from '@basemaps/config';
 
-import { handler } from '../index.js';
+import { getClientIp, handler } from '../index.js';
 import { ConfigLoader } from '../util/config.loader.js';
 import { mockRequest } from './xyz.util.js';
 
@@ -11,6 +11,29 @@ describe('LambdaXyz index', () => {
   it('should export handler', async () => {
     const foo = await import('../index.js');
     assert.equal(typeof foo.handler, 'function');
+  });
+
+  describe('getClientIp', () => {
+    const ip = (addr?: string): string | undefined => {
+      return getClientIp(mockRequest('/v1/version', 'get', addr ? { 'cloudfront-viewer-address': addr } : {}));
+    };
+
+    it('should strip the port from ipv4', () => {
+      assert.equal(ip('203.0.113.10:46532'), '203.0.113.10');
+    });
+
+    it('should strip the port from ipv6 and keep brackets', () => {
+      assert.equal(ip('[2001:db8::1]:46532'), '[2001:db8::1]');
+    });
+
+    it('should handle missing ports', () => {
+      assert.equal(ip('203.0.113.10'), '203.0.113.10');
+      assert.equal(ip('[2001:db8::1]'), '[2001:db8::1]');
+    });
+
+    it('should return undefined when header is missing', () => {
+      assert.equal(ip(), undefined);
+    });
   });
 
   describe('version', () => {
