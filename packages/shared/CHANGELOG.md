@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.10.0](https://github.com/linz/basemaps/compare/shared-v8.9.9...shared-v8.10.0) (2026-10-27)
+
+
+### Features
+
+* block based off viewer ip BM-1942 ([#3670](https://github.com/linz/basemaps/issues/3670)) ([0ba527d](https://github.com/linz/basemaps/commit/0ba527d76782d89d0f47db3e082075c2e901da17))
+
 ## [8.9.9](https://github.com/linz/basemaps/compare/shared-v8.9.8...shared-v8.9.9) (2026-05-17)
 
 

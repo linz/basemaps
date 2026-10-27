@@ -1,5 +1,14 @@
 # Changelog
 
+## [8.9.11](https://github.com/linz/basemaps/compare/lambda-analytic-cloudfront-v8.9.10...lambda-analytic-cloudfront-v8.9.11) (2026-10-27)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/shared bumped from ^8.9.9 to ^8.10.0
+
 ## [8.9.10](https://github.com/linz/basemaps/compare/lambda-analytic-cloudfront-v8.9.9...lambda-analytic-cloudfront-v8.9.10) (2026-05-17)
 
 
