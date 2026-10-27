@@ -100,6 +100,16 @@ MapLibre is the recommended library for web applications using vector tiles.
 
 <iframe src="index.maplibre.vector.3857.html" height="500px" width="100%" scrolling="no"></iframe>
 
+### NZTM2000 (EPSG:2193)
+
+MapLibre GL JS 6.15 and later can also show the NZTM2000Quad tiles. Register the projection with `maplibregl.addProjection`, using [proj4js](https://github.com/proj4js/proj4js) for the conversion to and from longitude and latitude and the NZTM2000Quad tile matrix set for the tile grid, then ask for the style with `tileMatrix=NZTM2000Quad` and set its projection to `EPSG:2193`. Zoom levels are those of NZTM2000Quad, about two lower than in Web Mercator for the same view.
+
+```html
+--8<-- "user-guide/working-with-vector-tiles/usage/index.maplibre.vector.2193.html"
+```
+
+<iframe src="index.maplibre.vector.2193.html" height="500px" width="100%" scrolling="no"></iframe>
+
 ## ESRI Products
 
 **Important Note**: ESRI products (ArcGIS Pro, ArcGIS Online) currently do not support the vector tile format used by LINZ Basemaps. For ESRI users, you'll need to use LINZ's raster tile services or XYZ/WMTS endpoints instead.

@@ -1,5 +1,9 @@
 # XYZ and projection math
 
+!!! note
+
+    MapLibre GL JS 6.15 and later can show NZTM2000Quad tiles without this conversion, see [MapLibre GL JS in NZTM2000](../user-guide/working-with-vector-tiles/usage/README.md#nztm2000-epsg2193).
+
 [NZTM2000Quad](https://github.com/linz/NZTM2000TileMatrixSet) is not supported by many third party tools especially inside the Vector Tile space. Often tools expect tiles to be served as `/{z}/{x}/{y}.mvt` and assume the projection is [WebMercatorQuad](https://docs.ogc.org/is/17-083r2/17-083r2.html#63).
 
 Basemaps uses the lack of built in projection information to allow tools to work with NZTM2000Quad tiles without knowing they are in a different tile matrix set.
