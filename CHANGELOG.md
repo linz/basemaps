@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.23.0](https://github.com/linz/basemaps/compare/v8.22.1...v8.23.0) (2026-10-27)
+
+
+### Features
+
+* block based off viewer ip BM-1942 ([#3670](https://github.com/linz/basemaps/issues/3670)) ([0ba527d](https://github.com/linz/basemaps/commit/0ba527d76782d89d0f47db3e082075c2e901da17))
+* **lambda-tiler:** log viewer ip address from cloudfront ([#3668](https://github.com/linz/basemaps/issues/3668)) ([32f333a](https://github.com/linz/basemaps/commit/32f333a875b8461b378a77bdae9e7a5772264520))
+* **tiler-sharp:** add int16 support ([#3667](https://github.com/linz/basemaps/issues/3667)) ([411bb56](https://github.com/linz/basemaps/commit/411bb569bb5984bca93d12d8860e575044333363))
+
 ## [8.22.1](https://github.com/linz/basemaps/compare/v8.22.0...v8.22.1) (2026-10-12)
 
 

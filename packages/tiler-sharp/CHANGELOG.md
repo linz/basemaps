@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.12.0](https://github.com/linz/basemaps/compare/tiler-sharp-v8.11.6...tiler-sharp-v8.12.0) (2026-10-27)
+
+
+### Features
+
+* **tiler-sharp:** add int16 support ([#3667](https://github.com/linz/basemaps/issues/3667)) ([411bb56](https://github.com/linz/basemaps/commit/411bb569bb5984bca93d12d8860e575044333363))
+
 ## [8.11.6](https://github.com/linz/basemaps/compare/tiler-sharp-v8.11.5...tiler-sharp-v8.11.6) (2026-05-17)
 
 
