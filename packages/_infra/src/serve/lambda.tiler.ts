@@ -1,4 +1,5 @@
 import assert from 'node:assert';
+import { isIP } from 'node:net';
 
 import { Env, isValidApiKey } from '@basemaps/shared';
 import type * as cdk from 'aws-cdk-lib';
@@ -49,6 +50,19 @@ export class LambdaTiler extends Construct {
         assert.ok(isValidApiKey(key).valid, `${key} is not a valid api key to block ${Env.BlockedApiKeys}`);
       }
       environment[Env.BlockedApiKeys] = blockedKeys;
+    }
+
+    // Set blocked client ips if some are present
+    const blockedIps = Env.get(Env.BlockedClientIps) ?? '';
+    if (blockedIps.length > 0) {
+      const listOfIps = JSON.parse(blockedIps) as string[];
+      if (!Array.isArray(listOfIps)) throw new Error(` ${Env.BlockedClientIps} is not valid`);
+      for (const ip of listOfIps) {
+        // IPv6 addresses can be wrapped in "[]" to match the CloudFront-Viewer-Address header
+        const bareIp = typeof ip === 'string' ? ip.replace(/^\[(.*)\]$/, '$1') : '';
+        assert.ok(isIP(bareIp) !== 0, `${ip} is not a valid ip address to block ${Env.BlockedClientIps}`);
+      }
+      environment[Env.BlockedClientIps] = blockedIps;
     }
 
     const code = lambda.Code.fromAsset(CODE_PATH);

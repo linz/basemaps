@@ -19,6 +19,7 @@ import { wmtsCapabilitiesGet } from './routes/tile.wmts.js';
 import { tileXyzGet } from './routes/tile.xyz.js';
 import { versionGet } from './routes/version.js';
 import { NotFound } from './util/response.js';
+import { Validate } from './util/validate.js';
 
 export const handler = lf.http(LogConfig.get());
 
@@ -42,21 +43,6 @@ function randomTrace(req: LambdaHttpRequest): void {
   else req.log.level = 'info';
 }
 
-/**
- * Get the viewer's IP address from the CloudFront-Viewer-Address header, removing the port
- *
- * @example
- * "203.0.113.10:46532" => "203.0.113.10"
- * "[2001:db8::1]:46532" => "[2001:db8::1]"
- */
-export function getClientIp(req: LambdaHttpRequest): string | undefined {
-  const addr = req.header('cloudfront-viewer-address');
-  if (addr == null) return undefined;
-  const portIndex = addr.lastIndexOf(':');
-  if (portIndex === -1 || addr.endsWith(']')) return addr;
-  return addr.slice(0, portIndex);
-}
-
 handler.router.hook('request', (req) => {
   LogStorage.enterWith({ log: req.log });
   FsaLog.reset();
@@ -65,8 +51,7 @@ handler.router.hook('request', (req) => {
 
   req.set('name', 'LambdaTiler');
 
-  const clientIp = getClientIp(req);
-  if (clientIp) req.set('clientIp', clientIp);
+  Validate.clientIp(req);
 
   req.log.debug({ ...req.logContext }, 'Lambda:Start');
 });

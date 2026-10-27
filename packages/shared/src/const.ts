@@ -49,6 +49,13 @@ export const Env = {
    */
   BlockedApiKeys: 'BASEMAPS_API_KEY_BLOCKS',
 
+  /**
+   * JSON encoded array of client IP addresses to block, IPv6 addresses can be with or without "[]"
+   *
+   * @example '["203.0.113.10","[2001:db8::1]"]'
+   */
+  BlockedClientIps: 'BASEMAPS_CLIENT_IP_BLOCKS',
+
   Gdal: {
     /** Should the gdal docker container be used? */
     UseDocker: 'GDAL_DOCKER',

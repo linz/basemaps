@@ -133,6 +133,7 @@ jobs:
           npx lerna run deploy:deploy --stream
         env:
           BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
+          BASEMAPS_VIEWER_IP_BLOCKS: ${{ secrets.BASEMAPS_VIEWER_IP_BLOCKS }}
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           ELASTIC_ID: ${{ secrets.ELASTIC_ID }}
           ELASTIC_API_KEY: ${{ secrets.ELASTIC_API_KEY }}
@@ -202,6 +203,7 @@ jobs:
           npx lerna run deploy:deploy --stream
         env:
           BASEMAPS_API_KEY_BLOCKS: ${{ secrets.BASEMAPS_API_KEY_BLOCKS }}
+          BASEMAPS_VIEWER_IP_BLOCKS: ${{ secrets.BASEMAPS_VIEWER_IP_BLOCKS }}
           GOOGLE_ANALYTICS: ${{ secrets.GOOGLE_ANALYTICS }}
           ELASTIC_ID: ${{ secrets.ELASTIC_ID }}
           ELASTIC_API_KEY: ${{ secrets.ELASTIC_API_KEY }}
