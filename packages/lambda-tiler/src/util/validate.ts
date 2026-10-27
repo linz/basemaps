@@ -83,7 +83,9 @@ export const Validate = {
    */
   clientIp(req: LambdaHttpRequest): string | undefined {
     const clientIp = getClientIp(req);
-    if (clientIp == null) return undefined;
+    if (clientIp == null) return;
+
+    req.set('clientIp', clientIp);
 
     if (this.blockedClientIps.has(normalizeIp(clientIp))) {
       req.set('clientIpBlocked', true);

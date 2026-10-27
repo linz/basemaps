@@ -51,8 +51,7 @@ handler.router.hook('request', (req) => {
 
   req.set('name', 'LambdaTiler');
 
-  const clientIp = Validate.clientIp(req);
-  if (clientIp) req.set('clientIp', clientIp);
+  Validate.clientIp(req);
 
   req.log.debug({ ...req.logContext }, 'Lambda:Start');
 });
