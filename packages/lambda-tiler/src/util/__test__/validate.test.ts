@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import { GoogleTms, Nztm2000QuadTms, Nztm2000Tms } from '@basemaps/geo';
 
 import { mockUrlRequest } from '../../__tests__/xyz.util.js';
-import { Validate } from '../validate.js';
+import { getClientIp, normalizeIp, Validate } from '../validate.js';
 
 describe('Validate.blockedApiKeys', () => {
   const validApiKey = 'c01jswmpe1yn3mwne7e0ggtp8vg';
@@ -21,6 +21,49 @@ describe('Validate.blockedApiKeys', () => {
 
     Validate.blockedApiKeys.delete(validApiKey);
     assert.equal(Validate.apiKey(req), validApiKey);
+  });
+});
+
+describe('Validate.blockedClientIps', () => {
+  const viewer = (addr?: string): ReturnType<typeof mockUrlRequest> =>
+    mockUrlRequest('/v1/blank', '', addr ? { 'cloudfront-viewer-address': addr } : {});
+
+  it('should get client ip without port', () => {
+    assert.equal(getClientIp(viewer('203.0.113.10:46532')), '203.0.113.10');
+    assert.equal(getClientIp(viewer('[2001:db8::1]:46532')), '[2001:db8::1]');
+    assert.equal(getClientIp(viewer('203.0.113.10')), '203.0.113.10');
+    assert.equal(getClientIp(viewer('[2001:db8::1]')), '[2001:db8::1]');
+    assert.equal(getClientIp(viewer()), undefined);
+  });
+
+  it('should normalize ips', () => {
+    assert.equal(normalizeIp(' 203.0.113.10 '), '203.0.113.10');
+    assert.equal(normalizeIp('2001:DB8::1'), '[2001:db8::1]');
+    assert.equal(normalizeIp('[2001:db8::1]'), '[2001:db8::1]');
+  });
+
+  it('should block ipv4 clients', () => {
+    const req = viewer('203.0.113.10:46532');
+    assert.equal(Validate.clientIp(req), '203.0.113.10');
+
+    Validate.blockedClientIps.add(normalizeIp('203.0.113.10'));
+    assert.throws(() => Validate.clientIp(req));
+    assert.equal(Validate.clientIp(viewer('203.0.113.11:46532')), '203.0.113.11');
+
+    Validate.blockedClientIps.delete(normalizeIp('203.0.113.10'));
+    assert.equal(Validate.clientIp(req), '203.0.113.10');
+  });
+
+  it('should block ipv6 clients', () => {
+    const req = viewer('[2001:db8::1]:46532');
+    Validate.blockedClientIps.add(normalizeIp('2001:DB8::1'));
+    assert.throws(() => Validate.clientIp(req));
+    Validate.blockedClientIps.delete(normalizeIp('2001:DB8::1'));
+    assert.equal(Validate.clientIp(req), '[2001:db8::1]');
+  });
+
+  it('should allow requests without a client address', () => {
+    assert.equal(Validate.clientIp(viewer()), undefined);
   });
 });
 

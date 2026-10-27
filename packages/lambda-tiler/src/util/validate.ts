@@ -34,9 +34,64 @@ function getBlockedApiKeys(): string[] {
   }
 }
 
+/**
+ * Normalize an IP address so it can be compared against the CloudFront-Viewer-Address header,
+ * IPv6 addresses are lowercased and wrapped in "[]"
+ */
+export function normalizeIp(ip: string): string {
+  const trimmed = ip.trim().toLowerCase();
+  if (trimmed.includes(':') && !trimmed.startsWith('[')) return `[${trimmed}]`;
+  return trimmed;
+}
+
+function getBlockedClientIps(): string[] {
+  try {
+    const ips = JSON.parse(Env.get(Env.BlockedClientIps) ?? '[]') as string[];
+    return ips.map(normalizeIp);
+  } catch (e) {
+    LogConfig.get().error(`"$${Env.BlockedClientIps}" is invalid`);
+    return [];
+  }
+}
+
+/**
+ * Get the client's IP address from the CloudFront-Viewer-Address header, removing the port
+ *
+ * @example
+ * "203.0.113.10:46532" => "203.0.113.10"
+ * "[2001:db8::1]:46532" => "[2001:db8::1]"
+ */
+export function getClientIp(req: LambdaHttpRequest): string | undefined {
+  const addr = req.header('cloudfront-viewer-address');
+  if (addr == null) return undefined;
+  const portIndex = addr.lastIndexOf(':');
+  if (portIndex === -1 || addr.endsWith(']')) return addr;
+  return addr.slice(0, portIndex);
+}
+
 export const Validate = {
   /** list of API Keys that have been disabled */
   blockedApiKeys: new Set<string>(getBlockedApiKeys()),
+
+  /** list of client IP addresses that have been disabled, normalized with {@link normalizeIp} */
+  blockedClientIps: new Set<string>(getBlockedClientIps()),
+
+  /**
+   * Validate that the client's IP address has not been blocked
+   *
+   * @throws if the client IP is blocked
+   */
+  clientIp(req: LambdaHttpRequest): string | undefined {
+    const clientIp = getClientIp(req);
+    if (clientIp == null) return undefined;
+
+    if (this.blockedClientIps.has(normalizeIp(clientIp))) {
+      req.set('clientIpBlocked', true);
+      throw new LambdaHttpResponse(429, 'Too many requests! Please contact basemaps@linz.govt.nz');
+    }
+
+    return clientIp;
+  },
 
   /**
    * Validate that the api key exists and is valid
