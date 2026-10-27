@@ -4,12 +4,7 @@
     <meta charset="utf-8" />
     <title>Maplibre Elevation With Terrain-rgb Demo</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <script
-      src="https://unpkg.com/maplibre-gl@4.0.1/dist/maplibre-gl.js"
-      integrity="sha384-QjD9FqfhisGHV+cOv+EZTmWGaKkTJgx6gRP7pgmyQns3aWACZb18pTpxTmRRAaDF"
-      crossorigin="anonymous"
-    ></script>
-    <link href="https://unpkg.com/maplibre-gl@4.0.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <link href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
       body {
         margin: 0;
@@ -27,7 +22,9 @@
 
   <body>
     <div id="map"></div>
-    <script>
+    <script type="module">
+      import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs';
+
       const apiKey = localStorage.getItem('api-key');
       if (apiKey == null) throw new Error('Missing api-key in localStorage');
 

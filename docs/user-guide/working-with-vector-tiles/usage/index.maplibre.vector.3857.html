@@ -1,8 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <link href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
       body {
         margin: 0;
@@ -15,7 +14,9 @@
   </head>
   <body>
     <div id="map"></div>
-    <script>
+    <script type="module">
+      import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs';
+
       const map = new maplibregl.Map({
         container: 'map',
         style: 'https://basemaps.linz.govt.nz/v1/styles/topolite-v2.json?api=c01jwykec5weqkbr50vc30xwzgs',
