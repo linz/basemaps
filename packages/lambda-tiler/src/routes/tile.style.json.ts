@@ -385,7 +385,10 @@ export async function styleJsonGet(req: LambdaHttpRequest<StyleGet>): Promise<La
   // convert sources to full URLS and convert style between projections
   setStyleUrls(targetStyle, tileMatrix, apiKey, ConfigLoader.extract(req));
 
-  if (tileMatrix.identifier === Nztm2000QuadTms.identifier) convertStyleToNztmStyle(targetStyle, false);
+  if (tileMatrix.identifier === Nztm2000QuadTms.identifier) {
+    convertStyleToNztmStyle(targetStyle, false);
+    targetStyle.projection = { type: tileMatrix.projection.toEpsgString() };
+  }
 
   // filter out any excluded layers
   if (excluded.size > 0) targetStyle.layers = targetStyle.layers.filter((f) => !excluded.has(f.id.toLowerCase()));
