@@ -4,25 +4,10 @@
     <meta charset="utf-8" />
     <title>Maplibre WGS84 Swipe between raster and vector maps Demo</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <script
-      src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"
-      integrity="sha384-jzJlE25T0D6awCZu40rkb9hFa6fxUC8/IN9wKY49uH9k/PP5efecoiru/RGCszy2"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.js"
-      integrity="sha384-YAsv3Nk7n9hAR/gbvgvtGvq2TV1hvEpFks3bGIs451f9D0jSn070rHje6Swuo7bL"
-      crossorigin="anonymous"
-    ></script>
-    <link href="https://unpkg.com/maplibre-gl@1.14.0-rc.1/dist/maplibre-gl.css" rel="stylesheet" />
-    <script
-      src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"
-      integrity="sha384-4vY2uVrBcMvF9vEZC0sp2hF66Ux2LY8PbIv23Mx1LQ1J+WyNUajJwqfiWVAIBUGA"
-      crossorigin="anonymous"
-    ></script>
+    <link href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css" rel="stylesheet" />
     <link
       rel="stylesheet"
-      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css"
+      href="https://unpkg.com/@maplibre/maplibre-gl-compare@0.5.0/dist/maplibre-gl-compare.css"
       type="text/css"
     />
     <style>
@@ -53,7 +38,28 @@
       <div id="raster" class="map"></div>
       <div id="vector" class="map"></div>
     </div>
+    <!-- The compare plugin is a classic script that adds Compare to a global maplibregl object. -->
     <script>
+      window.maplibregl = {};
+    </script>
+    <script
+      src="https://unpkg.com/@maplibre/maplibre-gl-compare@0.5.0/dist/maplibre-gl-compare.js"
+      integrity="sha384-PbnOMeczeF8frBARf822XaLnOV2gX5rZUyrdmvX9W2asT2JXwHMMxrMoXde4xPlX"
+      crossorigin="anonymous"
+    ></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "maplibre-gl": "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs"
+        },
+        "integrity": {
+          "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs": "sha384-uLwQnFL74rrONqIWx/ubL4wcAtA2h08tbMDZd9U4KbQ7GhaA7S1XKepHU89UkU7C"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as maplibregl from 'maplibre-gl';
+
       const apiKey = localStorage.getItem('api-key');
       if (!apiKey) {
         throw new Error('Missing api-key in localStorage');
@@ -102,7 +108,7 @@
       // A selector or reference to HTML element
       var container = '#comparison-container';
 
-      new mapboxgl.Compare(raster, vector, container, {
+      new window.maplibregl.Compare(raster, vector, container, {
         mousemove: true, // Optional. Set to true to enable swiping during cursor movement.
         orientation: 'vertical', // Optional. Sets the orientation of swiper to horizontal or vertical, defaults to vertical
       });

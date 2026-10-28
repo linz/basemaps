@@ -4,12 +4,7 @@
     <meta charset="utf-8" />
     <title>Maplibre WGS84 Topographic Vector Basemaps Demo</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.css" />
-    <script
-      src="https://unpkg.com/maplibre-gl@3.6.0/dist/maplibre-gl.js"
-      integrity="sha384-EYXW8ZhnlWPofZd2XtrFMKIJZXd8x1vTls280ww621jL26+4304H6YXxvU6RcKYd"
-      crossorigin="anonymous"
-    ></script>
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css" />
     <style>
       body {
         margin: 0;
@@ -27,7 +22,19 @@
 
   <body>
     <div id="map"></div>
-    <script>
+    <script type="importmap">
+      {
+        "imports": {
+          "maplibre-gl": "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs"
+        },
+        "integrity": {
+          "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs": "sha384-uLwQnFL74rrONqIWx/ubL4wcAtA2h08tbMDZd9U4KbQ7GhaA7S1XKepHU89UkU7C"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as maplibregl from 'maplibre-gl';
+
       const startPos = [173, -40.5];
       const startZoom = 6;
 

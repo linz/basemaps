@@ -1,8 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <link href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css" rel="stylesheet" />
     <style>
       body {
         margin: 0;
@@ -17,7 +16,19 @@
 
   <body>
     <div id="map"></div>
-    <script>
+    <script type="importmap">
+      {
+        "imports": {
+          "maplibre-gl": "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs"
+        },
+        "integrity": {
+          "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs": "sha384-uLwQnFL74rrONqIWx/ubL4wcAtA2h08tbMDZd9U4KbQ7GhaA7S1XKepHU89UkU7C"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as maplibregl from 'maplibre-gl';
+
       const map = new maplibregl.Map({
         container: 'map',
 
