@@ -75,8 +75,18 @@
       </div>
     </div>
 
+    <script type="importmap">
+      {
+        "imports": {
+          "maplibre-gl": "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs"
+        },
+        "integrity": {
+          "https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs": "sha384-uLwQnFL74rrONqIWx/ubL4wcAtA2h08tbMDZd9U4KbQ7GhaA7S1XKepHU89UkU7C"
+        }
+      }
+    </script>
     <script type="module">
-      import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs';
+      import * as maplibregl from 'maplibre-gl';
 
       // vector layers
       const styleUrl =
