@@ -1,6 +1,6 @@
 {
   "name": "@basemaps/lambda-analytic-cloudfront",
-  "version": "8.9.11",
+  "version": "8.9.12",
   "private": true,
   "repository": {
     "type": "git",
@@ -18,9 +18,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@basemaps/config": "^8.13.2",
+    "@basemaps/config": "^8.14.0",
     "@basemaps/geo": "^8.9.1",
-    "@basemaps/shared": "^8.10.0",
+    "@basemaps/shared": "^8.10.1",
     "@elastic/elasticsearch": "^8.16.2",
     "@linzjs/lambda": "^4.2.0",
     "ua-parser-js": "^1.0.39"
