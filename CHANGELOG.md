@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.24.0](https://github.com/linz/basemaps/compare/v8.23.0...v8.24.0) (2026-10-29)
+
+
+### Features
+
+* add "projection" stylejson key for maplibre v6+ support ([#3673](https://github.com/linz/basemaps/issues/3673)) ([3c96aac](https://github.com/linz/basemaps/commit/3c96aac57bad0a38e8126c005446933b9f8f78ec))
+
 ## [8.23.0](https://github.com/linz/basemaps/compare/v8.22.1...v8.23.0) (2026-10-27)
 
 

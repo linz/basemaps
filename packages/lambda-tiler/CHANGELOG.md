@@ -3,6 +3,24 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.15.0](https://github.com/linz/basemaps/compare/lambda-tiler-v8.14.0...lambda-tiler-v8.15.0) (2026-10-29)
+
+
+### Features
+
+* add "projection" stylejson key for maplibre v6+ support ([#3673](https://github.com/linz/basemaps/issues/3673)) ([3c96aac](https://github.com/linz/basemaps/commit/3c96aac57bad0a38e8126c005446933b9f8f78ec))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.13.2 to ^8.14.0
+    * @basemaps/config-loader bumped from ^8.12.6 to ^8.12.7
+    * @basemaps/shared bumped from ^8.10.0 to ^8.10.1
+    * @basemaps/tiler bumped from ^8.12.3 to ^8.12.4
+    * @basemaps/tiler-sharp bumped from ^8.12.0 to ^8.12.1
+
 ## [8.14.0](https://github.com/linz/basemaps/compare/lambda-tiler-v8.13.4...lambda-tiler-v8.14.0) (2026-10-27)
 
 

@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [8.10.1](https://github.com/linz/basemaps/compare/shared-v8.10.0...shared-v8.10.1) (2026-10-29)
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @basemaps/config bumped from ^8.13.2 to ^8.14.0
+
 ## [8.10.0](https://github.com/linz/basemaps/compare/shared-v8.9.9...shared-v8.10.0) (2026-10-27)
 
 
