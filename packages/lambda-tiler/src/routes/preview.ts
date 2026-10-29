@@ -27,7 +27,7 @@ export interface PreviewGet {
 }
 
 const PreviewSize = { width: 1200, height: 630 };
-const TilerSharp = new TileMakerSharp(PreviewSize.width, PreviewSize.height);
+const TilerSharp = new TileMakerSharp();
 
 /** Slightly grey color for the checker background */
 const PreviewBackgroundFillColor = 0xef;
@@ -144,6 +144,8 @@ export async function renderPreview(req: LambdaHttpRequest, ctx: PreviewRenderCo
   const tileOutput = ctx.output;
   const tileContext: TileMakerContext = {
     layers: compositions,
+    width: PreviewSize.width,
+    height: PreviewSize.height,
     pipeline: tileOutput.pipeline,
     format: tileOutput.format?.[0] ?? 'webp', // default to the first output format if defined or webp
     background: tileOutput.background ?? ctx.tileSet.background ?? DefaultBackground,
@@ -195,7 +197,7 @@ function getBaseImage(bg?: { r: number; g: number; b: number; alpha: number }): 
     });
     return sharp(buf.buffer, { raw: buf.raw });
   }
-  return TilerSharp.createImage(bg);
+  return TilerSharp.createImage(bg, PreviewSize.width, PreviewSize.height);
 }
 
 export interface CheckerBoard {

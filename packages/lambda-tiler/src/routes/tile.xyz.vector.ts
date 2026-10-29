@@ -13,6 +13,7 @@ export const tileXyzVector = {
   /** Serve a MVT vector tile */
   async tile(req: LambdaHttpRequest, tileSet: ConfigTileSetVector, xyz: TileXyz): Promise<LambdaHttpResponse> {
     if (xyz.tileType !== 'pbf') return NotFound();
+    if (xyz.scale !== 1) throw new LambdaHttpResponse(400, `Scale factor is not supported for vector tiles`);
 
     // Vector tiles cannot be merged (yet!)
     if (tileSet.layers.length > 1) {
