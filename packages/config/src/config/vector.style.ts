@@ -74,6 +74,16 @@ export interface Terrain {
   exaggeration: number;
 }
 
+/**
+ * https://maplibre.org/maplibre-style-spec/projection/
+ *
+ * `type` is either one of MapLibre's built in projections ("mercator" | "globe")
+ * or the name of a projection registered with `maplibregl.addProjection()`, eg "EPSG:2193"
+ */
+export interface Projection {
+  type: string;
+}
+
 export type Source = SourceVector | SourceRaster | SourceRasterDem;
 
 export type Sources = Record<string, Source>;
@@ -107,6 +117,9 @@ export interface StyleJson {
 
   /** OPTIONAL - A global modifier that elevates layers and markers based on a DEM data source */
   terrain?: Terrain;
+
+  /** OPTIONAL - The projection the tiles are served in, if not the default "mercator" */
+  projection?: Projection;
 }
 
 export interface ConfigVectorStyle extends ConfigBase {

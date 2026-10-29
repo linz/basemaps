@@ -582,5 +582,6 @@ describe('/v1/styles', () => {
         ],
       },
     });
+    assert.deepEqual(style.projection, { type: 'EPSG:2193' });
   });
 });
