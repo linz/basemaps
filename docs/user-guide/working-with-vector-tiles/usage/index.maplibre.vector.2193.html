@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <script src="https://unpkg.com/proj4@2.20.2/dist/proj4.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+      body {
+        margin: 0;
+      }
+      #map {
+        height: 100vh;
+        width: 100vw;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script type="module">
+      import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs';
+
+      // NZTM2000, with the NZTM2000Quad tile matrix set:
+      // the top-left corner of tile 0/0/0 and its width in metres.
+      maplibregl.addProjection({
+        name: 'EPSG:2193',
+        projection: proj4(
+          'EPSG:4326',
+          '+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs',
+        ),
+        tileMatrixSet: { origin: [-3260586.7284, 10438190.1652], extentAtZoom0: 10018754.1714 },
+      });
+
+      const style = await fetch(
+        'https://basemaps.linz.govt.nz/v1/styles/topolite-v2.json?tileMatrix=NZTM2000Quad&api=c01jwykec5weqkbr50vc30xwzgs',
+      ).then((res) => res.json());
+      style.projection = { type: 'EPSG:2193' };
+
+      const map = new maplibregl.Map({
+        container: 'map',
+        style,
+        center: [174.7633, -36.8485],
+        zoom: 8,
+      });
+    </script>
+  </body>
+</html>
