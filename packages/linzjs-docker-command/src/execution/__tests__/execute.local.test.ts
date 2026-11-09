@@ -21,7 +21,8 @@ describe('LocalExecution', () => {
     const expected = JSON.stringify({ layers: [{ name: 'water_polygons' }] });
     const printf = new Command('printf');
 
-    for (let i = 0; i < 3; i++) {  // The first batch is not always affected, so run a few
+    for (let i = 0; i < 3; i++) {
+      // The first batch is not always affected, so run a few
       const runs = Array.from({ length: 20 }, () => printf.create().arg('%s', expected).run());
       blockEventLoop(100);
 
