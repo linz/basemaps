@@ -15,8 +15,9 @@ export const ExecutorLocal: Executor = {
     child.stdout.on('data', (chunk: string) => stdout.push(chunk));
     child.stderr.on('data', (chunk: string) => stderr.push(chunk));
 
-    return new Promise((resolve) => {
-      child.on('exit', (exitCode: number) => {
+    return new Promise((resolve, reject) => {
+      child.on('error', reject);
+      child.on('close', (exitCode: number) => {
         resolve(new CommandExecutionResult(cmd, exitCode, stdout.join(''), stderr.join(''), Date.now() - startTime));
       });
     });
